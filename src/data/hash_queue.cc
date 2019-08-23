@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
+#include <chrono>
 #include <functional>
-#include <unistd.h>
+#include <thread>
 
 #include "data/chunk.h"
 #include "data/chunk_list_node.h"
@@ -116,7 +117,7 @@ HashQueue::remove(HashQueueNode::id_type id) {
       while ((done_itr = m_done_chunks.find(hash_chunk)) ==
              m_done_chunks.end()) {
         pthread_mutex_unlock(&m_done_chunks_lock);
-        usleep(100);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
         pthread_mutex_lock(&m_done_chunks_lock);
       }
 
