@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -36,9 +36,9 @@
 
 #include "config.h"
 
-#include "hash_chunk.h"
 #include "chunk.h"
 #include "chunk_list_node.h"
+#include "hash_chunk.h"
 
 namespace torrent {
 
@@ -47,8 +47,9 @@ HashChunk::perform(uint32_t length, bool force) {
   length = std::min(length, remaining());
 
   if (m_position + length > m_chunk.chunk()->chunk_size())
-    throw internal_error("HashChunk::perform(...) received length out of range");
-  
+    throw internal_error(
+      "HashChunk::perform(...) received length out of range");
+
   uint32_t l = force ? length : m_chunk.chunk()->incore_length(m_position);
 
   bool complete = l == length;
@@ -68,7 +69,8 @@ HashChunk::advise_willneed(uint32_t length) {
     throw internal_error("HashChunk::willneed(...) called on an invalid chunk");
 
   if (m_position + length > m_chunk.chunk()->chunk_size())
-    throw internal_error("HashChunk::willneed(...) received length out of range");
+    throw internal_error(
+      "HashChunk::willneed(...) received length out of range");
 
   uint32_t pos = m_position;
 
@@ -79,7 +81,7 @@ HashChunk::advise_willneed(uint32_t length) {
 
     itr->chunk().advise(pos - itr->position(), l, MemoryChunk::advice_willneed);
 
-    pos    += l;
+    pos += l;
     length -= l;
     ++itr;
   }
@@ -88,11 +90,11 @@ HashChunk::advise_willneed(uint32_t length) {
 uint32_t
 HashChunk::perform_part(Chunk::iterator itr, uint32_t length) {
   length = std::min(length, remaining_part(itr, m_position));
-  
+
   m_hash.update(itr->chunk().begin() + m_position - itr->position(), length);
   m_position += length;
 
   return length;
 }
 
-}
+} // namespace torrent

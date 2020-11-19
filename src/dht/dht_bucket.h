@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -55,93 +55,119 @@ class DhtBucket : private std::vector<DhtNode*> {
 public:
   static const unsigned int num_nodes = 8;
 
-  typedef std::vector<DhtNode*>      base_type;
+  typedef std::vector<DhtNode*> base_type;
 
   using base_type::const_iterator;
   using base_type::iterator;
 
   using base_type::begin;
+  using base_type::empty;
   using base_type::end;
   using base_type::size;
-  using base_type::empty;
 
   DhtBucket(const HashString& begin, const HashString& end);
 
   // Add new node. Does NOT set node's bucket automatically (to allow adding a
   // node to multiple buckets, with only one "main" bucket.)
-  void                add_node(DhtNode* n);
+  void add_node(DhtNode* n);
 
-  void                remove_node(DhtNode* n);
+  void remove_node(DhtNode* n);
 
   // Bucket's ID range functions.
-  const HashString&   id_range_begin() const                  { return m_begin; }
-  HashString&         id_range_begin()                        { return m_begin; }
-  const HashString&   id_range_end() const                    { return m_end; }
+  const HashString& id_range_begin() const {
+    return m_begin;
+  }
+  HashString& id_range_begin() {
+    return m_begin;
+  }
+  const HashString& id_range_end() const {
+    return m_end;
+  }
 
-  bool                is_in_range(const HashString& id) const { return m_begin <= id && id <= m_end; }
+  bool is_in_range(const HashString& id) const {
+    return m_begin <= id && id <= m_end;
+  }
 
   // Find middle or random ID in bucket.
-  void                get_mid_point(HashString* middle) const;
-  void                get_random_id(HashString* rand_id) const;
+  void get_mid_point(HashString* middle) const;
+  void get_random_id(HashString* rand_id) const;
 
   // Node counts and bucket stats.
-  bool                is_full() const                         { return size() >= num_nodes; }
-  bool                has_space() const                       { return !is_full() || num_bad() > 0; }
-  unsigned int        num_good() const                        { return m_good; }
-  unsigned int        num_bad() const                         { return m_bad; }
+  bool is_full() const {
+    return size() >= num_nodes;
+  }
+  bool has_space() const {
+    return !is_full() || num_bad() > 0;
+  }
+  unsigned int num_good() const {
+    return m_good;
+  }
+  unsigned int num_bad() const {
+    return m_bad;
+  }
 
-  unsigned int        age() const                             { return cachedTime.seconds() - m_lastChanged; }
-  void                touch()                                 { m_lastChanged = cachedTime.seconds(); }
-  void                set_time(int32_t time)                  { m_lastChanged = time; }
+  unsigned int age() const {
+    return cachedTime.seconds() - m_lastChanged;
+  }
+  void touch() {
+    m_lastChanged = cachedTime.seconds();
+  }
+  void set_time(int32_t time) {
+    m_lastChanged = time;
+  }
 
   // Called every 15 minutes after updating nodes.
-  void                update();
+  void update();
 
   // Return candidate for replacement (a bad node or the oldest node); may
   // return end() unless has_space() is true.
-  iterator            find_replacement_candidate(bool onlyOldest = false);
+  iterator find_replacement_candidate(bool onlyOldest = false);
 
   // Split the bucket in two and redistribute nodes. Returned bucket is the
   // lower half, "this" bucket keeps the upper half.   Sets parent/child so
   // that the bucket the given ID falls in is the child.
-  DhtBucket*          split(const HashString& id);
+  DhtBucket* split(const HashString& id);
 
   // Parent and child buckets.  Parent is the adjacent bucket with double the
   // ID width, child the adjacent bucket with half the width (except the very
   // last child which has the same width.)
-  DhtBucket*          parent() const                          { return m_parent; }
-  DhtBucket*          child() const                           { return m_child; }
+  DhtBucket* parent() const {
+    return m_parent;
+  }
+  DhtBucket* child() const {
+    return m_child;
+  }
 
   // Return a full bucket's worth of compact node data. If this bucket is not
   // full, it uses nodes from the child/parent buckets until we have enough.
-  raw_string          full_bucket();
+  raw_string full_bucket();
 
   // Called by the DhtNode on its bucket to update good/bad node counts.
-  void                node_now_good(bool was_bad);
-  void                node_now_bad(bool was_good);
+  void node_now_good(bool was_bad);
+  void node_now_bad(bool was_good);
 
 private:
-  void                count();
+  void count();
 
-  void                build_full_cache();
+  void build_full_cache();
 
-  DhtBucket*          m_parent;
-  DhtBucket*          m_child;
-  
-  int32_t             m_lastChanged;
+  DhtBucket* m_parent;
+  DhtBucket* m_child;
 
-  unsigned int        m_good;
-  unsigned int        m_bad;
+  int32_t m_lastChanged;
 
-  size_t              m_fullCacheLength;
+  unsigned int m_good;
+  unsigned int m_bad;
+
+  size_t m_fullCacheLength;
 
   // These are 40 bytes together, so might as well put them last.
   // m_end is const because it is used as key for the DhtRouter routing table
   // map, which would be inconsistent if m_end were changed carelessly.
-  HashString          m_begin;
-  const HashString    m_end;
+  HashString       m_begin;
+  const HashString m_end;
 
-  char                m_fullCache[num_nodes * 26];
+  char m_fullCache[num_nodes * 26];
 };
 
 // Helper class to recursively follow a chain of buckets.  It first recurses
@@ -149,14 +175,18 @@ private:
 // then continues with the bucket's parents.
 class DhtBucketChain {
 public:
-  DhtBucketChain(const DhtBucket* b) : m_restart(b), m_cur(b) { }
+  DhtBucketChain(const DhtBucket* b)
+    : m_restart(b)
+    , m_cur(b) {}
 
-  const DhtBucket*          bucket()                          { return m_cur; }
-  const DhtBucket*          next();
+  const DhtBucket* bucket() {
+    return m_cur;
+  }
+  const DhtBucket* next();
 
 private:
-  const DhtBucket*          m_restart;
-  const DhtBucket*          m_cur;
+  const DhtBucket* m_restart;
+  const DhtBucket* m_cur;
 };
 
 inline void
@@ -190,7 +220,7 @@ DhtBucketChain::next() {
     m_cur = m_cur->child();
 
     if (m_cur == NULL) {
-      m_cur = m_restart->parent();
+      m_cur     = m_restart->parent();
       m_restart = NULL;
     }
   }
@@ -198,6 +228,6 @@ DhtBucketChain::next() {
   return m_cur;
 }
 
-}
+} // namespace torrent
 
 #endif

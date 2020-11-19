@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -58,68 +58,100 @@ public:
   DownloadWrapper();
   ~DownloadWrapper();
 
-  DownloadInfo*       info()                                  { return m_main->info(); }
-  download_data*      data()                                  { return m_main->file_list()->mutable_data(); }
-  FileList*           file_list()                             { return m_main->file_list(); }
-  ChunkList*          chunk_list()                            { return m_main->chunk_list(); }
+  DownloadInfo* info() {
+    return m_main->info();
+  }
+  download_data* data() {
+    return m_main->file_list()->mutable_data();
+  }
+  FileList* file_list() {
+    return m_main->file_list();
+  }
+  ChunkList* chunk_list() {
+    return m_main->chunk_list();
+  }
 
   // Initialize hash checker and various download stuff.
-  void                initialize(const std::string& hash, const std::string& id);
+  void initialize(const std::string& hash, const std::string& id);
 
-  void                close();
+  void close();
 
-  bool                is_stopped() const;
+  bool is_stopped() const;
 
-  DownloadMain*       main()                                  { return m_main; }
-  const DownloadMain* main() const                            { return m_main; }
-  HashTorrent*        hash_checker()                          { return m_hashChecker; }
+  DownloadMain* main() {
+    return m_main;
+  }
+  const DownloadMain* main() const {
+    return m_main;
+  }
+  HashTorrent* hash_checker() {
+    return m_hashChecker;
+  }
 
-  Object*             bencode()                               { return m_bencode; }
-  void                set_bencode(Object* o)                  { m_bencode = o; }
+  Object* bencode() {
+    return m_bencode;
+  }
+  void set_bencode(Object* o) {
+    m_bencode = o;
+  }
 
-  HashQueue*          hash_queue()                            { return m_hashQueue; }
-  void                set_hash_queue(HashQueue* q)            { m_hashQueue = q; }
+  HashQueue* hash_queue() {
+    return m_hashQueue;
+  }
+  void set_hash_queue(HashQueue* q) {
+    m_hashQueue = q;
+  }
 
-  const std::string&  complete_hash()                            { return m_hash; }
-  const char*         chunk_hash(unsigned int index)             { return m_hash.c_str() + 20 * index; }
-  void                set_complete_hash(const std::string& hash) { m_hash = hash; }
+  const std::string& complete_hash() {
+    return m_hash;
+  }
+  const char* chunk_hash(unsigned int index) {
+    return m_hash.c_str() + 20 * index;
+  }
+  void set_complete_hash(const std::string& hash) {
+    m_hash = hash;
+  }
 
-  int                 connection_type() const                 { return m_connectionType; }
-  void                set_connection_type(int t)              { m_connectionType = t; }
+  int connection_type() const {
+    return m_connectionType;
+  }
+  void set_connection_type(int t) {
+    m_connectionType = t;
+  }
 
   //
   // Internal:
   //
 
-  void                receive_initial_hash();
-  void                receive_hash_done(ChunkHandle handle, const char* hash);
+  void receive_initial_hash();
+  void receive_hash_done(ChunkHandle handle, const char* hash);
 
-  void                check_chunk_hash(ChunkHandle handle);
+  void check_chunk_hash(ChunkHandle handle);
 
-  void                receive_storage_error(const std::string& str);
-  uint32_t            receive_tracker_success(AddressList* l);
-  void                receive_tracker_failed(const std::string& msg);
+  void     receive_storage_error(const std::string& str);
+  uint32_t receive_tracker_success(AddressList* l);
+  void     receive_tracker_failed(const std::string& msg);
 
-  void                receive_tick(uint32_t ticks);
+  void receive_tick(uint32_t ticks);
 
-  void                receive_update_priorities();
+  void receive_update_priorities();
 
 private:
   DownloadWrapper(const DownloadWrapper&);
-  void operator = (const DownloadWrapper&);
+  void operator=(const DownloadWrapper&);
 
-  void                finished_download();
+  void finished_download();
 
-  DownloadMain*       m_main;
-  Object*             m_bencode;
-  HashTorrent*        m_hashChecker;
-  HashQueue*          m_hashQueue;
+  DownloadMain* m_main;
+  Object*       m_bencode;
+  HashTorrent*  m_hashChecker;
+  HashQueue*    m_hashQueue;
 
-  std::string         m_hash;
+  std::string m_hash;
 
-  int                 m_connectionType;
+  int m_connectionType;
 };
 
-}
+} // namespace torrent
 
 #endif

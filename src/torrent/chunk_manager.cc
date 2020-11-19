@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -36,36 +36,40 @@
 
 #include "config.h"
 
-#include <sys/types.h>
-#include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 #include "data/chunk_list.h"
 #include "utils/instrumentation.h"
 
-#include "exceptions.h"
 #include "chunk_manager.h"
+#include "exceptions.h"
 #include "globals.h"
 
 namespace torrent {
 
-ChunkManager::ChunkManager() :
-  m_memoryUsage(0),
-  m_memoryBlockCount(0),
+ChunkManager::ChunkManager()
+  : m_memoryUsage(0)
+  , m_memoryBlockCount(0)
+  ,
 
-  m_safeSync(false),
-  m_timeoutSync(600),
-  m_timeoutSafeSync(900),
+  m_safeSync(false)
+  , m_timeoutSync(600)
+  , m_timeoutSafeSync(900)
+  ,
 
-  m_preloadType(0),
-  m_preloadMinSize(256 << 10),
-  m_preloadRequiredRate(5 << 10),
+  m_preloadType(0)
+  , m_preloadMinSize(256 << 10)
+  , m_preloadRequiredRate(5 << 10)
+  ,
 
-  m_statsPreloaded(0),
-  m_statsNotPreloaded(0),
+  m_statsPreloaded(0)
+  , m_statsNotPreloaded(0)
+  ,
 
-  m_timerStarved(0),
-  m_lastFreed(0) {
+  m_timerStarved(0)
+  , m_lastFreed(0) {
 
   // 1/5 of the available memory should be enough for the client. If
   // the client really requires alot more memory it should call this
@@ -75,7 +79,8 @@ ChunkManager::ChunkManager() :
 
 ChunkManager::~ChunkManager() noexcept(false) {
   if (m_memoryUsage != 0 || m_memoryBlockCount != 0)
-    throw internal_error("ChunkManager::~ChunkManager() m_memoryUsage != 0 || m_memoryBlockCount != 0.");
+    throw internal_error("ChunkManager::~ChunkManager() m_memoryUsage != 0 || "
+                         "m_memoryBlockCount != 0.");
 }
 
 uint64_t
@@ -101,7 +106,7 @@ ChunkManager::sync_queue_size() const {
 uint64_t
 ChunkManager::estimate_max_memory_usage() {
   rlimit rlp;
-  
+
 #ifdef RLIMIT_AS
   if (getrlimit(RLIMIT_AS, &rlp) == 0 && rlp.rlim_cur != RLIM_INFINITY)
 #else
@@ -127,7 +132,8 @@ ChunkManager::insert(ChunkList* chunkList) {
 void
 ChunkManager::erase(ChunkList* chunkList) {
   if (chunkList->queue_size() != 0)
-    throw internal_error("ChunkManager::erase(...) chunkList->queue_size() != 0.");
+    throw internal_error(
+      "ChunkManager::erase(...) chunkList->queue_size() != 0.");
 
   iterator itr = std::find(base_type::begin(), base_type::end(), chunkList);
 
@@ -221,12 +227,13 @@ ChunkManager::sync_all(int flags, uint64_t target) {
   do {
     if (itr == base_type::end())
       itr = base_type::begin();
-    
+
     (*itr)->sync_chunks(flags);
 
-  } while (++itr != base_type::begin() + m_lastFreed && m_memoryUsage >= target);
+  } while (++itr != base_type::begin() + m_lastFreed &&
+           m_memoryUsage >= target);
 
   m_lastFreed = itr - begin();
 }
 
-}
+} // namespace torrent

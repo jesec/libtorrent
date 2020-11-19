@@ -10,10 +10,12 @@ namespace torrent {
 void
 Event::close_file_descriptor() {
   if (!is_open())
-    throw internal_error("Tried to close already closed file descriptor on event type " + std::string(type_name()));
+    throw internal_error(
+      "Tried to close already closed file descriptor on event type " +
+      std::string(type_name()));
 
   fd_close(m_fileDesc);
   m_fileDesc = -1;
 }
 
-}
+} // namespace torrent

@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -44,12 +44,12 @@
 
 namespace torrent {
 
-template <typename RangesType>
-class ranges : private std::vector<std::pair<RangesType, RangesType> > {
+template<typename RangesType>
+class ranges : private std::vector<std::pair<RangesType, RangesType>> {
 public:
-  typedef std::vector<std::pair<RangesType, RangesType> > base_type;
+  typedef std::vector<std::pair<RangesType, RangesType>> base_type;
 
-  typedef RangesType                           bound_type;
+  typedef RangesType bound_type;
 
   typedef typename base_type::value_type       value_type;
   typedef typename base_type::reference        reference;
@@ -57,43 +57,50 @@ public:
   typedef typename base_type::const_iterator   const_iterator;
   typedef typename base_type::reverse_iterator reverse_iterator;
 
+  using base_type::begin;
   using base_type::clear;
   using base_type::empty;
-  using base_type::size;
-  using base_type::begin;
   using base_type::end;
   using base_type::rbegin;
   using base_type::rend;
+  using base_type::size;
 
-  using base_type::front;
   using base_type::back;
+  using base_type::front;
 
-  void                insert(bound_type first, bound_type last) { insert(std::make_pair(first, last)); }
-  void                erase(bound_type first, bound_type last)  { erase(std::make_pair(first, last)); }
+  void insert(bound_type first, bound_type last) {
+    insert(std::make_pair(first, last));
+  }
+  void erase(bound_type first, bound_type last) {
+    erase(std::make_pair(first, last));
+  }
 
-  void                insert(value_type r);
-  void                erase(value_type r);
+  void insert(value_type r);
+  void erase(value_type r);
 
   // Find the first ranges that has an end greater than index.
-  iterator            find(bound_type index);
-  const_iterator      find(bound_type index) const;
+  iterator       find(bound_type index);
+  const_iterator find(bound_type index) const;
 
   // Use find with no closest match.
-  bool                has(bound_type index) const;
+  bool has(bound_type index) const;
 
-  size_t              intersect_distance(bound_type first, bound_type last) const;
-  size_t              intersect_distance(value_type range) const;
+  size_t intersect_distance(bound_type first, bound_type last) const;
+  size_t intersect_distance(value_type range) const;
 
-  static ranges       create_union(const ranges& left, const ranges& right);
+  static ranges create_union(const ranges& left, const ranges& right);
 };
 
-template <typename RangesType>
+template<typename RangesType>
 void
 ranges<RangesType>::insert(value_type r) {
   if (r.first >= r.second)
     return;
 
-  iterator first = std::find_if(begin(), end(), rak::less_equal(r.first, rak::const_mem_ref(&value_type::second)));
+  iterator first = std::find_if(
+    begin(),
+    end(),
+    rak::less_equal(r.first, rak::const_mem_ref(&value_type::second)));
 
   if (first == end() || r.second < first->first) {
     // The new range is before the first, after the last or between
@@ -101,10 +108,13 @@ ranges<RangesType>::insert(value_type r) {
     base_type::insert(first, r);
 
   } else {
-    first->first = std::min(r.first, first->first);
+    first->first  = std::min(r.first, first->first);
     first->second = std::max(r.second, first->second);
 
-    iterator last = std::find_if(first, end(), rak::less(first->second, rak::const_mem_ref(&value_type::second)));
+    iterator last = std::find_if(
+      first,
+      end(),
+      rak::less(first->second, rak::const_mem_ref(&value_type::second)));
 
     if (last != end() && first->second >= last->first)
       first->second = (last++)->second;
@@ -113,14 +123,18 @@ ranges<RangesType>::insert(value_type r) {
   }
 }
 
-template <typename RangesType>
+template<typename RangesType>
 void
 ranges<RangesType>::erase(value_type r) {
   if (r.first >= r.second)
     return;
 
-  iterator first = std::find_if(begin(), end(), rak::less(r.first, rak::const_mem_ref(&value_type::second)));
-  iterator last  = std::find_if(first, end(), rak::less(r.second, rak::const_mem_ref(&value_type::second)));
+  iterator first =
+    std::find_if(begin(),
+                 end(),
+                 rak::less(r.first, rak::const_mem_ref(&value_type::second)));
+  iterator last = std::find_if(
+    first, end(), rak::less(r.second, rak::const_mem_ref(&value_type::second)));
 
   if (first == end())
     return;
@@ -139,7 +153,7 @@ ranges<RangesType>::erase(value_type r) {
 
     if (r.first > first->first)
       (first++)->second = r.first;
-    
+
     if (last != end() && r.second > last->first)
       last->first = r.second;
 
@@ -148,20 +162,22 @@ ranges<RangesType>::erase(value_type r) {
 }
 
 // Find the first ranges that has an end greater than index.
-template <typename RangesType>
+template<typename RangesType>
 inline typename ranges<RangesType>::iterator
 ranges<RangesType>::find(bound_type index) {
-  return std::find_if(begin(), end(), rak::less(index, rak::const_mem_ref(&value_type::second)));
+  return std::find_if(
+    begin(), end(), rak::less(index, rak::const_mem_ref(&value_type::second)));
 }
 
-template <typename RangesType>
+template<typename RangesType>
 inline typename ranges<RangesType>::const_iterator
 ranges<RangesType>::find(bound_type index) const {
-  return std::find_if(begin(), end(), rak::less(index, rak::const_mem_ref(&value_type::second)));
+  return std::find_if(
+    begin(), end(), rak::less(index, rak::const_mem_ref(&value_type::second)));
 }
 
 // Use find with no closest match.
-template <typename RangesType>
+template<typename RangesType>
 bool
 ranges<RangesType>::has(bound_type index) const {
   const_iterator itr = find(index);
@@ -169,14 +185,15 @@ ranges<RangesType>::has(bound_type index) const {
   return itr != end() && index >= itr->first;
 }
 
-template <typename RangesType>
+template<typename RangesType>
 size_t
-ranges<RangesType>::intersect_distance(bound_type first, bound_type last) const {
+ranges<RangesType>::intersect_distance(bound_type first,
+                                       bound_type last) const {
   return intersect_distance(std::make_pair(first, last));
 }
 
 // The total length of all the extents within the bounds of 'range'.
-template <typename RangesType>
+template<typename RangesType>
 size_t
 ranges<RangesType>::intersect_distance(value_type range) const {
   const_iterator first = find(range.first);
@@ -184,7 +201,8 @@ ranges<RangesType>::intersect_distance(value_type range) const {
   if (first == end() || range.second <= first->first)
     return 0;
 
-  size_t dist = std::min(range.second, first->second) - std::max(range.first, first->first);
+  size_t dist =
+    std::min(range.second, first->second) - std::max(range.first, first->first);
 
   while (++first != end() && range.second > first->first)
     dist += std::min(range.second, first->second) - first->first;
@@ -192,7 +210,7 @@ ranges<RangesType>::intersect_distance(value_type range) const {
   return dist;
 }
 
-template <typename RangesType>
+template<typename RangesType>
 ranges<RangesType>
 ranges<RangesType>::create_union(const ranges& left, const ranges& right) {
   if (left.empty())
@@ -203,9 +221,9 @@ ranges<RangesType>::create_union(const ranges& left, const ranges& right) {
 
   ranges result;
 
-  typename ranges::const_iterator left_itr = left.begin();
-  typename ranges::const_iterator left_last = left.end();
-  typename ranges::const_iterator right_itr = right.begin();
+  typename ranges::const_iterator left_itr   = left.begin();
+  typename ranges::const_iterator left_last  = left.end();
+  typename ranges::const_iterator right_itr  = right.begin();
   typename ranges::const_iterator right_last = right.end();
 
   if (left_itr->first < right_itr->first)
@@ -245,6 +263,6 @@ ranges<RangesType>::create_union(const ranges& left, const ranges& right) {
   return result;
 }
 
-}
+} // namespace torrent
 
 #endif

@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,39 +39,47 @@
 #include <algorithm>
 #include <functional>
 
-#include "block_transfer.h"
 #include "block_list.h"
+#include "block_transfer.h"
 #include "exceptions.h"
 
 namespace torrent {
 
-BlockList::BlockList(const Piece& piece, uint32_t blockLength) noexcept(false) :
-  m_piece(piece),
-  m_priority(PRIORITY_OFF),
-  m_finished(0),
+BlockList::BlockList(const Piece& piece, uint32_t blockLength) noexcept(false)
+  : m_piece(piece)
+  , m_priority(PRIORITY_OFF)
+  , m_finished(0)
+  ,
 
-  m_failed(0),
-  m_attempt(0),
+  m_failed(0)
+  , m_attempt(0)
+  ,
 
   m_bySeeder(false) {
 
   if (piece.length() == 0)
-    throw internal_error("BlockList::BlockList(...) received zero length piece.");
+    throw internal_error(
+      "BlockList::BlockList(...) received zero length piece.");
 
   // Look into optimizing this by using input iterators in the ctor.
   base_type::resize((m_piece.length() + blockLength - 1) / blockLength);
 
   // ATM assume offset of 0.
-//   uint32_t offset = m_piece.offset();
+  //   uint32_t offset = m_piece.offset();
   uint32_t offset = 0;
 
-  for (iterator itr = begin(), last = end() - 1; itr != last; ++itr, offset += blockLength) {
+  for (iterator itr = begin(), last = end() - 1; itr != last;
+       ++itr, offset += blockLength) {
     itr->set_parent(this);
     itr->set_piece(Piece(m_piece.index(), offset, blockLength));
   }
-  
+
   base_type::back().set_parent(this);
-  base_type::back().set_piece(Piece(m_piece.index(), offset, (m_piece.length() % blockLength) ? m_piece.length() % blockLength : blockLength));
+  base_type::back().set_piece(Piece(m_piece.index(),
+                                    offset,
+                                    (m_piece.length() % blockLength)
+                                      ? m_piece.length() % blockLength
+                                      : blockLength));
 }
 
 BlockList::~BlockList() {
@@ -88,4 +96,4 @@ BlockList::do_all_failed() {
   std::for_each(begin(), end(), std::mem_fun_ref(&Block::retry_transfer));
 }
 
-}
+} // namespace torrent

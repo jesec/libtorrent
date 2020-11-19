@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,31 +37,33 @@
 #ifndef LIBTORRENT_NET_SOCKET_STREAM_H
 #define LIBTORRENT_NET_SOCKET_STREAM_H
 
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
-#include "torrent/exceptions.h"
 #include "socket_base.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 
 class SocketStream : public SocketBase {
 public:
-  int                 read_stream(void* buf, uint32_t length);
-  int                 write_stream(const void* buf, uint32_t length);
+  int read_stream(void* buf, uint32_t length);
+  int write_stream(const void* buf, uint32_t length);
 
   // Returns the number of bytes read, or zero if the socket is
   // blocking. On errors or closed sockets it will throw an
   // appropriate exception.
-  uint32_t            read_stream_throws(void* buf, uint32_t length);
-  uint32_t            write_stream_throws(const void* buf, uint32_t length);
+  uint32_t read_stream_throws(void* buf, uint32_t length);
+  uint32_t write_stream_throws(const void* buf, uint32_t length);
 
   // Handles all the error catching etc. Returns true if the buffer is
   // finished reading/writing.
-  bool                read_buffer(void* buf, uint32_t length, uint32_t& pos);
-  bool                write_buffer(const void* buf, uint32_t length, uint32_t& pos);
+  bool read_buffer(void* buf, uint32_t length, uint32_t& pos);
+  bool write_buffer(const void* buf, uint32_t length, uint32_t& pos);
 
-  uint32_t            ignore_stream_throws(uint32_t length) { return read_stream_throws(m_nullBuffer, length); }
+  uint32_t ignore_stream_throws(uint32_t length) {
+    return read_stream_throws(m_nullBuffer, length);
+  }
 };
 
 inline bool
@@ -94,6 +96,6 @@ SocketStream::write_stream(const void* buf, uint32_t length) {
   return ::send(m_fileDesc, buf, length, 0);
 }
 
-}
+} // namespace torrent
 
 #endif

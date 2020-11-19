@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,8 +39,8 @@
 
 #include "globals.h"
 
-#include <vector>
 #include <rak/socket_address.h>
+#include <vector>
 
 #include "net/address_list.h" // For SA.
 #include "torrent/object_raw_bencode.h"
@@ -51,10 +51,10 @@ namespace torrent {
 
 class DhtTracker {
 public:
-  // Maximum number of peers we return for a GET_PEERS query (default value only). 
-  // Needs to be small enough so that a packet with a payload of num_peers*6 bytes 
-  // does not need fragmentation. Value chosen so that the size is approximately
-  // equal to a FIND_NODE reply (8*26 bytes).
+  // Maximum number of peers we return for a GET_PEERS query (default value
+  // only). Needs to be small enough so that a packet with a payload of
+  // num_peers*6 bytes does not need fragmentation. Value chosen so that the
+  // size is approximately equal to a FIND_NODE reply (8*26 bytes).
   static const unsigned int max_peers = 32;
 
   // Maximum number of peers we keep track of. For torrents with more peers,
@@ -62,15 +62,19 @@ public:
   // large peer tables for very active torrents.
   static const unsigned int max_size = 128;
 
-  bool                empty() const                { return m_peers.empty(); }
-  size_t              size() const                 { return m_peers.size(); }
+  bool empty() const {
+    return m_peers.empty();
+  }
+  size_t size() const {
+    return m_peers.size();
+  }
 
-  void                add_peer(uint32_t addr, uint16_t port);
-  raw_list            get_peers(unsigned int maxPeers = max_peers);
+  void     add_peer(uint32_t addr, uint16_t port);
+  raw_list get_peers(unsigned int maxPeers = max_peers);
 
   // Remove old announces from the tracker that have not reannounced for
   // more than the given number of seconds.
-  void                prune(uint32_t maxAge);
+  void prune(uint32_t maxAge);
 
 private:
   // We need to store the address as a bencoded string.
@@ -78,19 +82,27 @@ private:
     char                 header[2];
     SocketAddressCompact peer;
 
-    BencodeAddress(const SocketAddressCompact& p) : peer(p) { header[0] = '6'; header[1] = ':'; }
+    BencodeAddress(const SocketAddressCompact& p)
+      : peer(p) {
+      header[0] = '6';
+      header[1] = ':';
+    }
 
-    const char*  bencode() const { return header; }
+    const char* bencode() const {
+      return header;
+    }
 
-    bool         empty() const   { return !peer.port; }
-  } __attribute__ ((packed));
+    bool empty() const {
+      return !peer.port;
+    }
+  } __attribute__((packed));
 
   typedef std::vector<BencodeAddress> PeerList;
 
-  PeerList               m_peers;
-  std::vector<uint32_t>  m_lastSeen;
+  PeerList              m_peers;
+  std::vector<uint32_t> m_lastSeen;
 };
 
-}
+} // namespace torrent
 
 #endif

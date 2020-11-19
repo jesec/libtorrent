@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,8 +37,8 @@
 #ifndef LIBTORRENT_NET_THROTTLE_INTERNAL_H
 #define LIBTORRENT_NET_THROTTLE_INTERNAL_H
 
-#include <vector>
 #include <rak/priority_queue_default.h>
+#include <vector>
 
 #include "torrent/common.h"
 #include "torrent/throttle.h"
@@ -53,36 +53,39 @@ public:
   ThrottleInternal(int flags);
   ~ThrottleInternal();
 
-  ThrottleInternal*   create_slave();
+  ThrottleInternal* create_slave();
 
-  bool                is_root()         { return m_flags & flag_root; }
+  bool is_root() {
+    return m_flags & flag_root;
+  }
 
-  void                enable();
-  void                disable();
+  void enable();
+  void disable();
 
 private:
-  // Fraction is a fixed-precision value with the given number of bits after the decimal point.
+  // Fraction is a fixed-precision value with the given number of bits after the
+  // decimal point.
   static const uint32_t fraction_bits = 16;
   static const uint32_t fraction_base = (1 << fraction_bits);
 
-  typedef std::vector<ThrottleInternal*>  SlaveList;
+  typedef std::vector<ThrottleInternal*> SlaveList;
 
-  void                receive_tick();
+  void receive_tick();
 
   // Distribute quota, return amount of quota used. May be negative
   // if it had more unused quota than is now allowed.
-  int32_t             receive_quota(uint32_t quota, uint32_t fraction);
+  int32_t receive_quota(uint32_t quota, uint32_t fraction);
 
   int                 m_flags;
   SlaveList           m_slaveList;
   SlaveList::iterator m_nextSlave;
 
-  uint32_t            m_unusedQuota;
+  uint32_t m_unusedQuota;
 
-  rak::timer          m_timeLastTick;
-  rak::priority_item  m_taskTick;
+  rak::timer         m_timeLastTick;
+  rak::priority_item m_taskTick;
 };
 
-}
+} // namespace torrent
 
 #endif

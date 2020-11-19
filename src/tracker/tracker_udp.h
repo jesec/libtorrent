@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -49,7 +49,9 @@
 
 namespace torrent {
 
-class TrackerUdp : public SocketDatagram, public Tracker {
+class TrackerUdp
+  : public SocketDatagram
+  , public Tracker {
 public:
   typedef std::array<char, 1024> hostname_type;
 
@@ -62,59 +64,63 @@ public:
 
   TrackerUdp(TrackerList* parent, const std::string& url, int flags);
   ~TrackerUdp();
-  
-  const char*         type_name() const { return "tracker_udp"; }
 
-  virtual bool        is_busy() const;
+  const char* type_name() const {
+    return "tracker_udp";
+  }
 
-  virtual void        send_state(int state);
+  virtual bool is_busy() const;
 
-  virtual void        close();
-  virtual void        disown();
+  virtual void send_state(int state);
 
-  virtual Type        type() const;
+  virtual void close();
+  virtual void disown();
 
-  virtual void        event_read();
-  virtual void        event_write();
-  virtual void        event_error();
+  virtual Type type() const;
+
+  virtual void event_read();
+  virtual void event_write();
+  virtual void event_error();
 
 private:
-  void                close_directly();
+  void close_directly();
 
-  void                receive_failed(const std::string& msg);
-  void                receive_timeout();
+  void receive_failed(const std::string& msg);
+  void receive_timeout();
 
-  void                start_announce(const sockaddr* sa, int err);
+  void start_announce(const sockaddr* sa, int err);
 
-  void                prepare_connect_input();
-  void                prepare_announce_input();
+  void prepare_connect_input();
+  void prepare_announce_input();
 
-  bool                process_connect_output();
-  bool                process_announce_output();
-  bool                process_error_output();
+  bool process_connect_output();
+  bool process_announce_output();
+  bool process_error_output();
 
-  bool                parse_udp_url(const std::string& url, hostname_type& hostname, int& port) const;
-  resolver_type*      make_resolver_slot(const hostname_type& hostname);
+  bool           parse_udp_url(const std::string& url,
+                               hostname_type&     hostname,
+                               int&               port) const;
+  resolver_type* make_resolver_slot(const hostname_type& hostname);
 
   rak::socket_address m_connectAddress;
   int                 m_port;
 
-  int                 m_sendState;
+  int m_sendState;
 
-  resolver_type*      m_slot_resolver;
+  resolver_type* m_slot_resolver;
 
-  uint32_t            m_action;
-  uint64_t            m_connectionId;
-  uint32_t            m_transactionId;
+  uint32_t m_action;
+  uint64_t m_connectionId;
+  uint32_t m_transactionId;
 
-  ReadBuffer*         m_readBuffer;
-  WriteBuffer*        m_writeBuffer;
+  ReadBuffer*  m_readBuffer;
+  WriteBuffer* m_writeBuffer;
 
-  uint32_t            m_tries;
+  uint32_t m_tries;
 
-  rak::priority_item  m_taskTimeout;
+  rak::priority_item m_taskTimeout;
 };
 
-}
+} // namespace torrent
 
 #endif

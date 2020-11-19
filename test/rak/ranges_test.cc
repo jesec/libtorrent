@@ -10,7 +10,7 @@ template<typename Type>
 bool
 verify_ranges(const torrent::ranges<Type>& ranges) {
   typename torrent::ranges<Type>::const_iterator first = ranges.begin();
-  typename torrent::ranges<Type>::const_iterator last = ranges.begin();
+  typename torrent::ranges<Type>::const_iterator last  = ranges.begin();
 
   if (first == last)
     return true;
@@ -33,13 +33,12 @@ verify_ranges(const torrent::ranges<Type>& ranges) {
 }
 
 void
-RangesTest::test_basic() {
-}
+RangesTest::test_basic() {}
 
 void
 RangesTest::test_intersect() {
   torrent::ranges<int> range;
-  
+
   CPPUNIT_ASSERT(verify_ranges(range));
 
   CPPUNIT_ASSERT(range.intersect_distance(0, 0) == 0);
@@ -48,7 +47,7 @@ RangesTest::test_intersect() {
   range.insert(0, 5);
 
   CPPUNIT_ASSERT(verify_ranges(range));
-  
+
   CPPUNIT_ASSERT(range.intersect_distance(0, 5) == 5);
   CPPUNIT_ASSERT(range.intersect_distance(0, 10) == 5);
   CPPUNIT_ASSERT(range.intersect_distance(-5, 5) == 5);
@@ -78,7 +77,7 @@ void
 RangesTest::test_create_union() {
   torrent::ranges<int> range_1l;
   torrent::ranges<int> range_1r;
-  
+
   torrent::ranges<int> range_1u;
 
   // Empty:
@@ -106,7 +105,8 @@ RangesTest::test_create_union() {
   // Both one entry:
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
-  //  std::cout << "range_1u.intersect_distance(-5, 20) = " << range_1u.intersect_distance(-5, 20) << std::endl;
+  //  std::cout << "range_1u.intersect_distance(-5, 20) = " <<
+  //  range_1u.intersect_distance(-5, 20) << std::endl;
 
   CPPUNIT_ASSERT(verify_ranges(range_1u));
   CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 20) == 10);
@@ -116,7 +116,8 @@ RangesTest::test_create_union() {
   // Overlap:
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
-  //  std::cout << "range_1u.intersect_distance(-5, 20) = " << range_1u.intersect_distance(-5, 20) << std::endl;
+  //  std::cout << "range_1u.intersect_distance(-5, 20) = " <<
+  //  range_1u.intersect_distance(-5, 20) << std::endl;
 
   CPPUNIT_ASSERT(verify_ranges(range_1u));
   CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 20) == 11);

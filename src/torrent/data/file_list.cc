@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -41,11 +41,11 @@
 #include <functional>
 #include <limits>
 #include <memory>
-#include <set>
 #include <rak/error_number.h>
 #include <rak/file_stat.h>
 #include <rak/fs_stat.h>
 #include <rak/functional.h>
+#include <set>
 
 #include "data/chunk.h"
 #include "data/memory_chunk.h"
@@ -61,8 +61,9 @@
 #include "manager.h"
 #include "piece.h"
 
-#define LT_LOG_FL(log_level, log_fmt, ...)                              \
-  lt_log_print_data(LOG_STORAGE_##log_level, (&m_data), "file_list", log_fmt, __VA_ARGS__);
+#define LT_LOG_FL(log_level, log_fmt, ...)                                     \
+  lt_log_print_data(                                                           \
+    LOG_STORAGE_##log_level, (&m_data), "file_list", log_fmt, __VA_ARGS__);
 
 namespace torrent {
 
@@ -71,22 +72,25 @@ verify_file_list(const FileList* fl) {
   if (fl->empty())
     throw internal_error("verify_file_list() 1.", fl->data()->hash());
 
-  if ((*fl->begin())->match_depth_prev() != 0 || (*fl->rbegin())->match_depth_next() != 0)
+  if ((*fl->begin())->match_depth_prev() != 0 ||
+      (*fl->rbegin())->match_depth_next() != 0)
     throw internal_error("verify_file_list() 2.", fl->data()->hash());
 
-  for (FileList::const_iterator itr = fl->begin(), last = fl->end() - 1; itr != last; itr++)
+  for (FileList::const_iterator itr = fl->begin(), last = fl->end() - 1;
+       itr != last;
+       itr++)
     if ((*itr)->match_depth_next() != (*(itr + 1))->match_depth_prev() ||
         (*itr)->match_depth_next() >= (*itr)->path()->size())
       throw internal_error("verify_file_list() 3.", fl->data()->hash());
 }
 
-FileList::FileList() :
-  m_isOpen(false),
+FileList::FileList()
+  : m_isOpen(false)
+  ,
 
-  m_torrentSize(0),
-  m_chunkSize(0),
-  m_maxFileSize(~uint64_t()) {
-}
+  m_torrentSize(0)
+  , m_chunkSize(0)
+  , m_maxFileSize(~uint64_t()) {}
 
 FileList::~FileList() {
   // Can we skip close()?
@@ -100,13 +104,11 @@ FileList::~FileList() {
 
 bool
 FileList::is_valid_piece(const Piece& piece) const {
-  return
-    piece.index() < size_chunks() &&
-    piece.length() != 0 &&
+  return piece.index() < size_chunks() && piece.length() != 0 &&
 
-    // Make sure offset does not overflow 32 bits.
-    piece.offset() + piece.length() >= piece.offset() &&
-    piece.offset() + piece.length() <= chunk_index_size(piece.index());
+         // Make sure offset does not overflow 32 bits.
+         piece.offset() + piece.length() >= piece.offset() &&
+         piece.offset() + piece.length() <= chunk_index_size(piece.index());
 }
 
 bool
@@ -114,7 +116,7 @@ FileList::is_root_dir_created() const {
   rak::file_stat fs;
 
   if (!fs.update(m_rootDir))
-//     return rak::error_number::current() == rak::error_number::e_access;
+    //     return rak::error_number::current() == rak::error_number::e_access;
     return false;
 
   return fs.is_directory();
@@ -143,7 +145,8 @@ FileList::completed_bytes() const {
 
   } else {
     if (completed_chunks() == 0)
-      throw internal_error("FileList::bytes_completed() completed_chunks() == 0.", data()->hash());
+      throw internal_error(
+        "FileList::bytes_completed() completed_chunks() == 0.", data()->hash());
 
     return (completed_chunks() - 1) * cs + size_bytes() % cs;
   }
@@ -154,10 +157,12 @@ FileList::left_bytes() const {
   uint64_t left = size_bytes() - completed_bytes();
 
   if (left > ((uint64_t)1 << 60))
-    throw internal_error("FileList::bytes_left() is too large.", data()->hash());
+    throw internal_error("FileList::bytes_left() is too large.",
+                         data()->hash());
 
   if (completed_chunks() == size_chunks() && left != 0)
-    throw internal_error("FileList::bytes_left() has an invalid size.", data()->hash());
+    throw internal_error("FileList::bytes_left() has an invalid size.",
+                         data()->hash());
 
   return left;
 }
@@ -173,7 +178,8 @@ FileList::chunk_index_size(uint32_t index) const {
 void
 FileList::set_root_dir(const std::string& path) {
   if (is_open())
-    throw input_error("Tried to change the root directory on an open download.");
+    throw input_error(
+      "Tried to change the root directory on an open download.");
 
   std::string::size_type last = path.find_last_not_of('/');
 
@@ -186,7 +192,8 @@ FileList::set_root_dir(const std::string& path) {
 void
 FileList::set_max_file_size(uint64_t size) {
   if (is_open())
-    throw input_error("Tried to change the max file size for an open download.");
+    throw input_error(
+      "Tried to change the max file size for an open download.");
 
   m_maxFileSize = size;
 }
@@ -197,7 +204,10 @@ uint64_t
 FileList::free_diskspace() const {
   uint64_t freeDiskspace = std::numeric_limits<uint64_t>::max();
 
-  for (path_list::const_iterator itr = m_indirectLinks.begin(), last = m_indirectLinks.end(); itr != last; ++itr) {
+  for (path_list::const_iterator itr  = m_indirectLinks.begin(),
+                                 last = m_indirectLinks.end();
+       itr != last;
+       ++itr) {
     rak::fs_stat stat;
 
     if (!stat.update(*itr))
@@ -206,16 +216,18 @@ FileList::free_diskspace() const {
     freeDiskspace = std::min<uint64_t>(freeDiskspace, stat.bytes_avail());
   }
 
-  return freeDiskspace != std::numeric_limits<uint64_t>::max() ? freeDiskspace : 0;
+  return freeDiskspace != std::numeric_limits<uint64_t>::max() ? freeDiskspace
+                                                               : 0;
 }
 
 FileList::iterator_range
 FileList::split(iterator position, split_type* first, split_type* last) {
   if (is_open())
     throw internal_error("FileList::split(...) is_open().", data()->hash());
-  
+
   if (first == last || position == end())
-    throw internal_error("FileList::split(...) invalid arguments.", data()->hash());
+    throw internal_error("FileList::split(...) invalid arguments.",
+                         data()->hash());
 
   if (position != begin())
     (*(position - 1))->set_match_depth_next(0);
@@ -225,8 +237,8 @@ FileList::split(iterator position, split_type* first, split_type* last) {
 
   File* oldFile = *position;
 
-  uint64_t offset = oldFile->offset();
-  size_type index = std::distance(begin(), position);
+  uint64_t  offset = oldFile->offset();
+  size_type index  = std::distance(begin(), position);
   size_type length = std::distance(first, last);
 
   base_type::insert(position, length - 1, NULL);
@@ -250,7 +262,9 @@ FileList::split(iterator position, split_type* first, split_type* last) {
   }
 
   if (offset != oldFile->offset() + oldFile->size_bytes())
-    throw internal_error("FileList::split(...) split size does not match the old size.", data()->hash());
+    throw internal_error(
+      "FileList::split(...) split size does not match the old size.",
+      data()->hash());
 
   delete oldFile;
   return iterator_range(position, itr);
@@ -280,7 +294,7 @@ FileList::merge(iterator first, iterator last, const Path& path) {
       delete *itr;
     }
 
-    first = base_type::erase(first + 1, last) - 1;
+    first  = base_type::erase(first + 1, last) - 1;
     *first = newFile;
   }
 
@@ -329,7 +343,7 @@ FileList::make_all_paths() {
   if (!is_open())
     return false;
 
-  Path dummyPath;
+  Path        dummyPath;
   const Path* lastPath = &dummyPath;
 
   for (iterator itr = begin(), last = end(); itr != last; ++itr) {
@@ -347,7 +361,8 @@ FileList::make_all_paths() {
     Path::const_iterator firstMismatch = entry->path()->begin();
 
     // Couldn't find a suitable stl algo, need to write my own.
-    while (firstMismatch != entry->path()->end() && lastPathItr != lastPath->end() && *firstMismatch == *lastPathItr) {
+    while (firstMismatch != entry->path()->end() &&
+           lastPathItr != lastPath->end() && *firstMismatch == *lastPathItr) {
       lastPathItr++;
       firstMismatch++;
     }
@@ -355,7 +370,7 @@ FileList::make_all_paths() {
     rak::error_number::clear_global();
 
     make_directory(entry->path()->begin(), entry->path()->end(), firstMismatch);
-    
+
     lastPath = entry->path();
   }
 
@@ -367,16 +382,19 @@ FileList::make_all_paths() {
 void
 FileList::initialize(uint64_t torrentSize, uint32_t chunkSize) {
   if (sizeof(off_t) != 8)
-    throw internal_error("Last minute panic; sizeof(off_t) != 8.", data()->hash());
+    throw internal_error("Last minute panic; sizeof(off_t) != 8.",
+                         data()->hash());
 
   if (chunkSize == 0)
-    throw internal_error("FileList::initialize() chunk_size() == 0.", data()->hash());
+    throw internal_error("FileList::initialize() chunk_size() == 0.",
+                         data()->hash());
 
-  m_chunkSize = chunkSize;
+  m_chunkSize   = chunkSize;
   m_torrentSize = torrentSize;
-  m_rootDir = ".";
+  m_rootDir     = ".";
 
-  m_data.mutable_completed_bitfield()->set_size_bits((size_bytes() + chunk_size() - 1) / chunk_size());
+  m_data.mutable_completed_bitfield()->set_size_bits(
+    (size_bytes() + chunk_size() - 1) / chunk_size());
 
   m_data.mutable_normal_priority()->insert(0, size_chunks());
   m_data.set_wanted_chunks(size_chunks());
@@ -391,7 +409,7 @@ FileList::initialize(uint64_t torrentSize, uint32_t chunkSize) {
 }
 
 struct file_list_cstr_less {
-  bool operator () (const char* c1, const char* c2) const {
+  bool operator()(const char* c1, const char* c2) const {
     return std::strcmp(c1, c2) < 0;
   }
 };
@@ -407,15 +425,16 @@ FileList::open(int flags) {
 
   m_indirectLinks.push_back(m_rootDir);
 
-  Path lastPath;
+  Path     lastPath;
   path_set pathSet;
 
   iterator itr = end();
 
   try {
     if (!(flags & open_no_create) && !make_root_path())
-      throw storage_error("Could not create directory '" + m_rootDir + "': " + std::strerror(errno));
-  
+      throw storage_error("Could not create directory '" + m_rootDir +
+                          "': " + std::strerror(errno));
+
     for (itr = begin(); itr != end(); ++itr) {
       File* entry = *itr;
 
@@ -427,7 +446,7 @@ FileList::open(int flags) {
       // we can keep the previously opened file.
       if (entry->is_open())
         continue;
-      
+
       // Update the path during open so that any changes to root dir
       // and file paths are properly handled.
       if (entry->path()->back().empty())
@@ -454,7 +473,9 @@ FileList::open(int flags) {
         // being set or not.
         if (!(flags & open_no_create))
           // Also check if open_require_all_open is set.
-          throw storage_error("Could not open file: " + std::string(rak::error_number::current().c_str()));
+          throw storage_error(
+            "Could not open file: " +
+            std::string(rak::error_number::current().c_str()));
 
         // Don't set the lastPath as we haven't created the directory.
         continue;
@@ -472,7 +493,10 @@ FileList::open(int flags) {
     if (itr == end()) {
       LT_LOG_FL(ERROR, "Failed to prepare file list: %s", e.what());
     } else {
-      LT_LOG_FL(ERROR, "Failed to prepare file '%s': %s", (*itr)->path()->as_string().c_str(), e.what());
+      LT_LOG_FL(ERROR,
+                "Failed to prepare file '%s': %s",
+                (*itr)->path()->as_string().c_str(),
+                e.what());
     }
 
     // Set to false here in case we tried to open the FileList for the
@@ -481,7 +505,7 @@ FileList::open(int flags) {
     throw;
   }
 
-  m_isOpen = true;
+  m_isOpen        = true;
   m_frozenRootDir = m_rootDir;
 
   // For meta-downloads, if the file exists, we have to assume that
@@ -518,7 +542,9 @@ FileList::close() {
 }
 
 void
-FileList::make_directory(Path::const_iterator pathBegin, Path::const_iterator pathEnd, Path::const_iterator startItr) {
+FileList::make_directory(Path::const_iterator pathBegin,
+                         Path::const_iterator pathEnd,
+                         Path::const_iterator startItr) {
   std::string path = m_rootDir;
 
   while (pathBegin != pathEnd) {
@@ -531,16 +557,17 @@ FileList::make_directory(Path::const_iterator pathBegin, Path::const_iterator pa
 
     rak::file_stat fileStat;
 
-    if (fileStat.update_link(path) &&
-        fileStat.is_link() &&
-        std::find(m_indirectLinks.begin(), m_indirectLinks.end(), path) == m_indirectLinks.end())
+    if (fileStat.update_link(path) && fileStat.is_link() &&
+        std::find(m_indirectLinks.begin(), m_indirectLinks.end(), path) ==
+          m_indirectLinks.end())
       m_indirectLinks.push_back(path);
 
     if (pathBegin == pathEnd)
       break;
 
     if (::mkdir(path.c_str(), 0777) != 0 && errno != EEXIST)
-      throw storage_error("Could not create directory '" + path + "': " + std::strerror(errno));
+      throw storage_error("Could not create directory '" + path +
+                          "': " + std::strerror(errno));
   }
 }
 
@@ -551,11 +578,12 @@ FileList::open_file(File* node, const Path& lastPath, int flags) {
   if (!(flags & open_no_create)) {
     const Path* path = node->path();
 
-    Path::const_iterator lastItr = lastPath.begin();
+    Path::const_iterator lastItr       = lastPath.begin();
     Path::const_iterator firstMismatch = path->begin();
 
     // Couldn't find a suitable stl algo, need to write my own.
-    while (firstMismatch != path->end() && lastItr != lastPath.end() && *firstMismatch == *lastItr) {
+    while (firstMismatch != path->end() && lastItr != lastPath.end() &&
+           *firstMismatch == *lastItr) {
       lastItr++;
       firstMismatch++;
     }
@@ -570,8 +598,8 @@ FileList::open_file(File* node, const Path& lastPath, int flags) {
 
   rak::file_stat fileStat;
 
-  if (fileStat.update(node->frozen_path()) &&
-      !fileStat.is_regular() && !fileStat.is_link()) {
+  if (fileStat.update(node->frozen_path()) && !fileStat.is_regular() &&
+      !fileStat.is_link()) {
     // Might also bork on other kinds of file types, but there's no
     // suitable errno for all cases.
     rak::error_number::set_global(rak::error_number::e_isdir);
@@ -582,32 +610,44 @@ FileList::open_file(File* node, const Path& lastPath, int flags) {
 }
 
 MemoryChunk
-FileList::create_chunk_part(FileList::iterator itr, uint64_t offset, uint32_t length, int prot) {
+FileList::create_chunk_part(FileList::iterator itr,
+                            uint64_t           offset,
+                            uint32_t           length,
+                            int                prot) {
   offset -= (*itr)->offset();
   length = std::min<uint64_t>(length, (*itr)->size_bytes() - offset);
 
   if ((int64_t)offset < 0)
-    throw internal_error("FileList::chunk_part(...) caught a negative offset", data()->hash());
+    throw internal_error("FileList::chunk_part(...) caught a negative offset",
+                         data()->hash());
 
   // Check that offset != length of file.
 
   if (!(*itr)->prepare(prot))
     return MemoryChunk();
 
-  return SocketFile((*itr)->file_descriptor()).create_chunk(offset, length, prot, MemoryChunk::map_shared);
+  return SocketFile((*itr)->file_descriptor())
+    .create_chunk(offset, length, prot, MemoryChunk::map_shared);
 }
 
 Chunk*
 FileList::create_chunk(uint64_t offset, uint32_t length, int prot) {
   if (offset + length > m_torrentSize)
-    throw internal_error("Tried to access chunk out of range in FileList", data()->hash());
+    throw internal_error("Tried to access chunk out of range in FileList",
+                         data()->hash());
 
   std::unique_ptr<Chunk> chunk(new Chunk);
 
-  for (iterator itr = std::find_if(begin(), end(), std::bind2nd(std::mem_fun(&File::is_valid_position), offset)); length != 0; ++itr) {
+  for (iterator itr = std::find_if(
+         begin(),
+         end(),
+         std::bind2nd(std::mem_fun(&File::is_valid_position), offset));
+       length != 0;
+       ++itr) {
 
     if (itr == end())
-      throw internal_error("FileList could not find a valid file for chunk", data()->hash());
+      throw internal_error("FileList could not find a valid file for chunk",
+                           data()->hash());
 
     if ((*itr)->size_bytes() == 0)
       continue;
@@ -618,10 +658,12 @@ FileList::create_chunk(uint64_t offset, uint32_t length, int prot) {
       return NULL;
 
     if (mc.size() == 0)
-      throw internal_error("FileList::create_chunk(...) mc.size() == 0.", data()->hash());
+      throw internal_error("FileList::create_chunk(...) mc.size() == 0.",
+                           data()->hash());
 
     if (mc.size() > length)
-      throw internal_error("FileList::create_chunk(...) mc.size() > length.", data()->hash());
+      throw internal_error("FileList::create_chunk(...) mc.size() > length.",
+                           data()->hash());
 
     chunk->push_back(ChunkPart::MAPPED_MMAP, mc);
     chunk->back().set_file(*itr, offset - (*itr)->offset());
@@ -638,25 +680,35 @@ FileList::create_chunk(uint64_t offset, uint32_t length, int prot) {
 
 Chunk*
 FileList::create_chunk_index(uint32_t index, int prot) {
-  return create_chunk((uint64_t)index * chunk_size(), chunk_index_size(index), prot);
+  return create_chunk(
+    (uint64_t)index * chunk_size(), chunk_index_size(index), prot);
 }
 
 void
 FileList::mark_completed(uint32_t index) {
   if (index >= size_chunks() || completed_chunks() >= size_chunks())
-    throw internal_error("FileList::mark_completed(...) received an invalid index.", data()->hash());
+    throw internal_error(
+      "FileList::mark_completed(...) received an invalid index.",
+      data()->hash());
 
   if (bitfield()->empty())
-    throw internal_error("FileList::mark_completed(...) bitfield is empty.", data()->hash());
+    throw internal_error("FileList::mark_completed(...) bitfield is empty.",
+                         data()->hash());
 
   if (bitfield()->size_bits() != size_chunks())
-    throw internal_error("FileList::mark_completed(...) bitfield is not the right size.", data()->hash());
+    throw internal_error(
+      "FileList::mark_completed(...) bitfield is not the right size.",
+      data()->hash());
 
   if (bitfield()->get(index))
-    throw internal_error("FileList::mark_completed(...) received a chunk that has already been finished.", data()->hash());
+    throw internal_error("FileList::mark_completed(...) received a chunk that "
+                         "has already been finished.",
+                         data()->hash());
 
   if (bitfield()->size_set() >= bitfield()->size_bits())
-    throw internal_error("FileList::mark_completed(...) bitfield()->size_set() >= bitfield()->size_bits().", data()->hash());
+    throw internal_error("FileList::mark_completed(...) bitfield()->size_set() "
+                         ">= bitfield()->size_bits().",
+                         data()->hash());
 
   LT_LOG_FL(DEBUG, "Done chunk: index:%" PRIu32 ".", index);
 
@@ -664,21 +716,27 @@ FileList::mark_completed(uint32_t index) {
   inc_completed(begin(), index);
 
   // TODO: Remember to validate 'wanted_chunks'.
-  if (m_data.normal_priority()->has(index) || m_data.high_priority()->has(index)) {
+  if (m_data.normal_priority()->has(index) ||
+      m_data.high_priority()->has(index)) {
     if (m_data.wanted_chunks() == 0)
-      throw internal_error("FileList::mark_completed(...) m_data.wanted_chunks() == 0.", data()->hash());
-    
+      throw internal_error(
+        "FileList::mark_completed(...) m_data.wanted_chunks() == 0.",
+        data()->hash());
+
     m_data.set_wanted_chunks(m_data.wanted_chunks() - 1);
   }
 }
 
 FileList::iterator
 FileList::inc_completed(iterator firstItr, uint32_t index) {
-  firstItr         = std::find_if(firstItr, end(), rak::less(index, std::mem_fun(&File::range_second)));
-  iterator lastItr = std::find_if(firstItr, end(), rak::less(index + 1, std::mem_fun(&File::range_second)));
+  firstItr = std::find_if(
+    firstItr, end(), rak::less(index, std::mem_fun(&File::range_second)));
+  iterator lastItr = std::find_if(
+    firstItr, end(), rak::less(index + 1, std::mem_fun(&File::range_second)));
 
   if (firstItr == end())
-    throw internal_error("FileList::inc_completed() first == m_entryList->end().", data()->hash());
+    throw internal_error(
+      "FileList::inc_completed() first == m_entryList->end().", data()->hash());
 
   // TODO: Check if this works right for zero-length files.
   std::for_each(firstItr,
@@ -691,7 +749,9 @@ FileList::inc_completed(iterator firstItr, uint32_t index) {
 void
 FileList::update_completed() {
   if (!bitfield()->is_tail_cleared())
-    throw internal_error("Content::update_done() called but m_bitfield's tail isn't cleared.", data()->hash());
+    throw internal_error(
+      "Content::update_done() called but m_bitfield's tail isn't cleared.",
+      data()->hash());
 
   m_data.update_wanted_chunks();
 
@@ -710,7 +770,8 @@ FileList::update_completed() {
 
     iterator entryItr = begin();
 
-    for (Bitfield::size_type index = 0; index < bitfield()->size_bits(); ++index)
+    for (Bitfield::size_type index = 0; index < bitfield()->size_bits();
+         ++index)
       if (bitfield()->get(index))
         entryItr = inc_completed(entryItr, index);
   }
@@ -721,15 +782,15 @@ FileList::reset_filesize(int64_t size) {
   LT_LOG_FL(INFO, "Resetting torrent size: size:%" PRIi64 ".", size);
 
   close();
-  m_chunkSize = size;
+  m_chunkSize   = size;
   m_torrentSize = size;
   (*begin())->set_size_bytes(size);
   (*begin())->set_range(m_chunkSize);
 
   m_data.mutable_completed_bitfield()->allocate();
   m_data.mutable_completed_bitfield()->unset_all();
-  
+
   open(open_no_create);
 }
 
-}
+} // namespace torrent

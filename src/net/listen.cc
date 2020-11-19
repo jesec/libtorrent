@@ -2,14 +2,14 @@
 
 #define __STDC_FORMAT_MACROS
 
-#include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <rak/socket_address.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
-#include "torrent/exceptions.h"
 #include "torrent/connection_manager.h"
+#include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/utils/log.h"
 
@@ -19,7 +19,10 @@
 namespace torrent {
 
 bool
-Listen::open(uint16_t first, uint16_t last, int backlog, const rak::socket_address* bindAddress) {
+Listen::open(uint16_t                   first,
+             uint16_t                   last,
+             int                        backlog,
+             const rak::socket_address* bindAddress) {
   close();
 
   if (first == 0 || first > last)
@@ -28,10 +31,10 @@ Listen::open(uint16_t first, uint16_t last, int backlog, const rak::socket_addre
   if (bindAddress->family() != 0 &&
       bindAddress->family() != rak::socket_address::af_inet &&
       bindAddress->family() != rak::socket_address::af_inet6)
-    throw input_error("Listening socket must be bound to an inet or inet6 address.");
+    throw input_error(
+      "Listening socket must be bound to an inet or inet6 address.");
 
-  if (!get_fd().open_stream() ||
-      !get_fd().set_nonblock() ||
+  if (!get_fd().open_stream() || !get_fd().set_nonblock() ||
       !get_fd().set_reuse_address(true))
     throw resource_error("Could not allocate socket for listening.");
 
@@ -59,11 +62,12 @@ Listen::open(uint16_t first, uint16_t last, int backlog, const rak::socket_addre
       manager->poll()->insert_read(this);
       manager->poll()->insert_error(this);
 
-      lt_log_print(LOG_CONNECTION_LISTEN, "listen port %" PRIu16 " opened with backlog set to %i",
-                   m_port, backlog);
+      lt_log_print(LOG_CONNECTION_LISTEN,
+                   "listen port %" PRIu16 " opened with backlog set to %i",
+                   m_port,
+                   backlog);
 
       return true;
-
     }
   } while (first++ < last);
 
@@ -76,7 +80,8 @@ Listen::open(uint16_t first, uint16_t last, int backlog, const rak::socket_addre
   return false;
 }
 
-void Listen::close() {
+void
+Listen::close() {
   if (!get_fd().is_valid())
     return;
 
@@ -88,14 +93,14 @@ void Listen::close() {
 
   get_fd().close();
   get_fd().clear();
-  
+
   m_port = 0;
 }
-  
+
 void
 Listen::event_read() {
   rak::socket_address sa;
-  SocketFd fd;
+  SocketFd            fd;
 
   while ((fd = get_fd().accept(&sa)).is_valid())
     m_slot_accepted(fd, sa);
@@ -111,7 +116,8 @@ Listen::event_error() {
   int error = get_fd().get_error();
 
   if (error != 0)
-    throw internal_error("Listener port received an error event: " + std::string(std::strerror(error)));
+    throw internal_error("Listener port received an error event: " +
+                         std::string(std::strerror(error)));
 }
 
-}
+} // namespace torrent

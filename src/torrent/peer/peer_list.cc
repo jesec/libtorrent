@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -52,10 +52,12 @@
 #include "peer_info.h"
 #include "peer_list.h"
 
-#define LT_LOG_EVENTS(log_fmt, ...)                                     \
-  lt_log_print_info(LOG_PEER_LIST_EVENTS, m_info, "peer_list", log_fmt, __VA_ARGS__);
-#define LT_LOG_ADDRESS(log_fmt, ...)                                    \
-  lt_log_print_info(LOG_PEER_LIST_ADDRESS, m_info, "peer_list", log_fmt, __VA_ARGS__);
+#define LT_LOG_EVENTS(log_fmt, ...)                                            \
+  lt_log_print_info(                                                           \
+    LOG_PEER_LIST_EVENTS, m_info, "peer_list", log_fmt, __VA_ARGS__);
+#define LT_LOG_ADDRESS(log_fmt, ...)                                           \
+  lt_log_print_info(                                                           \
+    LOG_PEER_LIST_ADDRESS, m_info, "peer_list", log_fmt, __VA_ARGS__);
 #define LT_LOG_SA_FMT "'%s:%" PRIu16 "'"
 
 namespace torrent {
@@ -83,13 +85,16 @@ socket_address_less(const sockaddr* s1, const sockaddr* s2) {
     return memcmp(&addr1, &addr2, sizeof(in6_addr)) < 0;
 
   } else {
-    throw internal_error("socket_address_key(...) tried to compare an invalid family type.");
+    throw internal_error(
+      "socket_address_key(...) tried to compare an invalid family type.");
   }
 }
 
-struct peer_list_equal_port : public std::binary_function<PeerList::reference, uint16_t, bool> {
-  bool operator () (PeerList::reference p, uint16_t port) {
-    return rak::socket_address::cast_from(p.second->socket_address())->port() == port;
+struct peer_list_equal_port
+  : public std::binary_function<PeerList::reference, uint16_t, bool> {
+  bool operator()(PeerList::reference p, uint16_t port) {
+    return rak::socket_address::cast_from(p.second->socket_address())->port() ==
+           port;
   }
 };
 
@@ -97,15 +102,18 @@ struct peer_list_equal_port : public std::binary_function<PeerList::reference, u
 // PeerList:
 //
 
-PeerList::PeerList() :
-  m_available_list(new AvailableList) {
-}
+PeerList::PeerList()
+  : m_available_list(new AvailableList) {}
 
 PeerList::~PeerList() {
   LT_LOG_EVENTS("deleting list total:%" PRIuPTR " available:%" PRIuPTR,
-                size(), m_available_list->size());
+                size(),
+                m_available_list->size());
 
-  std::for_each(begin(), end(), rak::on(rak::mem_ref(&value_type::second), rak::call_delete<PeerInfo>()));
+  std::for_each(
+    begin(),
+    end(),
+    rak::on(rak::mem_ref(&value_type::second), rak::call_delete<PeerInfo>()));
   base_type::clear();
 
   m_info = NULL;
@@ -123,8 +131,7 @@ PeerInfo*
 PeerList::insert_address(const sockaddr* sa, int flags) {
   socket_address_key sock_key = socket_address_key::from_sockaddr(sa);
 
-  if (sock_key.is_valid() &&
-      !socket_address_key::is_comparable_sockaddr(sa)) {
+  if (sock_key.is_valid() && !socket_address_key::is_comparable_sockaddr(sa)) {
     LT_LOG_EVENTS("address not comparable", 0);
     return NULL;
   }
@@ -140,7 +147,8 @@ PeerList::insert_address(const sockaddr* sa, int flags) {
   // PeerInfo per address key and do nothing.
   if (range.first != range.second) {
     LT_LOG_EVENTS("address already exists " LT_LOG_SA_FMT,
-                  address->address_str().c_str(), address->port());
+                  address->address_str().c_str(),
+                  address->port());
     return NULL;
   }
 
@@ -148,10 +156,12 @@ PeerList::insert_address(const sockaddr* sa, int flags) {
   peerInfo->set_listen_port(address->port());
   uint32_t host_byte_order_ipv4_addr = address->sa_inet()->address_h();
 
-  // IPv4 addresses stored in host byte order in ipv4_table so they are comparable. ntohl has been called
-  if(m_ipv4_table.defined(host_byte_order_ipv4_addr))
-    peerInfo->set_flags(m_ipv4_table.at(host_byte_order_ipv4_addr) & PeerInfo::mask_ip_table);
-  
+  // IPv4 addresses stored in host byte order in ipv4_table so they are
+  // comparable. ntohl has been called
+  if (m_ipv4_table.defined(host_byte_order_ipv4_addr))
+    peerInfo->set_flags(m_ipv4_table.at(host_byte_order_ipv4_addr) &
+                        PeerInfo::mask_ip_table);
+
   manager->client_list()->retrieve_unknown(&peerInfo->mutable_client_info());
 
   base_type::insert(range.second, value_type(sock_key, peerInfo));
@@ -159,17 +169,20 @@ PeerList::insert_address(const sockaddr* sa, int flags) {
   if ((flags & address_available) && peerInfo->listen_port() != 0) {
     m_available_list->push_back(address);
     LT_LOG_EVENTS("added available address " LT_LOG_SA_FMT,
-                  address->address_str().c_str(), address->port());
+                  address->address_str().c_str(),
+                  address->port());
   } else {
     LT_LOG_EVENTS("added unavailable address " LT_LOG_SA_FMT,
-                  address->address_str().c_str(), address->port());
+                  address->address_str().c_str(),
+                  address->port());
   }
 
   return peerInfo;
 }
 
 inline bool
-socket_address_less_rak(const rak::socket_address& s1, const rak::socket_address& s2) {
+socket_address_less_rak(const rak::socket_address& s1,
+                        const rak::socket_address& s2) {
   return socket_address_less(s1.c_sockaddr(), s2.c_sockaddr());
 }
 
@@ -178,38 +191,48 @@ PeerList::insert_available(const void* al) {
   const AddressList* addressList = static_cast<const AddressList*>(al);
 
   uint32_t inserted = 0;
-  uint32_t invalid = 0;
+  uint32_t invalid  = 0;
   uint32_t unneeded = 0;
-  uint32_t updated = 0;
+  uint32_t updated  = 0;
 
-  if (m_available_list->size() + addressList->size() > m_available_list->capacity())
-    m_available_list->reserve(m_available_list->size() + addressList->size() + 128);
+  if (m_available_list->size() + addressList->size() >
+      m_available_list->capacity())
+    m_available_list->reserve(m_available_list->size() + addressList->size() +
+                              128);
 
   // Optimize this so that we don't traverse the tree for every
   // insert, since we know 'al' is sorted.
 
-  AddressList::const_iterator itr   = addressList->begin();
-  AddressList::const_iterator last  = addressList->end();
+  AddressList::const_iterator   itr       = addressList->begin();
+  AddressList::const_iterator   last      = addressList->end();
   AvailableList::const_iterator availItr  = m_available_list->begin();
   AvailableList::const_iterator availLast = m_available_list->end();
 
   for (; itr != last; itr++) {
-    if (!socket_address_key::is_comparable_sockaddr(itr->c_sockaddr()) || itr->port() == 0) {
+    if (!socket_address_key::is_comparable_sockaddr(itr->c_sockaddr()) ||
+        itr->port() == 0) {
       invalid++;
-      LT_LOG_ADDRESS("skipped invalid address " LT_LOG_SA_FMT, itr->address_str().c_str(), itr->port());
+      LT_LOG_ADDRESS("skipped invalid address " LT_LOG_SA_FMT,
+                     itr->address_str().c_str(),
+                     itr->port());
       continue;
     }
 
-    availItr = std::find_if(availItr, availLast, rak::bind2nd(std::ptr_fun(&socket_address_less_rak), *itr));
+    availItr =
+      std::find_if(availItr,
+                   availLast,
+                   rak::bind2nd(std::ptr_fun(&socket_address_less_rak), *itr));
 
-    if (availItr != availLast && !socket_address_less(availItr->c_sockaddr(), itr->c_sockaddr())) {
+    if (availItr != availLast &&
+        !socket_address_less(availItr->c_sockaddr(), itr->c_sockaddr())) {
       // The address is already in m_available_list, so don't bother
       // going further.
       unneeded++;
       continue;
     }
 
-    socket_address_key sock_key = socket_address_key::from_sockaddr(itr->c_sockaddr());
+    socket_address_key sock_key =
+      socket_address_key::from_sockaddr(itr->c_sockaddr());
 
     // Check if the peerinfo exists, if it does, check if we would
     // ever want to connect. Just update the timer for the last
@@ -244,15 +267,20 @@ PeerList::insert_available(const void* al) {
     inserted++;
     m_available_list->push_back(&*itr);
 
-    LT_LOG_ADDRESS("added available address " LT_LOG_SA_FMT, itr->address_str().c_str(), itr->port());
+    LT_LOG_ADDRESS("added available address " LT_LOG_SA_FMT,
+                   itr->address_str().c_str(),
+                   itr->port());
   }
 
   LT_LOG_EVENTS("inserted peers"
-                " inserted:%" PRIu32 " invalid:%" PRIu32
-                " unneeded:%" PRIu32 " updated:%" PRIu32
-                " total:%" PRIuPTR " available:%" PRIuPTR,
-                inserted, invalid, unneeded, updated,
-                size(), m_available_list->size());
+                " inserted:%" PRIu32 " invalid:%" PRIu32 " unneeded:%" PRIu32
+                " updated:%" PRIu32 " total:%" PRIuPTR " available:%" PRIuPTR,
+                inserted,
+                invalid,
+                unneeded,
+                updated,
+                size(),
+                m_available_list->size());
 
   return inserted;
 }
@@ -264,34 +292,35 @@ PeerList::available_list_size() const {
 
 PeerInfo*
 PeerList::connected(const sockaddr* sa, int flags) {
-  const rak::socket_address* address = rak::socket_address::cast_from(sa);
-  socket_address_key sock_key = socket_address_key::from_sockaddr(sa);
+  const rak::socket_address* address  = rak::socket_address::cast_from(sa);
+  socket_address_key         sock_key = socket_address_key::from_sockaddr(sa);
 
-  if (!sock_key.is_valid() ||
-      !socket_address_key::is_comparable_sockaddr(sa))
+  if (!sock_key.is_valid() || !socket_address_key::is_comparable_sockaddr(sa))
     return NULL;
 
   uint32_t host_byte_order_ipv4_addr = address->sa_inet()->address_h();
-  int filter_value = 0;
+  int      filter_value              = 0;
 
-  // IPv4 addresses stored in host byte order in ipv4_table so they are comparable. ntohl has been called
-  if(m_ipv4_table.defined(host_byte_order_ipv4_addr))
+  // IPv4 addresses stored in host byte order in ipv4_table so they are
+  // comparable. ntohl has been called
+  if (m_ipv4_table.defined(host_byte_order_ipv4_addr))
     filter_value = m_ipv4_table.at(host_byte_order_ipv4_addr);
 
   // We should also remove any PeerInfo objects already for this
   // address.
   if ((filter_value & PeerInfo::flag_unwanted)) {
-    char ipv4_str[INET_ADDRSTRLEN];
+    char     ipv4_str[INET_ADDRSTRLEN];
     uint32_t net_order_addr = htonl(host_byte_order_ipv4_addr);
 
     inet_ntop(AF_INET, &net_order_addr, ipv4_str, INET_ADDRSTRLEN);
 
-    lt_log_print(LOG_PEER_INFO, "Peer %s is unwanted: preventing connection", ipv4_str);
+    lt_log_print(
+      LOG_PEER_INFO, "Peer %s is unwanted: preventing connection", ipv4_str);
 
     return NULL;
   }
 
-  PeerInfo* peerInfo;
+  PeerInfo*  peerInfo;
   range_type range = base_type::equal_range(sock_key);
 
   if (range.first == range.second) {
@@ -315,7 +344,8 @@ PeerList::connected(const sockaddr* sa, int flags) {
     // host as the tracker.
     if (flags & connect_keep_handshakes &&
         range.first->second->is_handshake() &&
-        rak::socket_address::cast_from(range.first->second->socket_address())->port() != address->port())
+        rak::socket_address::cast_from(range.first->second->socket_address())
+            ->port() != address->port())
       m_available_list->buffer()->push_back(*address);
 
     return NULL;
@@ -343,19 +373,27 @@ PeerList::connected(const sockaddr* sa, int flags) {
 
 void
 PeerList::disconnected(PeerInfo* p, int flags) {
-  socket_address_key sock_key = socket_address_key::from_sockaddr(p->socket_address());
+  socket_address_key sock_key =
+    socket_address_key::from_sockaddr(p->socket_address());
 
   range_type range = base_type::equal_range(sock_key);
-  
-  iterator itr = std::find_if(range.first, range.second, rak::equal(p, rak::mem_ref(&value_type::second)));
+
+  iterator itr = std::find_if(range.first,
+                              range.second,
+                              rak::equal(p, rak::mem_ref(&value_type::second)));
 
   if (itr == range.second) {
-    if (std::find_if(base_type::begin(), base_type::end(), rak::equal(p, rak::mem_ref(&value_type::second))) == base_type::end())
-      throw internal_error("PeerList::disconnected(...) itr == range.second, doesn't exist.");
+    if (std::find_if(base_type::begin(),
+                     base_type::end(),
+                     rak::equal(p, rak::mem_ref(&value_type::second))) ==
+        base_type::end())
+      throw internal_error(
+        "PeerList::disconnected(...) itr == range.second, doesn't exist.");
     else
-      throw internal_error("PeerList::disconnected(...) itr == range.second, not in the range.");
+      throw internal_error(
+        "PeerList::disconnected(...) itr == range.second, not in the range.");
   }
-  
+
   disconnected(itr, flags);
 }
 
@@ -370,8 +408,10 @@ PeerList::disconnected(iterator itr, int flags) {
   if (itr->second->transfer_counter() != 0) {
     // Currently we only log these as it only affects the culling of
     // peers.
-    LT_LOG_EVENTS("disconnected with non-zero transfer counter (%" PRIu32 ") for peer %40s",
-                  itr->second->transfer_counter(), itr->second->id_hex());
+    LT_LOG_EVENTS("disconnected with non-zero transfer counter (%" PRIu32
+                  ") for peer %40s",
+                  itr->second->transfer_counter(),
+                  itr->second->id_hex());
   }
 
   itr->second->unset_flags(PeerInfo::flag_connected);
@@ -384,7 +424,8 @@ PeerList::disconnected(iterator itr, int flags) {
     itr->second->set_last_connection(cachedTime.seconds());
 
   if (flags & disconnect_available && itr->second->listen_port() != 0)
-    m_available_list->push_back(rak::socket_address::cast_from(itr->second->socket_address()));
+    m_available_list->push_back(
+      rak::socket_address::cast_from(itr->second->socket_address()));
 
   // Do magic to get rid of unneeded entries.
   return ++itr;
@@ -400,12 +441,13 @@ PeerList::cull_peers(int flags) {
   else
     timer = 0;
 
-  for (iterator itr = base_type::begin(); itr != base_type::end(); ) {
+  for (iterator itr = base_type::begin(); itr != base_type::end();) {
     if (itr->second->is_connected() ||
-        itr->second->transfer_counter() != 0 || // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        itr->second->transfer_counter() !=
+          0 || // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         itr->second->last_connection() >= timer ||
 
-        (flags & cull_keep_interesting && 
+        (flags & cull_keep_interesting &&
          (itr->second->failed_counter() != 0 || itr->second->is_blocked()))) {
       itr++;
       continue;
@@ -417,7 +459,7 @@ PeerList::cull_peers(int flags) {
     // The key is a pointer to a member in the value, although the key
     // shouldn't actually be used in erase (I think), just ot be safe
     // we delete it after erase.
-    iterator tmp = itr++;
+    iterator  tmp      = itr++;
     PeerInfo* peerInfo = tmp->second;
 
     base_type::erase(tmp);
@@ -429,4 +471,4 @@ PeerList::cull_peers(int flags) {
   return counter;
 }
 
-}
+} // namespace torrent

@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,8 +37,8 @@
 #ifndef RAK_FS_STAT_H
 #define RAK_FS_STAT_H
 
-#include <string>
 #include <cinttypes>
+#include <string>
 
 #include <rak/error_number.h>
 
@@ -62,23 +62,34 @@ namespace rak {
 
 class fs_stat {
 public:
-
   typedef FS_STAT_SIZE_TYPE  blocksize_type;
   typedef FS_STAT_COUNT_TYPE blockcount_type;
   typedef FS_STAT_STRUCT     fs_stat_type;
 
-  bool                       update(int fd)                       { return FS_STAT_FD; }
-  bool                       update(const char* fn)               { return FS_STAT_FN; }
-  bool                       update(const std::string& filename)  { return update(filename.c_str()); }
+  bool update(int fd) {
+    return FS_STAT_FD;
+  }
+  bool update(const char* fn) {
+    return FS_STAT_FN;
+  }
+  bool update(const std::string& filename) {
+    return update(filename.c_str());
+  }
 
-  blocksize_type             blocksize()                          { return FS_STAT_BLOCK_SIZE; }
-  blockcount_type            blocks_avail()                       { return m_stat.f_bavail; }
-  int64_t                    bytes_avail()                        { return (int64_t) blocksize() * m_stat.f_bavail; }
+  blocksize_type blocksize() {
+    return FS_STAT_BLOCK_SIZE;
+  }
+  blockcount_type blocks_avail() {
+    return m_stat.f_bavail;
+  }
+  int64_t bytes_avail() {
+    return (int64_t)blocksize() * m_stat.f_bavail;
+  }
 
 private:
-  fs_stat_type               m_stat;
+  fs_stat_type m_stat;
 };
 
-}
+} // namespace rak
 
 #endif

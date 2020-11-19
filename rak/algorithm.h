@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -43,14 +43,14 @@
 
 namespace rak {
 
-template <typename _InputIter, typename _Function>
+template<typename _InputIter, typename _Function>
 _Function
 for_each_pre(_InputIter __first, _InputIter __last, _Function __f) {
   _InputIter __tmp;
 
   while (__first != __last) {
     __tmp = __first++;
-    
+
     __f(*__tmp);
   }
 
@@ -59,9 +59,12 @@ for_each_pre(_InputIter __first, _InputIter __last, _Function __f) {
 
 // Return a range with a distance of no more than __distance and
 // between __first and __last, centered on __middle1.
-template <typename _InputIter, typename _Distance>
+template<typename _InputIter, typename _Distance>
 std::pair<_InputIter, _InputIter>
-advance_bidirectional(_InputIter __first, _InputIter __middle1, _InputIter __last, _Distance __distance) {
+advance_bidirectional(_InputIter __first,
+                      _InputIter __middle1,
+                      _InputIter __last,
+                      _Distance  __distance) {
   _InputIter __middle2 = __middle1;
 
   do {
@@ -92,7 +95,7 @@ advance_bidirectional(_InputIter __first, _InputIter __middle1, _InputIter __las
   return std::make_pair(__middle1, __middle2);
 }
 
-template <typename _InputIter, typename _Distance>
+template<typename _InputIter, typename _Distance>
 _InputIter
 advance_forward(_InputIter __first, _InputIter __last, _Distance __distance) {
   while (__first != __last && __distance != 0) {
@@ -103,7 +106,7 @@ advance_forward(_InputIter __first, _InputIter __last, _Distance __distance) {
   return __first;
 }
 
-template <typename _InputIter, typename _Distance>
+template<typename _InputIter, typename _Distance>
 _InputIter
 advance_backward(_InputIter __first, _InputIter __last, _Distance __distance) {
   while (__first != __last && __distance != 0) {
@@ -114,30 +117,33 @@ advance_backward(_InputIter __first, _InputIter __last, _Distance __distance) {
   return __first;
 }
 
-template <typename _Value>
+template<typename _Value>
 struct compare_base : public std::binary_function<_Value, _Value, bool> {
-  bool operator () (const _Value& complete, const _Value& base) const {
+  bool operator()(const _Value& complete, const _Value& base) const {
     return !complete.compare(0, base.size(), base);
   }
 };
 
 // Count the number of elements from the start of the containers to
 // the first inequal element.
-template <typename _InputIter1, typename _InputIter2>
+template<typename _InputIter1, typename _InputIter2>
 typename std::iterator_traits<_InputIter1>::difference_type
-count_base(_InputIter1 __first1, _InputIter1 __last1,
-	   _InputIter2 __first2, _InputIter2 __last2) {
+count_base(_InputIter1 __first1,
+           _InputIter1 __last1,
+           _InputIter2 __first2,
+           _InputIter2 __last2) {
 
   typename std::iterator_traits<_InputIter1>::difference_type __n = 0;
 
-  for ( ;__first1 != __last1 && __first2 != __last2; ++__first1, ++__first2, ++__n)
+  for (; __first1 != __last1 && __first2 != __last2;
+       ++__first1, ++__first2, ++__n)
     if (*__first1 != *__first2)
       return __n;
 
   return __n;
 }
 
-template <typename _Return, typename _InputIter, typename _Ftor>
+template<typename _Return, typename _InputIter, typename _Ftor>
 _Return
 make_base(_InputIter __first, _InputIter __last, _Ftor __ftor) {
   if (__first == __last)
@@ -145,11 +151,15 @@ make_base(_InputIter __first, _InputIter __last, _Ftor __ftor) {
 
   _Return __base = __ftor(*__first++);
 
-  for ( ;__first != __last; ++__first) {
-    typename std::iterator_traits<_InputIter>::difference_type __pos = count_base(__base.begin(), __base.end(),
-										  __ftor(*__first).begin(), __ftor(*__first).end());
+  for (; __first != __last; ++__first) {
+    typename std::iterator_traits<_InputIter>::difference_type __pos =
+      count_base(__base.begin(),
+                 __base.end(),
+                 __ftor(*__first).begin(),
+                 __ftor(*__first).end());
 
-    if (__pos < (typename std::iterator_traits<_InputIter>::difference_type)__base.size())
+    if (__pos < (typename std::iterator_traits<_InputIter>::difference_type)
+                  __base.size())
       __base.resize(__pos);
   }
 
@@ -157,16 +167,18 @@ make_base(_InputIter __first, _InputIter __last, _Ftor __ftor) {
 }
 
 template<typename T>
-inline int popcount_wrapper(T t) {
+inline int
+popcount_wrapper(T t) {
 #if USE_BUILTIN_POPCOUNT
-  if (std::numeric_limits<T>::digits <= std::numeric_limits<unsigned int>::digits)
+  if (std::numeric_limits<T>::digits <=
+      std::numeric_limits<unsigned int>::digits)
     return __builtin_popcount(t);
   else
     return __builtin_popcountll(t);
 #else
 #error __builtin_popcount not found.
   unsigned int count = 0;
-  
+
   while (t) {
     count += t & 0x1;
     t >> 1;
@@ -176,6 +188,6 @@ inline int popcount_wrapper(T t) {
 #endif
 }
 
-}
+} // namespace rak
 
 #endif

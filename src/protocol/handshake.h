@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -66,7 +66,9 @@ public:
   static const uint32_t enc_pad_size         = 512;
   static const uint32_t enc_pad_read_size    = 96 + enc_pad_size + 20;
 
-  static const uint32_t buffer_size = enc_pad_read_size + 20 + enc_negotiation_size + enc_pad_size + 2 + handshake_size + 5;
+  static const uint32_t buffer_size = enc_pad_read_size + 20 +
+                                      enc_negotiation_size + enc_pad_size + 2 +
+                                      handshake_size + 5;
 
   typedef ProtocolBuffer<buffer_size> Buffer;
 
@@ -96,104 +98,134 @@ public:
   Handshake(SocketFd fd, HandshakeManager* m, int encryption_options);
   ~Handshake();
 
-  const char*         type_name() const { return "handshake"; }
+  const char* type_name() const {
+    return "handshake";
+  }
 
-  bool                is_active() const             { return m_state != INACTIVE; }
+  bool is_active() const {
+    return m_state != INACTIVE;
+  }
 
-  State               state() const                 { return m_state; }
+  State state() const {
+    return m_state;
+  }
 
-  void                initialize_incoming(const rak::socket_address& sa);
-  void                initialize_outgoing(const rak::socket_address& sa, DownloadMain* d, PeerInfo* peerInfo);
-  
-  PeerInfo*           peer_info()                   { return m_peerInfo; }
-  const PeerInfo*     peer_info() const             { return m_peerInfo; }
+  void initialize_incoming(const rak::socket_address& sa);
+  void initialize_outgoing(const rak::socket_address& sa,
+                           DownloadMain*              d,
+                           PeerInfo*                  peerInfo);
 
-  void                set_peer_info(PeerInfo* p)    { m_peerInfo = p; }
+  PeerInfo* peer_info() {
+    return m_peerInfo;
+  }
+  const PeerInfo* peer_info() const {
+    return m_peerInfo;
+  }
 
-  const rak::socket_address* socket_address() const { return &m_address; }
+  void set_peer_info(PeerInfo* p) {
+    m_peerInfo = p;
+  }
 
-  DownloadMain*       download()                    { return m_download; }
-  Bitfield*           bitfield()                    { return &m_bitfield; }
-  
-  void                deactivate_connection();
-  void                release_connection();
-  void                destroy_connection();
+  const rak::socket_address* socket_address() const {
+    return &m_address;
+  }
 
-  const void*         unread_data()                 { return m_readBuffer.position(); }
-  uint32_t            unread_size() const           { return m_readBuffer.remaining(); }
+  DownloadMain* download() {
+    return m_download;
+  }
+  Bitfield* bitfield() {
+    return &m_bitfield;
+  }
 
-  rak::timer          initialized_time() const      { return m_initializedTime; }
+  void deactivate_connection();
+  void release_connection();
+  void destroy_connection();
 
-  virtual void        event_read();
-  virtual void        event_write();
-  virtual void        event_error();
+  const void* unread_data() {
+    return m_readBuffer.position();
+  }
+  uint32_t unread_size() const {
+    return m_readBuffer.remaining();
+  }
 
-  HandshakeEncryption* encryption()                 { return &m_encryption; }
-  ProtocolExtension*   extensions()                  { return m_extensions; }
+  rak::timer initialized_time() const {
+    return m_initializedTime;
+  }
 
-  int                 retry_options();
+  virtual void event_read();
+  virtual void event_write();
+  virtual void event_error();
+
+  HandshakeEncryption* encryption() {
+    return &m_encryption;
+  }
+  ProtocolExtension* extensions() {
+    return m_extensions;
+  }
+
+  int retry_options();
 
 protected:
   Handshake(const Handshake&);
-  void operator = (const Handshake&);
-  
-  void                read_done();
-  void                write_done();
+  void operator=(const Handshake&);
 
-  bool                fill_read_buffer(int size);
+  void read_done();
+  void write_done();
+
+  bool fill_read_buffer(int size);
 
   // Check what is unnessesary.
-  bool                read_proxy_connect();
-  bool                read_encryption_key();
-  bool                read_encryption_sync();
-  bool                read_encryption_skey();
-  bool                read_encryption_negotiation();
-  bool                read_negotiation_reply();
-  bool                read_info();
-  bool                read_peer();
-  bool                read_bitfield();
-  bool                read_extension();
-  bool                read_port();
+  bool read_proxy_connect();
+  bool read_encryption_key();
+  bool read_encryption_sync();
+  bool read_encryption_skey();
+  bool read_encryption_negotiation();
+  bool read_negotiation_reply();
+  bool read_info();
+  bool read_peer();
+  bool read_bitfield();
+  bool read_extension();
+  bool read_port();
 
-  void                prepare_proxy_connect();
-  void                prepare_key_plus_pad();
-  void                prepare_enc_negotiation();
-  void                prepare_handshake();
-  void                prepare_peer_info();
-  void                prepare_bitfield();
-  void                prepare_post_handshake(bool must_write);
+  void prepare_proxy_connect();
+  void prepare_key_plus_pad();
+  void prepare_enc_negotiation();
+  void prepare_handshake();
+  void prepare_peer_info();
+  void prepare_bitfield();
+  void prepare_post_handshake(bool must_write);
 
-  void                write_extension_handshake();
-  void                write_bitfield();
+  void write_extension_handshake();
+  void write_bitfield();
 
-  inline void         validate_download();
+  inline void validate_download();
 
-  uint32_t            read_unthrottled(void* buf, uint32_t length);
-  uint32_t            write_unthrottled(const void* buf, uint32_t length);
+  uint32_t read_unthrottled(void* buf, uint32_t length);
+  uint32_t write_unthrottled(const void* buf, uint32_t length);
 
-  static const char*  m_protocol;
+  static const char* m_protocol;
 
-  State               m_state;
+  State m_state;
 
-  HandshakeManager*   m_manager;
+  HandshakeManager* m_manager;
 
-  PeerInfo*           m_peerInfo;
-  DownloadMain*       m_download;
-  Bitfield            m_bitfield;
+  PeerInfo*     m_peerInfo;
+  DownloadMain* m_download;
+  Bitfield      m_bitfield;
 
-  ThrottleList*       m_uploadThrottle;
-  ThrottleList*       m_downloadThrottle;
+  ThrottleList* m_uploadThrottle;
+  ThrottleList* m_downloadThrottle;
 
-  rak::priority_item  m_taskTimeout;
-  rak::timer          m_initializedTime;
+  rak::priority_item m_taskTimeout;
+  rak::timer         m_initializedTime;
 
-  uint32_t            m_readPos;
-  uint32_t            m_writePos;
+  uint32_t m_readPos;
+  uint32_t m_writePos;
 
-  bool                m_readDone;
-  bool                m_writeDone;
+  bool m_readDone;
+  bool m_writeDone;
 
-  bool                m_incoming;
+  bool m_incoming;
 
   rak::socket_address m_address;
   char                m_options[8];
@@ -202,10 +234,10 @@ protected:
   ProtocolExtension*  m_extensions;
 
   // Put these last to keep variables closer to *this.
-  Buffer              m_readBuffer;
-  Buffer              m_writeBuffer;
+  Buffer m_readBuffer;
+  Buffer m_writeBuffer;
 };
 
-}
+} // namespace torrent
 
 #endif

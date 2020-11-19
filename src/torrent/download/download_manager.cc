@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -59,7 +59,7 @@ DownloadManager::erase(DownloadWrapper* d) {
 
   if (itr == end())
     throw internal_error("Tried to remove a torrent that doesn't exist");
-    
+
   delete *itr;
   return base_type::erase(itr);
 }
@@ -74,29 +74,42 @@ DownloadManager::clear() {
 
 DownloadManager::iterator
 DownloadManager::find(const std::string& hash) {
-  return std::find_if(begin(), end(), rak::equal(*HashString::cast_from(hash),
-                                                 rak::on(std::mem_fun(&DownloadWrapper::info), std::mem_fun(&DownloadInfo::hash))));
+  return std::find_if(begin(),
+                      end(),
+                      rak::equal(*HashString::cast_from(hash),
+                                 rak::on(std::mem_fun(&DownloadWrapper::info),
+                                         std::mem_fun(&DownloadInfo::hash))));
 }
 
 DownloadManager::iterator
 DownloadManager::find(const HashString& hash) {
-  return std::find_if(begin(), end(), rak::equal(hash, rak::on(std::mem_fun(&DownloadWrapper::info), std::mem_fun(&DownloadInfo::hash))));
+  return std::find_if(begin(),
+                      end(),
+                      rak::equal(hash,
+                                 rak::on(std::mem_fun(&DownloadWrapper::info),
+                                         std::mem_fun(&DownloadInfo::hash))));
 }
 
 DownloadManager::iterator
 DownloadManager::find(DownloadInfo* info) {
-  return std::find_if(begin(), end(), rak::equal(info, std::mem_fun(&DownloadWrapper::info)));
+  return std::find_if(
+    begin(), end(), rak::equal(info, std::mem_fun(&DownloadWrapper::info)));
 }
 
 DownloadManager::iterator
 DownloadManager::find_chunk_list(ChunkList* cl) {
-  return std::find_if(begin(), end(), rak::equal(cl, std::mem_fun(&DownloadWrapper::chunk_list)));
+  return std::find_if(
+    begin(), end(), rak::equal(cl, std::mem_fun(&DownloadWrapper::chunk_list)));
 }
 
 DownloadMain*
 DownloadManager::find_main(const char* hash) {
-  iterator itr = std::find_if(begin(), end(), rak::equal(*HashString::cast_from(hash),
-                                                         rak::on(std::mem_fun(&DownloadWrapper::info), std::mem_fun(&DownloadInfo::hash))));
+  iterator itr =
+    std::find_if(begin(),
+                 end(),
+                 rak::equal(*HashString::cast_from(hash),
+                            rak::on(std::mem_fun(&DownloadWrapper::info),
+                                    std::mem_fun(&DownloadInfo::hash))));
 
   if (itr == end())
     return NULL;
@@ -106,8 +119,12 @@ DownloadManager::find_main(const char* hash) {
 
 DownloadMain*
 DownloadManager::find_main_obfuscated(const char* hash) {
-  iterator itr = std::find_if(begin(), end(), rak::equal(*HashString::cast_from(hash),
-                                                         rak::on(std::mem_fun(&DownloadWrapper::info), std::mem_fun(&DownloadInfo::hash_obfuscated))));
+  iterator itr = std::find_if(
+    begin(),
+    end(),
+    rak::equal(*HashString::cast_from(hash),
+               rak::on(std::mem_fun(&DownloadWrapper::info),
+                       std::mem_fun(&DownloadInfo::hash_obfuscated))));
 
   if (itr == end())
     return NULL;
@@ -115,4 +132,4 @@ DownloadManager::find_main_obfuscated(const char* hash) {
     return (*itr)->main();
 }
 
-}
+} // namespace torrent

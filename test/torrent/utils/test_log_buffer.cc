@@ -43,7 +43,7 @@ test_log_buffer::test_timestamps() {
   log.lock_and_push_log("foobar", 6, 0);
   CPPUNIT_ASSERT(log.back().timestamp == 1000);
   CPPUNIT_ASSERT(log.find_older(1000 - 1) == log.begin());
-  CPPUNIT_ASSERT(log.find_older(1000)     == log.end());
+  CPPUNIT_ASSERT(log.find_older(1000) == log.end());
   CPPUNIT_ASSERT(log.find_older(1000 + 1) == log.end());
 
   torrent::cachedTime += rak::timer::from_milliseconds(10 * 1000);
@@ -51,7 +51,7 @@ test_log_buffer::test_timestamps() {
   log.lock_and_push_log("foobar", 6, 0);
   CPPUNIT_ASSERT(log.back().timestamp == 1010);
   CPPUNIT_ASSERT(log.find_older(1010 - 10) == log.begin());
-  CPPUNIT_ASSERT(log.find_older(1010 - 1)  == log.begin() + 1);
-  CPPUNIT_ASSERT(log.find_older(1010)      == log.end());
-  CPPUNIT_ASSERT(log.find_older(1010 + 1)  == log.end());
+  CPPUNIT_ASSERT(log.find_older(1010 - 1) == log.begin() + 1);
+  CPPUNIT_ASSERT(log.find_older(1010) == log.end());
+  CPPUNIT_ASSERT(log.find_older(1010 + 1) == log.end());
 }

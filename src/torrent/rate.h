@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -48,50 +48,80 @@ namespace torrent {
 
 class LIBTORRENT_EXPORT Rate {
 public:
-  typedef int32_t                          timer_type;
-  typedef uint64_t                         rate_type;
-  typedef uint64_t                         total_type;
+  typedef int32_t  timer_type;
+  typedef uint64_t rate_type;
+  typedef uint64_t total_type;
 
   typedef std::pair<timer_type, rate_type> value_type;
   typedef std::deque<value_type>           queue_type;
 
-  Rate(timer_type span) : m_current(0), m_total(0), m_span(span) {}
+  Rate(timer_type span)
+    : m_current(0)
+    , m_total(0)
+    , m_span(span) {}
 
   // Bytes per second.
-  rate_type           rate() const;
+  rate_type rate() const;
 
   // Total bytes transfered.
-  total_type          total() const                           { return m_total; }
-  void                set_total(total_type bytes)             { m_total = bytes; }
+  total_type total() const {
+    return m_total;
+  }
+  void set_total(total_type bytes) {
+    m_total = bytes;
+  }
 
   // Interval in seconds used to calculate the rate.
-  timer_type          span() const                            { return m_span; }
-  void                set_span(timer_type s)                  { m_span = s; }
+  timer_type span() const {
+    return m_span;
+  }
+  void set_span(timer_type s) {
+    m_span = s;
+  }
 
-  void                insert(rate_type bytes);
+  void insert(rate_type bytes);
 
-  void                reset_rate()                            { m_current = 0; m_container.clear(); }
-  
-  bool                operator <  (Rate& r) const             { return rate() < r.rate(); }
-  bool                operator >  (Rate& r) const             { return rate() > r.rate(); }
-  bool                operator == (Rate& r) const             { return rate() == r.rate(); }
-  bool                operator != (Rate& r) const             { return rate() != r.rate(); }
+  void reset_rate() {
+    m_current = 0;
+    m_container.clear();
+  }
 
-  bool                operator <  (rate_type r) const         { return rate() < r; }
-  bool                operator >  (rate_type r) const         { return rate() > r; }
-  bool                operator == (rate_type r) const         { return rate() == r; }
-  bool                operator != (rate_type r) const         { return rate() != r; }
+  bool operator<(Rate& r) const {
+    return rate() < r.rate();
+  }
+  bool operator>(Rate& r) const {
+    return rate() > r.rate();
+  }
+  bool operator==(Rate& r) const {
+    return rate() == r.rate();
+  }
+  bool operator!=(Rate& r) const {
+    return rate() != r.rate();
+  }
+
+  bool operator<(rate_type r) const {
+    return rate() < r;
+  }
+  bool operator>(rate_type r) const {
+    return rate() > r;
+  }
+  bool operator==(rate_type r) const {
+    return rate() == r;
+  }
+  bool operator!=(rate_type r) const {
+    return rate() != r;
+  }
 
 private:
-  inline void         discard_old() const;
+  inline void discard_old() const;
 
-  mutable queue_type  m_container;
+  mutable queue_type m_container;
 
-  mutable rate_type   m_current;
-  total_type          m_total;
-  timer_type          m_span;
+  mutable rate_type m_current;
+  total_type        m_total;
+  timer_type        m_span;
 };
 
-}
+} // namespace torrent
 
 #endif

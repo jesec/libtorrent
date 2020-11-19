@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -54,10 +54,22 @@ namespace torrent {
 // exceptions. This allows us to create breakpoints at throws. This is
 // limited to rarely thrown exceptions.
 
-void communication_error::initialize(const std::string& msg) { m_msg = msg; }
-void storage_error::initialize(const std::string& msg) { m_msg = msg; }
-void resource_error::initialize(const std::string& msg) { m_msg = msg; }
-void input_error::initialize(const std::string& msg) { m_msg = msg; }
+void
+communication_error::initialize(const std::string& msg) {
+  m_msg = msg;
+}
+void
+storage_error::initialize(const std::string& msg) {
+  m_msg = msg;
+}
+void
+resource_error::initialize(const std::string& msg) {
+  m_msg = msg;
+}
+void
+input_error::initialize(const std::string& msg) {
+  m_msg = msg;
+}
 
 const char*
 connection_error::what() const throw() {
@@ -79,7 +91,7 @@ internal_error::initialize(const std::string& msg) {
   void* stackPtrs[20];
 
   // Print the stack and exit.
-  int stackSize = ::backtrace(stackPtrs, 20);
+  int    stackSize    = ::backtrace(stackPtrs, 20);
   char** stackStrings = backtrace_symbols(stackPtrs, stackSize);
 
   for (int i = 0; i < stackSize; ++i)
@@ -92,4 +104,4 @@ internal_error::initialize(const std::string& msg) {
   m_backtrace = output.str();
 }
 
-}
+} // namespace torrent

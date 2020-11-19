@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,15 +37,15 @@
 #ifndef LIBTORRENT_NET_PROTOCOL_BUFFER_H
 #define LIBTORRENT_NET_PROTOCOL_BUFFER_H
 
-#include <memory>
 #include <cinttypes>
+#include <memory>
 #include <netinet/in.h>
 
 #include "torrent/exceptions.h"
 
 namespace torrent {
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 class ProtocolBuffer {
 public:
   typedef uint8_t     value_type;
@@ -53,89 +53,136 @@ public:
   typedef uint16_t    size_type;
   typedef int16_t     difference_type;
 
-  void                reset()                       { m_position = m_end = begin(); }
-  void                reset_position()              { m_position = m_buffer; }
-  bool                consume(difference_type v);
+  void reset() {
+    m_position = m_end = begin();
+  }
+  void reset_position() {
+    m_position = m_buffer;
+  }
+  bool consume(difference_type v);
 
-  void                set_position_itr(iterator itr) { m_position = itr; }
+  void set_position_itr(iterator itr) {
+    m_position = itr;
+  }
 
-  void                set_end(size_type v)          { m_end = m_buffer + v; }
-  void                set_end_itr(iterator itr)     { m_end = itr; }
-  difference_type     move_end(difference_type v)   { m_end += v; return v; }
+  void set_end(size_type v) {
+    m_end = m_buffer + v;
+  }
+  void set_end_itr(iterator itr) {
+    m_end = itr;
+  }
+  difference_type move_end(difference_type v) {
+    m_end += v;
+    return v;
+  }
 
-  uint8_t             read_8()                      { return *m_position++; }
-  uint8_t             peek_8()                      { return *m_position; }
-  uint16_t            read_16();
-  uint16_t            peek_16();
-  uint32_t            read_32();
-  uint32_t            peek_32();
-  uint64_t            read_64()                     { return read_int<uint64_t>(); }
-  uint64_t            peek_64()                     { return peek_int<uint64_t>(); }
+  uint8_t read_8() {
+    return *m_position++;
+  }
+  uint8_t peek_8() {
+    return *m_position;
+  }
+  uint16_t read_16();
+  uint16_t peek_16();
+  uint32_t read_32();
+  uint32_t peek_32();
+  uint64_t read_64() {
+    return read_int<uint64_t>();
+  }
+  uint64_t peek_64() {
+    return peek_int<uint64_t>();
+  }
 
-  uint8_t             peek_8_at(size_type pos)      { return *(m_position + pos); }
+  uint8_t peek_8_at(size_type pos) {
+    return *(m_position + pos);
+  }
 
-  template <typename Out>
-  void                read_range(Out first, Out last);
+  template<typename Out>
+  void read_range(Out first, Out last);
 
-  template <typename Out>
-  void                read_len(Out start, unsigned int len);
+  template<typename Out>
+  void read_len(Out start, unsigned int len);
 
-  template <typename T>
-  inline T            read_int();
+  template<typename T>
+  inline T read_int();
 
-  template <typename T>
-  inline T            peek_int();
+  template<typename T>
+  inline T peek_int();
 
-  void                write_8(uint8_t v)            { *m_end++ = v; validate_end(); }
-  void                write_16(uint16_t v);
-  void                write_32(uint32_t v);
-  void                write_32_n(uint32_t v);
-  void                write_64(uint64_t v)          { write_int<uint64_t>(v); }
+  void write_8(uint8_t v) {
+    *m_end++ = v;
+    validate_end();
+  }
+  void write_16(uint16_t v);
+  void write_32(uint32_t v);
+  void write_32_n(uint32_t v);
+  void write_64(uint64_t v) {
+    write_int<uint64_t>(v);
+  }
 
-  template <typename T>
-  inline void         write_int(T t);
+  template<typename T>
+  inline void write_int(T t);
 
-  template <typename In>
-  void                write_range(In first, In last);
+  template<typename In>
+  void write_range(In first, In last);
 
-  template <typename In>
-  void                write_len(In start, unsigned int len);
+  template<typename In>
+  void write_len(In start, unsigned int len);
 
-  iterator            begin()                       { return m_buffer; }
-  iterator            position()                    { return m_position; }
-  iterator            end()                         { return m_end; }
+  iterator begin() {
+    return m_buffer;
+  }
+  iterator position() {
+    return m_position;
+  }
+  iterator end() {
+    return m_end;
+  }
 
-  size_type           size_position() const         { return m_position - m_buffer; }
-  size_type           size_end() const              { return m_end - m_buffer; }
-  size_type           remaining() const             { return m_end - m_position; }
-  size_type           reserved() const              { return tmpl_size; }
-  size_type           reserved_left() const         { return reserved() - size_end(); }
+  size_type size_position() const {
+    return m_position - m_buffer;
+  }
+  size_type size_end() const {
+    return m_end - m_buffer;
+  }
+  size_type remaining() const {
+    return m_end - m_position;
+  }
+  size_type reserved() const {
+    return tmpl_size;
+  }
+  size_type reserved_left() const {
+    return reserved() - size_end();
+  }
 
-  void                move_unused();
+  void move_unused();
 
-  void                validate_position() const {
+  void validate_position() const {
 #ifdef USE_EXTRA_DEBUG
     if (m_position > m_buffer + tmpl_size)
-      throw internal_error("ProtocolBuffer tried to read beyond scope of the buffer.");
+      throw internal_error(
+        "ProtocolBuffer tried to read beyond scope of the buffer.");
     if (m_position > m_end)
-      throw internal_error("ProtocolBuffer tried to read beyond end of the buffer.");
+      throw internal_error(
+        "ProtocolBuffer tried to read beyond end of the buffer.");
 #endif
   }
 
-  void                validate_end() const {
+  void validate_end() const {
 #ifdef USE_EXTRA_DEBUG
     if (m_end > m_buffer + tmpl_size)
-      throw internal_error("ProtocolBuffer tried to write beyond scope of the buffer.");
+      throw internal_error(
+        "ProtocolBuffer tried to write beyond scope of the buffer.");
 #endif
   }
 
 private:
-  iterator            m_position;
-  iterator            m_end;
-  value_type          m_buffer[tmpl_size];
+  iterator   m_position;
+  iterator   m_end;
+  value_type m_buffer[tmpl_size];
 };
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 inline bool
 ProtocolBuffer<tmpl_size>::consume(difference_type v) {
   m_position += v;
@@ -143,10 +190,10 @@ ProtocolBuffer<tmpl_size>::consume(difference_type v) {
   if (remaining())
     return false;
 
-  return true; 
+  return true;
 }
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 inline uint16_t
 ProtocolBuffer<tmpl_size>::read_16() {
 #ifndef USE_ALIGNED
@@ -159,7 +206,7 @@ ProtocolBuffer<tmpl_size>::read_16() {
 #endif
 }
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 inline uint16_t
 ProtocolBuffer<tmpl_size>::peek_16() {
 #ifndef USE_ALIGNED
@@ -169,7 +216,7 @@ ProtocolBuffer<tmpl_size>::peek_16() {
 #endif
 }
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 inline uint32_t
 ProtocolBuffer<tmpl_size>::read_32() {
 #ifndef USE_ALIGNED
@@ -182,7 +229,7 @@ ProtocolBuffer<tmpl_size>::read_32() {
 #endif
 }
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 inline uint32_t
 ProtocolBuffer<tmpl_size>::peek_32() {
 #ifndef USE_ALIGNED
@@ -192,8 +239,8 @@ ProtocolBuffer<tmpl_size>::peek_32() {
 #endif
 }
 
-template <uint16_t tmpl_size>
-template <typename T>
+template<uint16_t tmpl_size>
+template<typename T>
 inline T
 ProtocolBuffer<tmpl_size>::read_int() {
   T t = T();
@@ -204,19 +251,20 @@ ProtocolBuffer<tmpl_size>::read_int() {
   return t;
 }
 
-template <uint16_t tmpl_size>
-template <typename T>
+template<uint16_t tmpl_size>
+template<typename T>
 inline T
 ProtocolBuffer<tmpl_size>::peek_int() {
   T t = T();
 
-  for (iterator itr = m_position, last = m_position + sizeof(T); itr != last; ++itr)
+  for (iterator itr = m_position, last = m_position + sizeof(T); itr != last;
+       ++itr)
     t = (t << 8) + *itr;
 
   return t;
 }
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 inline void
 ProtocolBuffer<tmpl_size>::write_16(uint16_t v) {
 #ifndef USE_ALIGNED
@@ -229,7 +277,7 @@ ProtocolBuffer<tmpl_size>::write_16(uint16_t v) {
 #endif
 }
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 inline void
 ProtocolBuffer<tmpl_size>::write_32(uint32_t v) {
 #ifndef USE_ALIGNED
@@ -242,7 +290,7 @@ ProtocolBuffer<tmpl_size>::write_32(uint32_t v) {
 #endif
 }
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 inline void
 ProtocolBuffer<tmpl_size>::write_32_n(uint32_t v) {
   *reinterpret_cast<uint32_t*>(m_end) = v;
@@ -251,28 +299,28 @@ ProtocolBuffer<tmpl_size>::write_32_n(uint32_t v) {
   validate_end();
 }
 
-template <uint16_t tmpl_size>
-template <typename Out>
+template<uint16_t tmpl_size>
+template<typename Out>
 void
 ProtocolBuffer<tmpl_size>::read_range(Out first, Out last) {
-  for ( ; first != last; ++m_position, ++first)
+  for (; first != last; ++m_position, ++first)
     *first = *m_position;
 
   validate_position();
 }
 
-template <uint16_t tmpl_size>
-template <typename Out>
+template<uint16_t tmpl_size>
+template<typename Out>
 void
 ProtocolBuffer<tmpl_size>::read_len(Out start, unsigned int len) {
-  for ( ; len > 0; ++m_position, ++start, --len)
+  for (; len > 0; ++m_position, ++start, --len)
     *start = *m_position;
 
   validate_position();
 }
 
-template <uint16_t tmpl_size>
-template <typename T>
+template<uint16_t tmpl_size>
+template<typename T>
 inline void
 ProtocolBuffer<tmpl_size>::write_int(T v) {
   for (iterator itr = m_end + sizeof(T); itr != m_end; v >>= 8)
@@ -282,27 +330,27 @@ ProtocolBuffer<tmpl_size>::write_int(T v) {
   validate_end();
 }
 
-template <uint16_t tmpl_size>
-template <typename In>
+template<uint16_t tmpl_size>
+template<typename In>
 void
 ProtocolBuffer<tmpl_size>::write_range(In first, In last) {
-  for ( ; first != last; ++m_end, ++first)
+  for (; first != last; ++m_end, ++first)
     *m_end = *first;
 
   validate_end();
 }
 
-template <uint16_t tmpl_size>
-template <typename In>
+template<uint16_t tmpl_size>
+template<typename In>
 void
 ProtocolBuffer<tmpl_size>::write_len(In start, unsigned int len) {
-  for ( ; len > 0; ++m_end, ++start, --len)
+  for (; len > 0; ++m_end, ++start, --len)
     *m_end = *start;
 
   validate_end();
 }
 
-template <uint16_t tmpl_size>
+template<uint16_t tmpl_size>
 void
 ProtocolBuffer<tmpl_size>::move_unused() {
   std::memmove(begin(), position(), remaining());
@@ -311,6 +359,6 @@ ProtocolBuffer<tmpl_size>::move_unused() {
   reset_position();
 }
 
-}
+} // namespace torrent
 
 #endif

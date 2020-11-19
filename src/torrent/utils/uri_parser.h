@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -38,21 +38,23 @@
 #define LIBTORRENT_UTILS_URI_PARSER_H
 
 #include <string>
-#include <vector>
 #include <torrent/common.h>
 #include <torrent/exceptions.h>
+#include <vector>
 
-namespace torrent { namespace utils {
+namespace torrent {
+namespace utils {
 
 typedef std::vector<std::string> uri_resource_list;
 typedef std::vector<std::string> uri_query_list;
 
 struct uri_base_state {
-  static const int state_empty = 0;
-  static const int state_valid = 1;
+  static const int state_empty   = 0;
+  static const int state_valid   = 1;
   static const int state_invalid = 2;
 
-  uri_base_state() : state(state_empty) {}
+  uri_base_state()
+    : state(state_empty) {}
 
   int state;
 };
@@ -66,31 +68,45 @@ struct uri_state : uri_base_state {
 };
 
 struct uri_resource_state : public uri_base_state {
-  std::string resource;
+  std::string       resource;
   uri_resource_list path;
 };
 
 struct uri_query_state : public uri_base_state {
-  std::string query;
+  std::string    query;
   uri_query_list elements;
 };
 
-void uri_parse_str(std::string uri, uri_state& state) LIBTORRENT_EXPORT;
-void uri_parse_c_str(const char* uri, uri_state& state) LIBTORRENT_EXPORT;
+void
+uri_parse_str(std::string uri, uri_state& state) LIBTORRENT_EXPORT;
+void
+uri_parse_c_str(const char* uri, uri_state& state) LIBTORRENT_EXPORT;
 
-void uri_parse_resource(std::string query, uri_query_state& state) LIBTORRENT_EXPORT;
-void uri_parse_resource_authority(std::string query, uri_query_state& state) LIBTORRENT_EXPORT;
-void uri_parse_resource_path(std::string query, uri_query_state& state) LIBTORRENT_EXPORT;
+void
+uri_parse_resource(std::string query, uri_query_state& state) LIBTORRENT_EXPORT;
+void
+uri_parse_resource_authority(std::string      query,
+                             uri_query_state& state) LIBTORRENT_EXPORT;
+void
+uri_parse_resource_path(std::string      query,
+                        uri_query_state& state) LIBTORRENT_EXPORT;
 
-void uri_parse_query_str(std::string query, uri_query_state& state) LIBTORRENT_EXPORT;
-void uri_parse_query_c_str(const char* query, uri_query_state& state) LIBTORRENT_EXPORT;
+void
+uri_parse_query_str(std::string      query,
+                    uri_query_state& state) LIBTORRENT_EXPORT;
+void
+uri_parse_query_c_str(const char*      query,
+                      uri_query_state& state) LIBTORRENT_EXPORT;
 
 class LIBTORRENT_EXPORT uri_error : public ::torrent::input_error {
 public:
-  uri_error(const char* msg) : ::torrent::input_error(msg) {}
-  uri_error(const std::string& msg) : ::torrent::input_error(msg) {}
+  uri_error(const char* msg)
+    : ::torrent::input_error(msg) {}
+  uri_error(const std::string& msg)
+    : ::torrent::input_error(msg) {}
 };
 
-}}
+} // namespace utils
+} // namespace torrent
 
 #endif

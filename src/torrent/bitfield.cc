@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -49,7 +49,8 @@ namespace torrent {
 void
 Bitfield::set_size_bits(size_type s) noexcept(false) {
   if (m_data != NULL)
-    throw internal_error("Bitfield::set_size_bits(size_type s) m_data != NULL.");
+    throw internal_error(
+      "Bitfield::set_size_bits(size_type s) m_data != NULL.");
 
   m_size = s;
 }
@@ -63,13 +64,14 @@ Bitfield::set_size_set(size_type s) noexcept(false) {
 }
 
 void
-Bitfield::allocate() { 
+Bitfield::allocate() {
   if (m_data != NULL)
     return;
 
   m_data = new value_type[size_bytes()];
 
-  instrumentation_update(INSTRUMENTATION_MEMORY_BITFIELDS, (int64_t)size_bytes());
+  instrumentation_update(INSTRUMENTATION_MEMORY_BITFIELDS,
+                         (int64_t)size_bytes());
 }
 
 void
@@ -77,10 +79,11 @@ Bitfield::unallocate() {
   if (m_data == NULL)
     return;
 
-  delete [] m_data;
+  delete[] m_data;
   m_data = NULL;
 
-  instrumentation_update(INSTRUMENTATION_MEMORY_BITFIELDS, -(int64_t)size_bytes());
+  instrumentation_update(INSTRUMENTATION_MEMORY_BITFIELDS,
+                         -(int64_t)size_bytes());
 }
 
 void
@@ -90,7 +93,7 @@ Bitfield::update() {
 
   m_set = 0;
 
-  iterator itr = m_data;
+  iterator itr  = m_data;
   iterator last = end();
 
   while (itr + sizeof(unsigned int) <= last) {
@@ -108,7 +111,7 @@ Bitfield::copy(const Bitfield& bf) {
   unallocate();
 
   m_size = bf.m_size;
-  m_set = bf.m_set;
+  m_set  = bf.m_set;
 
   if (bf.m_data == NULL) {
     m_data = NULL;
@@ -164,4 +167,4 @@ Bitfield::unset_range(size_type first, size_type last) {
 //     m_set += bit_count_256[*itr];
 // }
 
-}
+} // namespace torrent

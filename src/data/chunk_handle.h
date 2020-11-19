@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -47,34 +47,62 @@ class ChunkListNode;
 
 class ChunkHandle {
 public:
-  ChunkHandle(ChunkListNode* c = NULL, bool wr = false, bool blk = false) :
-    m_node(c), m_writable(wr), m_blocking(blk) {}
+  ChunkHandle(ChunkListNode* c = NULL, bool wr = false, bool blk = false)
+    : m_node(c)
+    , m_writable(wr)
+    , m_blocking(blk) {}
 
-  bool                is_valid() const                      { return m_node != NULL; }
-  bool                is_loaded() const                     { return m_node != NULL && m_node->is_valid(); }
-  bool                is_writable() const                   { return m_writable; }
-  bool                is_blocking() const                   { return m_blocking; }
-  
-  void                clear()                               { m_node = NULL; m_writable = false; m_blocking = false; }
+  bool is_valid() const {
+    return m_node != NULL;
+  }
+  bool is_loaded() const {
+    return m_node != NULL && m_node->is_valid();
+  }
+  bool is_writable() const {
+    return m_writable;
+  }
+  bool is_blocking() const {
+    return m_blocking;
+  }
 
-  rak::error_number   error_number() const                  { return m_errorNumber; }
-  void                set_error_number(rak::error_number e) { m_errorNumber = e; }
+  void clear() {
+    m_node     = NULL;
+    m_writable = false;
+    m_blocking = false;
+  }
 
-  ChunkListNode*      object() const                        { return m_node; }
-  Chunk*              chunk() const                         { return m_node->chunk(); }
+  rak::error_number error_number() const {
+    return m_errorNumber;
+  }
+  void set_error_number(rak::error_number e) {
+    m_errorNumber = e;
+  }
 
-  uint32_t            index() const                         { return m_node->index(); }
+  ChunkListNode* object() const {
+    return m_node;
+  }
+  Chunk* chunk() const {
+    return m_node->chunk();
+  }
 
-  static ChunkHandle  from_error(rak::error_number e)       { ChunkHandle h; h.set_error_number(e); return h; }
+  uint32_t index() const {
+    return m_node->index();
+  }
+
+  static ChunkHandle from_error(rak::error_number e) {
+    ChunkHandle h;
+    h.set_error_number(e);
+    return h;
+  }
 
 private:
-  ChunkListNode*      m_node;
-  bool                m_writable;
-  bool                m_blocking;
+  ChunkListNode* m_node;
+  bool           m_writable;
+  bool           m_blocking;
 
-  rak::error_number   m_errorNumber;
+  rak::error_number m_errorNumber;
 };
 
-}
+} // namespace torrent
 
 #endif

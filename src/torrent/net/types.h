@@ -2,8 +2,8 @@
 #define LIBTORRENT_NET_TYPES_H
 
 #include <memory>
-#include <tuple>
 #include <sys/socket.h>
+#include <tuple>
 
 struct sockaddr_in;
 struct sockaddr_in6;
@@ -24,10 +24,10 @@ typedef std::unique_ptr<const sockaddr_un>  c_sun_unique_ptr;
 typedef std::tuple<int, std::unique_ptr<sockaddr>> fd_sap_tuple;
 
 struct listen_result_type {
-  int fd;
+  int           fd;
   sa_unique_ptr address;
 };
 
-}
+} // namespace torrent
 
 #endif

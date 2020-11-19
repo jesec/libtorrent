@@ -3,10 +3,10 @@
 
 #include <functional>
 #include <inttypes.h>
-#include <string>
 #include <rak/functional.h>
-#include <rak/unordered_vector.h>
 #include <rak/socket_address.h>
+#include <rak/unordered_vector.h>
+#include <string>
 #include <torrent/connection_manager.h>
 
 #include "net/socket_fd.h"
@@ -23,54 +23,70 @@ public:
   typedef rak::unordered_vector<Handshake*> base_type;
   typedef uint32_t                          size_type;
 
-  typedef std::function<DownloadMain* (const char*)> slot_download;
+  typedef std::function<DownloadMain*(const char*)> slot_download;
 
   // Do not connect to peers with this many or more failed chunks.
   static const unsigned int max_failed = 3;
 
   using base_type::empty;
 
-  HandshakeManager() { }
-  ~HandshakeManager() { clear(); }
+  HandshakeManager() {}
+  ~HandshakeManager() {
+    clear();
+  }
 
-  size_type           size() const { return base_type::size(); }
-  size_type           size_info(DownloadMain* info) const;
+  size_type size() const {
+    return base_type::size();
+  }
+  size_type size_info(DownloadMain* info) const;
 
-  void                clear();
+  void clear();
 
-  bool                find(const rak::socket_address& sa);
+  bool find(const rak::socket_address& sa);
 
-  void                erase_download(DownloadMain* info);
+  void erase_download(DownloadMain* info);
 
   // Cleanup.
-  void                add_incoming(SocketFd fd, const rak::socket_address& sa);
-  void                add_outgoing(const rak::socket_address& sa, DownloadMain* info);
+  void add_incoming(SocketFd fd, const rak::socket_address& sa);
+  void add_outgoing(const rak::socket_address& sa, DownloadMain* info);
 
-  slot_download&      slot_download_id()         { return m_slot_download_id; }
-  slot_download&      slot_download_obfuscated() { return m_slot_download_obfuscated; }
+  slot_download& slot_download_id() {
+    return m_slot_download_id;
+  }
+  slot_download& slot_download_obfuscated() {
+    return m_slot_download_obfuscated;
+  }
 
   // This needs to be filterable slot.
-  DownloadMain*       download_info(const char* hash)                   { return m_slot_download_id(hash); }
-  DownloadMain*       download_info_obfuscated(const char* hash)        { return m_slot_download_obfuscated(hash); }
+  DownloadMain* download_info(const char* hash) {
+    return m_slot_download_id(hash);
+  }
+  DownloadMain* download_info_obfuscated(const char* hash) {
+    return m_slot_download_obfuscated(hash);
+  }
 
-  void                receive_succeeded(Handshake* h);
-  void                receive_failed(Handshake* h, int message, int error);
-  void                receive_timeout(Handshake* h);
+  void receive_succeeded(Handshake* h);
+  void receive_failed(Handshake* h, int message, int error);
+  void receive_timeout(Handshake* h);
 
-  ProtocolExtension*  default_extensions() const                        { return &DefaultExtensions; }
+  ProtocolExtension* default_extensions() const {
+    return &DefaultExtensions;
+  }
 
 private:
-  void                create_outgoing(const rak::socket_address& sa, DownloadMain* info, int encryptionOptions);
-  void                erase(Handshake* handshake);
+  void create_outgoing(const rak::socket_address& sa,
+                       DownloadMain*              info,
+                       int                        encryptionOptions);
+  void erase(Handshake* handshake);
 
-  bool                setup_socket(SocketFd fd);
+  bool setup_socket(SocketFd fd);
 
   static ProtocolExtension DefaultExtensions;
 
-  slot_download       m_slot_download_id;
-  slot_download       m_slot_download_obfuscated;
+  slot_download m_slot_download_id;
+  slot_download m_slot_download_obfuscated;
 };
 
-}
+} // namespace torrent
 
 #endif

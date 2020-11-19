@@ -1,8 +1,9 @@
+#include "../rak/ranges.h"
 #include <cassert>
 #include <iostream>
-#include "../rak/ranges.h"
 
-void print_ranges(rak::ranges<uint32_t>& r) {
+void
+print_ranges(rak::ranges<uint32_t>& r) {
   rak::ranges<uint32_t>::iterator itr = r.begin();
 
   std::cout << std::endl;
@@ -14,7 +15,8 @@ void print_ranges(rak::ranges<uint32_t>& r) {
   }
 }
 
-int main() {
+int
+main() {
   rak::ranges<uint32_t> r;
 
   r.insert(10, 20);
@@ -30,23 +32,20 @@ int main() {
 
   print_ranges(r);
 
-//   r.erase(15, 55);
+  //   r.erase(15, 55);
 
-//   print(r);
+  //   print(r);
 
-//   assert(r.size() == 3);
+  //   assert(r.size() == 3);
 
-//   assert(r.has(14));
-//   assert(!r.has(15));
-//   assert(!r.has(54));
-//   assert(r.has(55));
+  //   assert(r.has(14));
+  //   assert(!r.has(15));
+  //   assert(!r.has(54));
+  //   assert(r.has(55));
 
-//   r.insert(5, 60);
+  //   r.insert(5, 60);
 
-//   print(r);
+  //   print(r);
 
   return 0;
 }
-
-	 
-  

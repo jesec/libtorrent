@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -43,19 +43,23 @@
 
 namespace torrent {
 
-DhtBucket::DhtBucket(const HashString& begin, const HashString& end) :
-  m_parent(NULL),
-  m_child(NULL),
+DhtBucket::DhtBucket(const HashString& begin, const HashString& end)
+  : m_parent(NULL)
+  , m_child(NULL)
+  ,
 
-  m_lastChanged(cachedTime.seconds()),
+  m_lastChanged(cachedTime.seconds())
+  ,
 
-  m_good(0),
-  m_bad(0),
+  m_good(0)
+  , m_bad(0)
+  ,
 
-  m_fullCacheLength(0),
+  m_fullCacheLength(0)
+  ,
 
-  m_begin(begin),
-  m_end(end) {
+  m_begin(begin)
+  , m_end(end) {
 
   reserve(num_nodes);
 }
@@ -75,9 +79,11 @@ DhtBucket::add_node(DhtNode* n) {
 
 void
 DhtBucket::remove_node(DhtNode* n) {
-  iterator itr = std::find_if(begin(), end(), std::bind2nd(std::equal_to<DhtNode*>(), n));
+  iterator itr =
+    std::find_if(begin(), end(), std::bind2nd(std::equal_to<DhtNode*>(), n));
   if (itr == end())
-    throw internal_error("DhtBucket::remove_node called for node not in bucket.");
+    throw internal_error(
+      "DhtBucket::remove_node called for node not in bucket.");
 
   erase(itr);
 
@@ -92,7 +98,7 @@ DhtBucket::remove_node(DhtNode* n) {
 void
 DhtBucket::count() {
   m_good = std::count_if(begin(), end(), std::mem_fun(&DhtNode::is_good));
-  m_bad = std::count_if(begin(), end(), std::mem_fun(&DhtNode::is_bad));
+  m_bad  = std::count_if(begin(), end(), std::mem_fun(&DhtNode::is_bad));
 }
 
 // Called every 15 minutes for housekeeping.
@@ -107,7 +113,7 @@ DhtBucket::update() {
 
 DhtBucket::iterator
 DhtBucket::find_replacement_candidate(bool onlyOldest) {
-  iterator oldest = end();
+  iterator     oldest     = end();
   unsigned int oldestTime = std::numeric_limits<unsigned int>::max();
 
   for (iterator itr = begin(); itr != end(); ++itr) {
@@ -116,7 +122,7 @@ DhtBucket::find_replacement_candidate(bool onlyOldest) {
 
     if ((*itr)->last_seen() < oldestTime) {
       oldestTime = (*itr)->last_seen();
-      oldest = itr;
+      oldest     = itr;
     }
   }
 
@@ -127,7 +133,7 @@ void
 DhtBucket::get_mid_point(HashString* middle) const {
   *middle = m_end;
 
-  for (unsigned int i=0; i<m_begin.size(); i++)
+  for (unsigned int i = 0; i < m_begin.size(); i++)
     if (m_begin[i] != m_end[i]) {
       (*middle)[i] = ((uint8_t)m_begin[i] + (uint8_t)m_end[i]) / 2;
       break;
@@ -139,12 +145,13 @@ DhtBucket::get_random_id(HashString* rand_id) const {
 
   // Generate a random ID between m_begin and m_end.
   // Since m_end - m_begin = 2^n - 1, we can do a bitwise AND operation.
-  for (unsigned int i=0; i<(*rand_id).size(); i++)
+  for (unsigned int i = 0; i < (*rand_id).size(); i++)
     (*rand_id)[i] = m_begin[i] + (random() & (m_end[i] - m_begin[i]));
 
 #ifdef USE_EXTRA_DEBUG
   if (!is_in_range(*rand_id))
-    throw internal_error("DhtBucket::get_random_id generated an out-of-range ID.");
+    throw internal_error(
+      "DhtBucket::get_random_id generated an out-of-range ID.");
 #endif
 }
 
@@ -157,17 +164,20 @@ DhtBucket::split(const HashString& id) {
 
   // Set m_begin = mid_range + 1
   int carry = 1;
-  for (unsigned int i = mid_range.size(); i>0; i--) {
-    unsigned int sum = (uint8_t)mid_range[i-1] + carry;
-    m_begin[i-1] = (uint8_t)sum;
-    carry = sum >> 8;
+  for (unsigned int i = mid_range.size(); i > 0; i--) {
+    unsigned int sum = (uint8_t)mid_range[i - 1] + carry;
+    m_begin[i - 1]   = (uint8_t)sum;
+    carry            = sum >> 8;
   }
 
   // Move nodes over to other bucket if they fall in its range, then
   // delete them from this one.
-  iterator split = std::partition(begin(), end(), std::bind2nd(std::mem_fun(&DhtNode::is_in_range), this));
+  iterator split = std::partition(
+    begin(), end(), std::bind2nd(std::mem_fun(&DhtNode::is_in_range), this));
   other->insert(other->end(), split, end());
-  std::for_each(other->begin(), other->end(), std::bind2nd(std::mem_fun(&DhtNode::set_bucket), other));
+  std::for_each(other->begin(),
+                other->end(),
+                std::bind2nd(std::mem_fun(&DhtNode::set_bucket), other));
   erase(split, end());
 
   other->set_time(m_lastChanged);
@@ -175,21 +185,21 @@ DhtBucket::split(const HashString& id) {
 
   count();
 
-  // Maintain child (adjacent narrower bucket) and parent (adjacent wider bucket)
-  // so that given router ID is in child.
+  // Maintain child (adjacent narrower bucket) and parent (adjacent wider
+  // bucket) so that given router ID is in child.
   if (other->is_in_range(id)) {
     // Make other become our new child.
-    m_child = other;
+    m_child         = other;
     other->m_parent = this;
 
   } else {
     // We become other's child, other becomes our parent's child.
     if (parent() != NULL) {
       parent()->m_child = other;
-      other->m_parent = parent();
+      other->m_parent   = parent();
     }
 
-    m_parent = other;
+    m_parent       = other;
     other->m_child = this;
   }
 
@@ -203,12 +213,16 @@ DhtBucket::build_full_cache() {
   char* pos = m_fullCache;
 
   do {
-    for (const_iterator itr = chain.bucket()->begin(); itr != chain.bucket()->end() && pos < m_fullCache + sizeof(m_fullCache); ++itr) {
+    for (const_iterator itr = chain.bucket()->begin();
+         itr != chain.bucket()->end() &&
+         pos < m_fullCache + sizeof(m_fullCache);
+         ++itr) {
       if (!(*itr)->is_bad()) {
         pos = (*itr)->store_compact(pos);
 
         if (pos > m_fullCache + sizeof(m_fullCache))
-          throw internal_error("DhtRouter::store_closest_nodes wrote past buffer end.");
+          throw internal_error(
+            "DhtRouter::store_closest_nodes wrote past buffer end.");
       }
     }
   } while (pos < m_fullCache + sizeof(m_fullCache) && chain.next() != NULL);
@@ -216,4 +230,4 @@ DhtBucket::build_full_cache() {
   m_fullCacheLength = pos - m_fullCache;
 }
 
-}
+} // namespace torrent

@@ -44,4 +44,3 @@ public:
   void test_write_single();
   void test_write_multiple();
 };
-

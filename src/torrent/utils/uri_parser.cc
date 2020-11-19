@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -42,36 +42,27 @@
 
 #include "rak/string_manip.h"
 
-namespace torrent { namespace utils {
+namespace torrent {
+namespace utils {
 
 inline bool
 is_unreserved_uri_char(char c) {
-  return
-    (c >= 'A' && c <= 'Z') ||
-    (c >= 'a' && c <= 'z') ||
-    (c >= '0' && c <= '9') ||
-    c == '-' || c == '_' || c == '.' || c == '~';
+  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+         (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' || c == '~';
 }
 
 inline bool
 is_valid_uri_query_char(char c) {
-  return
-    (c >= 'A' && c <= 'Z') ||
-    (c >= 'a' && c <= 'z') ||
-    (c >= '0' && c <= '9') ||
-    c == '-' || c == '_' || c == '.' || c == '~' ||
-    c == ':' || c == '&' || c == '=' || c == '/' ||
-    c == '%';
+  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+         (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' ||
+         c == '~' || c == ':' || c == '&' || c == '=' || c == '/' || c == '%';
 }
 
 inline bool
 is_unreserved_uri_query_char(char c) {
-  return
-    (c >= 'A' && c <= 'Z') ||
-    (c >= 'a' && c <= 'z') ||
-    (c >= '0' && c <= '9') ||
-    c == '-' || c == '_' || c == '.' || c == '~' ||
-    c == ':' || c == '=' || c == '/' || c == '%';
+  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+         (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' ||
+         c == '~' || c == ':' || c == '=' || c == '/' || c == '%';
 }
 
 inline bool
@@ -91,8 +82,10 @@ is_not_unreserved_uri_query_char(char c) {
 
 template<typename Ftor>
 inline std::string::const_iterator
-uri_string_copy_until(std::string::const_iterator first, std::string::const_iterator last,
-                      std::string& result, Ftor check) {
+uri_string_copy_until(std::string::const_iterator first,
+                      std::string::const_iterator last,
+                      std::string&                result,
+                      Ftor                        check) {
   std::string::const_iterator next = std::find_if(first, last, check);
 
   result = std::string(first, next);
@@ -117,36 +110,42 @@ uri_parse_str(std::string uri, uri_state& state) {
   state.state = uri_state::state_invalid;
 
   std::string::const_iterator first = state.uri.begin();
-  std::string::const_iterator last = state.uri.end();
+  std::string::const_iterator last  = state.uri.end();
 
   // Parse scheme:
-  first = uri_string_copy_until(first, last, state.scheme, std::ptr_fun(&is_not_unreserved_uri_char));
+  first = uri_string_copy_until(
+    first, last, state.scheme, std::ptr_fun(&is_not_unreserved_uri_char));
 
   if (first == last)
     goto uri_parse_success;
 
   if (*first++ != ':')
-    uri_parse_throw_error("could not find ':' after scheme, found character 0x", *--first);
+    uri_parse_throw_error("could not find ':' after scheme, found character 0x",
+                          *--first);
 
   // Parse resource:
-  first = uri_string_copy_until(first, last, state.resource, std::ptr_fun(&is_not_unreserved_uri_char));
+  first = uri_string_copy_until(
+    first, last, state.resource, std::ptr_fun(&is_not_unreserved_uri_char));
 
   if (first == last)
     goto uri_parse_success;
 
   if (*first++ != '?')
-    uri_parse_throw_error("could not find '?' after resource, found character 0x", *--first);
+    uri_parse_throw_error(
+      "could not find '?' after resource, found character 0x", *--first);
 
   // Parse query:
-  first = uri_string_copy_until(first, last, state.query, std::ptr_fun(&is_not_valid_uri_query_char));
+  first = uri_string_copy_until(
+    first, last, state.query, std::ptr_fun(&is_not_valid_uri_query_char));
 
   if (first == last)
     goto uri_parse_success;
 
   if (*first++ != '#')
-    uri_parse_throw_error("could not find '#' after query, found character 0x", *--first);
+    uri_parse_throw_error("could not find '#' after query, found character 0x",
+                          *--first);
 
- uri_parse_success:
+uri_parse_success:
   state.state = uri_state::state_valid;
   return;
 }
@@ -165,24 +164,27 @@ uri_parse_c_str(const char* uri, uri_state& state) {
 void
 uri_parse_query_str(std::string query, uri_query_state& state) {
   if (state.state != uri_query_state::state_empty)
-    throw uri_error("uri_query_state.state is not uri_query_state::state_empty");
+    throw uri_error(
+      "uri_query_state.state is not uri_query_state::state_empty");
 
   state.query.swap(query);
   state.state = uri_state::state_invalid;
 
   std::string::const_iterator first = state.query.begin();
-  std::string::const_iterator last = state.query.end();
+  std::string::const_iterator last  = state.query.end();
 
   while (first != last) {
     std::string element;
-    first = uri_string_copy_until(first, last, element, std::ptr_fun(&is_not_unreserved_uri_query_char));
+    first = uri_string_copy_until(
+      first, last, element, std::ptr_fun(&is_not_unreserved_uri_query_char));
 
     if (first != last && *first++ != '&') {
       std::string invalid_hex;
       invalid_hex += rak::value_to_hexchar<1>(*--first);
       invalid_hex += rak::value_to_hexchar<0>(*first);
 
-      throw uri_error("query element contains invalid character 0x" + invalid_hex);
+      throw uri_error("query element contains invalid character 0x" +
+                      invalid_hex);
     }
 
     state.elements.push_back(element);
@@ -196,4 +198,5 @@ uri_parse_query_str(const char* query, uri_query_state& state) {
   uri_parse_query_str(std::string(query), state);
 }
 
-}}
+} // namespace utils
+} // namespace torrent

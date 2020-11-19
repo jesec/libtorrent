@@ -10,15 +10,22 @@ CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_chunk_list, "data");
 torrent::Chunk*
 func_create_chunk(uint32_t index, int) {
   // Do proper handling of prot_flags...
-  char* memory_part1 = (char*)mmap(NULL, 10, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
+  char* memory_part1 = (char*)mmap(
+    NULL, 10, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
 
   if (memory_part1 == MAP_FAILED)
-    throw torrent::internal_error("func_create_chunk() failed: " + std::string(strerror(errno)));
+    throw torrent::internal_error("func_create_chunk() failed: " +
+                                  std::string(strerror(errno)));
 
   std::memset(memory_part1, index, 10);
 
   torrent::Chunk* chunk = new torrent::Chunk();
-  chunk->push_back(torrent::ChunkPart::MAPPED_MMAP, torrent::MemoryChunk(memory_part1, memory_part1, memory_part1 + 10, torrent::MemoryChunk::prot_read, 0));
+  chunk->push_back(torrent::ChunkPart::MAPPED_MMAP,
+                   torrent::MemoryChunk(memory_part1,
+                                        memory_part1,
+                                        memory_part1 + 10,
+                                        torrent::MemoryChunk::prot_read,
+                                        0));
 
   if (chunk == NULL)
     throw torrent::internal_error("func_create_chunk() failed: chunk == NULL.");
@@ -32,13 +39,12 @@ func_free_diskspace(torrent::ChunkList*) {
 }
 
 void
-func_storage_error(torrent::ChunkList*, const std::string&) {
-}
+func_storage_error(torrent::ChunkList*, const std::string&) {}
 
 void
 test_chunk_list::test_basic() {
   torrent::ChunkManager chunk_manager;
-  torrent::ChunkList chunk_list;
+  torrent::ChunkList    chunk_list;
 
   CPPUNIT_ASSERT(chunk_list.flags() == 0);
   CPPUNIT_ASSERT(chunk_list.chunk_size() == 0);
@@ -75,7 +81,8 @@ test_chunk_list::test_get_release() {
 
   chunk_list->release(&handle_0);
 
-  torrent::ChunkHandle handle_1 = chunk_list->get(1, torrent::ChunkList::get_writable);
+  torrent::ChunkHandle handle_1 =
+    chunk_list->get(1, torrent::ChunkList::get_writable);
 
   CPPUNIT_ASSERT(handle_1.object() != NULL);
   CPPUNIT_ASSERT(handle_1.object()->index() == 1);
@@ -90,7 +97,8 @@ test_chunk_list::test_get_release() {
 
   chunk_list->release(&handle_1);
 
-  torrent::ChunkHandle handle_2 = chunk_list->get(2, torrent::ChunkList::get_blocking);
+  torrent::ChunkHandle handle_2 =
+    chunk_list->get(2, torrent::ChunkList::get_blocking);
 
   CPPUNIT_ASSERT(handle_2.object() != NULL);
   CPPUNIT_ASSERT(handle_2.object()->index() == 2);
@@ -115,14 +123,17 @@ void
 test_chunk_list::test_blocking() {
   SETUP_CHUNK_LIST();
 
-  torrent::ChunkHandle handle_0_ro = chunk_list->get(0, torrent::ChunkList::get_blocking);
+  torrent::ChunkHandle handle_0_ro =
+    chunk_list->get(0, torrent::ChunkList::get_blocking);
   CPPUNIT_ASSERT(handle_0_ro.is_valid());
 
   // Test writable, etc, on blocking without get_nonblock using a
   // timer on other thread.
-  // torrent::ChunkHandle handle_1 = chunk_list->get(0, torrent::ChunkList::get_writable);
-  
-  torrent::ChunkHandle handle_0_rw = chunk_list->get(0, torrent::ChunkList::get_writable | torrent::ChunkList::get_nonblock);
+  // torrent::ChunkHandle handle_1 = chunk_list->get(0,
+  // torrent::ChunkList::get_writable);
+
+  torrent::ChunkHandle handle_0_rw = chunk_list->get(
+    0, torrent::ChunkList::get_writable | torrent::ChunkList::get_nonblock);
   CPPUNIT_ASSERT(!handle_0_rw.is_valid());
   CPPUNIT_ASSERT(handle_0_rw.error_number() == rak::error_number::e_again);
 

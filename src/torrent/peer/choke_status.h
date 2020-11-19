@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -45,41 +45,64 @@ class group_entry;
 
 class choke_status {
 public:
-  choke_status() :
-    m_group_entry(NULL),
+  choke_status()
+    : m_group_entry(NULL)
+    ,
 
-    m_queued(false),
-    m_unchoked(false),
-    m_snubbed(false),
-    m_timeLastChoke(0) {}
+    m_queued(false)
+    , m_unchoked(false)
+    , m_snubbed(false)
+    , m_timeLastChoke(0) {}
 
-  group_entry*        entry() const                           { return m_group_entry; }
-  void                set_entry(group_entry* grp_ent)         { m_group_entry = grp_ent; }
+  group_entry* entry() const {
+    return m_group_entry;
+  }
+  void set_entry(group_entry* grp_ent) {
+    m_group_entry = grp_ent;
+  }
 
-  bool                queued() const                          { return m_queued; }
-  void                set_queued(bool s)                      { m_queued = s; }
+  bool queued() const {
+    return m_queued;
+  }
+  void set_queued(bool s) {
+    m_queued = s;
+  }
 
-  bool                choked() const                          { return !m_unchoked; }
-  bool                unchoked() const                        { return m_unchoked; }
-  void                set_unchoked(bool s)                    { m_unchoked = s; }
+  bool choked() const {
+    return !m_unchoked;
+  }
+  bool unchoked() const {
+    return m_unchoked;
+  }
+  void set_unchoked(bool s) {
+    m_unchoked = s;
+  }
 
-  bool                snubbed() const                         { return m_snubbed; }
-  void                set_snubbed(bool s)                     { m_snubbed = s; }
+  bool snubbed() const {
+    return m_snubbed;
+  }
+  void set_snubbed(bool s) {
+    m_snubbed = s;
+  }
 
-  int64_t             time_last_choke() const                 { return m_timeLastChoke; }
-  void                set_time_last_choke(int64_t t)          { m_timeLastChoke = t; }
+  int64_t time_last_choke() const {
+    return m_timeLastChoke;
+  }
+  void set_time_last_choke(int64_t t) {
+    m_timeLastChoke = t;
+  }
 
 private:
   // TODO: Use flags.
-  group_entry*        m_group_entry;
+  group_entry* m_group_entry;
 
-  bool                m_queued;
-  bool                m_unchoked;
-  bool                m_snubbed;
+  bool m_queued;
+  bool m_unchoked;
+  bool m_snubbed;
 
-  int64_t             m_timeLastChoke;
+  int64_t m_timeLastChoke;
 };
 
-}
+} // namespace torrent
 
 #endif

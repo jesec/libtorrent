@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -53,28 +53,50 @@ namespace torrent {
 // 'onlyCompleted' to ensure that a crash, etc, will cause incomplete
 // files to be hashed.
 
-void resume_load_progress(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_progress(Download download, Object& object) LIBTORRENT_EXPORT;
-void resume_clear_progress(Download download, Object& object) LIBTORRENT_EXPORT;
+void
+resume_load_progress(Download download, const Object& object) LIBTORRENT_EXPORT;
+void
+resume_save_progress(Download download, Object& object) LIBTORRENT_EXPORT;
+void
+resume_clear_progress(Download download, Object& object) LIBTORRENT_EXPORT;
 
-bool resume_load_bitfield(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_bitfield(Download download, Object& object) LIBTORRENT_EXPORT;
+bool
+resume_load_bitfield(Download download, const Object& object) LIBTORRENT_EXPORT;
+void
+resume_save_bitfield(Download download, Object& object) LIBTORRENT_EXPORT;
 
 // Do not call 'resume_load_uncertain_pieces' directly.
-void resume_load_uncertain_pieces(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_uncertain_pieces(Download download, Object& object) LIBTORRENT_EXPORT;
+void
+resume_load_uncertain_pieces(Download      download,
+                             const Object& object) LIBTORRENT_EXPORT;
+void
+resume_save_uncertain_pieces(Download download,
+                             Object&  object) LIBTORRENT_EXPORT;
 
-bool resume_check_target_files(Download download, const Object& object) LIBTORRENT_EXPORT;
+bool
+resume_check_target_files(Download      download,
+                          const Object& object) LIBTORRENT_EXPORT;
 
-void resume_load_file_priorities(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_file_priorities(Download download, Object& object) LIBTORRENT_EXPORT;
+void
+resume_load_file_priorities(Download      download,
+                            const Object& object) LIBTORRENT_EXPORT;
+void
+resume_save_file_priorities(Download download,
+                            Object&  object) LIBTORRENT_EXPORT;
 
-void resume_load_addresses(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_addresses(Download download, Object& object) LIBTORRENT_EXPORT;
+void
+resume_load_addresses(Download      download,
+                      const Object& object) LIBTORRENT_EXPORT;
+void
+resume_save_addresses(Download download, Object& object) LIBTORRENT_EXPORT;
 
-void resume_load_tracker_settings(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_tracker_settings(Download download, Object& object) LIBTORRENT_EXPORT;
+void
+resume_load_tracker_settings(Download      download,
+                             const Object& object) LIBTORRENT_EXPORT;
+void
+resume_save_tracker_settings(Download download,
+                             Object&  object) LIBTORRENT_EXPORT;
 
-}
+} // namespace torrent
 
 #endif

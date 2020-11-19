@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -45,28 +45,28 @@ namespace torrent {
 unsigned int
 ClientInfo::key_size(id_type id) {
   switch (id) {
-  case TYPE_AZUREUS:
-    return 2;
-  case TYPE_COMPACT:
-  case TYPE_MAINLINE:
-    return 1;
+    case TYPE_AZUREUS:
+      return 2;
+    case TYPE_COMPACT:
+    case TYPE_MAINLINE:
+      return 1;
 
-  default:
-    return 0;
+    default:
+      return 0;
   }
 }
 
 unsigned int
 ClientInfo::version_size(id_type id) {
   switch (id) {
-  case TYPE_AZUREUS:
-    return 4;
-  case TYPE_COMPACT:
-  case TYPE_MAINLINE:
-    return 3;
+    case TYPE_AZUREUS:
+      return 4;
+    case TYPE_COMPACT:
+    case TYPE_MAINLINE:
+      return 3;
 
-  default:
-    return 0;
+    default:
+      return 0;
   }
 }
 
@@ -79,9 +79,10 @@ ClientInfo::less_intersects(const ClientInfo& left, const ClientInfo& right) {
 
   int keyComp = std::memcmp(left.key(), right.key(), ClientInfo::max_key_size);
 
-  return
-    keyComp < 0 ||
-    (keyComp == 0 && std::memcmp(left.upper_version(), right.version(), ClientInfo::max_version_size) < 0);
+  return keyComp < 0 ||
+         (keyComp == 0 && std::memcmp(left.upper_version(),
+                                      right.version(),
+                                      ClientInfo::max_version_size) < 0);
 }
 
 bool
@@ -93,13 +94,15 @@ ClientInfo::less_disjoint(const ClientInfo& left, const ClientInfo& right) {
 
   int keyComp = std::memcmp(left.key(), right.key(), ClientInfo::max_key_size);
 
-  return
-    keyComp < 0 ||
-    (keyComp == 0 && std::memcmp(left.version(), right.upper_version(), ClientInfo::max_version_size) < 0);
+  return keyComp < 0 ||
+         (keyComp == 0 && std::memcmp(left.version(),
+                                      right.upper_version(),
+                                      ClientInfo::max_version_size) < 0);
 }
 
 bool
-ClientInfo::greater_intersects(const ClientInfo& left, const ClientInfo& right) {
+ClientInfo::greater_intersects(const ClientInfo& left,
+                               const ClientInfo& right) {
   return less_intersects(right, left);
 }
 
@@ -110,22 +113,28 @@ ClientInfo::greater_disjoint(const ClientInfo& left, const ClientInfo& right) {
 
 bool
 ClientInfo::intersects(const ClientInfo& left, const ClientInfo& right) {
-  return
-    left.type() == right.type() &&
-    std::memcmp(left.key(), right.key(), ClientInfo::max_key_size) == 0 &&
+  return left.type() == right.type() &&
+         std::memcmp(left.key(), right.key(), ClientInfo::max_key_size) == 0 &&
 
-    std::memcmp(left.version(), right.upper_version(), ClientInfo::max_version_size) <= 0 &&
-    std::memcmp(left.upper_version(), right.version(), ClientInfo::max_version_size) >= 0;
+         std::memcmp(left.version(),
+                     right.upper_version(),
+                     ClientInfo::max_version_size) <= 0 &&
+         std::memcmp(left.upper_version(),
+                     right.version(),
+                     ClientInfo::max_version_size) >= 0;
 }
 
 inline bool
 ClientInfo::equal_to(const ClientInfo& left, const ClientInfo& right) {
-  return
-    left.type() == right.type() &&
-    std::memcmp(left.key(), right.key(), ClientInfo::max_key_size) == 0 &&
+  return left.type() == right.type() &&
+         std::memcmp(left.key(), right.key(), ClientInfo::max_key_size) == 0 &&
 
-    std::memcmp(left.version(), right.version(), ClientInfo::max_version_size) == 0 &&
-    std::memcmp(left.upper_version(), right.upper_version(), ClientInfo::max_version_size) == 0;
+         std::memcmp(left.version(),
+                     right.version(),
+                     ClientInfo::max_version_size) == 0 &&
+         std::memcmp(left.upper_version(),
+                     right.upper_version(),
+                     ClientInfo::max_version_size) == 0;
 }
 
-}
+} // namespace torrent

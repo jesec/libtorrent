@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -44,8 +44,8 @@
 
 #include "protocol/peer_connection_base.h"
 #include "torrent/download/group_entry.h"
-#include "torrent/peer/connection_list.h"
 #include "torrent/peer/choke_status.h"
+#include "torrent/peer/connection_list.h"
 #include "torrent/utils/log.h"
 
 #include "choke_queue.h"
@@ -53,7 +53,10 @@
 namespace torrent {
 
 struct choke_manager_less {
-  bool operator () (choke_queue::value_type v1, choke_queue::value_type v2) const { return v1.weight < v2.weight; }
+  bool operator()(choke_queue::value_type v1,
+                  choke_queue::value_type v2) const {
+    return v1.weight < v2.weight;
+  }
 };
 
 static inline bool
@@ -62,20 +65,27 @@ should_connection_unchoke(choke_queue* cq, PeerConnectionBase* pcb) {
 }
 
 static inline void
-log_choke_changes_func_new(void* address, const char* title, int quota, int adjust) {
+log_choke_changes_func_new(void*       address,
+                           const char* title,
+                           int         quota,
+                           int         adjust) {
   lt_log_print(LOG_INSTRUMENTATION_CHOKE,
                "%p %i %s %i %i",
                address,
-               0, //lf->last_update(),
-               title, quota, adjust);
+               0, // lf->last_update(),
+               title,
+               quota,
+               adjust);
 }
 
 choke_queue::~choke_queue() noexcept(false) {
   if (m_currently_unchoked != 0)
-    throw internal_error("choke_queue::~choke_queue() called but m_currentlyUnchoked != 0.");
+    throw internal_error(
+      "choke_queue::~choke_queue() called but m_currentlyUnchoked != 0.");
 
   if (m_currently_queued != 0)
-    throw internal_error("choke_queue::~choke_queue() called but m_currentlyQueued != 0.");
+    throw internal_error(
+      "choke_queue::~choke_queue() called but m_currentlyQueued != 0.");
 }
 
 // 1  > 1
@@ -97,22 +107,35 @@ group_stats
 choke_queue::prepare_weights(group_stats gs) {
   // gs.sum_min_needed = 0;
   // gs.sum_max_needed = 0;
-  // gs.sum_max_leftovers = 0; // Needs to reflect how many we can optimistically unchoke after choking unchoked connections?
+  // gs.sum_max_leftovers = 0; // Needs to reflect how many we can
+  // optimistically unchoke after choking unchoked connections?
   //
   // also remember to clear the queue/unchoked thingies.
 
-  for (group_container_type::iterator itr = m_group_container.begin(), last = m_group_container.end(); itr != last; itr++) {
-    m_heuristics_list[m_heuristics].slot_choke_weight((*itr)->mutable_unchoked()->begin(), (*itr)->mutable_unchoked()->end());
-    std::sort((*itr)->mutable_unchoked()->begin(), (*itr)->mutable_unchoked()->end(), choke_manager_less());
+  for (group_container_type::iterator itr  = m_group_container.begin(),
+                                      last = m_group_container.end();
+       itr != last;
+       itr++) {
+    m_heuristics_list[m_heuristics].slot_choke_weight(
+      (*itr)->mutable_unchoked()->begin(), (*itr)->mutable_unchoked()->end());
+    std::sort((*itr)->mutable_unchoked()->begin(),
+              (*itr)->mutable_unchoked()->end(),
+              choke_manager_less());
 
-    m_heuristics_list[m_heuristics].slot_unchoke_weight((*itr)->mutable_queued()->begin(), (*itr)->mutable_queued()->end());
-    std::sort((*itr)->mutable_queued()->begin(), (*itr)->mutable_queued()->end(), choke_manager_less());
+    m_heuristics_list[m_heuristics].slot_unchoke_weight(
+      (*itr)->mutable_queued()->begin(), (*itr)->mutable_queued()->end());
+    std::sort((*itr)->mutable_queued()->begin(),
+              (*itr)->mutable_queued()->end(),
+              choke_manager_less());
 
     // Aggregate the statistics... Remember to update them after
     // optimistic/pessimistic unchokes.
-    gs.sum_min_needed += std::min((*itr)->size_connections(), std::min((*itr)->min_slots(), (*itr)->max_slots()));
+    gs.sum_min_needed +=
+      std::min((*itr)->size_connections(),
+               std::min((*itr)->min_slots(), (*itr)->max_slots()));
 
-    uint32_t max_slots = std::min((*itr)->size_connections(), (*itr)->max_slots());
+    uint32_t max_slots =
+      std::min((*itr)->size_connections(), (*itr)->max_slots());
 
     gs.sum_max_needed += max_slots;
     gs.sum_max_leftovers += (*itr)->size_connections() - max_slots;
@@ -125,21 +148,33 @@ choke_queue::prepare_weights(group_stats gs) {
 }
 
 group_stats
-choke_queue::retrieve_connections(group_stats gs, container_type* queued, container_type* unchoked) {
-  for (group_container_type::iterator itr = m_group_container.begin(), last = m_group_container.end(); itr != last; itr++) {
-    group_entry* entry = *itr;
+choke_queue::retrieve_connections(group_stats     gs,
+                                  container_type* queued,
+                                  container_type* unchoked) {
+  for (group_container_type::iterator itr  = m_group_container.begin(),
+                                      last = m_group_container.end();
+       itr != last;
+       itr++) {
+    group_entry* entry     = *itr;
     unsigned int min_slots = std::min(entry->min_slots(), entry->max_slots());
 
-    lt_log_print(LOG_PEER_DEBUG, "Choke queue retrieve_connections; queued:%u unchoked:%u min_slots:%u max_slots:%u.",
-                 (unsigned)entry->queued()->size(), (unsigned)entry->unchoked()->size(), min_slots, entry->max_slots());
+    lt_log_print(LOG_PEER_DEBUG,
+                 "Choke queue retrieve_connections; queued:%u unchoked:%u "
+                 "min_slots:%u max_slots:%u.",
+                 (unsigned)entry->queued()->size(),
+                 (unsigned)entry->unchoked()->size(),
+                 min_slots,
+                 entry->max_slots());
 
     // Disable this after finding the flaw... ?
     // if (entry->unchoked()->size() > entry->max_slots()) {
     //   unsigned int count = 0;
 
     //   // Still needing choke/unchoke to fill min_size.
-    //   while (entry->unchoked()->size() > entry->max_slots() && !entry->unchoked()->empty())
-    //     count += m_slotConnection(entry->unchoked()->back().connection, true);
+    //   while (entry->unchoked()->size() > entry->max_slots() &&
+    //   !entry->unchoked()->empty())
+    //     count += m_slotConnection(entry->unchoked()->back().connection,
+    //     true);
 
     //   //      m_slotUnchoke(-count); // Move this?
     //   gs.now_choked += entry->unchoked()->size(); // Need to add this...
@@ -160,8 +195,10 @@ choke_queue::retrieve_connections(group_stats gs, container_type* queued, contai
 
     } else {
       // TODO: This only handles a single weight group, fixme.
-      group_entry::container_type::const_iterator first = entry->unchoked()->begin() + min_slots;
-      group_entry::container_type::const_iterator last  = entry->unchoked()->end();
+      group_entry::container_type::const_iterator first =
+        entry->unchoked()->begin() + min_slots;
+      group_entry::container_type::const_iterator last =
+        entry->unchoked()->end();
 
       unchoked->insert(unchoked->end(), first, last);
       gs.now_unchoked += min_slots;
@@ -171,23 +208,32 @@ choke_queue::retrieve_connections(group_stats gs, container_type* queued, contai
     if (entry->unchoked()->size() < entry->max_slots()) {
       // We can assume that at either we have no queued connections or
       // 'min_slots' has been reached.
-      queued->insert(queued->end(),
-                     entry->queued()->end() - std::min<uint32_t>(entry->queued()->size(), entry->max_slots() - entry->unchoked()->size()),
-                     entry->queued()->end());
+      queued->insert(
+        queued->end(),
+        entry->queued()->end() -
+          std::min<uint32_t>(entry->queued()->size(),
+                             entry->max_slots() - entry->unchoked()->size()),
+        entry->queued()->end());
     }
-  }    
+  }
 
   return gs;
 }
 
 void
-choke_queue::rebuild_containers(container_type* queued, container_type* unchoked) {
+choke_queue::rebuild_containers(container_type* queued,
+                                container_type* unchoked) {
   queued->clear();
   unchoked->clear();
 
-  for (group_container_type::iterator itr = m_group_container.begin(), last = m_group_container.end(); itr != last; itr++) {
-    queued->insert(queued->end(), (*itr)->queued()->begin(), (*itr)->queued()->end());
-    unchoked->insert(unchoked->end(), (*itr)->unchoked()->begin(), (*itr)->unchoked()->end());
+  for (group_container_type::iterator itr  = m_group_container.begin(),
+                                      last = m_group_container.end();
+       itr != last;
+       itr++) {
+    queued->insert(
+      queued->end(), (*itr)->queued()->begin(), (*itr)->queued()->end());
+    unchoked->insert(
+      unchoked->end(), (*itr)->unchoked()->begin(), (*itr)->unchoked()->end());
   }
 }
 
@@ -216,46 +262,59 @@ choke_queue::balance() {
 
   // If we have more unchoked than max global slots allow for,
   // 'can_unchoke' will be negative.
-  int can_unchoke = m_slotCanUnchoke();
+  int can_unchoke  = m_slotCanUnchoke();
   int max_unchoked = std::min(m_maxUnchoked, (uint32_t)(1 << 20));
 
   int adjust = max_unchoked - (int)(unchoked.size() + gs.now_unchoked);
-  adjust = std::min(adjust, can_unchoke);
+  adjust     = std::min(adjust, can_unchoke);
 
   log_choke_changes_func_new(this, "balance", m_maxUnchoked, adjust);
 
   int result = 0;
 
   if (adjust > 0) {
-    result = adjust_choke_range(queued.begin(), queued.end(),
-                                &queued, &unchoked,
-                                adjust, false);
-  } else if (adjust < 0)  {
+    result = adjust_choke_range(
+      queued.begin(), queued.end(), &queued, &unchoked, adjust, false);
+  } else if (adjust < 0) {
     // We can do the choking before the slot is called as this
     // choke_queue won't be unchoking the same peers due to the
     // call-back.
-    result = -adjust_choke_range(unchoked.begin(), unchoked.end(), &unchoked, &queued, -adjust, true);
+    result = -adjust_choke_range(
+      unchoked.begin(), unchoked.end(), &unchoked, &queued, -adjust, true);
   }
 
   if (result != 0)
     m_slotUnchoke(result);
 
-  lt_log_print(LOG_PEER_DEBUG, "Called balance; adjust:%i can_unchoke:%i queued:%u unchoked:%u result:%i.",
-               adjust, can_unchoke, (unsigned)queued.size(), (unsigned)unchoked.size(), result);
+  lt_log_print(LOG_PEER_DEBUG,
+               "Called balance; adjust:%i can_unchoke:%i queued:%u unchoked:%u "
+               "result:%i.",
+               adjust,
+               can_unchoke,
+               (unsigned)queued.size(),
+               (unsigned)unchoked.size(),
+               result);
 }
 
 void
 choke_queue::balance_entry(group_entry* entry) {
-  m_heuristics_list[m_heuristics].slot_choke_weight(entry->mutable_unchoked()->begin(), entry->mutable_unchoked()->end());
-  std::sort(entry->mutable_unchoked()->begin(), entry->mutable_unchoked()->end(), choke_manager_less());
+  m_heuristics_list[m_heuristics].slot_choke_weight(
+    entry->mutable_unchoked()->begin(), entry->mutable_unchoked()->end());
+  std::sort(entry->mutable_unchoked()->begin(),
+            entry->mutable_unchoked()->end(),
+            choke_manager_less());
 
-  m_heuristics_list[m_heuristics].slot_unchoke_weight(entry->mutable_queued()->begin(), entry->mutable_queued()->end());
-  std::sort(entry->mutable_queued()->begin(), entry->mutable_queued()->end(), choke_manager_less());
+  m_heuristics_list[m_heuristics].slot_unchoke_weight(
+    entry->mutable_queued()->begin(), entry->mutable_queued()->end());
+  std::sort(entry->mutable_queued()->begin(),
+            entry->mutable_queued()->end(),
+            choke_manager_less());
 
-  int count = 0;
+  int          count     = 0;
   unsigned int min_slots = std::min(entry->min_slots(), entry->max_slots());
 
-  while (!entry->unchoked()->empty() && entry->unchoked()->size() > entry->max_slots())
+  while (!entry->unchoked()->empty() &&
+         entry->unchoked()->size() > entry->max_slots())
     count -= m_slotConnection(entry->unchoked()->back().connection, true);
 
   while (!entry->queued()->empty() && entry->unchoked()->size() < min_slots)
@@ -274,7 +333,7 @@ choke_queue::cycle(uint32_t quota) noexcept(false) {
 
   rebuild_containers(&queued, &unchoked);
 
-  int oldSize = unchoked.size();
+  int      oldSize   = unchoked.size();
   uint32_t alternate = max_alternate();
 
   queued.clear();
@@ -289,27 +348,44 @@ choke_queue::cycle(uint32_t quota) noexcept(false) {
   quota = std::min(quota, m_maxUnchoked);
   quota = quota - std::min(quota, gs.now_unchoked);
 
-  uint32_t adjust = (unchoked.size() < quota) ? (quota - unchoked.size()) : 0; 
-  adjust = std::max(adjust, alternate);
-  adjust = std::min(adjust, quota);
+  uint32_t adjust = (unchoked.size() < quota) ? (quota - unchoked.size()) : 0;
+  adjust          = std::max(adjust, alternate);
+  adjust          = std::min(adjust, quota);
 
   log_choke_changes_func_new(this, "cycle", quota, adjust);
 
-  lt_log_print(LOG_PEER_DEBUG, "Called cycle; quota:%u adjust:%i alternate:%i queued:%u unchoked:%u.",
-               quota, adjust, alternate, (unsigned)queued.size(), (unsigned)unchoked.size());
+  lt_log_print(
+    LOG_PEER_DEBUG,
+    "Called cycle; quota:%u adjust:%i alternate:%i queued:%u unchoked:%u.",
+    quota,
+    adjust,
+    alternate,
+    (unsigned)queued.size(),
+    (unsigned)unchoked.size());
 
-  uint32_t unchoked_count = adjust_choke_range(queued.begin(), queued.end(), &queued, &unchoked, adjust, false);
+  uint32_t unchoked_count = adjust_choke_range(
+    queued.begin(), queued.end(), &queued, &unchoked, adjust, false);
 
   if (unchoked.size() > quota)
-    adjust_choke_range(unchoked.begin(), unchoked.end() - unchoked_count, &unchoked, &queued, unchoked.size() - quota, true);
+    adjust_choke_range(unchoked.begin(),
+                       unchoked.end() - unchoked_count,
+                       &unchoked,
+                       &queued,
+                       unchoked.size() - quota,
+                       true);
 
   if (unchoked.size() > quota)
     throw internal_error("choke_queue::cycle() unchoked.size() > quota.");
 
   rebuild_containers(&queued, &unchoked); // Remove...
 
-  lt_log_print(LOG_PEER_DEBUG, "After cycle; queued:%u unchoked:%u unchoked_count:%i old_size:%i.",
-               (unsigned)queued.size(), (unsigned)unchoked.size(), unchoked_count, oldSize);
+  lt_log_print(
+    LOG_PEER_DEBUG,
+    "After cycle; queued:%u unchoked:%u unchoked_count:%i old_size:%i.",
+    (unsigned)queued.size(),
+    (unsigned)unchoked.size(),
+    unchoked_count,
+    oldSize);
 
   return ((int)unchoked.size() - (int)oldSize); // + gs.changed_unchoke
 }
@@ -327,9 +403,11 @@ choke_queue::set_queued(PeerConnectionBase* pc, choke_status* base) {
   base->entry()->connection_queued(pc);
   modify_currently_queued(1);
 
-  if (!is_full() && (m_flags & flag_unchoke_all_new || m_slotCanUnchoke() > 0) &&
+  if (!is_full() &&
+      (m_flags & flag_unchoke_all_new || m_slotCanUnchoke() > 0) &&
       should_connection_unchoke(this, pc) &&
-      rak::timer(base->time_last_choke()) + rak::timer::from_seconds(10) < cachedTime) {
+      rak::timer(base->time_last_choke()) + rak::timer::from_seconds(10) <
+        cachedTime) {
     m_slotConnection(pc, false);
     m_slotUnchoke(1);
   }
@@ -387,13 +465,15 @@ choke_queue::set_not_snubbed(PeerConnectionBase* pc, choke_status* base) {
 
   if (base->unchoked())
     throw internal_error("choke_queue::set_not_snubbed(...) base->unchoked().");
-  
+
   base->entry()->connection_queued(pc);
   modify_currently_queued(1);
 
-  if (!is_full() && (m_flags & flag_unchoke_all_new || m_slotCanUnchoke() > 0) &&
+  if (!is_full() &&
+      (m_flags & flag_unchoke_all_new || m_slotCanUnchoke() > 0) &&
       should_connection_unchoke(this, pc) &&
-      rak::timer(base->time_last_choke()) + rak::timer::from_seconds(10) < cachedTime) {
+      rak::timer(base->time_last_choke()) + rak::timer::from_seconds(10) <
+        cachedTime) {
     m_slotConnection(pc, false);
 
     m_slotUnchoke(1);
@@ -423,11 +503,17 @@ choke_queue::disconnected(PeerConnectionBase* pc, choke_status* base) {
 // No need to do any choking as the next choke balancing will take
 // care of things.
 void
-choke_queue::move_connections(choke_queue* src, choke_queue* dest, DownloadMain*, group_entry* base) noexcept(false) {
+choke_queue::move_connections(choke_queue* src,
+                              choke_queue* dest,
+                              DownloadMain*,
+                              group_entry* base) noexcept(false) {
   if (src != NULL) {
-    group_container_type::iterator itr = std::find(src->m_group_container.begin(), src->m_group_container.end(), base);
+    group_container_type::iterator itr = std::find(
+      src->m_group_container.begin(), src->m_group_container.end(), base);
 
-    if (itr == src->m_group_container.end()) throw internal_error("choke_queue::move_connections(...) could not find group.");
+    if (itr == src->m_group_container.end())
+      throw internal_error(
+        "choke_queue::move_connections(...) could not find group.");
 
     std::swap(*itr, src->m_group_container.back());
     src->m_group_container.pop_back();
@@ -451,8 +537,11 @@ choke_queue::move_connections(choke_queue* src, choke_queue* dest, DownloadMain*
 //
 
 void
-choke_manager_allocate_slots(choke_queue::iterator first, choke_queue::iterator last,
-                             uint32_t max, uint32_t* weights, choke_queue::target_type* target) {
+choke_manager_allocate_slots(choke_queue::iterator     first,
+                             choke_queue::iterator     last,
+                             uint32_t                  max,
+                             uint32_t*                 weights,
+                             choke_queue::target_type* target) {
   // Sorting the connections from the lowest to highest value.
   // TODO:  std::sort(first, last, choke_manager_less());
 
@@ -460,15 +549,17 @@ choke_manager_allocate_slots(choke_queue::iterator first, choke_queue::iterator 
   // connections to unchoke. When all connections are in a group are
   // to be unchoked, then the group's weight is removed.
   uint32_t weightTotal = 0;
-  uint32_t unchoke = max;
+  uint32_t unchoke     = max;
 
   target[0].second = first;
 
   for (uint32_t i = 0; i < choke_queue::order_max_size; i++) {
-    target[i].first = 0;
-    target[i + 1].second = std::find_if(target[i].second, last,
-                                        rak::less(i * choke_queue::order_base + (choke_queue::order_base - 1),
-                                                  rak::mem_ref(&choke_queue::value_type::weight)));
+    target[i].first      = 0;
+    target[i + 1].second = std::find_if(
+      target[i].second,
+      last,
+      rak::less(i * choke_queue::order_base + (choke_queue::order_base - 1),
+                rak::mem_ref(&choke_queue::value_type::weight)));
 
     if (std::distance(target[i].second, target[i + 1].second) != 0)
       weightTotal += weights[i];
@@ -484,7 +575,7 @@ choke_manager_allocate_slots(choke_queue::iterator first, choke_queue::iterator 
 
       if (weights[itr] == 0 || target[itr].first >= s)
         continue;
-      
+
       uint32_t u = std::min(s - target[itr].first, base * weights[itr]);
 
       unchoke -= u;
@@ -499,10 +590,10 @@ choke_manager_allocate_slots(choke_queue::iterator first, choke_queue::iterator 
   // total weight. This will ensure that aggregated over time we
   // spread the unchokes equally according to the weight table.
   if (weightTotal != 0 && unchoke != 0) {
-    uint32_t start = ::random() % weightTotal;
-    unsigned int itr = 0;
+    uint32_t     start = ::random() % weightTotal;
+    unsigned int itr   = 0;
 
-    for ( ; ; itr++) {
+    for (;; itr++) {
       uint32_t s = std::distance(target[itr].second, target[itr + 1].second);
 
       if (weights[itr] == 0 || target[itr].first >= s)
@@ -514,13 +605,15 @@ choke_manager_allocate_slots(choke_queue::iterator first, choke_queue::iterator 
       start -= weights[itr];
     }
 
-    for ( ; weightTotal != 0 && unchoke != 0; itr = (itr + 1) % choke_queue::order_max_size) {
+    for (; weightTotal != 0 && unchoke != 0;
+         itr = (itr + 1) % choke_queue::order_max_size) {
       uint32_t s = std::distance(target[itr].second, target[itr + 1].second);
 
       if (weights[itr] == 0 || target[itr].first >= s)
         continue;
 
-      uint32_t u = std::min(unchoke, std::min(s - target[itr].first, weights[itr] - start));
+      uint32_t u = std::min(
+        unchoke, std::min(s - target[itr].first, weights[itr] - start));
 
       start = 0;
       unchoke -= u;
@@ -532,23 +625,29 @@ choke_manager_allocate_slots(choke_queue::iterator first, choke_queue::iterator 
   }
 }
 
-template <typename Itr>
-bool range_is_contained(Itr first, Itr last, Itr lower_bound, Itr upper_bound) {
+template<typename Itr>
+bool
+range_is_contained(Itr first, Itr last, Itr lower_bound, Itr upper_bound) {
   return first >= lower_bound && last <= upper_bound && first <= last;
 }
 
 uint32_t
-choke_queue::adjust_choke_range(iterator first, iterator last,
-                                container_type* src_container, container_type* dest_container,
-                                uint32_t max, bool is_choke) noexcept(false) {
+choke_queue::adjust_choke_range(iterator        first,
+                                iterator        last,
+                                container_type* src_container,
+                                container_type* dest_container,
+                                uint32_t        max,
+                                bool            is_choke) noexcept(false) {
   target_type target[order_max_size + 1];
 
   if (is_choke) {
     // TODO:   m_heuristics_list[m_heuristics].slot_choke_weight(first, last);
-    choke_manager_allocate_slots(first, last, max, m_heuristics_list[m_heuristics].choke_weight, target);
+    choke_manager_allocate_slots(
+      first, last, max, m_heuristics_list[m_heuristics].choke_weight, target);
   } else {
     //    m_heuristics_list[m_heuristics].slot_unchoke_weight(first, last);
-    choke_manager_allocate_slots(first, last, max, m_heuristics_list[m_heuristics].unchoke_weight, target);
+    choke_manager_allocate_slots(
+      first, last, max, m_heuristics_list[m_heuristics].unchoke_weight, target);
   }
 
   if (lt_log_is_valid(LOG_INSTRUMENTATION_CHOKE)) {
@@ -556,32 +655,37 @@ choke_queue::adjust_choke_range(iterator first, iterator last,
       lt_log_print(LOG_INSTRUMENTATION_CHOKE,
                    "%p %i %s %u %u %i",
                    this,
-                   0, //lf->last_update(),
-                   (const char*)"unchoke" + 2*is_choke,
+                   0, // lf->last_update(),
+                   (const char*)"unchoke" + 2 * is_choke,
                    i,
                    target[i].first,
                    std::distance(target[i].second, target[i + 1].second));
   }
 
   // Now do the actual unchoking.
-  uint32_t count = 0;
+  uint32_t count   = 0;
   uint32_t skipped = 0;
 
   for (target_type* itr = target + order_max_size; itr != target; itr--) {
-    uint32_t order_size = std::distance((itr - 1)->second, itr->second);
+    uint32_t order_size      = std::distance((itr - 1)->second, itr->second);
     uint32_t order_remaining = order_size - (itr - 1)->first;
 
     if ((itr - 1)->first > order_size)
-      throw internal_error("choke_queue::adjust_choke_range(...) itr->first > std::distance((itr - 1)->second, itr->second).");
-    
+      throw internal_error("choke_queue::adjust_choke_range(...) itr->first > "
+                           "std::distance((itr - 1)->second, itr->second).");
+
     (itr - 1)->first += std::min(skipped, order_remaining);
-    skipped          -= std::min(skipped, order_remaining);
+    skipped -= std::min(skipped, order_remaining);
 
     iterator first_adjust = itr->second - (itr - 1)->first;
-    iterator last_adjust = itr->second;
+    iterator last_adjust  = itr->second;
 
-    if (!range_is_contained(first_adjust, last_adjust, src_container->begin(), src_container->end()))
-      throw internal_error("choke_queue::adjust_choke_range(...) bad iterator range.");
+    if (!range_is_contained(first_adjust,
+                            last_adjust,
+                            src_container->begin(),
+                            src_container->end()))
+      throw internal_error(
+        "choke_queue::adjust_choke_range(...) bad iterator range.");
 
     // We start by unchoking the highest priority in this group, and
     // if we find any peers we can't choke/unchoke we'll move them to
@@ -592,8 +696,8 @@ choke_queue::adjust_choke_range(iterator first, iterator last,
       itr_adjust--;
 
       // if (!is_choke && !should_connection_unchoke(this, itr_adjust->first)) {
-        // Swap with end and continue if not done with group. Count how many?
-        // std::iter_swap(itr_adjust, --last_adjust);
+      // Swap with end and continue if not done with group. Count how many?
+      // std::iter_swap(itr_adjust, --last_adjust);
 
       //   if (first_adjust == (itr - 1)->second)
       //     skipped++;
@@ -606,15 +710,16 @@ choke_queue::adjust_choke_range(iterator first, iterator last,
       m_slotConnection(itr_adjust->connection, is_choke);
       count++;
 
-      lt_log_print(LOG_INSTRUMENTATION_CHOKE,
-                   "%p %i %s %p %X %llu %llu",
-                   this, 
-                   0, //lf->last_update(),
-                   (const char*)"unchoke" + 2*is_choke,
-                   itr_adjust->connection,
-                   itr_adjust->weight,
-                   (long long unsigned int)itr_adjust->connection->up_rate()->rate(),
-                   (long long unsigned int)itr_adjust->connection->down_rate()->rate());
+      lt_log_print(
+        LOG_INSTRUMENTATION_CHOKE,
+        "%p %i %s %p %X %llu %llu",
+        this,
+        0, // lf->last_update(),
+        (const char*)"unchoke" + 2 * is_choke,
+        itr_adjust->connection,
+        itr_adjust->weight,
+        (long long unsigned int)itr_adjust->connection->up_rate()->rate(),
+        (long long unsigned int)itr_adjust->connection->down_rate()->rate());
     }
 
     // The 'target' iterators remain valid after erase since we're
@@ -634,12 +739,16 @@ choke_queue::adjust_choke_range(iterator first, iterator last,
 // Need to add the recently unchoked check here?
 
 void
-calculate_upload_choke(choke_queue::iterator first, choke_queue::iterator last) {
+calculate_upload_choke(choke_queue::iterator first,
+                       choke_queue::iterator last) {
   while (first != last) {
     // Very crude version for now.
     //
-    // This needs to give more weight to peers that haven't had time to unchoke us.
-    uint32_t downloadRate = first->connection->peer_chunks()->download_throttle()->rate()->rate() / 16;
+    // This needs to give more weight to peers that haven't had time to unchoke
+    // us.
+    uint32_t downloadRate =
+      first->connection->peer_chunks()->download_throttle()->rate()->rate() /
+      16;
     first->weight = choke_queue::order_base - 1 - downloadRate;
 
     first++;
@@ -647,10 +756,13 @@ calculate_upload_choke(choke_queue::iterator first, choke_queue::iterator last) 
 }
 
 void
-calculate_upload_unchoke(choke_queue::iterator first, choke_queue::iterator last) {
+calculate_upload_unchoke(choke_queue::iterator first,
+                         choke_queue::iterator last) {
   while (first != last) {
     if (first->connection->is_down_local_unchoked()) {
-      uint32_t downloadRate = first->connection->peer_chunks()->download_throttle()->rate()->rate() / 16;
+      uint32_t downloadRate =
+        first->connection->peer_chunks()->download_throttle()->rate()->rate() /
+        16;
 
       // If the peer transmits at less than 1KB, we should consider it
       // to be a rather stingy peer, and should look for new ones.
@@ -675,10 +787,12 @@ calculate_upload_unchoke(choke_queue::iterator first, choke_queue::iterator last
 // Improved heuristics intended for seeding.
 
 void
-calculate_upload_choke_seed(choke_queue::iterator first, choke_queue::iterator last) {
+calculate_upload_choke_seed(choke_queue::iterator first,
+                            choke_queue::iterator last) {
   while (first != last) {
-    int order = 1; // + first->connection->peer_info()->is_preferred();
-    uint32_t upload_rate = first->connection->peer_chunks()->upload_throttle()->rate()->rate() / 16;
+    int      order = 1; // + first->connection->peer_info()->is_preferred();
+    uint32_t upload_rate =
+      first->connection->peer_chunks()->upload_throttle()->rate()->rate() / 16;
 
     first->weight = order * choke_queue::order_base - 1 - upload_rate;
     first++;
@@ -686,7 +800,8 @@ calculate_upload_choke_seed(choke_queue::iterator first, choke_queue::iterator l
 }
 
 void
-calculate_upload_unchoke_seed(choke_queue::iterator first, choke_queue::iterator last) {
+calculate_upload_unchoke_seed(choke_queue::iterator first,
+                              choke_queue::iterator last) {
   while (first != last) {
     int order = first->connection->peer_info()->is_preferred();
 
@@ -696,16 +811,19 @@ calculate_upload_unchoke_seed(choke_queue::iterator first, choke_queue::iterator
 }
 
 //
-// New leeching choke algorithm that 
+// New leeching choke algorithm that
 //
 
 // Order 0: Normal
 // Order 1: No choking of newly unchoked peers.
 void
-calculate_choke_upload_leech_experimental(choke_queue::iterator first, choke_queue::iterator last) {
+calculate_choke_upload_leech_experimental(choke_queue::iterator first,
+                                          choke_queue::iterator last) {
   while (first != last) {
     // Don't choke a peer that hasn't had time to unchoke us.
-    if (rak::timer(first->connection->up_choke()->time_last_choke()) + rak::timer::from_seconds(50) > cachedTime) {
+    if (rak::timer(first->connection->up_choke()->time_last_choke()) +
+          rak::timer::from_seconds(50) >
+        cachedTime) {
       first->weight = 1 * choke_queue::order_base;
       first++;
       continue;
@@ -714,10 +832,15 @@ calculate_choke_upload_leech_experimental(choke_queue::iterator first, choke_que
     // Preferred peers will get 4 times higher weight.
     int multiplier = 1 + 3 * first->connection->peer_info()->is_preferred();
 
-    uint32_t download_rate = first->connection->peer_chunks()->download_throttle()->rate()->rate() / 64;
-    uint32_t upload_rate   = first->connection->peer_chunks()->upload_throttle()->rate()->rate() / (64 * 4);
+    uint32_t download_rate =
+      first->connection->peer_chunks()->download_throttle()->rate()->rate() /
+      64;
+    uint32_t upload_rate =
+      first->connection->peer_chunks()->upload_throttle()->rate()->rate() /
+      (64 * 4);
 
-    first->weight = choke_queue::order_base - 1 - (download_rate + upload_rate) * multiplier;
+    first->weight =
+      choke_queue::order_base - 1 - (download_rate + upload_rate) * multiplier;
     first++;
   }
 }
@@ -725,13 +848,16 @@ calculate_choke_upload_leech_experimental(choke_queue::iterator first, choke_que
 // Order 0: Optimistic unchokes.
 // Order 1: Normal unchokes.
 void
-calculate_unchoke_upload_leech_experimental(choke_queue::iterator first, choke_queue::iterator last) {
+calculate_unchoke_upload_leech_experimental(choke_queue::iterator first,
+                                            choke_queue::iterator last) {
   while (first != last) {
     // Consider checking for is_down_remote_unchoked().
     if (first->connection->is_down_local_unchoked()) {
       int multiplier = 1 + 3 * first->connection->peer_info()->is_preferred();
 
-      uint32_t download_rate = first->connection->peer_chunks()->download_throttle()->rate()->rate() / 64;
+      uint32_t download_rate =
+        first->connection->peer_chunks()->download_throttle()->rate()->rate() /
+        64;
 
       first->weight = choke_queue::order_base + download_rate * multiplier;
 
@@ -757,10 +883,13 @@ calculate_unchoke_upload_leech_experimental(choke_queue::iterator first, choke_q
 // Fix this, but for now just use something simple.
 
 void
-calculate_download_choke(choke_queue::iterator first, choke_queue::iterator last) {
+calculate_download_choke(choke_queue::iterator first,
+                         choke_queue::iterator last) {
   while (first != last) {
     // Very crude version for now.
-    uint32_t downloadRate = first->connection->peer_chunks()->download_throttle()->rate()->rate() / 16;
+    uint32_t downloadRate =
+      first->connection->peer_chunks()->download_throttle()->rate()->rate() /
+      16;
     first->weight = choke_queue::order_base - 1 - downloadRate;
 
     first++;
@@ -768,21 +897,37 @@ calculate_download_choke(choke_queue::iterator first, choke_queue::iterator last
 }
 
 void
-calculate_download_unchoke(choke_queue::iterator first, choke_queue::iterator last) {
+calculate_download_unchoke(choke_queue::iterator first,
+                           choke_queue::iterator last) {
   while (first != last) {
     // Very crude version for now.
-    uint32_t downloadRate = first->connection->peer_chunks()->download_throttle()->rate()->rate() / 16;
+    uint32_t downloadRate =
+      first->connection->peer_chunks()->download_throttle()->rate()->rate() /
+      16;
     first->weight = downloadRate;
 
     first++;
   }
 }
 
-choke_queue::heuristics_type choke_queue::m_heuristics_list[HEURISTICS_MAX_SIZE] = {
-  { &calculate_upload_choke,                    &calculate_upload_unchoke,      { 1, 1, 1, 1 }, { 1, 3, 6, 9 } },
-  { &calculate_upload_choke_seed,               &calculate_upload_unchoke_seed, { 1, 1, 1, 1 }, { 1, 3, 6, 9 } },
-  { &calculate_choke_upload_leech_experimental, &calculate_unchoke_upload_leech_experimental, { 32, 1, 1, 1 }, { 1, 6, 8, 16 } },
-  { &calculate_download_choke,                  &calculate_download_unchoke,    { 1, 1, 1, 1 }, { 1, 1, 1, 1 } },
-};
+choke_queue::heuristics_type
+  choke_queue::m_heuristics_list[HEURISTICS_MAX_SIZE] = {
+    { &calculate_upload_choke,
+      &calculate_upload_unchoke,
+      { 1, 1, 1, 1 },
+      { 1, 3, 6, 9 } },
+    { &calculate_upload_choke_seed,
+      &calculate_upload_unchoke_seed,
+      { 1, 1, 1, 1 },
+      { 1, 3, 6, 9 } },
+    { &calculate_choke_upload_leech_experimental,
+      &calculate_unchoke_upload_leech_experimental,
+      { 32, 1, 1, 1 },
+      { 1, 6, 8, 16 } },
+    { &calculate_download_choke,
+      &calculate_download_unchoke,
+      { 1, 1, 1, 1 },
+      { 1, 1, 1, 1 } },
+  };
 
-}
+} // namespace torrent

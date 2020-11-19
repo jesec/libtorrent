@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,8 +37,8 @@
 #include "config.h"
 
 #include <rak/functional.h>
-#include <rak/timer.h> 
-#include <rak/priority_queue_default.h> 
+#include <rak/priority_queue_default.h>
+#include <rak/timer.h>
 
 #include "net/throttle_internal.h"
 #include "net/throttle_list.h"
@@ -55,11 +55,11 @@ namespace torrent {
 // allow us to remove us from the task scheduler when we're full. Also
 // this would let us be abit more flexible with the interval.
 
-ThrottleInternal::ThrottleInternal(int flags) :
-  m_flags(flags),
-  m_nextSlave(m_slaveList.end()),
-  m_unusedQuota(0),
-  m_timeLastTick(cachedTime) {
+ThrottleInternal::ThrottleInternal(int flags)
+  : m_flags(flags)
+  , m_nextSlave(m_slaveList.end())
+  , m_unusedQuota(0)
+  , m_timeLastTick(cachedTime) {
 
   if (is_root())
     m_taskTick.slot() = std::bind(&ThrottleInternal::receive_tick, this);
@@ -69,13 +69,17 @@ ThrottleInternal::~ThrottleInternal() {
   if (is_root())
     priority_queue_erase(&taskScheduler, &m_taskTick);
 
-  std::for_each(m_slaveList.begin(), m_slaveList.end(), rak::call_delete<ThrottleInternal>());
+  std::for_each(m_slaveList.begin(),
+                m_slaveList.end(),
+                rak::call_delete<ThrottleInternal>());
 }
 
 void
 ThrottleInternal::enable() {
   m_throttleList->enable();
-  std::for_each(m_slaveList.begin(), m_slaveList.end(), std::mem_fun(&ThrottleInternal::enable));
+  std::for_each(m_slaveList.begin(),
+                m_slaveList.end(),
+                std::mem_fun(&ThrottleInternal::enable));
 
   if (is_root()) {
     // We need to start the ticks, and make sure we set timeLastTick
@@ -88,7 +92,9 @@ ThrottleInternal::enable() {
 void
 ThrottleInternal::disable() {
   m_throttleList->disable();
-  std::for_each(m_slaveList.begin(), m_slaveList.end(), std::mem_fun(&ThrottleInternal::disable));
+  std::for_each(m_slaveList.begin(),
+                m_slaveList.end(),
+                std::mem_fun(&ThrottleInternal::disable));
 
   if (is_root())
     priority_queue_erase(&taskScheduler, &m_taskTick);
@@ -98,7 +104,7 @@ ThrottleInternal*
 ThrottleInternal::create_slave() {
   ThrottleInternal* slave = new ThrottleInternal(flag_none);
 
-  slave->m_maxRate = m_maxRate;
+  slave->m_maxRate      = m_maxRate;
   slave->m_throttleList = new ThrottleList();
 
   if (m_throttleList->is_enabled())
@@ -113,14 +119,20 @@ ThrottleInternal::create_slave() {
 void
 ThrottleInternal::receive_tick() {
   if (cachedTime <= m_timeLastTick + rak::timer::from_milliseconds(90))
-    throw internal_error("ThrottleInternal::receive_tick() called at a to short interval.");
+    throw internal_error(
+      "ThrottleInternal::receive_tick() called at a to short interval.");
 
-  uint32_t quota = ((uint64_t)(cachedTime.usec() - m_ptr()->m_timeLastTick.usec())) * m_maxRate / 1000000;
-  uint32_t fraction = ((uint64_t)(cachedTime.usec() - m_ptr()->m_timeLastTick.usec())) * fraction_base / 1000000;
+  uint32_t quota =
+    ((uint64_t)(cachedTime.usec() - m_ptr()->m_timeLastTick.usec())) *
+    m_maxRate / 1000000;
+  uint32_t fraction =
+    ((uint64_t)(cachedTime.usec() - m_ptr()->m_timeLastTick.usec())) *
+    fraction_base / 1000000;
 
   receive_quota(quota, fraction);
 
-  priority_queue_insert(&taskScheduler, &m_taskTick, cachedTime + calculate_interval());
+  priority_queue_insert(
+    &taskScheduler, &m_taskTick, cachedTime + calculate_interval());
   m_timeLastTick = cachedTime;
 }
 
@@ -131,7 +143,8 @@ ThrottleInternal::receive_quota(uint32_t quota, uint32_t fraction) {
   m_unusedQuota += quota;
 
   while (m_nextSlave != m_slaveList.end()) {
-    need = std::min<uint32_t>(quota, (uint64_t)fraction * (*m_nextSlave)->max_rate() >> fraction_bits);
+    need = std::min<uint32_t>(
+      quota, (uint64_t)fraction * (*m_nextSlave)->max_rate() >> fraction_bits);
     if (m_unusedQuota < need)
       break;
 
@@ -140,7 +153,8 @@ ThrottleInternal::receive_quota(uint32_t quota, uint32_t fraction) {
     ++m_nextSlave;
   }
 
-  need = std::min<uint32_t>(quota, (uint64_t)fraction * m_maxRate >> fraction_bits);
+  need =
+    std::min<uint32_t>(quota, (uint64_t)fraction * m_maxRate >> fraction_bits);
   if (m_nextSlave == m_slaveList.end() && m_unusedQuota >= need) {
     m_unusedQuota -= m_throttleList->update_quota(need);
     m_nextSlave = m_slaveList.begin();
@@ -159,4 +173,4 @@ ThrottleInternal::receive_quota(uint32_t quota, uint32_t fraction) {
   return used;
 }
 
-}
+} // namespace torrent

@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -44,17 +44,18 @@
 #elif defined USE_OPENSSL_SHA
 #include <openssl/sha.h>
 #else
-#error "No SHA1 implementation selected, choose between Mozilla's NSS and OpenSSL."
+#error                                                                         \
+  "No SHA1 implementation selected, choose between Mozilla's NSS and OpenSSL."
 #endif
 
 namespace torrent {
 
 class Sha1 {
 public:
-  void                init();
-  void                update(const void* data, unsigned int length);
+  void init();
+  void update(const void* data, unsigned int length);
 
-  void                final_c(char* buffer);
+  void final_c(char* buffer);
 
 #if defined USE_NSS_SHA
 
@@ -75,7 +76,7 @@ Sha1::update(const void* data, unsigned int length) {
 inline void
 Sha1::final_c(char* buffer) {
   unsigned int len;
-  
+
   SHA1_End(&m_ctx, (unsigned char*)buffer, &len, 20);
 }
 
@@ -106,9 +107,11 @@ Sha1::final_c(char* buffer) {
 #endif
 
 inline void
-sha1_salt(const char* salt, unsigned int saltLength,
-          const char* key, unsigned int keyLength,
-          void* out) {
+sha1_salt(const char*  salt,
+          unsigned int saltLength,
+          const char*  key,
+          unsigned int keyLength,
+          void*        out) {
   Sha1 sha1;
 
   sha1.init();
@@ -118,10 +121,13 @@ sha1_salt(const char* salt, unsigned int saltLength,
 }
 
 inline void
-sha1_salt(const char* salt, unsigned int saltLength,
-          const char* key1, unsigned int key1Length,
-          const char* key2, unsigned int key2Length,
-          void* out) {
+sha1_salt(const char*  salt,
+          unsigned int saltLength,
+          const char*  key1,
+          unsigned int key1Length,
+          const char*  key2,
+          unsigned int key2Length,
+          void*        out) {
   Sha1 sha1;
 
   sha1.init();
@@ -131,6 +137,6 @@ sha1_salt(const char* salt, unsigned int saltLength,
   sha1.final_c((char*)out);
 }
 
-}
+} // namespace torrent
 
 #endif

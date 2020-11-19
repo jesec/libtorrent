@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -48,10 +48,12 @@ const unsigned int signal_bitfield::max_size;
 unsigned int
 signal_bitfield::add_signal(slot_type slot) {
   if (m_size >= max_size)
-    throw internal_error("signal_bitfield::add_signal(...): No more available slots.");
+    throw internal_error(
+      "signal_bitfield::add_signal(...): No more available slots.");
 
   if (!slot)
-    throw internal_error("signal_bitfield::add_signal(...): Cannot add empty slot.");
+    throw internal_error(
+      "signal_bitfield::add_signal(...): Cannot add empty slot.");
 
   unsigned int index = m_size;
   __sync_add_and_fetch(&m_size, 1);
@@ -79,4 +81,4 @@ signal_bitfield::work() {
   }
 }
 
-}
+} // namespace torrent

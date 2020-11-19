@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -50,33 +50,33 @@ class TrackerHttp : public Tracker {
 public:
   TrackerHttp(TrackerList* parent, const std::string& url, int flags);
   ~TrackerHttp();
-  
-  virtual bool        is_busy() const;
 
-  virtual void        send_state(int state);
-  virtual void        send_scrape();
-  virtual void        close();
-  virtual void        disown();
+  virtual bool is_busy() const;
 
-  virtual Type        type() const;
+  virtual void send_state(int state);
+  virtual void send_scrape();
+  virtual void close();
+  virtual void disown();
+
+  virtual Type type() const;
 
 private:
-  void                close_directly();
+  void close_directly();
 
-  void                request_prefix(std::stringstream* stream, const std::string& url);
+  void request_prefix(std::stringstream* stream, const std::string& url);
 
-  void                receive_done();
-  void                receive_failed(std::string msg);
+  void receive_done();
+  void receive_failed(std::string msg);
 
-  void                process_success(const Object& object);
-  void                process_scrape(const Object& object);
+  void process_success(const Object& object);
+  void process_scrape(const Object& object);
 
-  Http*               m_get;
-  std::stringstream*  m_data;
+  Http*              m_get;
+  std::stringstream* m_data;
 
-  bool                m_dropDeliminator;
+  bool m_dropDeliminator;
 };
 
-}
+} // namespace torrent
 
 #endif

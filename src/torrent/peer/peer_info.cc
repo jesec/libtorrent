@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -51,19 +51,20 @@ namespace torrent {
 // Move this to peer_info.cc when these are made into the public API.
 //
 // TODO: Use a safer socket address parameter.
-PeerInfo::PeerInfo(const sockaddr* address) : 
-  m_flags(0),
+PeerInfo::PeerInfo(const sockaddr* address)
+  : m_flags(0)
+  ,
 
-  m_failedCounter(0),
-  m_transferCounter(0),
-  m_lastConnection(0),
-  m_lastHandshake(0),
-  m_listenPort(0),
+  m_failedCounter(0)
+  , m_transferCounter(0)
+  , m_lastConnection(0)
+  , m_lastHandshake(0)
+  , m_listenPort(0)
+  ,
 
-  m_connection(NULL)
-{
+  m_connection(NULL) {
   rak::socket_address* sa = new rak::socket_address();
-  *sa = *rak::socket_address::cast_from(address);
+  *sa                     = *rak::socket_address::cast_from(address);
 
   m_address = sa->c_sockaddr();
 }
@@ -72,7 +73,8 @@ PeerInfo::~PeerInfo() noexcept(false) {
   // if (m_transferCounter != 0)
   //   throw internal_error("PeerInfo::~PeerInfo() m_transferCounter != 0.");
 
-  instrumentation_update(INSTRUMENTATION_TRANSFER_PEER_INFO_UNACCOUNTED, m_transferCounter);
+  instrumentation_update(INSTRUMENTATION_TRANSFER_PEER_INFO_UNACCOUNTED,
+                         m_transferCounter);
 
   if (is_blocked())
     throw internal_error("PeerInfo::~PeerInfo() peer is blocked.");
@@ -85,4 +87,4 @@ PeerInfo::set_port(uint16_t port) {
   rak::socket_address::cast_from(m_address)->set_port(port);
 }
 
-}
+} // namespace torrent

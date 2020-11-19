@@ -9,13 +9,10 @@
 CPPUNIT_TEST_SUITE_REGISTRATION(utils_directory_events_test);
 
 void
-utils_directory_events_test::setUp() {
-}
+utils_directory_events_test::setUp() {}
 
 void
-utils_directory_events_test::tearDown() {
-}
+utils_directory_events_test::tearDown() {}
 
 void
-utils_directory_events_test::test_basic() {
-}
+utils_directory_events_test::test_basic() {}

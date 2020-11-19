@@ -1,6 +1,6 @@
-#include <iostream>
-#include <iomanip>
 #include <cstdlib>
+#include <iomanip>
+#include <iostream>
 #include <rak/partial_queue.h>
 #include <rak/timer.h>
 
@@ -20,15 +20,14 @@ test_fill() {
 
     if (queue.insert(k, k))
       std::cout << '[' << (uint32_t)k << ']' << ' ';
-//     else
-//       std::cout << '<' << (uint32_t)k << '>' << ' ';
+    //     else
+    //       std::cout << '<' << (uint32_t)k << '>' << ' ';
 
     if (queue.is_full() && ++i == 100)
       break;
   }
 
-  std::cout << std::endl
-	    << "  popping: ";
+  std::cout << std::endl << "  popping: ";
 
   while (queue.prepare_pop()) {
     std::cout << queue.pop() << ' ';
@@ -55,8 +54,7 @@ test_random() {
       std::cout << '<' << (uint32_t)k << '>' << ' ';
   }
 
-  std::cout << std::endl
-	    << "  popping: ";
+  std::cout << std::endl << "  popping: ";
 
   while (queue.prepare_pop()) {
     if (rand() % 2) {
@@ -65,9 +63,9 @@ test_random() {
       uint8_t k = rand() % 128;
 
       if (queue.insert(k, k))
-	std::cout << '[' << (uint32_t)k << ']' << ' ';
+        std::cout << '[' << (uint32_t)k << ']' << ' ';
       else
-	std::cout << '<' << (uint32_t)k << '>' << ' ';
+        std::cout << '<' << (uint32_t)k << '>' << ' ';
     }
   }
 
@@ -78,7 +76,8 @@ int
 main(int argc, char** argv) {
   srand(rak::timer::current().usec());
 
-  std::cout << "sizeof(rak::partial_queue): " << sizeof(rak::partial_queue) << std::endl;
+  std::cout << "sizeof(rak::partial_queue): " << sizeof(rak::partial_queue)
+            << std::endl;
 
   test_fill();
   test_random();

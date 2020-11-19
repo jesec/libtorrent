@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -61,16 +61,26 @@ public:
 // tracking time!
 class LIBTORRENT_EXPORT internal_error : public base_error {
 public:
-  internal_error(const char* msg)        { initialize(msg); }
+  internal_error(const char* msg) {
+    initialize(msg);
+  }
   internal_error(const char* msg, const std::string& context) {
-    initialize(std::string(msg) + " [" + context + "]"); }
+    initialize(std::string(msg) + " [" + context + "]");
+  }
   internal_error(const char* msg, const HashString& hash) {
-    initialize(std::string(msg) + " [#" + hash_string_to_hex_str(hash) + "]"); }
-  internal_error(const std::string& msg) { initialize(msg); }
+    initialize(std::string(msg) + " [#" + hash_string_to_hex_str(hash) + "]");
+  }
+  internal_error(const std::string& msg) {
+    initialize(msg);
+  }
   virtual ~internal_error() throw() {}
 
-  virtual const char* what() const throw() { return m_msg.c_str(); }
-  const std::string&  backtrace() const throw() { return m_backtrace; }
+  virtual const char* what() const throw() {
+    return m_msg.c_str();
+  }
+  const std::string& backtrace() const throw() {
+    return m_backtrace;
+  }
 
 private:
   // Use this function for breaking on throws.
@@ -89,11 +99,17 @@ public:
 
 class LIBTORRENT_EXPORT communication_error : public network_error {
 public:
-  communication_error(const char* msg)        { initialize(msg); }
-  communication_error(const std::string& msg) { initialize(msg); }
+  communication_error(const char* msg) {
+    initialize(msg);
+  }
+  communication_error(const std::string& msg) {
+    initialize(msg);
+  }
   virtual ~communication_error() throw() {}
 
-  virtual const char* what() const throw() { return m_msg.c_str(); }
+  virtual const char* what() const throw() {
+    return m_msg.c_str();
+  }
 
 private:
   // Use this function for breaking on throws.
@@ -104,12 +120,15 @@ private:
 
 class LIBTORRENT_EXPORT connection_error : public network_error {
 public:
-  connection_error(int err) : m_errno(err) {}
+  connection_error(int err)
+    : m_errno(err) {}
   virtual ~connection_error() throw() {}
 
   virtual const char* what() const throw();
 
-  int get_errno() const { return m_errno; }
+  int get_errno() const {
+    return m_errno;
+  }
 
 private:
   int m_errno;
@@ -117,12 +136,15 @@ private:
 
 class LIBTORRENT_EXPORT address_info_error : public network_error {
 public:
-  address_info_error(int err) : m_errno(err) {}
+  address_info_error(int err)
+    : m_errno(err) {}
   virtual ~address_info_error() throw() {}
 
   virtual const char* what() const throw();
 
-  int get_errno() const { return m_errno; }
+  int get_errno() const {
+    return m_errno;
+  }
 
 private:
   int m_errno;
@@ -146,11 +168,17 @@ public:
 
 class LIBTORRENT_EXPORT storage_error : public local_error {
 public:
-  storage_error(const char* msg)       { initialize(msg); }
-  storage_error(const std::string& msg) { initialize(msg); }
+  storage_error(const char* msg) {
+    initialize(msg);
+  }
+  storage_error(const std::string& msg) {
+    initialize(msg);
+  }
   virtual ~storage_error() throw() {}
 
-  virtual const char* what() const throw() { return m_msg.c_str(); }
+  virtual const char* what() const throw() {
+    return m_msg.c_str();
+  }
 
 private:
   // Use this function for breaking on throws.
@@ -161,11 +189,17 @@ private:
 
 class LIBTORRENT_EXPORT resource_error : public local_error {
 public:
-  resource_error(const char* msg) { initialize(msg); }
-  resource_error(const std::string& msg) { initialize(msg); }
+  resource_error(const char* msg) {
+    initialize(msg);
+  }
+  resource_error(const std::string& msg) {
+    initialize(msg);
+  }
   virtual ~resource_error() throw() {}
 
-  virtual const char* what() const throw() { return m_msg.c_str(); }
+  virtual const char* what() const throw() {
+    return m_msg.c_str();
+  }
 
 private:
   // Use this function for breaking on throws.
@@ -176,11 +210,17 @@ private:
 
 class LIBTORRENT_EXPORT input_error : public local_error {
 public:
-  input_error(const char* msg) { initialize(msg); }
-  input_error(const std::string& msg) { initialize(msg); }
+  input_error(const char* msg) {
+    initialize(msg);
+  }
+  input_error(const std::string& msg) {
+    initialize(msg);
+  }
   virtual ~input_error() throw() {}
 
-  virtual const char* what() const throw() { return m_msg.c_str(); }
+  virtual const char* what() const throw() {
+    return m_msg.c_str();
+  }
 
 private:
   // Use this function for breaking on throws.
@@ -191,8 +231,10 @@ private:
 
 class LIBTORRENT_EXPORT bencode_error : public input_error {
 public:
-  bencode_error(const char* msg) : input_error(msg) {}
-  bencode_error(const std::string& msg) : input_error(msg) {}
+  bencode_error(const char* msg)
+    : input_error(msg) {}
+  bencode_error(const std::string& msg)
+    : input_error(msg) {}
 
   virtual ~bencode_error() throw() {}
 };
@@ -202,6 +244,6 @@ public:
   virtual ~shutdown_exception() throw() {}
 };
 
-}
+} // namespace torrent
 
 #endif

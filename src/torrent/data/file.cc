@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -59,21 +59,23 @@ const int File::flag_previously_created;
 const int File::flag_prioritize_first;
 const int File::flag_prioritize_last;
 
-File::File() :
-  m_fd(-1),
-  m_protection(0),
-  m_flags(0),
+File::File()
+  : m_fd(-1)
+  , m_protection(0)
+  , m_flags(0)
+  ,
 
-  m_offset(0),
-  m_size(0),
-  m_lastTouched(cachedTime.usec()),
+  m_offset(0)
+  , m_size(0)
+  , m_lastTouched(cachedTime.usec())
+  ,
 
-  m_completed(0),
-  m_priority(PRIORITY_NORMAL),
+  m_completed(0)
+  , m_priority(PRIORITY_NORMAL)
+  ,
 
-  m_matchDepthPrev(0),
-  m_matchDepthNext(0) {
-}
+  m_matchDepthPrev(0)
+  , m_matchDepthNext(0) {}
 
 File::~File() noexcept(false) {
   if (is_open())
@@ -90,7 +92,7 @@ File::is_created() const {
   // rather than as a way to find out if it is starting on a blank
   // slate.
   if (!fs.update(frozen_path()))
-//     return rak::error_number::current() == rak::error_number::e_access;
+    //     return rak::error_number::current() == rak::error_number::e_access;
     return false;
 
   return fs.is_regular();
@@ -148,23 +150,25 @@ File::set_range(uint32_t chunkSize) {
   else if (m_size == 0)
     m_range = File::range_type(m_offset / chunkSize, m_offset / chunkSize);
   else
-    m_range = File::range_type(m_offset / chunkSize, (m_offset + m_size + chunkSize - 1) / chunkSize);
+    m_range = File::range_type(m_offset / chunkSize,
+                               (m_offset + m_size + chunkSize - 1) / chunkSize);
 }
 
 void
 File::set_match_depth(File* left, File* right) {
   uint32_t level = 0;
 
-  Path::const_iterator itrLeft = left->path()->begin();
+  Path::const_iterator itrLeft  = left->path()->begin();
   Path::const_iterator itrRight = right->path()->begin();
 
-  while (itrLeft != left->path()->end() && itrRight != right->path()->end() && *itrLeft == *itrRight) {
+  while (itrLeft != left->path()->end() && itrRight != right->path()->end() &&
+         *itrLeft == *itrRight) {
     itrLeft++;
     itrRight++;
     level++;
   }
 
-  left->m_matchDepthNext = level;
+  left->m_matchDepthNext  = level;
   right->m_matchDepthPrev = level;
 }
 
@@ -189,4 +193,4 @@ File::resize_file() {
   return SocketFile(m_fd).set_size(m_size, flags);
 }
 
-}
+} // namespace torrent

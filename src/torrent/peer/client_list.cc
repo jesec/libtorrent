@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -57,7 +57,8 @@ ClientList::ClientList() {
   // First batch of clients.
   insert_helper(ClientInfo::TYPE_AZUREUS, "AZ", NULL, NULL, "Azureus");
   insert_helper(ClientInfo::TYPE_AZUREUS, "BC", NULL, NULL, "BitComet");
-  insert_helper(ClientInfo::TYPE_AZUREUS, "CD", NULL, NULL, "Enhanced CTorrent");
+  insert_helper(
+    ClientInfo::TYPE_AZUREUS, "CD", NULL, NULL, "Enhanced CTorrent");
   insert_helper(ClientInfo::TYPE_AZUREUS, "KT", NULL, NULL, "KTorrent");
   insert_helper(ClientInfo::TYPE_AZUREUS, "LT", NULL, NULL, "libtorrent");
   insert_helper(ClientInfo::TYPE_AZUREUS, "lt", NULL, NULL, "libTorrent");
@@ -93,7 +94,8 @@ ClientList::ClientList() {
 
   insert_helper(ClientInfo::TYPE_COMPACT, "A", NULL, NULL, "ABC");
   insert_helper(ClientInfo::TYPE_COMPACT, "S", NULL, NULL, "Shadow's client");
-  insert_helper(ClientInfo::TYPE_COMPACT, "U", NULL, NULL, "UPnP NAT BitTorrent");
+  insert_helper(
+    ClientInfo::TYPE_COMPACT, "U", NULL, NULL, "UPnP NAT BitTorrent");
   insert_helper(ClientInfo::TYPE_COMPACT, "O", NULL, NULL, "Osprey Permaseed");
 
   // Third batch of clients.
@@ -116,7 +118,10 @@ ClientList::~ClientList() {
 }
 
 ClientList::iterator
-ClientList::insert(ClientInfo::id_type type, const char* key, const char* version, const char* upperVersion) {
+ClientList::insert(ClientInfo::id_type type,
+                   const char*         key,
+                   const char*         version,
+                   const char*         upperVersion) {
   if (type >= ClientInfo::TYPE_MAX_SIZE)
     throw input_error("Invalid client info id type.");
 
@@ -132,26 +137,30 @@ ClientList::insert(ClientInfo::id_type type, const char* key, const char* versio
     std::memset(clientInfo.mutable_key(), 0, ClientInfo::max_key_size);
   else
     std::strncpy(clientInfo.mutable_key(), key, ClientInfo::max_key_size);
-    
+
   if (version != NULL)
-    std::memcpy(clientInfo.mutable_version(), version, ClientInfo::max_version_size);
+    std::memcpy(
+      clientInfo.mutable_version(), version, ClientInfo::max_version_size);
   else
     std::memset(clientInfo.mutable_version(), 0, ClientInfo::max_version_size);
 
   if (upperVersion != NULL)
-    std::memcpy(clientInfo.mutable_upper_version(), upperVersion, ClientInfo::max_version_size);
+    std::memcpy(clientInfo.mutable_upper_version(),
+                upperVersion,
+                ClientInfo::max_version_size);
   else
-    std::memset(clientInfo.mutable_upper_version(), -1, ClientInfo::max_version_size);
+    std::memset(
+      clientInfo.mutable_upper_version(), -1, ClientInfo::max_version_size);
 
   return base_type::insert(end(), clientInfo);
 }
 
 ClientList::iterator
 ClientList::insert_helper(ClientInfo::id_type type,
-                          const char* key,
-                          const char* version,
-                          const char* upperVersion,
-                          const char* shortDescription) {
+                          const char*         key,
+                          const char*         version,
+                          const char*         upperVersion,
+                          const char*         shortDescription) {
   char newKey[ClientInfo::max_key_size];
 
   std::memset(newKey, 0, ClientInfo::max_key_size);
@@ -166,27 +175,31 @@ ClientList::insert_helper(ClientInfo::id_type type,
 // Make this properly honor const-ness.
 bool
 ClientList::retrieve_id(ClientInfo* dest, const HashString& id) const {
-  if (id[0] == '-' && id[7] == '-' &&
-      std::isalpha(id[1]) && std::isalpha(id[2]) &&
-      std::isxdigit(id[3]) && std::isxdigit(id[4]) && std::isxdigit(id[5]) && std::isxdigit(id[6])) {
+  if (id[0] == '-' && id[7] == '-' && std::isalpha(id[1]) &&
+      std::isalpha(id[2]) && std::isxdigit(id[3]) && std::isxdigit(id[4]) &&
+      std::isxdigit(id[5]) && std::isxdigit(id[6])) {
     dest->set_type(ClientInfo::TYPE_AZUREUS);
 
     dest->mutable_key()[0] = id[1];
     dest->mutable_key()[1] = id[2];
-    
-    for (int i = 0; i < 4; i++)
-      dest->mutable_version()[i] = dest->mutable_upper_version()[i] = rak::hexchar_to_value(id[3 + i]);
 
-  } else if (std::isalpha(id[0]) && id[4] == '-' &&
-             std::isxdigit(id[1]) && std::isxdigit(id[2]) && std::isxdigit(id[3])) {
+    for (int i = 0; i < 4; i++)
+      dest->mutable_version()[i] = dest->mutable_upper_version()[i] =
+        rak::hexchar_to_value(id[3 + i]);
+
+  } else if (std::isalpha(id[0]) && id[4] == '-' && std::isxdigit(id[1]) &&
+             std::isxdigit(id[2]) && std::isxdigit(id[3])) {
     dest->set_type(ClientInfo::TYPE_COMPACT);
 
     dest->mutable_key()[0] = id[0];
     dest->mutable_key()[1] = '\0';
-    
-    dest->mutable_version()[0] = dest->mutable_upper_version()[0] = rak::hexchar_to_value(id[1]);
-    dest->mutable_version()[1] = dest->mutable_upper_version()[1] = rak::hexchar_to_value(id[2]);
-    dest->mutable_version()[2] = dest->mutable_upper_version()[2] = rak::hexchar_to_value(id[3]);
+
+    dest->mutable_version()[0] = dest->mutable_upper_version()[0] =
+      rak::hexchar_to_value(id[1]);
+    dest->mutable_version()[1] = dest->mutable_upper_version()[1] =
+      rak::hexchar_to_value(id[2]);
+    dest->mutable_version()[2] = dest->mutable_upper_version()[2] =
+      rak::hexchar_to_value(id[3]);
     dest->mutable_version()[3] = dest->mutable_upper_version()[3] = '\0';
 
   } else if (std::isalpha(id[0]) && std::isdigit(id[1]) && id[2] == '-' &&
@@ -196,22 +209,29 @@ ClientList::retrieve_id(ClientInfo* dest, const HashString& id) const {
 
     dest->mutable_key()[0] = id[0];
     dest->mutable_key()[1] = '\0';
-    
-    dest->mutable_version()[0] = dest->mutable_upper_version()[0] = rak::hexchar_to_value(id[1]);
+
+    dest->mutable_version()[0] = dest->mutable_upper_version()[0] =
+      rak::hexchar_to_value(id[1]);
 
     if (id[4] == '-' && std::isdigit(id[5]) && id[6] == '-') {
-      dest->mutable_version()[1] = dest->mutable_upper_version()[1] = rak::hexchar_to_value(id[3]);
-      dest->mutable_version()[2] = dest->mutable_upper_version()[2] = rak::hexchar_to_value(id[5]);
+      dest->mutable_version()[1] = dest->mutable_upper_version()[1] =
+        rak::hexchar_to_value(id[3]);
+      dest->mutable_version()[2] = dest->mutable_upper_version()[2] =
+        rak::hexchar_to_value(id[5]);
       dest->mutable_version()[3] = dest->mutable_upper_version()[3] = '\0';
 
-    } else if (std::isdigit(id[4]) && id[5] == '-' && std::isdigit(id[6]) && id[7] == '-') {
-      dest->mutable_version()[1] = dest->mutable_upper_version()[1] = rak::hexchar_to_value(id[3]) * 10 + rak::hexchar_to_value(id[4]);
-      dest->mutable_version()[2] = dest->mutable_upper_version()[2] = rak::hexchar_to_value(id[6]);
+    } else if (std::isdigit(id[4]) && id[5] == '-' && std::isdigit(id[6]) &&
+               id[7] == '-') {
+      dest->mutable_version()[1] = dest->mutable_upper_version()[1] =
+        rak::hexchar_to_value(id[3]) * 10 + rak::hexchar_to_value(id[4]);
+      dest->mutable_version()[2] = dest->mutable_upper_version()[2] =
+        rak::hexchar_to_value(id[6]);
       dest->mutable_version()[3] = dest->mutable_upper_version()[3] = '\0';
 
     } else {
       *dest = *begin();
-      std::memset(dest->mutable_upper_version(), 0, ClientInfo::max_version_size);
+      std::memset(
+        dest->mutable_upper_version(), 0, ClientInfo::max_version_size);
 
       return false;
     }
@@ -229,12 +249,15 @@ ClientList::retrieve_id(ClientInfo* dest, const HashString& id) const {
     return false;
   }
 
-  const_iterator itr = std::find_if(begin() + 1, end(), std::bind(&ClientInfo::intersects, *dest, std::placeholders::_1));
+  const_iterator itr = std::find_if(
+    begin() + 1,
+    end(),
+    std::bind(&ClientInfo::intersects, *dest, std::placeholders::_1));
 
   if (itr == end())
     dest->set_info(begin()->info());
   else
-    dest->set_info(itr->info());    
+    dest->set_info(itr->info());
 
   return true;
 }
@@ -245,4 +268,4 @@ ClientList::retrieve_unknown(ClientInfo* dest) const {
   std::memset(dest->mutable_upper_version(), 0, ClientInfo::max_version_size);
 }
 
-}
+} // namespace torrent

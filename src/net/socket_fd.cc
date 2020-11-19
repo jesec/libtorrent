@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -36,19 +36,19 @@
 
 #include "config.h"
 
+#include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
 #include <rak/socket_address.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
-#include "torrent/exceptions.h"
 #include "socket_fd.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 
@@ -115,7 +115,7 @@ int
 SocketFd::get_error() const {
   check_valid();
 
-  int err;
+  int       err;
   socklen_t length = sizeof(err);
 
   if (getsockopt(m_fd, SOL_SOCKET, SO_ERROR, &err, &length) == -1)
@@ -130,7 +130,8 @@ SocketFd::open_stream() {
 
   if (m_fd == -1) {
     m_ipv6_socket = false;
-    return (m_fd = socket(rak::socket_address::pf_inet, SOCK_STREAM, IPPROTO_TCP)) != -1;
+    return (m_fd = socket(
+              rak::socket_address::pf_inet, SOCK_STREAM, IPPROTO_TCP)) != -1;
   }
 
   m_ipv6_socket = true;
@@ -183,7 +184,8 @@ SocketFd::open_socket_pair(int& fd1, int& fd2) {
 void
 SocketFd::close() {
   if (::close(m_fd) && errno == EBADF)
-    throw internal_error("SocketFd::close() called on an invalid file descriptor");
+    throw internal_error(
+      "SocketFd::close() called on an invalid file descriptor");
 }
 
 bool
@@ -221,7 +223,8 @@ SocketFd::connect(const rak::socket_address& sa) {
 
   if (m_ipv6_socket && sa.family() == rak::socket_address::pf_inet) {
     rak::socket_address_inet6 sa_mapped = sa.sa_inet()->to_mapped_address();
-    return !::connect(m_fd, sa_mapped.c_sockaddr(), sizeof(sa_mapped)) || errno == EINPROGRESS;
+    return !::connect(m_fd, sa_mapped.c_sockaddr(), sizeof(sa_mapped)) ||
+           errno == EINPROGRESS;
   }
 
   return !::connect(m_fd, sa.c_sockaddr(), sa.length()) || errno == EINPROGRESS;
@@ -233,7 +236,7 @@ SocketFd::connect_sa(const sockaddr* sa) {
 }
 
 bool
-SocketFd::getsockname(rak::socket_address *sa) {
+SocketFd::getsockname(rak::socket_address* sa) {
   check_valid();
 
   socklen_t len = sizeof(rak::socket_address);
@@ -266,7 +269,8 @@ SocketFd::accept(rak::socket_address* sa) {
 
   int fd = ::accept(m_fd, sa->c_sockaddr(), &len);
 
-  if (fd != -1 && m_ipv6_socket && sa->family() == rak::socket_address::af_inet6) {
+  if (fd != -1 && m_ipv6_socket &&
+      sa->family() == rak::socket_address::af_inet6) {
     *sa = sa->sa_inet6()->normalize_address();
   }
 
@@ -278,7 +282,8 @@ SocketFd::accept(rak::socket_address* sa) {
 //   unsigned int v;
 
 //   if (!is_valid() || ioctl(m_fd, SIOCINQ, &v) < 0)
-//     throw internal_error("SocketFd::get_read_queue_size() could not be performed");
+//     throw internal_error("SocketFd::get_read_queue_size() could not be
+//     performed");
 
 //   return v;
 // }
@@ -288,9 +293,10 @@ SocketFd::accept(rak::socket_address* sa) {
 //   unsigned int v;
 
 //   if (!is_valid() || ioctl(m_fd, SIOCOUTQ, &v) < 0)
-//     throw internal_error("SocketFd::get_write_queue_size() could not be performed");
+//     throw internal_error("SocketFd::get_write_queue_size() could not be
+//     performed");
 
 //   return v;
 // }
 
-}
+} // namespace torrent

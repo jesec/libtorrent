@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -46,9 +46,11 @@
 namespace torrent {
 
 struct watch_descriptor {
-  typedef std::function<void (const std::string&)> slot_string;
+  typedef std::function<void(const std::string&)> slot_string;
 
-  bool compare_desc(int desc) const { return desc == descriptor; }
+  bool compare_desc(int desc) const {
+    return desc == descriptor;
+  }
 
   int         descriptor;
   std::string path;
@@ -64,24 +66,28 @@ public:
   static const int flag_on_removed = 0x2;
   static const int flag_on_updated = 0x3;
 
-  directory_events() { m_fileDesc = -1; }
+  directory_events() {
+    m_fileDesc = -1;
+  }
   ~directory_events() {}
 
-  bool                open();
-  void                close();
+  bool open();
+  void close();
 
-  void                notify_on(const std::string& path, int flags, const slot_string& slot);
+  void notify_on(const std::string& path, int flags, const slot_string& slot);
 
-  virtual void        event_read();
-  virtual void        event_write();
-  virtual void        event_error();
+  virtual void event_read();
+  virtual void event_write();
+  virtual void event_error();
 
-  virtual const char* type_name() const { return "directory_events"; }
+  virtual const char* type_name() const {
+    return "directory_events";
+  }
 
 private:
-  wd_list             m_wd_list;
+  wd_list m_wd_list;
 };
 
-}
+} // namespace torrent
 
 #endif

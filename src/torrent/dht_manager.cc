@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -40,13 +40,14 @@
 #include <torrent/throttle.h>
 #include <torrent/utils/log.h>
 
-#include "manager.h"
 #include "dht/dht_router.h"
+#include "manager.h"
 
 #include "dht_manager.h"
 
-#define LT_LOG_THIS(log_fmt, ...)                                       \
-  lt_log_print_subsystem(torrent::LOG_DHT_MANAGER, "dht_manager", log_fmt, __VA_ARGS__);
+#define LT_LOG_THIS(log_fmt, ...)                                              \
+  lt_log_print_subsystem(                                                      \
+    torrent::LOG_DHT_MANAGER, "dht_manager", log_fmt, __VA_ARGS__);
 
 namespace torrent {
 
@@ -57,12 +58,15 @@ DhtManager::~DhtManager() {
 
 void
 DhtManager::initialize(const Object& dhtCache) {
-  auto bind_address = rak::socket_address::cast_from(manager->connection_manager()->bind_address());
+  auto bind_address = rak::socket_address::cast_from(
+    manager->connection_manager()->bind_address());
 
-  LT_LOG_THIS("initializing (bind_address:%s)", bind_address->pretty_address_str().c_str());
+  LT_LOG_THIS("initializing (bind_address:%s)",
+              bind_address->pretty_address_str().c_str());
 
   if (m_router != NULL)
-    throw internal_error("DhtManager::initialize called with DHT already active.");
+    throw internal_error(
+      "DhtManager::initialize called with DHT already active.");
 
   try {
     m_router = new DhtRouter(dhtCache, bind_address);
@@ -76,7 +80,8 @@ DhtManager::start(port_type port) {
   LT_LOG_THIS("starting (port:%d)", port);
 
   if (m_router == NULL)
-    throw internal_error("DhtManager::start called without initializing first.");
+    throw internal_error(
+      "DhtManager::start called without initializing first.");
 
   m_port = port;
 
@@ -119,7 +124,8 @@ DhtManager::add_node(const std::string& host, int port) {
 Object*
 DhtManager::store_cache(Object* container) const {
   if (m_router == NULL)
-    throw internal_error("DhtManager::store_cache called but DHT not initialized.");
+    throw internal_error(
+      "DhtManager::store_cache called but DHT not initialized.");
 
   return m_router->store_cache(container);
 }
@@ -137,7 +143,8 @@ DhtManager::reset_statistics() {
 void
 DhtManager::set_upload_throttle(Throttle* t) {
   if (m_router->is_active())
-    throw internal_error("DhtManager::set_upload_throttle() called while DHT server active.");
+    throw internal_error(
+      "DhtManager::set_upload_throttle() called while DHT server active.");
 
   m_router->set_upload_throttle(t->throttle_list());
 }
@@ -145,9 +152,10 @@ DhtManager::set_upload_throttle(Throttle* t) {
 void
 DhtManager::set_download_throttle(Throttle* t) {
   if (m_router->is_active())
-    throw internal_error("DhtManager::set_download_throttle() called while DHT server active.");
+    throw internal_error(
+      "DhtManager::set_download_throttle() called while DHT server active.");
 
   m_router->set_download_throttle(t->throttle_list());
 }
 
-}
+} // namespace torrent

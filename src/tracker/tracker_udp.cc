@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -45,34 +45,49 @@
 #include "rak/error_number.h"
 
 #include "net/address_list.h"
-#include "torrent/exceptions.h"
 #include "torrent/connection_manager.h"
 #include "torrent/download_info.h"
+#include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/option_strings.h"
 #include "torrent/utils/uri_parser.h"
 
-#include "tracker_udp.h"
 #include "manager.h"
+#include "tracker_udp.h"
 
-#define LT_LOG_TRACKER(log_level, log_fmt, ...)                         \
-  lt_log_print_info(LOG_TRACKER_##log_level, m_parent->info(), "tracker_udp", "[%u] " log_fmt, group(), __VA_ARGS__);
+#define LT_LOG_TRACKER(log_level, log_fmt, ...)                                \
+  lt_log_print_info(LOG_TRACKER_##log_level,                                   \
+                    m_parent->info(),                                          \
+                    "tracker_udp",                                             \
+                    "[%u] " log_fmt,                                           \
+                    group(),                                                   \
+                    __VA_ARGS__);
 
-#define LT_LOG_TRACKER_DUMP(log_level, log_dump_data, log_dump_size, log_fmt, ...)                   \
-  lt_log_print_info_dump(LOG_TRACKER_##log_level, log_dump_data, log_dump_size, m_parent->info(), "tracker_udp", "[%u] " log_fmt, group(), __VA_ARGS__);
+#define LT_LOG_TRACKER_DUMP(                                                   \
+  log_level, log_dump_data, log_dump_size, log_fmt, ...)                       \
+  lt_log_print_info_dump(LOG_TRACKER_##log_level,                              \
+                         log_dump_data,                                        \
+                         log_dump_size,                                        \
+                         m_parent->info(),                                     \
+                         "tracker_udp",                                        \
+                         "[%u] " log_fmt,                                      \
+                         group(),                                              \
+                         __VA_ARGS__);
 
 namespace torrent {
 
-TrackerUdp::TrackerUdp(TrackerList* parent, const std::string& url, int flags) :
-  Tracker(parent, url, flags),
+TrackerUdp::TrackerUdp(TrackerList* parent, const std::string& url, int flags)
+  : Tracker(parent, url, flags)
+  ,
 
-  m_port(0),
+  m_port(0)
+  ,
 
-  m_slot_resolver(NULL),
-  m_readBuffer(NULL),
-  m_writeBuffer(NULL) {
+  m_slot_resolver(NULL)
+  , m_readBuffer(NULL)
+  , m_writeBuffer(NULL) {
 
   m_taskTimeout.slot() = std::bind(&TrackerUdp::receive_timeout, this);
 }
@@ -80,12 +95,12 @@ TrackerUdp::TrackerUdp(TrackerList* parent, const std::string& url, int flags) :
 TrackerUdp::~TrackerUdp() {
   if (m_slot_resolver != NULL) {
     *m_slot_resolver = resolver_type();
-    m_slot_resolver = NULL;
+    m_slot_resolver  = NULL;
   }
 
   close_directly();
 }
-  
+
 bool
 TrackerUdp::is_busy() const {
   return get_fd().is_valid();
@@ -109,20 +124,24 @@ TrackerUdp::send_state(int state) {
   // so that if this tracker is deleted, the member function won't be called.
   if (m_slot_resolver != NULL) {
     *m_slot_resolver = resolver_type();
-    m_slot_resolver = NULL;
+    m_slot_resolver  = NULL;
   }
 
   m_slot_resolver = make_resolver_slot(hostname);
 }
 
 bool
-TrackerUdp::parse_udp_url(const std::string&, hostname_type& hostname, int& port) const {
-  if (std::sscanf(m_url.c_str(), "udp://%1023[^:]:%i", hostname.data(), &port) == 2 && hostname[0] != '\0' &&
-      port > 0 && port < (1 << 16))
+TrackerUdp::parse_udp_url(const std::string&,
+                          hostname_type& hostname,
+                          int&           port) const {
+  if (std::sscanf(
+        m_url.c_str(), "udp://%1023[^:]:%i", hostname.data(), &port) == 2 &&
+      hostname[0] != '\0' && port > 0 && port < (1 << 16))
     return true;
 
-  if (std::sscanf(m_url.c_str(), "udp://[%1023[^]]]:%i", hostname.data(), &port) == 2 && hostname[0] != '\0' &&
-      port > 0 && port < (1 << 16))
+  if (std::sscanf(
+        m_url.c_str(), "udp://[%1023[^]]]:%i", hostname.data(), &port) == 2 &&
+      hostname[0] != '\0' && port > 0 && port < (1 << 16))
     return true;
 
   return false;
@@ -130,18 +149,21 @@ TrackerUdp::parse_udp_url(const std::string&, hostname_type& hostname, int& port
 
 TrackerUdp::resolver_type*
 TrackerUdp::make_resolver_slot(const hostname_type& hostname) {
-  return manager->connection_manager()->resolver()(hostname.data(), PF_UNSPEC, SOCK_DGRAM,
-                                                   std::bind(&TrackerUdp::start_announce,
-                                                             this,
-                                                             std::placeholders::_1,
-                                                             std::placeholders::_2));
+  return manager->connection_manager()->resolver()(
+    hostname.data(),
+    PF_UNSPEC,
+    SOCK_DGRAM,
+    std::bind(&TrackerUdp::start_announce,
+              this,
+              std::placeholders::_1,
+              std::placeholders::_2));
 }
 
 void
 TrackerUdp::start_announce(const sockaddr* sa, int) {
   if (m_slot_resolver != NULL) {
     *m_slot_resolver = resolver_type();
-    m_slot_resolver = NULL;
+    m_slot_resolver  = NULL;
   }
 
   if (sa == NULL)
@@ -150,21 +172,28 @@ TrackerUdp::start_announce(const sockaddr* sa, int) {
   m_connectAddress = *rak::socket_address::cast_from(sa);
   m_connectAddress.set_port(m_port);
 
-  LT_LOG_TRACKER(DEBUG, "address found (address:%s)", m_connectAddress.address_str().c_str());
+  LT_LOG_TRACKER(DEBUG,
+                 "address found (address:%s)",
+                 m_connectAddress.address_str().c_str());
 
   if (!m_connectAddress.is_valid())
     return receive_failed("invalid tracker address");
 
-  // TODO: Make each of these a separate error... at the very least separate open and bind.
+  // TODO: Make each of these a separate error... at the very least separate
+  // open and bind.
   if (!get_fd().open_datagram() || !get_fd().set_nonblock())
     return receive_failed("could not open UDP socket");
 
-  auto bind_address = rak::socket_address::cast_from(manager->connection_manager()->bind_address());
+  auto bind_address = rak::socket_address::cast_from(
+    manager->connection_manager()->bind_address());
 
   if (bind_address->is_bindable() && !get_fd().bind(*bind_address))
-    return receive_failed("failed to bind socket to udp address '" + bind_address->pretty_address_str() + "' with error '" + rak::error_number::current().c_str() + "'");
+    return receive_failed("failed to bind socket to udp address '" +
+                          bind_address->pretty_address_str() +
+                          "' with error '" +
+                          rak::error_number::current().c_str() + "'");
 
-  m_readBuffer = new ReadBuffer;
+  m_readBuffer  = new ReadBuffer;
   m_writeBuffer = new WriteBuffer;
 
   prepare_connect_input();
@@ -175,7 +204,11 @@ TrackerUdp::start_announce(const sockaddr* sa, int) {
   manager->poll()->insert_error(this);
 
   m_tries = m_parent->info()->udp_tries();
-  priority_queue_insert(&taskScheduler, &m_taskTimeout, (cachedTime + rak::timer::from_seconds(m_parent->info()->udp_timeout())).round_seconds());
+  priority_queue_insert(
+    &taskScheduler,
+    &m_taskTimeout,
+    (cachedTime + rak::timer::from_seconds(m_parent->info()->udp_timeout()))
+      .round_seconds());
 }
 
 void
@@ -183,8 +216,10 @@ TrackerUdp::close() {
   if (!get_fd().is_valid())
     return;
 
-  LT_LOG_TRACKER(DEBUG, "request cancelled (state:%s url:%s)",
-                 option_as_string(OPTION_TRACKER_EVENT, m_latest_event), m_url.c_str());
+  LT_LOG_TRACKER(DEBUG,
+                 "request cancelled (state:%s url:%s)",
+                 option_as_string(OPTION_TRACKER_EVENT, m_latest_event),
+                 m_url.c_str());
 
   close_directly();
 }
@@ -194,8 +229,10 @@ TrackerUdp::disown() {
   if (!get_fd().is_valid())
     return;
 
-  LT_LOG_TRACKER(DEBUG, "request disowned (state:%s url:%s)",
-                 option_as_string(OPTION_TRACKER_EVENT, m_latest_event), m_url.c_str());
+  LT_LOG_TRACKER(DEBUG,
+                 "request disowned (state:%s url:%s)",
+                 option_as_string(OPTION_TRACKER_EVENT, m_latest_event),
+                 m_url.c_str());
 
   close_directly();
 }
@@ -208,7 +245,7 @@ TrackerUdp::close_directly() {
   delete m_readBuffer;
   delete m_writeBuffer;
 
-  m_readBuffer = NULL;
+  m_readBuffer  = NULL;
   m_writeBuffer = NULL;
 
   priority_queue_erase(&taskScheduler, &m_taskTimeout);
@@ -236,12 +273,17 @@ TrackerUdp::receive_failed(const std::string& msg) {
 void
 TrackerUdp::receive_timeout() {
   if (m_taskTimeout.is_queued())
-    throw internal_error("TrackerUdp::receive_timeout() called but m_taskTimeout is still scheduled.");
+    throw internal_error("TrackerUdp::receive_timeout() called but "
+                         "m_taskTimeout is still scheduled.");
 
   if (--m_tries == 0) {
     receive_failed("unable to connect to UDP tracker");
   } else {
-    priority_queue_insert(&taskScheduler, &m_taskTimeout, (cachedTime + rak::timer::from_seconds(m_parent->info()->udp_timeout())).round_seconds());
+    priority_queue_insert(
+      &taskScheduler,
+      &m_taskTimeout,
+      (cachedTime + rak::timer::from_seconds(m_parent->info()->udp_timeout()))
+        .round_seconds());
 
     manager->poll()->insert_write(this);
   }
@@ -259,7 +301,8 @@ TrackerUdp::event_read() {
   m_readBuffer->reset_position();
   m_readBuffer->set_end(s);
 
-  LT_LOG_TRACKER_DUMP(DEBUG, (const char*)m_readBuffer->begin(), s, "received reply", 0);
+  LT_LOG_TRACKER_DUMP(
+    DEBUG, (const char*)m_readBuffer->begin(), s, "received reply", 0);
 
   if (s < 4)
     return;
@@ -268,49 +311,54 @@ TrackerUdp::event_read() {
 
   // Do something with the content here.
   switch (m_readBuffer->read_32()) {
-  case 0:
-    if (m_action != 0 || !process_connect_output())
+    case 0:
+      if (m_action != 0 || !process_connect_output())
+        return;
+
+      prepare_announce_input();
+
+      priority_queue_erase(&taskScheduler, &m_taskTimeout);
+      priority_queue_insert(
+        &taskScheduler,
+        &m_taskTimeout,
+        (cachedTime + rak::timer::from_seconds(m_parent->info()->udp_timeout()))
+          .round_seconds());
+
+      m_tries = m_parent->info()->udp_tries();
+      manager->poll()->insert_write(this);
       return;
 
-    prepare_announce_input();
+    case 1:
+      if (m_action != 1 || !process_announce_output())
+        return;
 
-    priority_queue_erase(&taskScheduler, &m_taskTimeout);
-    priority_queue_insert(&taskScheduler, &m_taskTimeout, (cachedTime + rak::timer::from_seconds(m_parent->info()->udp_timeout())).round_seconds());
-
-    m_tries = m_parent->info()->udp_tries();
-    manager->poll()->insert_write(this);
-    return;
-
-  case 1:
-    if (m_action != 1 || !process_announce_output())
       return;
 
-    return;
+    case 3:
+      if (!process_error_output())
+        return;
 
-  case 3:
-    if (!process_error_output())
       return;
 
-    return;
-
-  default:
-    return;
+    default:
+      return;
   };
 }
 
 void
 TrackerUdp::event_write() {
   if (m_writeBuffer->size_end() == 0)
-    throw internal_error("TrackerUdp::write() called but the write buffer is empty.");
+    throw internal_error(
+      "TrackerUdp::write() called but the write buffer is empty.");
 
-  int __UNUSED s = write_datagram(m_writeBuffer->begin(), m_writeBuffer->size_end(), &m_connectAddress);
+  int __UNUSED s = write_datagram(
+    m_writeBuffer->begin(), m_writeBuffer->size_end(), &m_connectAddress);
 
   manager->poll()->remove_write(this);
 }
 
 void
-TrackerUdp::event_error() {
-}
+TrackerUdp::event_error() {}
 
 void
 TrackerUdp::prepare_connect_input() {
@@ -319,8 +367,11 @@ TrackerUdp::prepare_connect_input() {
   m_writeBuffer->write_32(m_action = 0);
   m_writeBuffer->write_32(m_transactionId = random());
 
-  LT_LOG_TRACKER_DUMP(DEBUG, m_writeBuffer->begin(), m_writeBuffer->size_end(),
-                      "prepare connect (id:%" PRIx32 ")", m_transactionId);
+  LT_LOG_TRACKER_DUMP(DEBUG,
+                      m_writeBuffer->begin(),
+                      m_writeBuffer->size_end(),
+                      "prepare connect (id:%" PRIx32 ")",
+                      m_transactionId);
 }
 
 void
@@ -336,16 +387,17 @@ TrackerUdp::prepare_announce_input() {
   m_writeBuffer->write_range(info->hash().begin(), info->hash().end());
   m_writeBuffer->write_range(info->local_id().begin(), info->local_id().end());
 
-  uint64_t uploaded_adjusted = info->uploaded_adjusted();
+  uint64_t uploaded_adjusted  = info->uploaded_adjusted();
   uint64_t completed_adjusted = info->completed_adjusted();
-  uint64_t download_left = info->slot_left()();
+  uint64_t download_left      = info->slot_left()();
 
   m_writeBuffer->write_64(completed_adjusted);
   m_writeBuffer->write_64(download_left);
   m_writeBuffer->write_64(uploaded_adjusted);
   m_writeBuffer->write_32(m_sendState);
 
-  const rak::socket_address* localAddress = rak::socket_address::cast_from(manager->connection_manager()->local_address());
+  const rak::socket_address* localAddress = rak::socket_address::cast_from(
+    manager->connection_manager()->local_address());
 
   uint32_t local_addr = 0;
 
@@ -358,12 +410,20 @@ TrackerUdp::prepare_announce_input() {
   m_writeBuffer->write_16(manager->connection_manager()->listen_port());
 
   if (m_writeBuffer->size_end() != 98)
-    throw internal_error("TrackerUdp::prepare_announce_input() ended up with the wrong size");
+    throw internal_error(
+      "TrackerUdp::prepare_announce_input() ended up with the wrong size");
 
-  LT_LOG_TRACKER_DUMP(DEBUG, m_writeBuffer->begin(), m_writeBuffer->size_end(),
-                      "prepare announce (state:%s id:%" PRIx32 " up_adj:%" PRIu64 " completed_adj:%" PRIu64 " left_adj:%" PRIu64 ")",
+  LT_LOG_TRACKER_DUMP(DEBUG,
+                      m_writeBuffer->begin(),
+                      m_writeBuffer->size_end(),
+                      "prepare announce (state:%s id:%" PRIx32
+                      " up_adj:%" PRIu64 " completed_adj:%" PRIu64
+                      " left_adj:%" PRIu64 ")",
                       option_as_string(OPTION_TRACKER_EVENT, m_sendState),
-                      m_transactionId, uploaded_adjusted, completed_adjusted, download_left);
+                      m_transactionId,
+                      uploaded_adjusted,
+                      completed_adjusted,
+                      download_left);
 }
 
 bool
@@ -391,9 +451,12 @@ TrackerUdp::process_announce_output() {
 
   AddressList l;
 
-  std::copy(reinterpret_cast<const SocketAddressCompact*>(m_readBuffer->position()),
-	    reinterpret_cast<const SocketAddressCompact*>(m_readBuffer->end() - m_readBuffer->remaining() % sizeof(SocketAddressCompact)),
-	    std::back_inserter(l));
+  std::copy(
+    reinterpret_cast<const SocketAddressCompact*>(m_readBuffer->position()),
+    reinterpret_cast<const SocketAddressCompact*>(
+      m_readBuffer->end() -
+      m_readBuffer->remaining() % sizeof(SocketAddressCompact)),
+    std::back_inserter(l));
 
   // Some logic here to decided on whetever we're going to close the
   // connection or not?
@@ -402,15 +465,16 @@ TrackerUdp::process_announce_output() {
 
   return true;
 }
-  
+
 bool
 TrackerUdp::process_error_output() {
   if (m_readBuffer->size_end() < 8 ||
       m_readBuffer->read_32() != m_transactionId)
     return false;
 
-  receive_failed("received error message: " + std::string(m_readBuffer->position(), m_readBuffer->end()));
+  receive_failed("received error message: " +
+                 std::string(m_readBuffer->position(), m_readBuffer->end()));
   return true;
 }
 
-}
+} // namespace torrent

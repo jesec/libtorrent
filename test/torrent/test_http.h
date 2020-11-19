@@ -20,4 +20,3 @@ public:
   void test_delete_on_done();
   void test_delete_on_failure();
 };
-

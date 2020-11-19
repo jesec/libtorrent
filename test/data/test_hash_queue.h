@@ -19,4 +19,3 @@ public:
   void test_erase();
   void test_erase_stress();
 };
-

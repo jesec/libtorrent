@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -42,9 +42,9 @@
 #include <map>
 #include <pthread.h>
 
-#include "torrent/hash_string.h"
-#include "hash_queue_node.h"
 #include "chunk_handle.h"
+#include "hash_queue_node.h"
+#include "torrent/hash_string.h"
 
 namespace torrent {
 
@@ -62,45 +62,52 @@ public:
   typedef std::deque<HashQueueNode>                 base_type;
   typedef std::map<HashChunk*, torrent::HashString> done_chunks_type;
 
-  typedef HashQueueNode::slot_done_type   slot_done_type;
-  typedef std::function<void (bool)> slot_bool;
+  typedef HashQueueNode::slot_done_type slot_done_type;
+  typedef std::function<void(bool)>     slot_bool;
 
   using base_type::iterator;
 
   using base_type::empty;
   using base_type::size;
 
+  using base_type::back;
   using base_type::begin;
   using base_type::end;
   using base_type::front;
-  using base_type::back;
 
   HashQueue(thread_disk* thread);
-  ~HashQueue() { clear(); pthread_mutex_destroy(&m_done_chunks_lock); }
+  ~HashQueue() {
+    clear();
+    pthread_mutex_destroy(&m_done_chunks_lock);
+  }
 
-  void                push_back(ChunkHandle handle, HashQueueNode::id_type id, slot_done_type d);
+  void push_back(ChunkHandle            handle,
+                 HashQueueNode::id_type id,
+                 slot_done_type         d);
 
-  bool                has(HashQueueNode::id_type id);
-  bool                has(HashQueueNode::id_type id, uint32_t index);
+  bool has(HashQueueNode::id_type id);
+  bool has(HashQueueNode::id_type id, uint32_t index);
 
-  void                remove(HashQueueNode::id_type id);
-  void                clear();
+  void remove(HashQueueNode::id_type id);
+  void clear();
 
-  void                work();
+  void work();
 
-  slot_bool&          slot_has_work() { return m_slot_has_work; }
+  slot_bool& slot_has_work() {
+    return m_slot_has_work;
+  }
 
 private:
-  void                chunk_done(HashChunk* hash_chunk, const HashString& hash_value);
+  void chunk_done(HashChunk* hash_chunk, const HashString& hash_value);
 
-  thread_disk*        m_thread_disk;
+  thread_disk* m_thread_disk;
 
-  done_chunks_type    m_done_chunks;
-  slot_bool           m_slot_has_work;
+  done_chunks_type m_done_chunks;
+  slot_bool        m_slot_has_work;
 
-  pthread_mutex_t     m_done_chunks_lock lt_cacheline_aligned;
+  pthread_mutex_t m_done_chunks_lock lt_cacheline_aligned;
 };
 
-}
+} // namespace torrent
 
 #endif

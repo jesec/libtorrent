@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -36,7 +36,7 @@
 
 #include "config.h"
 
-#include <rak/timer.h> 
+#include <rak/timer.h>
 
 #include "net/throttle_internal.h"
 #include "net/throttle_list.h"
@@ -56,9 +56,10 @@ namespace torrent {
 
 Throttle*
 Throttle::create_throttle() {
-  ThrottleInternal* throttle = new ThrottleInternal(ThrottleInternal::flag_root);
+  ThrottleInternal* throttle =
+    new ThrottleInternal(ThrottleInternal::flag_root);
 
-  throttle->m_maxRate = 0;
+  throttle->m_maxRate      = 0;
   throttle->m_throttleList = new ThrottleList();
 
   return throttle;
@@ -89,7 +90,7 @@ Throttle::set_max_rate(uint32_t v) {
     throw input_error("Throttle rate must be between 0 and 2^30.");
 
   uint32_t oldRate = m_maxRate;
-  m_maxRate = v;
+  m_maxRate        = v;
 
   m_throttleList->set_min_chunk_size(calculate_min_chunk_size());
   m_throttleList->set_max_chunk_size(calculate_max_chunk_size());
@@ -158,4 +159,4 @@ Throttle::calculate_interval() const {
     return interval * 100000;
 }
 
-}
+} // namespace torrent

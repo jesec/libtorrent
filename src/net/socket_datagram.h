@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -43,13 +43,16 @@ namespace torrent {
 
 class SocketDatagram : public SocketBase {
 public:
-
   // TODO: Make two seperate functions depending on whetever sa is
   // used.
-  int                 read_datagram(void* buffer, unsigned int length, rak::socket_address* sa = NULL);
-  int                 write_datagram(const void* buffer, unsigned int length, rak::socket_address* sa = NULL);
+  int read_datagram(void*                buffer,
+                    unsigned int         length,
+                    rak::socket_address* sa = NULL);
+  int write_datagram(const void*          buffer,
+                     unsigned int         length,
+                     rak::socket_address* sa = NULL);
 };
 
-}
+} // namespace torrent
 
 #endif

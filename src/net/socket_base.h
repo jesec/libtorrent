@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,42 +37,50 @@
 #ifndef LIBTORRENT_NET_SOCKET_BASE_H
 #define LIBTORRENT_NET_SOCKET_BASE_H
 
-#include <list>
 #include <cinttypes>
+#include <list>
 
-#include "torrent/event.h"
 #include "socket_fd.h"
+#include "torrent/event.h"
 
 namespace torrent {
 
 class SocketBase : public Event {
 public:
-  SocketBase() { set_fd(SocketFd()); }
+  SocketBase() {
+    set_fd(SocketFd());
+  }
   virtual ~SocketBase();
 
   // Ugly hack... But the alternative is to include SocketFd as part
   // of the library API or make SocketFd::m_fd into an non-modifiable
   // value.
-  SocketFd&           get_fd()            { return *reinterpret_cast<SocketFd*>(&m_fileDesc); }
-  const SocketFd&     get_fd() const      { return *reinterpret_cast<const SocketFd*>(&m_fileDesc); }
-  void                set_fd(SocketFd fd) { m_fileDesc = fd.get_fd(); }
+  SocketFd& get_fd() {
+    return *reinterpret_cast<SocketFd*>(&m_fileDesc);
+  }
+  const SocketFd& get_fd() const {
+    return *reinterpret_cast<const SocketFd*>(&m_fileDesc);
+  }
+  void set_fd(SocketFd fd) {
+    m_fileDesc = fd.get_fd();
+  }
 
-  bool                read_oob(void* buffer);
-  bool                write_oob(const void* buffer);
+  bool read_oob(void* buffer);
+  bool write_oob(const void* buffer);
 
-  void                receive_throttle_down_activate();
-  void                receive_throttle_up_activate();
+  void receive_throttle_down_activate();
+  void receive_throttle_up_activate();
 
 protected:
   // Disable copying
   SocketBase(const SocketBase&);
-  void operator = (const SocketBase&);
+  void operator=(const SocketBase&);
 
   static const size_t null_buffer_size = 1 << 17;
 
-  static char*        m_nullBuffer;
+  static char* m_nullBuffer;
 };
 
-}
+} // namespace torrent
 
 #endif // LIBTORRENT_SOCKET_BASE_H

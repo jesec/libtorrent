@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,36 +37,60 @@
 #ifndef LIBTORRENT_NET_DATA_BUFFER_H
 #define LIBTORRENT_NET_DATA_BUFFER_H
 
-#include <memory>
 #include <cinttypes>
+#include <memory>
 
 namespace torrent {
 
 // Recipient must call clear() when done with the buffer.
 struct DataBuffer {
-  DataBuffer()                        : m_data(NULL), m_end(NULL), m_owned(true) {}
-  DataBuffer(char* data, char* end)   : m_data(data), m_end(end),  m_owned(true) {}
+  DataBuffer()
+    : m_data(NULL)
+    , m_end(NULL)
+    , m_owned(true) {}
+  DataBuffer(char* data, char* end)
+    : m_data(data)
+    , m_end(end)
+    , m_owned(true) {}
 
-  DataBuffer          clone() const        { DataBuffer d = *this; d.m_owned = false; return d; }
-  DataBuffer          release()            { DataBuffer d = *this; set(NULL, NULL, false); return d; }
+  DataBuffer clone() const {
+    DataBuffer d = *this;
+    d.m_owned    = false;
+    return d;
+  }
+  DataBuffer release() {
+    DataBuffer d = *this;
+    set(NULL, NULL, false);
+    return d;
+  }
 
-  char*               data() const         { return m_data; }
-  char*               end() const          { return m_end; }
+  char* data() const {
+    return m_data;
+  }
+  char* end() const {
+    return m_end;
+  }
 
-  bool                owned() const        { return m_owned; }
-  bool                empty() const        { return m_data == NULL; }
-  size_t              length() const       { return m_end - m_data; }
+  bool owned() const {
+    return m_owned;
+  }
+  bool empty() const {
+    return m_data == NULL;
+  }
+  size_t length() const {
+    return m_end - m_data;
+  }
 
-  void                clear();
-  void                set(char* data, char* end, bool owned);
+  void clear();
+  void set(char* data, char* end, bool owned);
 
 private:
-  char*               m_data;
-  char*               m_end;
+  char* m_data;
+  char* m_end;
 
   // Used to indicate if buffer held by PCB is its own and needs to be
   // deleted after transmission (false if shared with other connections).
-  bool                m_owned;
+  bool m_owned;
 };
 
 inline void
@@ -75,16 +99,16 @@ DataBuffer::clear() {
     delete[] m_data;
 
   m_data = m_end = NULL;
-  m_owned = false;
+  m_owned        = false;
 }
 
 inline void
 DataBuffer::set(char* data, char* end, bool owned) {
-  m_data = data;
-  m_end = end;
+  m_data  = data;
+  m_end   = end;
   m_owned = owned;
 }
 
-}
+} // namespace torrent
 
 #endif

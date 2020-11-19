@@ -6,8 +6,8 @@
 #include "rak/priority_queue_default.h"
 
 #include "globals.h"
-#include "tracker_list_test.h"
 #include "tracker_controller_features.h"
+#include "tracker_list_test.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(tracker_controller_features);
 
@@ -46,7 +46,8 @@ tracker_controller_features::test_requesting_basic() {
   CPPUNIT_ASSERT(test_goto_next_timeout(&tracker_controller, 30));
   TEST_MULTI3_IS_BUSY("00000", "00000");
 
-  CPPUNIT_ASSERT(test_goto_next_timeout(&tracker_controller, tracker_0_0->min_interval() - 30));
+  CPPUNIT_ASSERT(test_goto_next_timeout(&tracker_controller,
+                                        tracker_0_0->min_interval() - 30));
   TEST_MULTI3_IS_BUSY("10111", "10111");
 
   CPPUNIT_ASSERT(tracker_0_0->trigger_success());
@@ -101,7 +102,8 @@ tracker_controller_features::test_promiscious_timeout() {
   CPPUNIT_ASSERT(!tracker_controller.task_timeout()->is_queued());
 
   CPPUNIT_ASSERT(tracker_0_0->trigger_success());
-  CPPUNIT_ASSERT(!(tracker_controller.flags() & torrent::TrackerController::flag_promiscuous_mode));
+  CPPUNIT_ASSERT(!(tracker_controller.flags() &
+                   torrent::TrackerController::flag_promiscuous_mode));
 
   // CPPUNIT_ASSERT(tracker_0_1->trigger_success());
   CPPUNIT_ASSERT(tracker_1_0->trigger_success());
@@ -109,7 +111,8 @@ tracker_controller_features::test_promiscious_timeout() {
   CPPUNIT_ASSERT(!tracker_controller.task_timeout()->is_queued());
 
   CPPUNIT_ASSERT(tracker_3_0->trigger_success());
-  CPPUNIT_ASSERT(test_goto_next_timeout(&tracker_controller, tracker_0_0->normal_interval()));
+  CPPUNIT_ASSERT(test_goto_next_timeout(&tracker_controller,
+                                        tracker_0_0->normal_interval()));
 
   TEST_MULTIPLE_END(4, 0);
 }
@@ -123,7 +126,8 @@ tracker_controller_features::test_promiscious_failed() {
   TEST_SEND_SINGLE_BEGIN(start);
 
   CPPUNIT_ASSERT(tracker_0_0->trigger_failure());
-  CPPUNIT_ASSERT((tracker_controller.flags() & torrent::TrackerController::flag_promiscuous_mode));
+  CPPUNIT_ASSERT((tracker_controller.flags() &
+                  torrent::TrackerController::flag_promiscuous_mode));
 
   TEST_MULTI3_IS_BUSY("01111", "01111");
   CPPUNIT_ASSERT(tracker_controller.task_timeout()->is_queued());
@@ -157,7 +161,7 @@ tracker_controller_features::test_scrape_basic() {
   tracker_0_1->set_can_scrape();
   tracker_0_2->set_can_scrape();
   tracker_2_0->set_can_scrape();
-  
+
   tracker_controller.scrape_request(0);
 
   TEST_GROUP_IS_BUSY("000000", "000000");
@@ -216,7 +220,8 @@ tracker_controller_features::test_scrape_priority() {
 
   CPPUNIT_ASSERT(tracker_controller.seconds_to_next_timeout() > 1);
 
-  torrent::cachedTime += rak::timer::from_seconds(tracker_controller.seconds_to_next_timeout() - 1);
+  torrent::cachedTime +=
+    rak::timer::from_seconds(tracker_controller.seconds_to_next_timeout() - 1);
   rak::priority_queue_perform(&torrent::taskScheduler, torrent::cachedTime);
 
   tracker_controller.scrape_request(0);
@@ -256,7 +261,8 @@ tracker_controller_features::test_groups_requesting() {
   // Next timeout should be soon...
   CPPUNIT_ASSERT(test_goto_next_timeout(&tracker_controller, 30));
   TEST_GROUP_IS_BUSY("000000", "000000");
-  CPPUNIT_ASSERT(test_goto_next_timeout(&tracker_controller, tracker_0_0->min_interval() - 30));
+  CPPUNIT_ASSERT(test_goto_next_timeout(&tracker_controller,
+                                        tracker_0_0->min_interval() - 30));
   TEST_GROUP_IS_BUSY("100101", "100101");
 
   CPPUNIT_ASSERT(tracker_0_0->trigger_success());
@@ -285,7 +291,7 @@ tracker_controller_features::test_groups_scrape() {
   tracker_2_0->set_can_scrape();
 
   CPPUNIT_ASSERT(!tracker_controller.task_scrape()->is_queued());
-  
+
   tracker_controller.scrape_request(0);
 
   TEST_GROUP_IS_BUSY("000000", "000000");

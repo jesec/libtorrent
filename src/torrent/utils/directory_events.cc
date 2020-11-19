@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -38,19 +38,19 @@
 
 #include "directory_events.h"
 
-#include <string>
 #include <errno.h>
+#include <string>
 #include <unistd.h>
 
 #ifdef HAVE_INOTIFY
 #include <sys/inotify.h>
 #endif
 
-#include "rak/error_number.h"
+#include "manager.h"
 #include "net/socket_fd.h"
+#include "rak/error_number.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
-#include "manager.h"
 
 namespace torrent {
 
@@ -95,7 +95,9 @@ directory_events::close() {
 }
 
 void
-directory_events::notify_on(const std::string& path, int flags, const slot_string& slot) {
+directory_events::notify_on(const std::string& path,
+                            int                flags,
+                            const slot_string& slot) {
   if (path.empty())
     throw input_error("Cannot add notification event for empty paths.");
 
@@ -108,7 +110,7 @@ directory_events::notify_on(const std::string& path, int flags, const slot_strin
 
 #ifdef IN_ONLYDIR
   in_flags |= IN_ONLYDIR;
-#endif 
+#endif
 
   if ((flags & flag_on_added))
     in_flags |= (IN_CREATE | IN_MOVED_TO);
@@ -122,12 +124,13 @@ directory_events::notify_on(const std::string& path, int flags, const slot_strin
   int result = inotify_add_watch(m_fileDesc, path.c_str(), in_flags);
 
   if (result == -1)
-    throw input_error("Call to inotify_add_watch(...) failed: " + std::string(rak::error_number::current().c_str()));
+    throw input_error("Call to inotify_add_watch(...) failed: " +
+                      std::string(rak::error_number::current().c_str()));
 
   wd_list::iterator itr = m_wd_list.insert(m_wd_list.end(), watch_descriptor());
-  itr->descriptor = result;
-  itr->path = path + (*path.rbegin() != '/' ? "/" : "");
-  itr->slot = slot;
+  itr->descriptor       = result;
+  itr->path             = path + (*path.rbegin() != '/' ? "/" : "");
+  itr->slot             = slot;
 
 #else
   throw input_error("No support for inotify.");
@@ -137,7 +140,7 @@ directory_events::notify_on(const std::string& path, int flags, const slot_strin
 void
 directory_events::event_read() {
 #ifdef HAVE_INOTIFY
-  char buffer[2048];
+  char    buffer[2048];
   ssize_t result = ::read(m_fileDesc, buffer, 2048);
 
   if (result < 0)
@@ -147,19 +150,22 @@ directory_events::event_read() {
     return;
 
   struct inotify_event* event = (struct inotify_event*)buffer;
-  
+
   while (event + 1 <= (struct inotify_event*)(buffer + result)) {
     char* next_event = (char*)event + sizeof(struct inotify_event) + event->len;
 
     if (event->len == 0 || next_event > buffer + 2048)
       return;
 
-    wd_list::const_iterator itr = std::find_if(m_wd_list.begin(), m_wd_list.end(),
-                                               std::bind(&watch_descriptor::compare_desc, std::placeholders::_1, event->wd));
+    wd_list::const_iterator itr = std::find_if(
+      m_wd_list.begin(),
+      m_wd_list.end(),
+      std::bind(
+        &watch_descriptor::compare_desc, std::placeholders::_1, event->wd));
 
     if (itr != m_wd_list.end()) {
       std::string sname(event->name);
-      if((sname.substr(sname.find_last_of(".") ) == ".torrent"))
+      if ((sname.substr(sname.find_last_of(".")) == ".torrent"))
         itr->slot(itr->path + event->name);
     }
 
@@ -169,11 +175,9 @@ directory_events::event_read() {
 }
 
 void
-directory_events::event_write() {
-}
+directory_events::event_write() {}
 
 void
-directory_events::event_error() {
-}
+directory_events::event_error() {}
 
-}
+} // namespace torrent

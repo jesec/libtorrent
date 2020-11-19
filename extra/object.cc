@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -43,18 +43,28 @@
 
 namespace torrent {
 
-Object::Object(const Object& b) : m_state(b.type()) {
+Object::Object(const Object& b)
+  : m_state(b.type()) {
   switch (type()) {
-  case type_none:   break;
-  case type_value:  m_value = b.m_value; break;
-  case type_string: m_string = new string_type(*b.m_string); break;
-  case type_list:   m_list = new list_type(*b.m_list); break;
-  case type_map:    m_map = new map_type(*b.m_map);  break;
+    case type_none:
+      break;
+    case type_value:
+      m_value = b.m_value;
+      break;
+    case type_string:
+      m_string = new string_type(*b.m_string);
+      break;
+    case type_list:
+      m_list = new list_type(*b.m_list);
+      break;
+    case type_map:
+      m_map = new map_type(*b.m_map);
+      break;
   }
 }
 
 Object&
-Object::operator = (const Object& src) {
+Object::operator=(const Object& src) {
   if (&src == this)
     return *this;
 
@@ -63,11 +73,20 @@ Object::operator = (const Object& src) {
   m_state = src.m_state;
 
   switch (type()) {
-  case type_none:   break;
-  case type_value:  m_value = src.m_value; break;
-  case type_string: m_string = new string_type(*src.m_string); break;
-  case type_list:   m_list = new list_type(*src.m_list); break;
-  case type_map:    m_map = new map_type(*src.m_map);  break;
+    case type_none:
+      break;
+    case type_value:
+      m_value = src.m_value;
+      break;
+    case type_string:
+      m_string = new string_type(*src.m_string);
+      break;
+    case type_list:
+      m_list = new list_type(*src.m_list);
+      break;
+    case type_map:
+      m_map = new map_type(*src.m_map);
+      break;
   }
 
   return *this;
@@ -76,11 +95,18 @@ Object::operator = (const Object& src) {
 void
 Object::clear() {
   switch (type()) {
-  case type_none:
-  case type_value:  break;
-  case type_string: delete m_string; break;
-  case type_list:   delete m_list; break;
-  case type_map:    delete m_map; break;
+    case type_none:
+    case type_value:
+      break;
+    case type_string:
+      delete m_string;
+      break;
+    case type_list:
+      delete m_list;
+      break;
+    case type_map:
+      delete m_map;
+      break;
   }
 
   m_state = type_none;
@@ -97,7 +123,6 @@ Object::get_key(const std::string& k) {
 
   return itr->second;
 }
-
 
 const Object&
 Object::get_key(const std::string& k) const {
@@ -143,14 +168,18 @@ Object::merge_copy(const Object& object, uint32_t maxDepth) {
     if (!is_map())
       *this = Object(type_map);
 
-    map_type& dest = as_map();
+    map_type&          dest    = as_map();
     map_type::iterator destItr = dest.begin();
 
-    map_type::const_iterator srcItr = object.as_map().begin();
+    map_type::const_iterator srcItr  = object.as_map().begin();
     map_type::const_iterator srcLast = object.as_map().end();
 
     while (srcItr != srcLast) {
-      destItr = std::find_if(destItr, dest.end(), rak::less_equal(srcItr->first, rak::mem_ref(&map_type::value_type::first)));
+      destItr = std::find_if(
+        destItr,
+        dest.end(),
+        rak::less_equal(srcItr->first,
+                        rak::mem_ref(&map_type::value_type::first)));
 
       if (srcItr->first < destItr->first)
         // destItr remains valid and pointing to the next possible
@@ -166,12 +195,12 @@ Object::merge_copy(const Object& object, uint32_t maxDepth) {
     if (!is_list())
       *this = Object(type_list);
 
-    list_type& dest = as_list();
+    list_type&          dest    = as_list();
     list_type::iterator destItr = dest.begin();
 
-    list_type::const_iterator srcItr = object.as_list().begin();
+    list_type::const_iterator srcItr  = object.as_list().begin();
     list_type::const_iterator srcLast = object.as_list().end();
-    
+
     while (srcItr != srcLast) {
       if (destItr == dest.end())
         destItr = dest.insert(destItr, *srcItr);
@@ -188,4 +217,4 @@ Object::merge_copy(const Object& object, uint32_t maxDepth) {
   return *this;
 }
 
-}
+} // namespace torrent

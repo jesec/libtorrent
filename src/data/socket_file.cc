@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -40,12 +40,12 @@
 #include "torrent/exceptions.h"
 
 #include <fcntl.h>
-#include <unistd.h>
 #include <rak/error_number.h>
 #include <rak/file_stat.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #ifdef HAVE_FALLOCATE
 #ifndef _GNU_SOURCE
@@ -60,22 +60,22 @@ bool
 SocketFile::open(const std::string& path, int prot, int flags, mode_t mode) {
   close();
 
-  if (prot & MemoryChunk::prot_read &&
-      prot & MemoryChunk::prot_write)
+  if (prot & MemoryChunk::prot_read && prot & MemoryChunk::prot_write)
     flags |= O_RDWR;
   else if (prot & MemoryChunk::prot_read)
     flags |= O_RDONLY;
   else if (prot & MemoryChunk::prot_write)
     flags |= O_WRONLY;
   else
-    throw internal_error("torrent::SocketFile::open(...) Tried to open file with no protection flags");
+    throw internal_error("torrent::SocketFile::open(...) Tried to open file "
+                         "with no protection flags");
 
 #ifdef O_LARGEFILE
   fd_type fd = ::open(path.c_str(), flags | O_LARGEFILE, mode);
 #else
   fd_type fd = ::open(path.c_str(), flags, mode);
 #endif
-  
+
   if (fd == invalid_fd)
     return false;
 
@@ -101,7 +101,7 @@ SocketFile::size() const {
   rak::file_stat fs;
 
   return fs.update(m_fd) ? fs.size() : 0;
-}  
+}
 
 bool
 SocketFile::set_size(uint64_t size, int flags) const {
@@ -114,8 +114,7 @@ SocketFile::set_size(uint64_t size, int flags) const {
 #endif
 
 #ifdef USE_POSIX_FALLOCATE
-  if (flags & flag_fallocate &&
-      flags & flag_fallocate_blocking &&
+  if (flags & flag_fallocate && flags & flag_fallocate_blocking &&
       posix_fallocate(m_fd, 0, size) == 0)
     return true;
 #endif
@@ -123,18 +122,19 @@ SocketFile::set_size(uint64_t size, int flags) const {
 #ifdef SYS_DARWIN
   if (flags & flag_fallocate) {
     fstore_t fstore;
-    fstore.fst_flags = F_ALLOCATECONTIG;
-    fstore.fst_posmode = F_PEOFPOSMODE;
-    fstore.fst_offset = 0;
-    fstore.fst_length = size;
+    fstore.fst_flags      = F_ALLOCATECONTIG;
+    fstore.fst_posmode    = F_PEOFPOSMODE;
+    fstore.fst_offset     = 0;
+    fstore.fst_length     = size;
     fstore.fst_bytesalloc = 0;
 
     // Hmm... this shouldn't really be something we fail the set_size
     // on...
     //
     // Yet is somehow fails with ENOSPC...
-//     if (fcntl(m_fd, F_PREALLOCATE, &fstore) == -1)
-//       throw internal_error("hack: fcntl failed" + std::string(strerror(errno)));
+    //     if (fcntl(m_fd, F_PREALLOCATE, &fstore) == -1)
+    //       throw internal_error("hack: fcntl failed" +
+    //       std::string(strerror(errno)));
 
     fcntl(m_fd, F_PREALLOCATE, &fstore); // Ignore result for now...
   }
@@ -142,12 +142,11 @@ SocketFile::set_size(uint64_t size, int flags) const {
 
   if (ftruncate(m_fd, size) == 0)
     return true;
-  
+
   // Use workaround to resize files on vfat. It causes the whole
   // client to block while it is resizing the files, this really
   // should be in a seperate thread.
-  if (size != 0 &&
-      lseek(m_fd, size - 1, SEEK_SET) == (off_t)(size - 1) &&
+  if (size != 0 && lseek(m_fd, size - 1, SEEK_SET) == (off_t)(size - 1) &&
       write(m_fd, &size, 1) == 1)
     return true;
 
@@ -155,7 +154,10 @@ SocketFile::set_size(uint64_t size, int flags) const {
 }
 
 MemoryChunk
-SocketFile::create_chunk(uint64_t offset, uint32_t length, int prot, int flags) const {
+SocketFile::create_chunk(uint64_t offset,
+                         uint32_t length,
+                         int      prot,
+                         int      flags) const {
   if (!is_open())
     throw internal_error("SocketFile::get_chunk() called on a closed file");
 
@@ -166,13 +168,13 @@ SocketFile::create_chunk(uint64_t offset, uint32_t length, int prot, int flags) 
 
   uint64_t align = offset % MemoryChunk::page_size();
 
-  char* ptr = (char*)mmap(NULL, length + align, prot, flags, m_fd, offset - align);
-  
+  char* ptr =
+    (char*)mmap(NULL, length + align, prot, flags, m_fd, offset - align);
+
   if (ptr == MAP_FAILED)
     return MemoryChunk();
 
   return MemoryChunk(ptr, ptr + align, ptr + align + length, prot, flags);
 }
 
-}
-
+} // namespace torrent

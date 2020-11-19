@@ -2,12 +2,12 @@
 
 #include "test_request_list.h"
 
-#include "torrent/exceptions.h"
-#include "torrent/peer/peer_info.h"
 #include "download/delegator.h"
 #include "protocol/peer_chunks.h"
 #include "protocol/request_list.h"
 #include "rak/socket_address.h"
+#include "torrent/exceptions.h"
+#include "torrent/peer/peer_info.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestRequestList);
 
@@ -25,7 +25,8 @@ static void
 transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
   torrent::TransferList::iterator itr = transfer_list->find(index);
 
-  // std::cout << "list_completed:" << index << " found: " << (itr != transfer_list->end()) << std::endl;
+  // std::cout << "list_completed:" << index << " found: " << (itr !=
+  // transfer_list->end()) << std::endl;
 
   CPPUNIT_ASSERT(itr != transfer_list->end());
 
@@ -33,77 +34,83 @@ transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
 }
 
 // Move to support header:
-#define SETUP_DELEGATOR(fpc_prefix)                                     \
-  torrent::Delegator* delegator = new torrent::Delegator;               \
-  delegator->slot_chunk_find() = std::bind(&fpc_prefix ## _find_peer_chunk, std::placeholders::_1, std::placeholders::_2); \
-  delegator->slot_chunk_size() = std::bind(&chunk_index_size, std::placeholders::_1); \
-  delegator->transfer_list()->slot_canceled()  = std::bind(&transfer_list_void); \
-  delegator->transfer_list()->slot_queued()    = std::bind(&transfer_list_void); \
-  delegator->transfer_list()->slot_completed() = std::bind(&transfer_list_completed, delegator->transfer_list(), std::placeholders::_1); \
-  delegator->transfer_list()->slot_corrupt()   = std::bind(&transfer_list_void);
+#define SETUP_DELEGATOR(fpc_prefix)                                            \
+  torrent::Delegator* delegator = new torrent::Delegator;                      \
+  delegator->slot_chunk_find()  = std::bind(&fpc_prefix##_find_peer_chunk,     \
+                                           std::placeholders::_1,             \
+                                           std::placeholders::_2);            \
+  delegator->slot_chunk_size() =                                               \
+    std::bind(&chunk_index_size, std::placeholders::_1);                       \
+  delegator->transfer_list()->slot_canceled() =                                \
+    std::bind(&transfer_list_void);                                            \
+  delegator->transfer_list()->slot_queued() = std::bind(&transfer_list_void);  \
+  delegator->transfer_list()->slot_completed() =                               \
+    std::bind(&transfer_list_completed,                                        \
+              delegator->transfer_list(),                                      \
+              std::placeholders::_1);                                          \
+  delegator->transfer_list()->slot_corrupt() = std::bind(&transfer_list_void);
 
 // Set bitfield size...
-#define SETUP_PEER_CHUNKS()                                             \
-  rak::socket_address peer_info_address;                                \
-  torrent::PeerInfo* peer_info = new torrent::PeerInfo(peer_info_address.c_sockaddr()); \
-  torrent::PeerChunks* peer_chunks =  new torrent::PeerChunks;          \
+#define SETUP_PEER_CHUNKS()                                                    \
+  rak::socket_address peer_info_address;                                       \
+  torrent::PeerInfo*  peer_info =                                              \
+    new torrent::PeerInfo(peer_info_address.c_sockaddr());                     \
+  torrent::PeerChunks* peer_chunks = new torrent::PeerChunks;                  \
   peer_chunks->set_peer_info(peer_info);
 
-#define CLEANUP_PEER_CHUNKS()                   \
-  delete peer_chunks;                           \
+#define CLEANUP_PEER_CHUNKS()                                                  \
+  delete peer_chunks;                                                          \
   delete peer_info;
 
-#define SETUP_REQUEST_LIST()                                            \
-  torrent::RequestList* request_list = new torrent::RequestList;        \
-  request_list->set_delegator(delegator);                               \
+#define SETUP_REQUEST_LIST()                                                   \
+  torrent::RequestList* request_list = new torrent::RequestList;               \
+  request_list->set_delegator(delegator);                                      \
   request_list->set_peer_chunks(peer_chunks);
 
-#define SETUP_ALL(fpc_prefix)                   \
-  SET_CACHED_TIME(0);                           \
-  SETUP_DELEGATOR(basic);                       \
-  SETUP_PEER_CHUNKS();                          \
+#define SETUP_ALL(fpc_prefix)                                                  \
+  SET_CACHED_TIME(0);                                                          \
+  SETUP_DELEGATOR(basic);                                                      \
+  SETUP_PEER_CHUNKS();                                                         \
   SETUP_REQUEST_LIST();
-  
-#define SETUP_ALL_WITH_3(fpc_prefix)                            \
-  SETUP_ALL(fpc_prefix);                                        \
-  const torrent::Piece* piece_1 = request_list->delegate();     \
-  const torrent::Piece* piece_2 = request_list->delegate();     \
-  const torrent::Piece* piece_3 = request_list->delegate();     \
-  CPPUNIT_ASSERT(piece_1 && piece_2 && piece_3);
 
-#define CLEANUP_ALL(fpc_prefix)                 \
-  CLEANUP_PEER_CHUNKS();                        \
-  delete delegator;                             \
+#define SETUP_ALL_WITH_3(fpc_prefix)                                           \
+  SETUP_ALL(fpc_prefix);                                                       \
+  const torrent::Piece* piece_1 = request_list->delegate();                    \
+  const torrent::Piece* piece_2 = request_list->delegate();                    \
+  const torrent::Piece* piece_3 = request_list->delegate();                    \
+  CPPUNIT_ASSERT(piece_1&& piece_2&& piece_3);
+
+#define CLEANUP_ALL(fpc_prefix)                                                \
+  CLEANUP_PEER_CHUNKS();                                                       \
+  delete delegator;                                                            \
   delete request_list;
 
-#define CLEAR_TRANSFERS(fpc_prefix)             \
-  delegator->transfer_list()->clear();
+#define CLEAR_TRANSFERS(fpc_prefix) delegator->transfer_list()->clear();
 
 //
 //
 //
 
-#define VERIFY_QUEUE_SIZES(s_0, s_1, s_2, s_3)                          \
-  CPPUNIT_ASSERT(request_list->queued_size() == s_0);                   \
-  CPPUNIT_ASSERT(request_list->unordered_size() == s_1);                \
-  CPPUNIT_ASSERT(request_list->stalled_size() == s_2);                  \
+#define VERIFY_QUEUE_SIZES(s_0, s_1, s_2, s_3)                                 \
+  CPPUNIT_ASSERT(request_list->queued_size() == s_0);                          \
+  CPPUNIT_ASSERT(request_list->unordered_size() == s_1);                       \
+  CPPUNIT_ASSERT(request_list->stalled_size() == s_2);                         \
   CPPUNIT_ASSERT(request_list->choked_size() == s_3);
 
-#define VERIFY_PIECE_IS_LEADER(piece)                                   \
-  CPPUNIT_ASSERT(request_list->transfer() != NULL);                     \
-  CPPUNIT_ASSERT(request_list->transfer()->is_leader());                \
-  CPPUNIT_ASSERT(request_list->transfer()->peer_info() != NULL);        \
+#define VERIFY_PIECE_IS_LEADER(piece)                                          \
+  CPPUNIT_ASSERT(request_list->transfer() != NULL);                            \
+  CPPUNIT_ASSERT(request_list->transfer()->is_leader());                       \
+  CPPUNIT_ASSERT(request_list->transfer()->peer_info() != NULL);               \
   CPPUNIT_ASSERT(request_list->transfer()->peer_info() == peer_info);
 
-#define VERIFY_TRANSFER_COUNTER(transfer, count)                        \
-  CPPUNIT_ASSERT(transfer != NULL);                                     \
-  CPPUNIT_ASSERT(transfer->peer_info() != NULL);                        \
+#define VERIFY_TRANSFER_COUNTER(transfer, count)                               \
+  CPPUNIT_ASSERT(transfer != NULL);                                            \
+  CPPUNIT_ASSERT(transfer->peer_info() != NULL);                               \
   CPPUNIT_ASSERT(transfer->peer_info()->transfer_counter() == count);
 
-#define SET_CACHED_TIME(seconds)                                        \
-  torrent::cachedTime = rak::timer::from_seconds(1000 + seconds);       \
+#define SET_CACHED_TIME(seconds)                                               \
+  torrent::cachedTime = rak::timer::from_seconds(1000 + seconds);              \
   rak::priority_queue_perform(&torrent::taskScheduler, torrent::cachedTime);
-
 
 //
 // Basic tests:
@@ -138,8 +145,9 @@ TestRequestList::test_single_request() {
   SETUP_ALL(basic);
 
   const torrent::Piece* piece = request_list->delegate();
-  // std::cout << piece->index() << ' ' << piece->offset() << ' ' << piece->length() << std::endl;
-  // std::cout << peer_info->transfer_counter() << std::endl;
+  // std::cout << piece->index() << ' ' << piece->offset() << ' ' <<
+  // piece->length() << std::endl; std::cout << peer_info->transfer_counter() <<
+  // std::endl;
 
   CPPUNIT_ASSERT(request_list->downloading(*piece));
 
@@ -162,12 +170,13 @@ TestRequestList::test_single_canceled() {
   SETUP_ALL(basic);
 
   const torrent::Piece* piece = request_list->delegate();
-  // std::cout << piece->index() << ' ' << piece->offset() << ' ' << piece->length() << std::endl;
-  // std::cout << peer_info->transfer_counter() << std::endl;
+  // std::cout << piece->index() << ' ' << piece->offset() << ' ' <<
+  // piece->length() << std::endl; std::cout << peer_info->transfer_counter() <<
+  // std::endl;
 
   CPPUNIT_ASSERT(request_list->downloading(*piece));
 
-  VERIFY_PIECE_IS_LEADER(*piece); // REMOVE
+  VERIFY_PIECE_IS_LEADER(*piece);                       // REMOVE
   VERIFY_TRANSFER_COUNTER(request_list->transfer(), 1); // REMOVE
 
   request_list->transfer()->adjust_position(piece->length() / 2);
@@ -194,7 +203,7 @@ TestRequestList::test_choke_normal() {
   VERIFY_QUEUE_SIZES(3, 0, 0, 0);
 
   request_list->choked();
-  
+
   SET_CACHED_TIME(1);
   VERIFY_QUEUE_SIZES(0, 0, 0, 3);
 
@@ -210,10 +219,10 @@ TestRequestList::test_choke_unchoke_discard() {
   SETUP_ALL_WITH_3(basic);
 
   request_list->choked();
-  
+
   SET_CACHED_TIME(5);
   request_list->unchoked();
-  
+
   SET_CACHED_TIME(10);
   VERIFY_QUEUE_SIZES(0, 0, 0, 3);
 

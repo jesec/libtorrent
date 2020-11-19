@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -50,18 +50,25 @@ download_data::calc_wanted_chunks() const {
   if (m_completed_bitfield.is_all_set())
     return 0;
 
-  priority_ranges wanted_ranges = priority_ranges::create_union(m_normal_priority, m_high_priority);
+  priority_ranges wanted_ranges =
+    priority_ranges::create_union(m_normal_priority, m_high_priority);
 
   if (m_completed_bitfield.is_all_unset())
-    return wanted_ranges.intersect_distance(0, m_completed_bitfield.size_bits());
+    return wanted_ranges.intersect_distance(0,
+                                            m_completed_bitfield.size_bits());
 
   if (m_completed_bitfield.empty())
-    throw internal_error("download_data::update_wanted_chunks() m_completed_bitfield.empty().");
+    throw internal_error(
+      "download_data::update_wanted_chunks() m_completed_bitfield.empty().");
 
   uint32_t result = 0;
 
-  for (download_data::priority_ranges::const_iterator itr = wanted_ranges.begin(), last = wanted_ranges.end(); itr != last; itr++) {
-    //remaining = completed->count_range(itr->first, itr->second);
+  for (download_data::priority_ranges::const_iterator
+         itr  = wanted_ranges.begin(),
+         last = wanted_ranges.end();
+       itr != last;
+       itr++) {
+    // remaining = completed->count_range(itr->first, itr->second);
 
     uint32_t idx = itr->first;
 
@@ -75,7 +82,8 @@ download_data::calc_wanted_chunks() const {
 void
 download_data::verify_wanted_chunks(const char* where) const {
   if (m_wanted_chunks != calc_wanted_chunks())
-    throw internal_error("Invalid download_data::wanted_chunks() value in " + std::string(where) + ".");
+    throw internal_error("Invalid download_data::wanted_chunks() value in " +
+                         std::string(where) + ".");
 }
 
-}
+} // namespace torrent

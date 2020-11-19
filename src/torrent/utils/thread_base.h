@@ -16,9 +16,9 @@ class thread_interrupt;
 class LIBTORRENT_EXPORT lt_cacheline_aligned thread_base {
 public:
   typedef void* (*pthread_func)(void*);
-  typedef std::function<void ()>     slot_void;
-  typedef std::function<uint64_t ()> slot_timer;
-  typedef class signal_bitfield      signal_type;
+  typedef std::function<void()>     slot_void;
+  typedef std::function<uint64_t()> slot_timer;
+  typedef class signal_bitfield     signal_type;
 
   enum state_type {
     STATE_UNKNOWN,
@@ -32,57 +32,83 @@ public:
   static const int flag_no_timeout   = 0x4;
   static const int flag_polling      = 0x8;
 
-  static const int flag_main_thread  = 0x10;
+  static const int flag_main_thread = 0x10;
 
   thread_base();
   virtual ~thread_base();
 
-  bool                is_initialized() const { return state() == STATE_INITIALIZED; }
-  bool                is_active()      const { return state() == STATE_ACTIVE; }
-  bool                is_inactive()    const { return state() == STATE_INACTIVE; }
+  bool is_initialized() const {
+    return state() == STATE_INITIALIZED;
+  }
+  bool is_active() const {
+    return state() == STATE_ACTIVE;
+  }
+  bool is_inactive() const {
+    return state() == STATE_INACTIVE;
+  }
 
-  bool                is_polling() const;
-  bool                is_current() const;
+  bool is_polling() const;
+  bool is_current() const;
 
-  bool                has_no_timeout()   const { return (flags() & flag_no_timeout); }
-  bool                has_do_shutdown()  const { return (flags() & flag_do_shutdown); }
-  bool                has_did_shutdown() const { return (flags() & flag_did_shutdown); }
+  bool has_no_timeout() const {
+    return (flags() & flag_no_timeout);
+  }
+  bool has_do_shutdown() const {
+    return (flags() & flag_do_shutdown);
+  }
+  bool has_did_shutdown() const {
+    return (flags() & flag_did_shutdown);
+  }
 
-  state_type          state() const;
-  int                 flags() const;
+  state_type state() const;
+  int        flags() const;
 
   virtual const char* name() const = 0;
 
-  Poll*               poll()            { return m_poll; }
-  signal_type*        signal_bitfield() { return &m_signal_bitfield; }
-  pthread_t           pthread()         { return m_thread; }
+  Poll* poll() {
+    return m_poll;
+  }
+  signal_type* signal_bitfield() {
+    return &m_signal_bitfield;
+  }
+  pthread_t pthread() {
+    return m_thread;
+  }
 
-  virtual void        init_thread() = 0;
+  virtual void init_thread() = 0;
 
-  virtual void        start_thread();
-  virtual void        stop_thread();
-  void                stop_thread_wait();
+  virtual void start_thread();
+  virtual void stop_thread();
+  void         stop_thread_wait();
 
-  void                interrupt();
-  void                send_event_signal(unsigned int index, bool interrupt = true);
+  void interrupt();
+  void send_event_signal(unsigned int index, bool interrupt = true);
 
-  slot_void&          slot_do_work()      { return m_slot_do_work; }
-  slot_timer&         slot_next_timeout() { return m_slot_next_timeout; }
+  slot_void& slot_do_work() {
+    return m_slot_do_work;
+  }
+  slot_timer& slot_next_timeout() {
+    return m_slot_next_timeout;
+  }
 
-  static inline int   global_queue_size() { return m_global.waiting; }
+  static inline int global_queue_size() {
+    return m_global.waiting;
+  }
 
-  static inline void  acquire_global_lock();
-  static inline bool  trylock_global_lock();
-  static inline void  release_global_lock();
-  static inline void  waive_global_lock();
+  static inline void acquire_global_lock();
+  static inline bool trylock_global_lock();
+  static inline void release_global_lock();
+  static inline void waive_global_lock();
 
-  static inline bool  is_main_polling() { return m_global.main_polling; }
-  static inline void  entering_main_polling();
-  static inline void  leaving_main_polling();
+  static inline bool is_main_polling() {
+    return m_global.main_polling;
+  }
+  static inline void entering_main_polling();
+  static inline void leaving_main_polling();
 
-  static bool         should_handle_sigusr1();
+  static bool should_handle_sigusr1();
 
-  static void*        event_loop(thread_base* thread);
+  static void* event_loop(thread_base* thread);
 
 protected:
   struct lt_cacheline_aligned global_lock_type {
@@ -91,25 +117,25 @@ protected:
     pthread_mutex_t lock;
   };
 
-  virtual void        call_events() = 0;
-  virtual int64_t     next_timeout_usec() = 0;
+  virtual void    call_events()       = 0;
+  virtual int64_t next_timeout_usec() = 0;
 
   static global_lock_type m_global;
 
-  pthread_t           m_thread;
-  state_type          m_state lt_cacheline_aligned;
-  int                 m_flags lt_cacheline_aligned;
+  pthread_t          m_thread;
+  state_type m_state lt_cacheline_aligned;
+  int m_flags        lt_cacheline_aligned;
 
-  int                 m_instrumentation_index;
+  int m_instrumentation_index;
 
-  Poll*               m_poll;
-  signal_type         m_signal_bitfield;
+  Poll*       m_poll;
+  signal_type m_signal_bitfield;
 
-  slot_void           m_slot_do_work;
-  slot_timer          m_slot_next_timeout;
+  slot_void  m_slot_do_work;
+  slot_timer m_slot_next_timeout;
 
-  thread_interrupt*   m_interrupt_sender;
-  thread_interrupt*   m_interrupt_receiver;
+  thread_interrupt* m_interrupt_sender;
+  thread_interrupt* m_interrupt_receiver;
 };
 
 inline bool
@@ -184,6 +210,6 @@ thread_base::leaving_main_polling() {
   __sync_lock_test_and_set(&thread_base::m_global.main_polling, 0);
 }
 
-}  
+} // namespace torrent
 
 #endif

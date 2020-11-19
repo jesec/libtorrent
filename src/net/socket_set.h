@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,13 +37,13 @@
 #ifndef LIBTORRENT_NET_SOCKET_SET_H
 #define LIBTORRENT_NET_SOCKET_SET_H
 
-#include <list>
-#include <vector>
 #include <cinttypes>
+#include <list>
 #include <rak/allocators.h>
+#include <vector>
 
-#include "torrent/exceptions.h"
 #include "torrent/event.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 
@@ -53,21 +53,22 @@ namespace torrent {
 
 // Propably should rename to EventSet...
 
-class SocketSet : private std::vector<Event*, rak::cacheline_allocator<Event*> > {
+class SocketSet
+  : private std::vector<Event*, rak::cacheline_allocator<Event*>> {
 public:
-  typedef uint32_t    size_type;
+  typedef uint32_t size_type;
 
-  typedef std::vector<Event*, rak::cacheline_allocator<Event*> > base_type;
-  typedef std::vector<size_type, rak::cacheline_allocator<size_type> > Table;
+  typedef std::vector<Event*, rak::cacheline_allocator<Event*>>       base_type;
+  typedef std::vector<size_type, rak::cacheline_allocator<size_type>> Table;
 
   static const size_type npos = static_cast<size_type>(-1);
 
   using base_type::value_type;
 
-  using base_type::iterator;
   using base_type::const_iterator;
-  using base_type::reverse_iterator;
   using base_type::empty;
+  using base_type::iterator;
+  using base_type::reverse_iterator;
   using base_type::size;
 
   using base_type::begin;
@@ -75,28 +76,36 @@ public:
   using base_type::rbegin;
   using base_type::rend;
 
-  bool                has(Event* s) const                    { return _index(s) != npos; }
+  bool has(Event* s) const {
+    return _index(s) != npos;
+  }
 
-  iterator            find(Event* s);
-  void                insert(Event* s);
-  void                erase(Event* s);
+  iterator find(Event* s);
+  void     insert(Event* s);
+  void     erase(Event* s);
 
   // Remove all erased elements from the container.
-  void                prepare();
+  void prepare();
   // Allocate storage for fd's with up to 'openMax' value. TODO: Remove reserve
-  void                reserve(size_t openMax);
+  void reserve(size_t openMax);
 
-  size_t              max_size() const                       { return m_table.size(); }
+  size_t max_size() const {
+    return m_table.size();
+  }
 
 private:
-  size_type&          _index(Event* s)                       { return m_table[s->file_descriptor()]; }
-  const size_type&    _index(Event* s) const                 { return m_table[s->file_descriptor()]; }
+  size_type& _index(Event* s) {
+    return m_table[s->file_descriptor()];
+  }
+  const size_type& _index(Event* s) const {
+    return m_table[s->file_descriptor()];
+  }
 
-  inline void         _replace_with_last(size_type idx);
+  inline void _replace_with_last(size_type idx);
 
   // TODO: Table of indexes or iterators?
-  Table               m_table;
-  Table               m_erased;
+  Table m_table;
+  Table m_erased;
 };
 
 inline SocketSet::iterator
@@ -110,7 +119,8 @@ SocketSet::find(Event* s) {
 inline void
 SocketSet::insert(Event* s) {
   if (static_cast<size_type>(s->file_descriptor()) >= m_table.size())
-    throw internal_error("Tried to insert an out-of-bounds file descriptor to SocketSet");
+    throw internal_error(
+      "Tried to insert an out-of-bounds file descriptor to SocketSet");
 
   if (_index(s) != npos)
     return;
@@ -122,7 +132,8 @@ SocketSet::insert(Event* s) {
 inline void
 SocketSet::erase(Event* s) {
   if (static_cast<size_type>(s->file_descriptor()) >= m_table.size())
-    throw internal_error("Tried to erase an out-of-bounds file descriptor from SocketSet");
+    throw internal_error(
+      "Tried to erase an out-of-bounds file descriptor from SocketSet");
 
   size_type idx = _index(s);
 
@@ -135,6 +146,6 @@ SocketSet::erase(Event* s) {
   m_erased.push_back(idx);
 }
 
-}
+} // namespace torrent
 
 #endif

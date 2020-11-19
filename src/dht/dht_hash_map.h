@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -58,16 +58,17 @@ namespace torrent {
 // aligned 64-bit access.
 static const unsigned int hashstring_hash_ofs = 8;
 
-struct hashstring_ptr_hash : public std::unary_function<const HashString*, size_t> {
-  size_t operator () (const HashString* n) const {
+struct hashstring_ptr_hash
+  : public std::unary_function<const HashString*, size_t> {
+  size_t operator()(const HashString* n) const {
 #if USE_ALIGNED
-    size_t result = 0;
-    const char *first = n->data() + hashstring_hash_ofs;
-    const char *last = first + sizeof(size_t);
+    size_t      result = 0;
+    const char* first  = n->data() + hashstring_hash_ofs;
+    const char* last   = first + sizeof(size_t);
 
     while (first != last)
       result = (result << 8) + *first++;
-    
+
     return result;
 #else
     return *(size_t*)(n->data() + hashstring_hash_ofs);
@@ -76,15 +77,15 @@ struct hashstring_ptr_hash : public std::unary_function<const HashString*, size_
 };
 
 struct hashstring_hash : public std::unary_function<HashString, size_t> {
-  size_t operator () (const HashString& n) const {
+  size_t operator()(const HashString& n) const {
 #if USE_ALIGNED
-    size_t result = 0;
-    const char *first = n.data() + hashstring_hash_ofs;
-    const char *last = first + sizeof(size_t);
+    size_t      result = 0;
+    const char* first  = n.data() + hashstring_hash_ofs;
+    const char* last   = first + sizeof(size_t);
 
     while (first != last)
       result = (result << 8) + *first++;
-    
+
     return result;
 #else
     return *(size_t*)(n.data() + hashstring_hash_ofs);
@@ -93,55 +94,75 @@ struct hashstring_hash : public std::unary_function<HashString, size_t> {
 };
 
 // Compare HashString pointers by dereferencing them.
-struct hashstring_ptr_equal : public std::binary_function<const HashString*, const HashString*, bool> {
-  size_t operator () (const HashString* one, const HashString* two) const 
-  { return *one == *two; }
+struct hashstring_ptr_equal
+  : public std::binary_function<const HashString*, const HashString*, bool> {
+  size_t operator()(const HashString* one, const HashString* two) const {
+    return *one == *two;
+  }
 };
 
-class DhtNodeList : public std::unordered_map<const HashString*, DhtNode*, hashstring_ptr_hash, hashstring_ptr_equal> {
+class DhtNodeList
+  : public std::unordered_map<const HashString*,
+                              DhtNode*,
+                              hashstring_ptr_hash,
+                              hashstring_ptr_equal> {
 public:
-  typedef std::unordered_map<const HashString*, DhtNode*, hashstring_ptr_hash, hashstring_ptr_equal> base_type;
+  typedef std::unordered_map<const HashString*,
+                             DhtNode*,
+                             hashstring_ptr_hash,
+                             hashstring_ptr_equal>
+    base_type;
 
   // Define accessor iterator with more convenient access to the key and
   // element values.  Allows changing the map definition more easily if needed.
   template<typename T>
   struct accessor_wrapper : public T {
-    accessor_wrapper(const T& itr) : T(itr) { }
+    accessor_wrapper(const T& itr)
+      : T(itr) {}
 
-    const HashString&    id() const    { return *(**this).first; }
-    DhtNode*             node() const  { return (**this).second; }
+    const HashString& id() const {
+      return *(**this).first;
+    }
+    DhtNode* node() const {
+      return (**this).second;
+    }
   };
 
-  typedef accessor_wrapper<const_iterator>  const_accessor;
-  typedef accessor_wrapper<iterator>        accessor;
+  typedef accessor_wrapper<const_iterator> const_accessor;
+  typedef accessor_wrapper<iterator>       accessor;
 
-  DhtNode*            add_node(DhtNode* n);
-
+  DhtNode* add_node(DhtNode* n);
 };
 
-class DhtTrackerList : public std::unordered_map<HashString, DhtTracker*, hashstring_hash> {
+class DhtTrackerList
+  : public std::unordered_map<HashString, DhtTracker*, hashstring_hash> {
 public:
-  typedef std::unordered_map<HashString, DhtTracker*, hashstring_hash> base_type;
+  typedef std::unordered_map<HashString, DhtTracker*, hashstring_hash>
+    base_type;
 
   template<typename T>
   struct accessor_wrapper : public T {
-    accessor_wrapper(const T& itr) : T(itr) { }
+    accessor_wrapper(const T& itr)
+      : T(itr) {}
 
-    const HashString&    id() const       { return (**this).first; }
-    DhtTracker*          tracker() const  { return (**this).second; }
+    const HashString& id() const {
+      return (**this).first;
+    }
+    DhtTracker* tracker() const {
+      return (**this).second;
+    }
   };
 
-  typedef accessor_wrapper<const_iterator>  const_accessor;
-  typedef accessor_wrapper<iterator>        accessor;
-
+  typedef accessor_wrapper<const_iterator> const_accessor;
+  typedef accessor_wrapper<iterator>       accessor;
 };
 
-inline
-DhtNode* DhtNodeList::add_node(DhtNode* n) {
+inline DhtNode*
+DhtNodeList::add_node(DhtNode* n) {
   insert(std::make_pair((const HashString*)n, (DhtNode*)n));
   return n;
 }
 
-}
+} // namespace torrent
 
 #endif

@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -53,30 +53,42 @@ class ChunkListNode;
 
 class lt_cacheline_aligned HashChunk {
 public:
-  HashChunk()         {}
-  HashChunk(ChunkHandle h)  { set_chunk(h); }
-  
-  void                set_chunk(ChunkHandle h)                { m_position = 0; m_chunk = h; m_hash.init(); }
+  HashChunk() {}
+  HashChunk(ChunkHandle h) {
+    set_chunk(h);
+  }
 
-  ChunkHandle*        chunk()                                 { return &m_chunk; }
-  ChunkHandle&        handle()                                { return m_chunk; }
-  void                hash_c(char* buffer)                    { m_hash.final_c(buffer); }
+  void set_chunk(ChunkHandle h) {
+    m_position = 0;
+    m_chunk    = h;
+    m_hash.init();
+  }
+
+  ChunkHandle* chunk() {
+    return &m_chunk;
+  }
+  ChunkHandle& handle() {
+    return m_chunk;
+  }
+  void hash_c(char* buffer) {
+    m_hash.final_c(buffer);
+  }
 
   // If force is true, then the return value is always true.
-  bool                perform(uint32_t length, bool force = true);
+  bool perform(uint32_t length, bool force = true);
 
-  void                advise_willneed(uint32_t length);
+  void advise_willneed(uint32_t length);
 
-  uint32_t            remaining();
+  uint32_t remaining();
 
 private:
-  inline uint32_t     remaining_part(Chunk::iterator itr, uint32_t pos);
-  uint32_t            perform_part(Chunk::iterator itr, uint32_t length);
+  inline uint32_t remaining_part(Chunk::iterator itr, uint32_t pos);
+  uint32_t        perform_part(Chunk::iterator itr, uint32_t length);
 
-  uint32_t            m_position;
+  uint32_t m_position;
 
-  ChunkHandle         m_chunk;
-  Sha1                m_hash;
+  ChunkHandle m_chunk;
+  Sha1        m_hash;
 };
 
 inline uint32_t
@@ -87,12 +99,12 @@ HashChunk::remaining_part(Chunk::iterator itr, uint32_t pos) {
 inline uint32_t
 HashChunk::remaining() {
   if (!m_chunk.is_loaded())
-    throw internal_error("HashChunk::remaining(...) called on an invalid chunk");
+    throw internal_error(
+      "HashChunk::remaining(...) called on an invalid chunk");
 
   return m_chunk.chunk()->chunk_size() - m_position;
 }
 
-}
+} // namespace torrent
 
 #endif
-

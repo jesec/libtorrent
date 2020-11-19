@@ -6,9 +6,9 @@
 #include "torrent/exceptions.h"
 #include "torrent/hash_string.h"
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <zlib.h>
 
 #include <algorithm>
@@ -16,17 +16,27 @@
 #include <functional>
 #include <memory>
 
-#define GROUPFMT (group >= LOG_NON_CASCADING) ? ("%" PRIi32 " ") : ("%" PRIi32 " %c ")
+#define GROUPFMT                                                               \
+  (group >= LOG_NON_CASCADING) ? ("%" PRIi32 " ") : ("%" PRIi32 " %c ")
 
 namespace torrent {
 
 struct log_cache_entry {
   typedef log_group::outputs_type outputs_type;
 
-  bool equal_outputs(const outputs_type& out) const { return out == outputs; }
+  bool equal_outputs(const outputs_type& out) const {
+    return out == outputs;
+  }
 
-  void allocate(unsigned int count) { cache_first = new log_slot[count]; cache_last = cache_first + count; }
-  void clear()                      { delete [] cache_first; cache_first = NULL; cache_last = NULL; }
+  void allocate(unsigned int count) {
+    cache_first = new log_slot[count];
+    cache_last  = cache_first + count;
+  }
+  void clear() {
+    delete[] cache_first;
+    cache_first = NULL;
+    cache_last  = NULL;
+  }
 
   outputs_type outputs;
   log_slot*    cache_first;
@@ -34,20 +44,27 @@ struct log_cache_entry {
 };
 
 struct log_gz_output {
-  log_gz_output(const char* filename, bool append) { gz_file = gzopen(filename, append ? "a" : "w"); }
-  ~log_gz_output() { if (gz_file != NULL) gzclose(gz_file); }
+  log_gz_output(const char* filename, bool append) {
+    gz_file = gzopen(filename, append ? "a" : "w");
+  }
+  ~log_gz_output() {
+    if (gz_file != NULL)
+      gzclose(gz_file);
+  }
 
-  bool is_valid() { return gz_file != Z_NULL; }
+  bool is_valid() {
+    return gz_file != Z_NULL;
+  }
 
   // bool set_buffer(unsigned size) { return gzbuffer(gz_file, size) == 0; }
 
   gzFile gz_file;
 };
 
-typedef std::vector<log_cache_entry>                   log_cache_list;
-typedef std::vector<std::pair<int, int> >              log_child_list;
-typedef std::vector<log_slot>                          log_slot_list;
-typedef std::vector<std::pair<std::string, log_slot> > log_output_list;
+typedef std::vector<log_cache_entry>                  log_cache_list;
+typedef std::vector<std::pair<int, int>>              log_child_list;
+typedef std::vector<log_slot>                         log_slot_list;
+typedef std::vector<std::pair<std::string, log_slot>> log_output_list;
 
 log_output_list log_outputs;
 log_child_list  log_children;
@@ -64,8 +81,10 @@ const char log_level_char[] = { 'C', 'E', 'W', 'N', 'I', 'D' };
 void
 log_update_child_cache(int index) {
   log_child_list::const_iterator first =
-    std::find_if(log_children.begin(), log_children.end(),
-                 std::bind2nd(std::greater_equal<std::pair<int, int> >(), std::make_pair(index, 0)));
+    std::find_if(log_children.begin(),
+                 log_children.end(),
+                 std::bind2nd(std::greater_equal<std::pair<int, int>>(),
+                              std::make_pair(index, 0)));
 
   if (first == log_children.end())
     return;
@@ -74,7 +93,8 @@ log_update_child_cache(int index) {
 
   while (first != log_children.end() && first->first == index) {
     if ((outputs & log_groups[first->second].cached_outputs()) != outputs) {
-      log_groups[first->second].set_cached_outputs(outputs | log_groups[first->second].cached_outputs());
+      log_groups[first->second].set_cached_outputs(
+        outputs | log_groups[first->second].cached_outputs());
       log_update_child_cache(first->second);
     }
 
@@ -89,29 +109,36 @@ log_update_child_cache(int index) {
 
 void
 log_rebuild_cache() {
-  std::for_each(log_groups.begin(), log_groups.end(), std::mem_fun_ref(&log_group::clear_cached_outputs));
+  std::for_each(log_groups.begin(),
+                log_groups.end(),
+                std::mem_fun_ref(&log_group::clear_cached_outputs));
 
   for (int i = 0; i < LOG_GROUP_MAX_SIZE; i++)
     log_update_child_cache(i);
 
   // Clear the cache...
-  std::for_each(log_cache.begin(), log_cache.end(), std::mem_fun_ref(&log_cache_entry::clear));
+  std::for_each(log_cache.begin(),
+                log_cache.end(),
+                std::mem_fun_ref(&log_cache_entry::clear));
   log_cache.clear();
 
   for (int idx = 0, last = log_groups.size(); idx != last; idx++) {
-    const log_group::outputs_type& use_outputs = log_groups[idx].cached_outputs();
+    const log_group::outputs_type& use_outputs =
+      log_groups[idx].cached_outputs();
 
     if (use_outputs == 0) {
       log_groups[idx].set_cached(NULL, NULL);
       continue;
     }
 
-    log_cache_list::iterator cache_itr = 
-      std::find_if(log_cache.begin(), log_cache.end(),
-                   std::bind(&log_cache_entry::equal_outputs, std::placeholders::_1, use_outputs));
-    
+    log_cache_list::iterator cache_itr = std::find_if(
+      log_cache.begin(),
+      log_cache.end(),
+      std::bind(
+        &log_cache_entry::equal_outputs, std::placeholders::_1, use_outputs));
+
     if (cache_itr == log_cache.end()) {
-      cache_itr = log_cache.insert(log_cache.end(), log_cache_entry());
+      cache_itr          = log_cache.insert(log_cache.end(), log_cache_entry());
       cache_itr->outputs = use_outputs;
       cache_itr->allocate(use_outputs.count());
 
@@ -128,11 +155,16 @@ log_rebuild_cache() {
 }
 
 void
-log_group::internal_print(const HashString* hash, const char* subsystem, const void* dump_data, size_t dump_size, const char* fmt, ...) {
-  va_list ap;
+log_group::internal_print(const HashString* hash,
+                          const char*       subsystem,
+                          const void*       dump_data,
+                          size_t            dump_size,
+                          const char*       fmt,
+                          ...) {
+  va_list      ap;
   unsigned int buffer_size = 4096;
-  char buffer[buffer_size];
-  char* first = buffer;
+  char         buffer[buffer_size];
+  char*        first = buffer;
 
   if (subsystem != NULL) {
     if (hash != NULL) {
@@ -153,39 +185,55 @@ log_group::internal_print(const HashString* hash, const char* subsystem, const v
 
   pthread_mutex_lock(&log_mutex);
 
-  std::for_each(m_first, m_last, std::bind(&log_slot::operator(),
-                                           std::placeholders::_1,
-                                           (const char*)buffer,
-                                           std::distance(buffer, first),
-                                           std::distance(log_groups.begin(), this)));
+  std::for_each(m_first,
+                m_last,
+                std::bind(&log_slot::operator(),
+                          std::placeholders::_1,
+                          (const char*)buffer,
+                          std::distance(buffer, first),
+                          std::distance(log_groups.begin(), this)));
   if (dump_data != NULL) {
-    std::for_each(m_first, m_last, std::bind(&log_slot::operator(),
-                                             std::placeholders::_1,
-                                             (const char*)dump_data,
-                                             dump_size,
-                                             -1));
+    std::for_each(m_first,
+                  m_last,
+                  std::bind(&log_slot::operator(),
+                            std::placeholders::_1,
+                            (const char*)dump_data,
+                            dump_size,
+                            -1));
   }
 
   pthread_mutex_unlock(&log_mutex);
 }
 
 #define LOG_CASCADE(parent) LOG_CHILDREN_CASCADE(parent, parent)
-#define LOG_LINK(parent, child) log_children.push_back(std::make_pair(parent, child))
+#define LOG_LINK(parent, child)                                                \
+  log_children.push_back(std::make_pair(parent, child))
 
-#define LOG_CHILDREN_CASCADE(parent, subgroup)                          \
-  log_children.push_back(std::make_pair(parent + LOG_ERROR,    subgroup + LOG_CRITICAL)); \
-  log_children.push_back(std::make_pair(parent + LOG_WARN,     subgroup + LOG_ERROR)); \
-  log_children.push_back(std::make_pair(parent + LOG_NOTICE,   subgroup + LOG_WARN)); \
-  log_children.push_back(std::make_pair(parent + LOG_INFO,     subgroup + LOG_NOTICE)); \
-  log_children.push_back(std::make_pair(parent + LOG_DEBUG,    subgroup + LOG_INFO));
+#define LOG_CHILDREN_CASCADE(parent, subgroup)                                 \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_ERROR, subgroup + LOG_CRITICAL));              \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_WARN, subgroup + LOG_ERROR));                  \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_NOTICE, subgroup + LOG_WARN));                 \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_INFO, subgroup + LOG_NOTICE));                 \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_DEBUG, subgroup + LOG_INFO));
 
-#define LOG_CHILDREN_SUBGROUP(parent, subgroup)                         \
-  log_children.push_back(std::make_pair(parent + LOG_CRITICAL, subgroup + LOG_CRITICAL)); \
-  log_children.push_back(std::make_pair(parent + LOG_ERROR,    subgroup + LOG_ERROR)); \
-  log_children.push_back(std::make_pair(parent + LOG_WARN,     subgroup + LOG_WARN));  \
-  log_children.push_back(std::make_pair(parent + LOG_NOTICE,   subgroup + LOG_NOTICE)); \
-  log_children.push_back(std::make_pair(parent + LOG_INFO,     subgroup + LOG_INFO));  \
-  log_children.push_back(std::make_pair(parent + LOG_DEBUG,    subgroup + LOG_DEBUG));
+#define LOG_CHILDREN_SUBGROUP(parent, subgroup)                                \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_CRITICAL, subgroup + LOG_CRITICAL));           \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_ERROR, subgroup + LOG_ERROR));                 \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_WARN, subgroup + LOG_WARN));                   \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_NOTICE, subgroup + LOG_NOTICE));               \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_INFO, subgroup + LOG_INFO));                   \
+  log_children.push_back(                                                      \
+    std::make_pair(parent + LOG_DEBUG, subgroup + LOG_DEBUG));
 
 void
 log_initialize() {
@@ -233,7 +281,9 @@ log_cleanup() {
   log_outputs.clear();
   log_children.clear();
 
-  std::for_each(log_cache.begin(), log_cache.end(), std::mem_fun_ref(&log_cache_entry::clear));
+  std::for_each(log_cache.begin(),
+                log_cache.end(),
+                std::mem_fun_ref(&log_cache_entry::clear));
   log_cache.clear();
 
   pthread_mutex_unlock(&log_mutex);
@@ -241,7 +291,7 @@ log_cleanup() {
 
 log_output_list::iterator
 log_find_output_name(const char* name) {
-  log_output_list::iterator itr = log_outputs.begin();
+  log_output_list::iterator itr  = log_outputs.begin();
   log_output_list::iterator last = log_outputs.end();
 
   while (itr != last && itr->first != name)
@@ -258,7 +308,7 @@ log_open_output(const char* name, log_slot slot) {
     pthread_mutex_unlock(&log_mutex);
     throw input_error("Cannot open more than 64 log output handlers.");
   }
-  
+
   log_output_list::iterator itr = log_find_output_name(name);
 
   if (itr == log_outputs.end()) {
@@ -290,8 +340,8 @@ void
 log_add_group_output(int group, const char* name) {
   pthread_mutex_lock(&log_mutex);
 
-  log_output_list::iterator itr = log_find_output_name(name);
-  size_t index = std::distance(log_outputs.begin(), itr);
+  log_output_list::iterator itr   = log_find_output_name(name);
+  size_t                    index = std::distance(log_outputs.begin(), itr);
 
   if (itr == log_outputs.end()) {
     pthread_mutex_unlock(&log_mutex);
@@ -310,15 +360,16 @@ log_add_group_output(int group, const char* name) {
 }
 
 void
-log_remove_group_output(int, const char*) {
-}
+log_remove_group_output(int, const char*) {}
 
 // The log_children list is <child, group> since we build the output
 // cache by crawling from child to parent.
 void
 log_add_child(int group, int child) {
   pthread_mutex_lock(&log_mutex);
-  if (std::find(log_children.begin(), log_children.end(), std::make_pair(group, child)) != log_children.end())
+  if (std::find(log_children.begin(),
+                log_children.end(),
+                std::make_pair(group, child)) != log_children.end())
     return;
 
   log_children.push_back(std::make_pair(group, child));
@@ -334,14 +385,18 @@ log_remove_child(int, int) {
 }
 
 void
-log_file_write(std::shared_ptr<std::ofstream>& outfile, const char* data, size_t length, int group) {
+log_file_write(std::shared_ptr<std::ofstream>& outfile,
+               const char*                     data,
+               size_t                          length,
+               int                             group) {
   // Add group name, data, etc as flags.
 
   // Normal groups are nul-terminated strings.
   if (group >= LOG_NON_CASCADING) {
     *outfile << cachedTime.seconds() << ' ' << data << std::endl;
   } else if (group >= 0) {
-    *outfile << cachedTime.seconds() << ' ' << log_level_char[group % 6] << ' ' << data << std::endl;
+    *outfile << cachedTime.seconds() << ' ' << log_level_char[group % 6] << ' '
+             << data << std::endl;
   } else if (group == -1) {
     *outfile << "---DUMP---" << std::endl;
     if (length != 0) {
@@ -353,15 +408,17 @@ log_file_write(std::shared_ptr<std::ofstream>& outfile, const char* data, size_t
 }
 
 void
-log_gz_file_write(std::shared_ptr<log_gz_output>& outfile, const char* data, size_t length, int group) {
+log_gz_file_write(std::shared_ptr<log_gz_output>& outfile,
+                  const char*                     data,
+                  size_t                          length,
+                  int                             group) {
   char buffer[64];
 
   // Normal groups are nul-terminated strings.
   if (group >= 0) {
-    int buffer_length = snprintf(buffer, 64, GROUPFMT,
-                                 cachedTime.seconds(),
-                                 log_level_char[group % 6]);
-    
+    int buffer_length = snprintf(
+      buffer, 64, GROUPFMT, cachedTime.seconds(), log_level_char[group % 6]);
+
     if (buffer_length > 0)
       gzwrite(outfile->gz_file, buffer, buffer_length);
 
@@ -370,7 +427,7 @@ log_gz_file_write(std::shared_ptr<log_gz_output>& outfile, const char* data, siz
 
   } else if (group == -1) {
     gzwrite(outfile->gz_file, "---DUMP---\n", sizeof("---DUMP---\n") - 1);
-    
+
     if (length != 0)
       gzwrite(outfile->gz_file, data, length);
 
@@ -386,12 +443,15 @@ log_open_file_output(const char* name, const char* filename, bool append) {
   std::shared_ptr<std::ofstream> outfile(new std::ofstream(filename, mode));
 
   if (!outfile->good())
-    throw input_error("Could not open log file '" + std::string(filename) + "'.");
+    throw input_error("Could not open log file '" + std::string(filename) +
+                      "'.");
 
-  log_open_output(name, std::bind(&log_file_write, outfile,
-                                  std::placeholders::_1,
-                                  std::placeholders::_2,
-                                  std::placeholders::_3));
+  log_open_output(name,
+                  std::bind(&log_file_write,
+                            outfile,
+                            std::placeholders::_1,
+                            std::placeholders::_2,
+                            std::placeholders::_3));
 }
 
 void
@@ -399,15 +459,18 @@ log_open_gz_file_output(const char* name, const char* filename, bool append) {
   std::shared_ptr<log_gz_output> outfile(new log_gz_output(filename, append));
 
   if (!outfile->is_valid())
-    throw input_error("Could not open log gzip file '" + std::string(filename) + "'.");
+    throw input_error("Could not open log gzip file '" + std::string(filename) +
+                      "'.");
 
   // if (!outfile->set_buffer(1 << 14))
   //   throw input_error("Could not set gzip log file buffer size.");
 
-  log_open_output(name, std::bind(&log_gz_file_write, outfile,
-                                  std::placeholders::_1,
-                                  std::placeholders::_2,
-                                  std::placeholders::_3));
+  log_open_output(name,
+                  std::bind(&log_gz_file_write,
+                            outfile,
+                            std::placeholders::_1,
+                            std::placeholders::_2,
+                            std::placeholders::_3));
 }
 
-}
+} // namespace torrent

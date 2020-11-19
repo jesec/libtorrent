@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -52,7 +52,8 @@ ChunkStatistics::should_add(PeerChunks*) {
 void
 ChunkStatistics::initialize(size_type s) {
   if (!empty())
-    throw internal_error("ChunkStatistics::initialize(...) called on an initialized object.");
+    throw internal_error(
+      "ChunkStatistics::initialize(...) called on an initialized object.");
 
   base_type::resize(s);
 }
@@ -68,7 +69,8 @@ ChunkStatistics::clear() {
 void
 ChunkStatistics::received_connect(PeerChunks* pc) {
   if (pc->using_counter())
-    throw internal_error("ChunkStatistics::received_connect(...) pc->using_counter() == true.");
+    throw internal_error(
+      "ChunkStatistics::received_connect(...) pc->using_counter() == true.");
 
   if (pc->bitfield()->is_all_set()) {
     pc->set_using_counter(true);
@@ -79,11 +81,12 @@ ChunkStatistics::received_connect(PeerChunks* pc) {
     // when there's no need.
     pc->set_using_counter(true);
     m_accounted++;
-    
+
     iterator itr = base_type::begin();
 
     // Use a bitfield iterator instead.
-    for (Bitfield::size_type index = 0; index < pc->bitfield()->size_bits(); ++index, ++itr)
+    for (Bitfield::size_type index = 0; index < pc->bitfield()->size_bits();
+         ++index, ++itr)
       *itr += pc->bitfield()->get(index);
   }
 }
@@ -104,27 +107,32 @@ ChunkStatistics::received_disconnect(PeerChunks* pc) {
 
   } else {
     if (m_accounted == 0)
-      throw internal_error("ChunkStatistics::received_disconnect(...) m_accounted == 0.");
+      throw internal_error(
+        "ChunkStatistics::received_disconnect(...) m_accounted == 0.");
 
     m_accounted--;
 
     iterator itr = base_type::begin();
 
     // Use a bitfield iterator instead.
-    for (Bitfield::size_type index = 0; index < pc->bitfield()->size_bits(); ++index, ++itr)
+    for (Bitfield::size_type index = 0; index < pc->bitfield()->size_bits();
+         ++index, ++itr)
       *itr -= pc->bitfield()->get(index);
   }
 }
 
 void
-ChunkStatistics::received_have_chunk(PeerChunks* pc, uint32_t index, uint32_t length) {
+ChunkStatistics::received_have_chunk(PeerChunks* pc,
+                                     uint32_t    index,
+                                     uint32_t    length) {
   // When the bitfield is empty, it is very cheap to add the peer to
   // the statistics. It needs to be done here else we need to check if
   // a connection has sent any messages, else it might send a bitfield.
   if (pc->bitfield()->is_all_unset() && should_add(pc)) {
 
     if (pc->using_counter())
-      throw internal_error("ChunkStatistics::received_have_chunk(...) pc->using_counter() == true.");
+      throw internal_error("ChunkStatistics::received_have_chunk(...) "
+                           "pc->using_counter() == true.");
 
     pc->set_using_counter(true);
     m_accounted++;
@@ -132,7 +140,7 @@ ChunkStatistics::received_have_chunk(PeerChunks* pc, uint32_t index, uint32_t le
 
   pc->bitfield()->set(index);
   pc->peer_rate()->insert(length);
-  
+
   if (pc->using_counter()) {
 
     base_type::operator[](index)++;
@@ -141,13 +149,16 @@ ChunkStatistics::received_have_chunk(PeerChunks* pc, uint32_t index, uint32_t le
     // of immediate disconnect.
     if (pc->bitfield()->is_all_set()) {
       if (m_accounted == 0)
-	throw internal_error("ChunkStatistics::received_disconnect(...) m_accounted == 0.");
-      
+        throw internal_error(
+          "ChunkStatistics::received_disconnect(...) m_accounted == 0.");
+
       m_complete++;
       m_accounted--;
-      
-      for (iterator itr = base_type::begin(), last = base_type::end(); itr != last; ++itr)
-	*itr -= 1;
+
+      for (iterator itr = base_type::begin(), last = base_type::end();
+           itr != last;
+           ++itr)
+        *itr -= 1;
     }
 
   } else {
@@ -159,4 +170,4 @@ ChunkStatistics::received_have_chunk(PeerChunks* pc, uint32_t index, uint32_t le
   }
 }
 
-}
+} // namespace torrent

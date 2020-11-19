@@ -1,10 +1,11 @@
+#include "../src/torrent/object.h"
 #include <iostream>
 #include <rak/address_info.h>
-#include "../src/torrent/object.h"
 
 void
 print_addr(const char* name, const rak::socket_address_inet& sa) {
-  std::cout << name << ": " << sa.family() << ' ' << sa.address_str() << ':' << sa.port() << std::endl;
+  std::cout << name << ": " << sa.family() << ' ' << sa.address_str() << ':'
+            << sa.port() << std::endl;
 }
 
 bool
@@ -13,11 +14,12 @@ lookup_address(const char* name) {
 
   std::cout << "Lookup: " << name << std::endl;
 
-//   int errcode = rak::address_info::get_address_info(name, 0, 0, &result);
+  //   int errcode = rak::address_info::get_address_info(name, 0, 0, &result);
   int errcode = rak::address_info::get_address_info(name, PF_INET6, 0, &result);
 
   if (errcode != 0) {
-    std::cout << "Failed: " << rak::address_info::strerror(errcode) << std::endl;
+    std::cout << "Failed: " << rak::address_info::strerror(errcode)
+              << std::endl;
     return false;
   }
 
@@ -28,7 +30,9 @@ lookup_address(const char* name) {
     std::cout << "Protocol: " << itr->protocol() << std::endl;
     std::cout << "Length: " << itr->length() << std::endl;
 
-    std::cout << "Address: " << itr->address()->family() << ' ' << itr->address()->address_str() << ':' << itr->address()->port() << std::endl;
+    std::cout << "Address: " << itr->address()->family() << ' '
+              << itr->address()->address_str() << ':' << itr->address()->port()
+              << std::endl;
   }
 
   // Release.

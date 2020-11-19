@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,93 +39,123 @@
 
 #include <algorithm>
 #include <cinttypes>
-#include <sys/mman.h>
 #include <cstddef>
+#include <sys/mman.h>
 
 namespace torrent {
 
 class MemoryChunk {
- public:
+public:
   // Consider information about whetever the memory maps to a file or
   // not, since mincore etc can only be called on files.
 
-  static const int prot_exec              = PROT_EXEC;
-  static const int prot_read              = PROT_READ;
-  static const int prot_write             = PROT_WRITE;
-  static const int prot_none              = PROT_NONE;
-  static const int map_shared             = MAP_SHARED;
+  static const int prot_exec  = PROT_EXEC;
+  static const int prot_read  = PROT_READ;
+  static const int prot_write = PROT_WRITE;
+  static const int prot_none  = PROT_NONE;
+  static const int map_shared = MAP_SHARED;
 
 #ifdef USE_MADVISE
-  static const int advice_normal          = MADV_NORMAL;
-  static const int advice_random          = MADV_RANDOM;
-  static const int advice_sequential      = MADV_SEQUENTIAL;
-  static const int advice_willneed        = MADV_WILLNEED;
-  static const int advice_dontneed        = MADV_DONTNEED;
+  static const int advice_normal     = MADV_NORMAL;
+  static const int advice_random     = MADV_RANDOM;
+  static const int advice_sequential = MADV_SEQUENTIAL;
+  static const int advice_willneed   = MADV_WILLNEED;
+  static const int advice_dontneed   = MADV_DONTNEED;
 #else
-  static const int advice_normal          = 0;
-  static const int advice_random          = 1;
-  static const int advice_sequential      = 2;
-  static const int advice_willneed        = 3;
-  static const int advice_dontneed        = 4;
+  static const int advice_normal     = 0;
+  static const int advice_random     = 1;
+  static const int advice_sequential = 2;
+  static const int advice_willneed   = 3;
+  static const int advice_dontneed   = 4;
 #endif
-  static const int sync_sync              = MS_SYNC;
-  static const int sync_async             = MS_ASYNC;
-  static const int sync_invalidate        = MS_INVALIDATE;
+  static const int sync_sync       = MS_SYNC;
+  static const int sync_async      = MS_ASYNC;
+  static const int sync_invalidate = MS_INVALIDATE;
 
-  MemoryChunk() { clear(); }
-  ~MemoryChunk() { clear(); }
+  MemoryChunk() {
+    clear();
+  }
+  ~MemoryChunk() {
+    clear();
+  }
 
   // Doesn't allow ptr == NULL, use the default ctor instead.
   MemoryChunk(char* ptr, char* begin, char* end, int prot, int flags);
 
-  bool                is_valid() const                                     { return m_ptr; }
-  bool                is_readable() const                                  { return m_prot & PROT_READ; }
-  bool                is_writable() const                                  { return m_prot & PROT_WRITE; }
-  bool                is_exec() const                                      { return m_prot & PROT_EXEC; }
+  bool is_valid() const {
+    return m_ptr;
+  }
+  bool is_readable() const {
+    return m_prot & PROT_READ;
+  }
+  bool is_writable() const {
+    return m_prot & PROT_WRITE;
+  }
+  bool is_exec() const {
+    return m_prot & PROT_EXEC;
+  }
 
-  inline bool         is_valid_range(uint32_t offset, uint32_t length) const;
+  inline bool is_valid_range(uint32_t offset, uint32_t length) const;
 
-  bool                has_permissions(int prot) const                      { return !(prot & ~m_prot); }
+  bool has_permissions(int prot) const {
+    return !(prot & ~m_prot);
+  }
 
-  char*               ptr() const                                          { return m_ptr; }
-  char*               begin() const                                        { return m_begin; }
-  char*               end() const                                          { return m_end; }
+  char* ptr() const {
+    return m_ptr;
+  }
+  char* begin() const {
+    return m_begin;
+  }
+  char* end() const {
+    return m_end;
+  }
 
-  int                 get_prot() const                                     { return m_prot; }
+  int get_prot() const {
+    return m_prot;
+  }
 
-  uint32_t            size() const                                         { return m_end - m_begin; }
-  uint32_t            size_aligned() const;
-  inline void         clear();
-  void                unmap();
+  uint32_t size() const {
+    return m_end - m_begin;
+  }
+  uint32_t    size_aligned() const;
+  inline void clear();
+  void        unmap();
 
   // Use errno and strerror if you want to know why these failed.
-  void                incore(char* buf, uint32_t offset, uint32_t length);
-  bool                advise(uint32_t offset, uint32_t length, int advice);
-  bool                sync(uint32_t offset, uint32_t length, int flags);
+  void incore(char* buf, uint32_t offset, uint32_t length);
+  bool advise(uint32_t offset, uint32_t length, int advice);
+  bool sync(uint32_t offset, uint32_t length, int flags);
 
-  bool                is_incore(uint32_t offset, uint32_t length);
+  bool is_incore(uint32_t offset, uint32_t length);
 
   // Helper functions for aligning offsets and ranges to page boundaries.
 
-  uint32_t            page_align() const                                   { return m_begin - m_ptr; }
-  uint32_t            page_align(uint32_t o) const                         { return (o + page_align()) % m_pagesize; }
+  uint32_t page_align() const {
+    return m_begin - m_ptr;
+  }
+  uint32_t page_align(uint32_t o) const {
+    return (o + page_align()) % m_pagesize;
+  }
 
   // This won't return correct values if length == 0.
-  inline uint32_t     pages_touched(uint32_t offset, uint32_t length) const;
+  inline uint32_t pages_touched(uint32_t offset, uint32_t length) const;
 
-  static uint32_t     page_size()                                          { return m_pagesize; }
+  static uint32_t page_size() {
+    return m_pagesize;
+  }
 
 private:
-  inline void         align_pair(uint32_t* offset, uint32_t* length) const;
+  inline void align_pair(uint32_t* offset, uint32_t* length) const;
 
-  static uint32_t     m_pagesize;
+  static uint32_t m_pagesize;
 
-  char*               m_ptr;
-  char*               m_begin;
-  char*               m_end;
+  char* m_ptr;
+  char* m_begin;
+  char* m_end;
 
-  int                 m_prot;
-  int                 m_flags;
+  int m_prot;
+  int m_flags;
 };
 
 inline bool
@@ -135,7 +165,8 @@ MemoryChunk::is_valid_range(uint32_t offset, uint32_t length) const {
 
 inline void
 MemoryChunk::clear() {
-  m_ptr = m_begin = m_end = NULL; m_flags = PROT_NONE;
+  m_ptr = m_begin = m_end = NULL;
+  m_flags                 = PROT_NONE;
 }
 
 inline uint32_t
@@ -149,19 +180,20 @@ MemoryChunk::pages_touched(uint32_t offset, uint32_t length) const {
 // The size of the mapped memory.
 inline uint32_t
 MemoryChunk::size_aligned() const {
-  return std::distance(m_ptr, m_end) + page_size() - ((std::distance(m_ptr, m_end) - 1) % page_size() + 1);
+  return std::distance(m_ptr, m_end) + page_size() -
+         ((std::distance(m_ptr, m_end) - 1) % page_size() + 1);
 }
 
 inline bool
 MemoryChunk::is_incore(uint32_t offset, uint32_t length) {
   uint32_t size = pages_touched(offset, length);
-  char buf[size];
-  
+  char     buf[size];
+
   incore(buf, offset, length);
 
   return std::find(buf, buf + size, 0) == buf + size;
 }
 
-}
+} // namespace torrent
 
 #endif

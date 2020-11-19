@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,9 +39,9 @@
 
 #include "data/chunk_handle.h"
 #include "net/socket_stream.h"
-#include "torrent/poll.h"
-#include "torrent/peer/peer.h"
 #include "torrent/peer/choke_status.h"
+#include "torrent/peer/peer.h"
+#include "torrent/poll.h"
 
 #include "encryption_info.h"
 #include "extensions.h"
@@ -65,16 +65,18 @@ namespace torrent {
 class choke_queue;
 class DownloadMain;
 
-class PeerConnectionBase : public Peer, public SocketStream {
+class PeerConnectionBase
+  : public Peer
+  , public SocketStream {
 public:
-  typedef ProtocolBase           ProtocolRead;
-  typedef ProtocolBase           ProtocolWrite;
+  typedef ProtocolBase ProtocolRead;
+  typedef ProtocolBase ProtocolWrite;
 
 #if USE_EXTRA_DEBUG == 666
   // For testing, use a really small buffer.
-  typedef ProtocolBuffer<256>  EncryptBuffer;
+  typedef ProtocolBuffer<256> EncryptBuffer;
 #else
-  typedef ProtocolBuffer<16384>  EncryptBuffer;
+  typedef ProtocolBuffer<16384> EncryptBuffer;
 #endif
 
   // Find an optimal number for this.
@@ -87,124 +89,177 @@ public:
 
   PeerConnectionBase();
   virtual ~PeerConnectionBase();
-  
-  const char*         type_name() const { return "pcb"; }
 
-  void                initialize(DownloadMain* download, PeerInfo* p, SocketFd fd, Bitfield* bitfield, EncryptionInfo* encryptionInfo, ProtocolExtension* extensions);
-  void                cleanup();
+  const char* type_name() const {
+    return "pcb";
+  }
 
-  bool                is_up_choked() const            { return m_upChoke.choked(); }
-  bool                is_up_interested() const        { return m_upChoke.queued(); }
-  bool                is_up_snubbed() const           { return m_upChoke.snubbed(); }
+  void initialize(DownloadMain*      download,
+                  PeerInfo*          p,
+                  SocketFd           fd,
+                  Bitfield*          bitfield,
+                  EncryptionInfo*    encryptionInfo,
+                  ProtocolExtension* extensions);
+  void cleanup();
 
-  bool                is_down_queued() const          { return m_downChoke.queued(); }
-  bool                is_down_local_unchoked() const  { return m_downChoke.unchoked(); }
-  bool                is_down_remote_unchoked() const { return m_downUnchoked; }
-  bool                is_down_interested() const      { return m_downInterested; }
+  bool is_up_choked() const {
+    return m_upChoke.choked();
+  }
+  bool is_up_interested() const {
+    return m_upChoke.queued();
+  }
+  bool is_up_snubbed() const {
+    return m_upChoke.snubbed();
+  }
 
-  void                set_upload_snubbed(bool v);
+  bool is_down_queued() const {
+    return m_downChoke.queued();
+  }
+  bool is_down_local_unchoked() const {
+    return m_downChoke.unchoked();
+  }
+  bool is_down_remote_unchoked() const {
+    return m_downUnchoked;
+  }
+  bool is_down_interested() const {
+    return m_downInterested;
+  }
 
-  bool                is_seeder() const               { return m_peerChunks.is_seeder(); }
-  bool                is_not_seeder() const           { return !m_peerChunks.is_seeder(); }
+  void set_upload_snubbed(bool v);
 
-  bool                is_encrypted() const            { return m_encryption.is_encrypted(); }
-  bool                is_obfuscated() const           { return m_encryption.is_obfuscated(); }
+  bool is_seeder() const {
+    return m_peerChunks.is_seeder();
+  }
+  bool is_not_seeder() const {
+    return !m_peerChunks.is_seeder();
+  }
 
-  PeerInfo*           mutable_peer_info()             { return m_peerInfo; }
+  bool is_encrypted() const {
+    return m_encryption.is_encrypted();
+  }
+  bool is_obfuscated() const {
+    return m_encryption.is_obfuscated();
+  }
 
-  PeerChunks*         peer_chunks()                   { return &m_peerChunks; }
-  const PeerChunks*   c_peer_chunks() const           { return &m_peerChunks; }
+  PeerInfo* mutable_peer_info() {
+    return m_peerInfo;
+  }
 
-  choke_status*       up_choke()                      { return &m_upChoke; }
-  choke_status*       down_choke()                    { return &m_downChoke; }
+  PeerChunks* peer_chunks() {
+    return &m_peerChunks;
+  }
+  const PeerChunks* c_peer_chunks() const {
+    return &m_peerChunks;
+  }
 
-  DownloadMain*       download()                      { return m_download; }
-  RequestList*        request_list()                { return &m_request_list; }
-  const RequestList*  request_list() const          { return &m_request_list; }
+  choke_status* up_choke() {
+    return &m_upChoke;
+  }
+  choke_status* down_choke() {
+    return &m_downChoke;
+  }
 
-  ProtocolExtension*  extensions()                    { return m_extensions; }
-  DataBuffer*         extension_message()             { return &m_extensionMessage; }
+  DownloadMain* download() {
+    return m_download;
+  }
+  RequestList* request_list() {
+    return &m_request_list;
+  }
+  const RequestList* request_list() const {
+    return &m_request_list;
+  }
 
-  void                do_peer_exchange()              { m_sendPEXMask |= PEX_DO; }
-  inline void         set_peer_exchange(bool state);
-  
+  ProtocolExtension* extensions() {
+    return m_extensions;
+  }
+  DataBuffer* extension_message() {
+    return &m_extensionMessage;
+  }
+
+  void do_peer_exchange() {
+    m_sendPEXMask |= PEX_DO;
+  }
+  inline void set_peer_exchange(bool state);
+
   // These must be implemented by the child class.
-  virtual void        initialize_custom() = 0;
-  virtual void        update_interested() = 0;
-  virtual bool        receive_keepalive() = 0;
+  virtual void initialize_custom() = 0;
+  virtual void update_interested() = 0;
+  virtual bool receive_keepalive() = 0;
 
-  bool                receive_upload_choke(bool choke);
-  bool                receive_download_choke(bool choke);
+  bool receive_upload_choke(bool choke);
+  bool receive_download_choke(bool choke);
 
-  virtual void        event_error();
+  virtual void event_error();
 
-  void                push_unread(const void* data, uint32_t size);
+  void push_unread(const void* data, uint32_t size);
 
-  void                cancel_transfer(BlockTransfer* transfer);
+  void cancel_transfer(BlockTransfer* transfer);
 
   // Insert into the poll unless we're blocking for throttling etc.
-  void                read_insert_poll_safe();
-  void                write_insert_poll_safe();
+  void read_insert_poll_safe();
+  void write_insert_poll_safe();
 
   // Communication with the protocol extensions
-  virtual void        receive_metadata_piece(uint32_t piece, const char* data, uint32_t length);
+  virtual void receive_metadata_piece(uint32_t    piece,
+                                      const char* data,
+                                      uint32_t    length);
 
-  bool                should_connection_unchoke(choke_queue* cq) const;
+  bool should_connection_unchoke(choke_queue* cq) const;
 
 protected:
   static const uint32_t extension_must_encrypt = ~uint32_t();
 
-  inline bool         read_remaining();
-  inline bool         write_remaining();
+  inline bool read_remaining();
+  inline bool write_remaining();
 
-  void                load_up_chunk();
+  void load_up_chunk();
 
-  void                read_request_piece(const Piece& p);
-  void                read_cancel_piece(const Piece& p);
+  void read_request_piece(const Piece& p);
+  void read_cancel_piece(const Piece& p);
 
-  void                write_prepare_piece();
-  void                write_prepare_extension(int type, const DataBuffer& message);
+  void write_prepare_piece();
+  void write_prepare_extension(int type, const DataBuffer& message);
 
-  bool                down_chunk_start(const Piece& p);
-  void                down_chunk_finished();
+  bool down_chunk_start(const Piece& p);
+  void down_chunk_finished();
 
-  bool                down_chunk();
-  bool                down_chunk_from_buffer();
-  bool                down_chunk_skip();
-  bool                down_chunk_skip_from_buffer();
+  bool down_chunk();
+  bool down_chunk_from_buffer();
+  bool down_chunk_skip();
+  bool down_chunk_skip_from_buffer();
 
-  uint32_t            down_chunk_process(const void* buffer, uint32_t length);
-  uint32_t            down_chunk_skip_process(const void* buffer, uint32_t length);
+  uint32_t down_chunk_process(const void* buffer, uint32_t length);
+  uint32_t down_chunk_skip_process(const void* buffer, uint32_t length);
 
-  bool                down_extension();
+  bool down_extension();
 
-  bool                up_chunk();
-  inline uint32_t     up_chunk_encrypt(uint32_t quota);
+  bool            up_chunk();
+  inline uint32_t up_chunk_encrypt(uint32_t quota);
 
-  bool                up_extension();
+  bool up_extension();
 
-  void                down_chunk_release();
-  void                up_chunk_release();
+  void down_chunk_release();
+  void up_chunk_release();
 
-  bool                should_request();
-  bool                try_request_pieces();
+  bool should_request();
+  bool try_request_pieces();
 
-  bool                send_pex_message();
-  bool                send_ext_message();
+  bool send_pex_message();
+  bool send_ext_message();
 
-  DownloadMain*       m_download;
+  DownloadMain* m_download;
 
-  ProtocolRead*       m_down;
-  ProtocolWrite*      m_up;
+  ProtocolRead*  m_down;
+  ProtocolWrite* m_up;
 
-  PeerChunks          m_peerChunks;
+  PeerChunks m_peerChunks;
 
-  RequestList         m_request_list;
-  ChunkHandle         m_downChunk;
-  uint32_t            m_downStall;
+  RequestList m_request_list;
+  ChunkHandle m_downChunk;
+  uint32_t    m_downStall;
 
-  Piece               m_upPiece;
-  ChunkHandle         m_upChunk;
+  Piece       m_upPiece;
+  ChunkHandle m_upChunk;
 
   // The interested state no longer follows the spec's wording as it
   // has been swapped.
@@ -216,33 +271,34 @@ protected:
   //
   // In the downlod object, 'queued' now means the same as the spec's
   // 'unchoked', while 'unchoked' means we start requesting pieces.
-  choke_status        m_upChoke;
-  choke_status        m_downChoke;
+  choke_status m_upChoke;
+  choke_status m_downChoke;
 
-  bool                m_downInterested;
-  bool                m_downUnchoked;
+  bool m_downInterested;
+  bool m_downUnchoked;
 
-  bool                m_sendChoked;
-  bool                m_sendInterested;
-  bool                m_tryRequest;
+  bool m_sendChoked;
+  bool m_sendInterested;
+  bool m_tryRequest;
 
-  int                 m_sendPEXMask;
+  int m_sendPEXMask;
 
-  rak::timer          m_timeLastRead;
+  rak::timer m_timeLastRead;
 
-  DataBuffer          m_extensionMessage;
-  uint32_t            m_extensionOffset;
+  DataBuffer m_extensionMessage;
+  uint32_t   m_extensionOffset;
 
-  EncryptBuffer*      m_encryptBuffer;
-  EncryptionInfo      m_encryption;
-  ProtocolExtension*  m_extensions;
+  EncryptBuffer*     m_encryptBuffer;
+  EncryptionInfo     m_encryption;
+  ProtocolExtension* m_extensions;
 
   bool m_incoreContinous;
 };
 
 inline void
 PeerConnectionBase::set_peer_exchange(bool state) {
-  if (m_extensions->is_default() || !m_extensions->is_remote_supported(ProtocolExtension::UT_PEX))
+  if (m_extensions->is_default() ||
+      !m_extensions->is_remote_supported(ProtocolExtension::UT_PEX))
     return;
 
   if (state) {
@@ -276,6 +332,6 @@ PeerConnectionBase::write_insert_poll_safe() {
   manager->poll()->insert_write(this);
 }
 
-}
+} // namespace torrent
 
 #endif

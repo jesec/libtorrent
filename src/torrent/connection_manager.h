@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,9 +39,9 @@
 #ifndef LIBTORRENT_CONNECTION_MANAGER_H
 #define LIBTORRENT_CONNECTION_MANAGER_H
 
+#include <arpa/inet.h>
 #include <functional>
 #include <list>
-#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
@@ -66,11 +66,11 @@ public:
   static const priority_type iptos_reliability = IPTOS_RELIABILITY;
 
 #if defined IPTOS_MINCOST
-  static const priority_type iptos_mincost     = IPTOS_MINCOST;
+  static const priority_type iptos_mincost = IPTOS_MINCOST;
 #elif defined IPTOS_LOWCOST
-  static const priority_type iptos_mincost     = IPTOS_LOWCOST;
+  static const priority_type iptos_mincost = IPTOS_LOWCOST;
 #else
-  static const priority_type iptos_mincost     = iptos_throughput;
+  static const priority_type iptos_mincost = iptos_throughput;
 #endif
 
   static const uint32_t encryption_none             = 0;
@@ -82,8 +82,8 @@ public:
   static const uint32_t encryption_prefer_plaintext = (1 << 5);
 
   // Internal to libtorrent.
-  static const uint32_t encryption_use_proxy        = (1 << 6);
-  static const uint32_t encryption_retrying         = (1 << 7);
+  static const uint32_t encryption_use_proxy = (1 << 6);
+  static const uint32_t encryption_retrying  = (1 << 7);
 
   enum {
     handshake_incoming           = 1,
@@ -97,102 +97,146 @@ public:
     handshake_retry_encrypted    = 9
   };
 
-  typedef std::function<uint32_t (const sockaddr*)>     slot_filter_type;
-  typedef std::function<ThrottlePair (const sockaddr*)> slot_throttle_type;
+  typedef std::function<uint32_t(const sockaddr*)>     slot_filter_type;
+  typedef std::function<ThrottlePair(const sockaddr*)> slot_throttle_type;
 
-  // The sockaddr argument in the result slot call is NULL if the resolve failed, and the int holds the errno.
-  typedef std::function<void (const sockaddr*, int)> slot_resolver_result_type;
-  typedef std::function<slot_resolver_result_type* (const char*, int, int, slot_resolver_result_type)> slot_resolver_type;
+  // The sockaddr argument in the result slot call is NULL if the resolve
+  // failed, and the int holds the errno.
+  typedef std::function<void(const sockaddr*, int)> slot_resolver_result_type;
+  typedef std::function<slot_resolver_result_type*(const char*,
+                                                   int,
+                                                   int,
+                                                   slot_resolver_result_type)>
+    slot_resolver_type;
 
   ConnectionManager();
   ~ConnectionManager();
-  
+
   // Check that we have not surpassed the max number of open sockets
   // and that we're allowed to connect to the socket address.
   //
   // Consider only checking max number of open sockets.
-  bool                can_connect() const;
+  bool can_connect() const;
 
   // Call this to keep the socket count up to date.
-  void                inc_socket_count()                      { m_size++; }
-  void                dec_socket_count()                      { m_size--; }
+  void inc_socket_count() {
+    m_size++;
+  }
+  void dec_socket_count() {
+    m_size--;
+  }
 
-  size_type           size() const                            { return m_size; }
-  size_type           max_size() const                        { return m_maxSize; }
+  size_type size() const {
+    return m_size;
+  }
+  size_type max_size() const {
+    return m_maxSize;
+  }
 
-  priority_type       priority() const                        { return m_priority; }
-  uint32_t            send_buffer_size() const                { return m_sendBufferSize; }
-  uint32_t            receive_buffer_size() const             { return m_receiveBufferSize; }
-  uint32_t            encryption_options()                    { return m_encryptionOptions; }
+  priority_type priority() const {
+    return m_priority;
+  }
+  uint32_t send_buffer_size() const {
+    return m_sendBufferSize;
+  }
+  uint32_t receive_buffer_size() const {
+    return m_receiveBufferSize;
+  }
+  uint32_t encryption_options() {
+    return m_encryptionOptions;
+  }
 
-  void                set_max_size(size_type s)               { m_maxSize = s; }
-  void                set_priority(priority_type p)           { m_priority = p; }
-  void                set_send_buffer_size(uint32_t s);
-  void                set_receive_buffer_size(uint32_t s);
-  void                set_encryption_options(uint32_t options); 
+  void set_max_size(size_type s) {
+    m_maxSize = s;
+  }
+  void set_priority(priority_type p) {
+    m_priority = p;
+  }
+  void set_send_buffer_size(uint32_t s);
+  void set_receive_buffer_size(uint32_t s);
+  void set_encryption_options(uint32_t options);
 
   // Setting the addresses creates a copy of the address.
-  const sockaddr*     bind_address() const                    { return m_bindAddress; }
-  const sockaddr*     local_address() const                   { return m_localAddress; }
-  const sockaddr*     proxy_address() const                   { return m_proxyAddress; }
+  const sockaddr* bind_address() const {
+    return m_bindAddress;
+  }
+  const sockaddr* local_address() const {
+    return m_localAddress;
+  }
+  const sockaddr* proxy_address() const {
+    return m_proxyAddress;
+  }
 
-  void                set_bind_address(const sockaddr* sa);
-  void                set_local_address(const sockaddr* sa);
-  void                set_proxy_address(const sockaddr* sa);
+  void set_bind_address(const sockaddr* sa);
+  void set_local_address(const sockaddr* sa);
+  void set_proxy_address(const sockaddr* sa);
 
-  uint32_t            filter(const sockaddr* sa);
-  void                set_filter(const slot_filter_type& s)   { m_slot_filter = s; }
+  uint32_t filter(const sockaddr* sa);
+  void     set_filter(const slot_filter_type& s) {
+    m_slot_filter = s;
+  }
 
-  bool                listen_open(port_type begin, port_type end);
-  void                listen_close();  
+  bool listen_open(port_type begin, port_type end);
+  void listen_close();
 
   // Since trackers need our port number, it doesn't get cleared after
   // 'listen_close()'. The client may change the reported port number,
   // but do note that it gets overwritten after 'listen_open(...)'.
-  port_type           listen_port() const                     { return m_listen_port; }
-  int                 listen_backlog() const                  { return m_listen_backlog; }
-  void                set_listen_port(port_type p)            { m_listen_port = p; }
-  void                set_listen_backlog(int v);
+  port_type listen_port() const {
+    return m_listen_port;
+  }
+  int listen_backlog() const {
+    return m_listen_backlog;
+  }
+  void set_listen_port(port_type p) {
+    m_listen_port = p;
+  }
+  void set_listen_backlog(int v);
 
   // The resolver returns a pointer to its copy of the result slot
   // which the caller may set blocked to prevent the slot from being
   // called. The pointer must be NULL if the result slot was already
   // called because the resolve was synchronous.
-  slot_resolver_type& resolver()          { return m_slot_resolver; }
+  slot_resolver_type& resolver() {
+    return m_slot_resolver;
+  }
 
   // The slot returns a ThrottlePair to use for the given address, or
   // NULLs to use the default throttle.
-  slot_throttle_type& address_throttle()  { return m_slot_address_throttle; }
+  slot_throttle_type& address_throttle() {
+    return m_slot_address_throttle;
+  }
 
   // For internal usage.
-  Listen*             listen()            { return m_listen; }
+  Listen* listen() {
+    return m_listen;
+  }
 
 private:
   ConnectionManager(const ConnectionManager&);
-  void operator = (const ConnectionManager&);
+  void operator=(const ConnectionManager&);
 
-  size_type           m_size;
-  size_type           m_maxSize;
+  size_type m_size;
+  size_type m_maxSize;
 
-  priority_type       m_priority;
-  uint32_t            m_sendBufferSize;
-  uint32_t            m_receiveBufferSize;
-  int                 m_encryptionOptions;
+  priority_type m_priority;
+  uint32_t      m_sendBufferSize;
+  uint32_t      m_receiveBufferSize;
+  int           m_encryptionOptions;
 
-  sockaddr*           m_bindAddress;
-  sockaddr*           m_localAddress;
-  sockaddr*           m_proxyAddress;
+  sockaddr* m_bindAddress;
+  sockaddr* m_localAddress;
+  sockaddr* m_proxyAddress;
 
-  Listen*             m_listen;
-  port_type           m_listen_port;
-  uint32_t            m_listen_backlog;
+  Listen*   m_listen;
+  port_type m_listen_port;
+  uint32_t  m_listen_backlog;
 
-  slot_filter_type    m_slot_filter;
-  slot_resolver_type  m_slot_resolver;
-  slot_throttle_type  m_slot_address_throttle;
+  slot_filter_type   m_slot_filter;
+  slot_resolver_type m_slot_resolver;
+  slot_throttle_type m_slot_address_throttle;
 };
 
-}
+} // namespace torrent
 
 #endif
-

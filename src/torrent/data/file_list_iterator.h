@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -54,122 +54,153 @@ public:
   typedef File**             pointer;
 
   FileListIterator() {}
-  explicit FileListIterator(iterator pos, uint32_t depth = 0) : m_position(pos), m_depth(depth) {}
+  explicit FileListIterator(iterator pos, uint32_t depth = 0)
+    : m_position(pos)
+    , m_depth(depth) {}
 
-  bool                is_file() const;
-  bool                is_empty() const;
+  bool is_file() const;
+  bool is_empty() const;
 
-  bool                is_entering() const;
-  bool                is_leaving() const  { return m_depth < 0; }
+  bool is_entering() const;
+  bool is_leaving() const {
+    return m_depth < 0;
+  }
 
-  uint32_t            depth() const       { return std::abs(m_depth); }
+  uint32_t depth() const {
+    return std::abs(m_depth);
+  }
 
-  iterator            base() const        { return m_position; }
-  reference           file() const        { return *m_position; }
+  iterator base() const {
+    return m_position;
+  }
+  reference file() const {
+    return *m_position;
+  }
 
-  reference           operator *() const  { return *m_position; }
-  pointer             operator ->() const { return &*m_position; }
-  
-  FileListIterator&   operator ++();
-  FileListIterator&   operator --();
+  reference operator*() const {
+    return *m_position;
+  }
+  pointer operator->() const {
+    return &*m_position;
+  }
 
-  FileListIterator    operator ++(int);
-  FileListIterator    operator --(int);
+  FileListIterator& operator++();
+  FileListIterator& operator--();
 
-  FileListIterator&   forward_current_depth();  
-  FileListIterator&   backward_current_depth();  
+  FileListIterator operator++(int);
+  FileListIterator operator--(int);
 
-  friend bool         operator ==(const FileListIterator& left, const FileListIterator& right);
-  friend bool         operator !=(const FileListIterator& left, const FileListIterator& right);
+  FileListIterator& forward_current_depth();
+  FileListIterator& backward_current_depth();
+
+  friend bool operator==(const FileListIterator& left,
+                         const FileListIterator& right);
+  friend bool operator!=(const FileListIterator& left,
+                         const FileListIterator& right);
 
 private:
-  iterator            m_position;
-  int32_t             m_depth;
+  iterator m_position;
+  int32_t  m_depth;
 };
 
 inline FileListIterator
-FileListIterator::operator ++(int) {
+FileListIterator::operator++(int) {
   FileListIterator tmp = *this;
   ++(*this);
   return tmp;
 }
 
 inline FileListIterator
-FileListIterator::operator --(int) {
+FileListIterator::operator--(int) {
   FileListIterator tmp = *this;
   --(*this);
   return tmp;
 }
 
 inline bool
-operator ==(const FileListIterator& left, const FileListIterator& right) {
+operator==(const FileListIterator& left, const FileListIterator& right) {
   return left.m_position == right.m_position && left.m_depth == right.m_depth;
 }
 
 inline bool
-operator !=(const FileListIterator& left, const FileListIterator& right) {
+operator!=(const FileListIterator& left, const FileListIterator& right) {
   return left.m_position != right.m_position || left.m_depth != right.m_depth;
 }
 
 // Take a range as input and return the next entry at the same
 // directory depth as first. If the returned iterator equals 'last' or
 // is_leaving() == true then the search failed.
-class LIBTORRENT_EXPORT file_list_collapsed_iterator : private FileListIterator {
+class LIBTORRENT_EXPORT file_list_collapsed_iterator
+  : private FileListIterator {
 public:
   typedef FileListIterator             base_type;
   typedef file_list_collapsed_iterator this_type;
 
   using base_type::iterator;
-  using base_type::reference;
   using base_type::pointer;
+  using base_type::reference;
 
-  using base_type::is_file;
-  using base_type::is_empty;
-  using base_type::is_entering;
-  using base_type::is_leaving;
   using base_type::depth;
   using base_type::file;
+  using base_type::is_empty;
+  using base_type::is_entering;
+  using base_type::is_file;
+  using base_type::is_leaving;
 
   file_list_collapsed_iterator() {}
-  file_list_collapsed_iterator(const FileListIterator& src) : FileListIterator(src) {}
-  explicit file_list_collapsed_iterator(iterator pos, uint32_t depth = 0) : FileListIterator(pos, depth) {}
+  file_list_collapsed_iterator(const FileListIterator& src)
+    : FileListIterator(src) {}
+  explicit file_list_collapsed_iterator(iterator pos, uint32_t depth = 0)
+    : FileListIterator(pos, depth) {}
 
-  base_type           base() const { return *static_cast<const base_type*>(this); }
+  base_type base() const {
+    return *static_cast<const base_type*>(this);
+  }
 
-  this_type&          operator ++() { base_type::forward_current_depth(); return *this; }
-  this_type&          operator --() { base_type::backward_current_depth(); return *this; }
+  this_type& operator++() {
+    base_type::forward_current_depth();
+    return *this;
+  }
+  this_type& operator--() {
+    base_type::backward_current_depth();
+    return *this;
+  }
 
-  this_type           operator ++(int);
-  this_type           operator --(int);
+  this_type operator++(int);
+  this_type operator--(int);
 
-  friend bool         operator ==(const file_list_collapsed_iterator& left, const file_list_collapsed_iterator& right);
-  friend bool         operator !=(const file_list_collapsed_iterator& left, const file_list_collapsed_iterator& right);
+  friend bool operator==(const file_list_collapsed_iterator& left,
+                         const file_list_collapsed_iterator& right);
+  friend bool operator!=(const file_list_collapsed_iterator& left,
+                         const file_list_collapsed_iterator& right);
 };
 
 inline bool
-operator ==(const file_list_collapsed_iterator& left, const file_list_collapsed_iterator& right) {
+operator==(const file_list_collapsed_iterator& left,
+           const file_list_collapsed_iterator& right) {
   return left.base() == right.base();
 }
 
 inline bool
-operator !=(const file_list_collapsed_iterator& left, const file_list_collapsed_iterator& right) {
+operator!=(const file_list_collapsed_iterator& left,
+           const file_list_collapsed_iterator& right) {
   return left.base() != right.base();
 }
 
 inline file_list_collapsed_iterator
-file_list_collapsed_iterator::operator ++(int) {
+file_list_collapsed_iterator::operator++(int) {
   this_type tmp = *this;
   ++(*this);
   return tmp;
 }
 
 inline file_list_collapsed_iterator
-file_list_collapsed_iterator::operator --(int) {
+file_list_collapsed_iterator::operator--(int) {
   this_type tmp = *this;
   --(*this);
   return tmp;
 }
 
-}
+} // namespace torrent
 
 #endif

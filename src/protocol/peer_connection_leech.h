@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -44,14 +44,19 @@
 namespace torrent {
 
 // Type-specific data.
-template<Download::ConnectionType type> struct PeerConnectionData;
+template<Download::ConnectionType type>
+struct PeerConnectionData;
 
-template<> struct PeerConnectionData<Download::CONNECTION_LEECH> { };
+template<>
+struct PeerConnectionData<Download::CONNECTION_LEECH> {};
 
-template<> struct PeerConnectionData<Download::CONNECTION_SEED> { };
+template<>
+struct PeerConnectionData<Download::CONNECTION_SEED> {};
 
-template<> struct PeerConnectionData<Download::CONNECTION_INITIAL_SEED> {
-  PeerConnectionData() : lastIndex(~uint32_t()) { }
+template<>
+struct PeerConnectionData<Download::CONNECTION_INITIAL_SEED> {
+  PeerConnectionData()
+    : lastIndex(~uint32_t()) {}
   uint32_t lastIndex;
   uint32_t bytesLeft;
 };
@@ -61,25 +66,25 @@ class PeerConnection : public PeerConnectionBase {
 public:
   ~PeerConnection();
 
-  virtual void        initialize_custom();
-  virtual void        update_interested();
-  virtual bool        receive_keepalive();
+  virtual void initialize_custom();
+  virtual void update_interested();
+  virtual bool receive_keepalive();
 
-  virtual void        event_read();
-  virtual void        event_write();
+  virtual void event_read();
+  virtual void event_write();
 
 private:
-  inline bool         read_message();
-  void                read_have_chunk(uint32_t index);
+  inline bool read_message();
+  void        read_have_chunk(uint32_t index);
 
-  void                offer_chunk();
-  bool                should_upload();
+  void offer_chunk();
+  bool should_upload();
 
-  inline void         fill_write_buffer();
+  inline void fill_write_buffer();
 
   PeerConnectionData<type> m_data;
 };
 
-}
+} // namespace torrent
 
 #endif

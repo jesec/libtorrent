@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -59,7 +59,7 @@ FileListIterator::is_entering() const {
 }
 
 FileListIterator&
-FileListIterator::operator ++() {
+FileListIterator::operator++() {
   int32_t size = (*m_position)->path()->size();
 
   if (size == 0) {
@@ -68,7 +68,7 @@ FileListIterator::operator ++() {
   }
 
   m_depth++;
-  
+
   if (m_depth > size)
     throw internal_error("FileListIterator::operator ++() m_depth > size.");
 
@@ -84,7 +84,7 @@ FileListIterator::operator ++() {
 }
 
 FileListIterator&
-FileListIterator::operator --() {
+FileListIterator::operator--() {
   // We're guaranteed that if m_depth != 0 then so is the path size,
   // so there's no need to check for it.
   if (m_depth == 0) {
@@ -142,14 +142,15 @@ FileListIterator::backward_current_depth() {
     return *this;
 
   if (depth() == 0)
-    throw internal_error("FileListIterator::backward_current_depth() depth() == 0.");
+    throw internal_error(
+      "FileListIterator::backward_current_depth() depth() == 0.");
 
   uint32_t baseDepth = depth();
-  
+
   while (depth() >= baseDepth)
     --(*this);
 
   return *this;
 }
 
-}
+} // namespace torrent

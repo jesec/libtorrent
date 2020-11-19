@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -56,7 +56,6 @@ Object::get_key(const std::string& k) {
   return itr->second;
 }
 
-
 const Object&
 Object::get_key(const std::string& k) const {
   check_throw(TYPE_MAP);
@@ -74,7 +73,8 @@ Object::get_key(const char* k) {
   map_type::iterator itr = _map().find(std::string(k));
 
   if (itr == _map().end())
-    throw bencode_error("Object operator [" + std::string(k) + "] could not find element");
+    throw bencode_error("Object operator [" + std::string(k) +
+                        "] could not find element");
 
   return itr->second;
 }
@@ -85,7 +85,8 @@ Object::get_key(const char* k) const {
   map_type::const_iterator itr = _map().find(std::string(k));
 
   if (itr == _map().end())
-    throw bencode_error("Object operator [" + std::string(k) + "] could not find element");
+    throw bencode_error("Object operator [" + std::string(k) +
+                        "] could not find element");
 
   return itr->second;
 }
@@ -135,7 +136,9 @@ Object::swap(Object& src) {
 }
 
 Object&
-Object::merge_copy(const Object& object, uint32_t skip_mask, uint32_t maxDepth) {
+Object::merge_copy(const Object& object,
+                   uint32_t      skip_mask,
+                   uint32_t      maxDepth) {
   if (maxDepth == 0 || m_flags & skip_mask)
     return (*this = object);
 
@@ -143,14 +146,18 @@ Object::merge_copy(const Object& object, uint32_t skip_mask, uint32_t maxDepth) 
     if (!is_map())
       *this = create_map();
 
-    map_type& dest = as_map();
+    map_type&          dest    = as_map();
     map_type::iterator destItr = dest.begin();
 
-    map_type::const_iterator srcItr = object.as_map().begin();
+    map_type::const_iterator srcItr  = object.as_map().begin();
     map_type::const_iterator srcLast = object.as_map().end();
 
     while (srcItr != srcLast) {
-      destItr = std::find_if(destItr, dest.end(), rak::less_equal(srcItr->first, rak::mem_ref(&map_type::value_type::first)));
+      destItr = std::find_if(
+        destItr,
+        dest.end(),
+        rak::less_equal(srcItr->first,
+                        rak::mem_ref(&map_type::value_type::first)));
 
       if (srcItr->first < destItr->first)
         // destItr remains valid and pointing to the next possible
@@ -162,24 +169,24 @@ Object::merge_copy(const Object& object, uint32_t skip_mask, uint32_t maxDepth) 
       srcItr++;
     }
 
-//   } else if (object.is_list()) {
-//     if (!is_list())
-//       *this = create_list();
+    //   } else if (object.is_list()) {
+    //     if (!is_list())
+    //       *this = create_list();
 
-//     list_type& dest = as_list();
-//     list_type::iterator destItr = dest.begin();
+    //     list_type& dest = as_list();
+    //     list_type::iterator destItr = dest.begin();
 
-//     list_type::const_iterator srcItr = object.as_list().begin();
-//     list_type::const_iterator srcLast = object.as_list().end();
-    
-//     while (srcItr != srcLast) {
-//       if (destItr == dest.end())
-//         destItr = dest.insert(destItr, *srcItr);
-//       else
-//         destItr->merge_copy(*srcItr, maxDepth - 1);
+    //     list_type::const_iterator srcItr = object.as_list().begin();
+    //     list_type::const_iterator srcLast = object.as_list().end();
 
-//       destItr++;
-//     }
+    //     while (srcItr != srcLast) {
+    //       if (destItr == dest.end())
+    //         destItr = dest.insert(destItr, *srcItr);
+    //       else
+    //         destItr->merge_copy(*srcItr, maxDepth - 1);
+
+    //       destItr++;
+    //     }
 
   } else {
     *this = object;
@@ -189,7 +196,7 @@ Object::merge_copy(const Object& object, uint32_t skip_mask, uint32_t maxDepth) 
 }
 
 Object&
-Object::operator = (const Object& src) {
+Object::operator=(const Object& src) {
   if (&src == this)
     return *this;
 
@@ -199,17 +206,29 @@ Object::operator = (const Object& src) {
   m_flags = src.m_flags & (mask_type | mask_public);
 
   switch (type()) {
-  case TYPE_STRING:   new (&_string()) string_type(src._string()); break;
-  case TYPE_LIST:     new (&_list()) list_type(src._list()); break;
-  case TYPE_MAP:      _map_ptr() = new map_type(src._map()); break;
-  case TYPE_DICT_KEY: new (&_dict_key()) dict_key_type(src._dict_key()); _dict_key().second = new Object(*src._dict_key().second); break;
-  default: t_pod = src.t_pod; break;
+    case TYPE_STRING:
+      new (&_string()) string_type(src._string());
+      break;
+    case TYPE_LIST:
+      new (&_list()) list_type(src._list());
+      break;
+    case TYPE_MAP:
+      _map_ptr() = new map_type(src._map());
+      break;
+    case TYPE_DICT_KEY:
+      new (&_dict_key()) dict_key_type(src._dict_key());
+      _dict_key().second = new Object(*src._dict_key().second);
+      break;
+    default:
+      t_pod = src.t_pod;
+      break;
   }
 
   return *this;
 }
 
-Object object_create_normal(const raw_bencode& obj) {
+Object
+object_create_normal(const raw_bencode& obj) {
   torrent::Object result;
 
   if (object_read_bencode_c(obj.begin(), obj.end(), &result, 128) != obj.end())
@@ -218,14 +237,16 @@ Object object_create_normal(const raw_bencode& obj) {
   return result;
 }
 
-Object object_create_normal(const raw_list& obj) {
+Object
+object_create_normal(const raw_list& obj) {
   torrent::Object result = Object::create_list();
 
   raw_list::iterator first = obj.begin();
-  raw_list::iterator last = obj.end();
+  raw_list::iterator last  = obj.end();
 
   while (first != last) {
-    Object::list_iterator new_entry = result.as_list().insert(result.as_list().end(), Object());
+    Object::list_iterator new_entry =
+      result.as_list().insert(result.as_list().end(), Object());
 
     first = object_read_bencode_c(first, last, &*new_entry, 128);
 
@@ -239,17 +260,18 @@ Object object_create_normal(const raw_list& obj) {
   return result;
 }
 
-Object object_create_normal(const raw_map& obj) {
+Object
+object_create_normal(const raw_map& obj) {
   torrent::Object result = Object::create_map();
 
   raw_list::iterator first = obj.begin();
-  raw_list::iterator last = obj.end();
+  raw_list::iterator last  = obj.end();
 
   Object::string_type prev;
 
   while (first != last) {
     raw_string raw_str = object_read_bencode_c_string(first, last);
-    first = raw_str.end();
+    first              = raw_str.end();
 
     Object::string_type key_str = raw_str.as_string();
 
@@ -260,7 +282,7 @@ Object object_create_normal(const raw_map& obj) {
       result.set_internal_flags(Object::flag_unordered);
 
     Object* value = &result.as_map()[key_str];
-    first = object_read_bencode_c(first, last, value, 128);
+    first         = object_read_bencode_c(first, last, value, 128);
 
     if (value->flags() & Object::flag_unordered)
       result.set_internal_flags(Object::flag_unordered);
@@ -271,5 +293,4 @@ Object object_create_normal(const raw_map& obj) {
   return result;
 }
 
-
-}
+} // namespace torrent

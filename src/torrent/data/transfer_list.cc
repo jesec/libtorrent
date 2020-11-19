@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -38,16 +38,16 @@
 
 #include <algorithm>
 #include <functional>
-#include <set>
 #include <rak/functional.h>
 #include <rak/timer.h>
+#include <set>
 
 #include "data/chunk.h"
 #include "peer/peer_info.h"
 
 #include "block_failed.h"
-#include "block_transfer.h"
 #include "block_list.h"
+#include "block_transfer.h"
 #include "exceptions.h"
 #include "piece.h"
 
@@ -55,30 +55,36 @@
 
 namespace torrent {
 
-TransferList::TransferList() :
-  m_succeededCount(0),
-  m_failedCount(0) { }
+TransferList::TransferList()
+  : m_succeededCount(0)
+  , m_failedCount(0) {}
 
 // TODO: Derp if transfer list isn't cleared...
 
 TransferList::~TransferList() noexcept(false) {
   if (!base_type::empty())
-    throw internal_error("TransferList::~TransferList() called on an non-empty object");
+    throw internal_error(
+      "TransferList::~TransferList() called on an non-empty object");
 }
 
 TransferList::iterator
 TransferList::find(uint32_t index) {
-  return std::find_if(begin(), end(), rak::equal(index, std::mem_fun(&BlockList::index)));
+  return std::find_if(
+    begin(), end(), rak::equal(index, std::mem_fun(&BlockList::index)));
 }
 
 TransferList::const_iterator
 TransferList::find(uint32_t index) const {
-  return std::find_if(begin(), end(), rak::equal(index, std::mem_fun(&BlockList::index)));
+  return std::find_if(
+    begin(), end(), rak::equal(index, std::mem_fun(&BlockList::index)));
 }
 
 void
 TransferList::clear() {
-  std::for_each(begin(), end(), std::bind(m_slot_canceled, std::bind(&BlockList::index, std::placeholders::_1)));
+  std::for_each(begin(),
+                end(),
+                std::bind(m_slot_canceled,
+                          std::bind(&BlockList::index, std::placeholders::_1)));
   std::for_each(begin(), end(), rak::call_delete<BlockList>());
 
   base_type::clear();
@@ -87,16 +93,18 @@ TransferList::clear() {
 TransferList::iterator
 TransferList::insert(const Piece& piece, uint32_t blockSize) {
   if (find(piece.index()) != end())
-    throw internal_error("Delegator::new_chunk(...) received an index that is already delegated.");
+    throw internal_error("Delegator::new_chunk(...) received an index that is "
+                         "already delegated.");
 
   BlockList* blockList = new BlockList(piece, blockSize);
-  
+
   m_slot_queued(piece.index());
 
   return base_type::insert(end(), blockList);
 }
 
-// TODO: Create a destructor to ensure all blocklists have been cleared/invaldiated?
+// TODO: Create a destructor to ensure all blocklists have been
+// cleared/invaldiated?
 
 TransferList::iterator
 TransferList::erase(iterator itr) {
@@ -111,7 +119,8 @@ TransferList::erase(iterator itr) {
 void
 TransferList::finished(BlockTransfer* transfer) {
   if (!transfer->is_valid())
-    throw internal_error("TransferList::finished(...) got transfer with wrong state.");
+    throw internal_error(
+      "TransferList::finished(...) got transfer with wrong state.");
 
   uint32_t index = transfer->block()->index();
 
@@ -124,9 +133,12 @@ void
 TransferList::hash_succeeded(uint32_t index, Chunk* chunk) {
   iterator blockListItr = find(index);
 
-  if ((Block::size_type)std::count_if((*blockListItr)->begin(), (*blockListItr)->end(),
-                                      std::mem_fun_ref(&Block::is_finished)) != (*blockListItr)->size())
-    throw internal_error("TransferList::hash_succeeded(...) Finished blocks does not match size.");
+  if ((Block::size_type)std::count_if((*blockListItr)->begin(),
+                                      (*blockListItr)->end(),
+                                      std::mem_fun_ref(&Block::is_finished)) !=
+      (*blockListItr)->size())
+    throw internal_error("TransferList::hash_succeeded(...) Finished blocks "
+                         "does not match size.");
 
   // The chunk should also be marked here or by the caller so that it
   // gets priority for syncing back to disk.
@@ -143,12 +155,16 @@ TransferList::hash_succeeded(uint32_t index, Chunk* chunk) {
   // pruned every 60 minutes, so any timer that reads values once
   // every 30 minutes is guaranteed to get them all as long as it is
   // ordered properly.
-  m_completedList.push_back(std::make_pair(rak::timer::current().usec(), index));
-  
-  if (rak::timer(m_completedList.front().first) + rak::timer::from_minutes(60) < rak::timer::current()) {
-    completed_list_type::iterator itr = std::find_if(m_completedList.begin(), m_completedList.end(),
-                                                     rak::less_equal(rak::timer::current() - rak::timer::from_minutes(30),
-                                                                     rak::mem_ref(&completed_list_type::value_type::first)));
+  m_completedList.push_back(
+    std::make_pair(rak::timer::current().usec(), index));
+
+  if (rak::timer(m_completedList.front().first) + rak::timer::from_minutes(60) <
+      rak::timer::current()) {
+    completed_list_type::iterator itr = std::find_if(
+      m_completedList.begin(),
+      m_completedList.end(),
+      rak::less_equal(rak::timer::current() - rak::timer::from_minutes(30),
+                      rak::mem_ref(&completed_list_type::value_type::first)));
     m_completedList.erase(m_completedList.begin(), itr);
   }
 
@@ -157,10 +173,13 @@ TransferList::hash_succeeded(uint32_t index, Chunk* chunk) {
 }
 
 struct transfer_list_compare_data {
-  transfer_list_compare_data(Chunk* chunk, const Piece& p) : m_chunk(chunk), m_piece(p) { }
+  transfer_list_compare_data(Chunk* chunk, const Piece& p)
+    : m_chunk(chunk)
+    , m_piece(p) {}
 
-  bool operator () (BlockFailed::value_type failed) {
-    return m_chunk->compare_buffer(failed.first, m_piece.offset(), m_piece.length());
+  bool operator()(BlockFailed::value_type failed) {
+    return m_chunk->compare_buffer(
+      failed.first, m_piece.offset(), m_piece.length());
   }
 
   Chunk* m_chunk;
@@ -172,10 +191,15 @@ TransferList::hash_failed(uint32_t index, Chunk* chunk) {
   iterator blockListItr = find(index);
 
   if (blockListItr == end())
-    throw internal_error("TransferList::hash_failed(...) Could not find index.");
+    throw internal_error(
+      "TransferList::hash_failed(...) Could not find index.");
 
-  if ((Block::size_type)std::count_if((*blockListItr)->begin(), (*blockListItr)->end(), std::mem_fun_ref(&Block::is_finished)) != (*blockListItr)->size())
-    throw internal_error("TransferList::hash_failed(...) Finished blocks does not match size.");
+  if ((Block::size_type)std::count_if((*blockListItr)->begin(),
+                                      (*blockListItr)->end(),
+                                      std::mem_fun_ref(&Block::is_finished)) !=
+      (*blockListItr)->size())
+    throw internal_error(
+      "TransferList::hash_failed(...) Finished blocks does not match size.");
 
   m_failedCount++;
 
@@ -212,13 +236,17 @@ TransferList::update_failed(BlockList* blockList, Chunk* chunk) {
 
   blockList->inc_failed();
 
-  for (BlockList::iterator itr = blockList->begin(), last = blockList->end(); itr != last; ++itr) {
-    
+  for (BlockList::iterator itr = blockList->begin(), last = blockList->end();
+       itr != last;
+       ++itr) {
+
     if (itr->failed_list() == NULL)
       itr->set_failed_list(new BlockFailed());
 
-    BlockFailed::iterator failedItr = std::find_if(itr->failed_list()->begin(), itr->failed_list()->end(),
-                                                   transfer_list_compare_data(chunk, itr->piece()));
+    BlockFailed::iterator failedItr =
+      std::find_if(itr->failed_list()->begin(),
+                   itr->failed_list()->end(),
+                   transfer_list_compare_data(chunk, itr->piece()));
 
     if (failedItr == itr->failed_list()->end()) {
       // We've never encountered this data before, make a new entry.
@@ -237,7 +265,8 @@ TransferList::update_failed(BlockList* blockList, Chunk* chunk) {
 
       BlockFailed::iterator maxItr = itr->failed_list()->max_element();
 
-      if (maxItr->second == failedItr->second && maxItr != (itr->failed_list()->reverse_max_element().base() - 1))
+      if (maxItr->second == failedItr->second &&
+          maxItr != (itr->failed_list()->reverse_max_element().base() - 1))
         promoted++;
 
       failedItr->second++;
@@ -254,14 +283,23 @@ void
 TransferList::mark_failed_peers(BlockList* blockList, Chunk* chunk) {
   std::set<PeerInfo*> badPeers;
 
-  for (BlockList::iterator itr = blockList->begin(), last = blockList->end(); itr != last; ++itr) {
+  for (BlockList::iterator itr = blockList->begin(), last = blockList->end();
+       itr != last;
+       ++itr) {
     // This chunk data is good, set it as current and
     // everyone who sent something else is a bad peer.
-    itr->failed_list()->set_current(std::find_if(itr->failed_list()->begin(), itr->failed_list()->end(),
-                                                 transfer_list_compare_data(chunk, itr->piece())));
+    itr->failed_list()->set_current(
+      std::find_if(itr->failed_list()->begin(),
+                   itr->failed_list()->end(),
+                   transfer_list_compare_data(chunk, itr->piece())));
 
-    for (Block::transfer_list_type::const_iterator itr2 = itr->transfers()->begin(), last2 = itr->transfers()->end(); itr2 != last2; ++itr2)
-      if ((*itr2)->failed_index() != itr->failed_list()->current() && (*itr2)->failed_index() != ~uint32_t())
+    for (Block::transfer_list_type::const_iterator
+           itr2  = itr->transfers()->begin(),
+           last2 = itr->transfers()->end();
+         itr2 != last2;
+         ++itr2)
+      if ((*itr2)->failed_index() != itr->failed_list()->current() &&
+          (*itr2)->failed_index() != ~uint32_t())
         badPeers.insert((*itr2)->peer_info());
   }
 
@@ -272,12 +310,16 @@ TransferList::mark_failed_peers(BlockList* blockList, Chunk* chunk) {
 // largest reference counts.
 void
 TransferList::retry_most_popular(BlockList* blockList, Chunk* chunk) {
-  for (BlockList::iterator itr = blockList->begin(), last = blockList->end(); itr != last; ++itr) {
-    
-    BlockFailed::reverse_iterator failedItr = itr->failed_list()->reverse_max_element();
+  for (BlockList::iterator itr = blockList->begin(), last = blockList->end();
+       itr != last;
+       ++itr) {
+
+    BlockFailed::reverse_iterator failedItr =
+      itr->failed_list()->reverse_max_element();
 
     if (failedItr == itr->failed_list()->rend())
-      throw internal_error("TransferList::retry_most_popular(...) No failed list entry found.");
+      throw internal_error(
+        "TransferList::retry_most_popular(...) No failed list entry found.");
 
     // The data is the same, so no need to copy.
     if (failedItr == itr->failed_list()->current_reverse_iterator())
@@ -285,7 +327,8 @@ TransferList::retry_most_popular(BlockList* blockList, Chunk* chunk) {
 
     // Change the leader to the currently held buffer?
 
-    chunk->from_buffer(failedItr->first, itr->piece().offset(), itr->piece().length());
+    chunk->from_buffer(
+      failedItr->first, itr->piece().offset(), itr->piece().length());
 
     itr->failed_list()->set_current(failedItr);
   }
@@ -293,4 +336,4 @@ TransferList::retry_most_popular(BlockList* blockList, Chunk* chunk) {
   m_slot_completed(blockList->index());
 }
 
-}
+} // namespace torrent

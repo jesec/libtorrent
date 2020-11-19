@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -51,44 +51,44 @@ namespace torrent {
 
 class LIBTORRENT_EXPORT PollSelect : public Poll {
 public:
-  static PollSelect*  create(int maxOpenSockets);
+  static PollSelect* create(int maxOpenSockets);
   virtual ~PollSelect() noexcept(false);
 
-  virtual uint32_t    open_max() const;
+  virtual uint32_t open_max() const;
 
   // Returns the largest fd marked.
-  unsigned int        fdset(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet);
-  unsigned int        perform(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet);
+  unsigned int fdset(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet);
+  unsigned int perform(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet);
 
-  unsigned int        do_poll(int64_t timeout_usec, int flags = 0);
+  unsigned int do_poll(int64_t timeout_usec, int flags = 0);
 
-  virtual void        open(Event* event);
-  virtual void        close(Event* event);
+  virtual void open(Event* event);
+  virtual void close(Event* event);
 
-  virtual void        closed(Event* event);
+  virtual void closed(Event* event);
 
-  virtual bool        in_read(Event* event);
-  virtual bool        in_write(Event* event);
-  virtual bool        in_error(Event* event);
+  virtual bool in_read(Event* event);
+  virtual bool in_write(Event* event);
+  virtual bool in_error(Event* event);
 
-  virtual void        insert_read(Event* event);
-  virtual void        insert_write(Event* event);
-  virtual void        insert_error(Event* event);
+  virtual void insert_read(Event* event);
+  virtual void insert_write(Event* event);
+  virtual void insert_error(Event* event);
 
-  virtual void        remove_read(Event* event);
-  virtual void        remove_write(Event* event);
-  virtual void        remove_error(Event* event);
+  virtual void remove_read(Event* event);
+  virtual void remove_write(Event* event);
+  virtual void remove_error(Event* event);
 
 private:
   PollSelect() {}
   PollSelect(const PollSelect&);
-  void operator = (const PollSelect&);
+  void operator=(const PollSelect&);
 
-  SocketSet*          m_readSet;
-  SocketSet*          m_writeSet;
-  SocketSet*          m_exceptSet;
+  SocketSet* m_readSet;
+  SocketSet* m_writeSet;
+  SocketSet* m_exceptSet;
 };
 
-}
+} // namespace torrent
 
 #endif

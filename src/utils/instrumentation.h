@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -106,12 +106,17 @@ enum instrumentation_enum {
   INSTRUMENTATION_MAX_SIZE
 };
 
-extern std::array<int64_t, INSTRUMENTATION_MAX_SIZE> instrumentation_values lt_cacheline_aligned;
+extern std::array<int64_t, INSTRUMENTATION_MAX_SIZE> instrumentation_values
+  lt_cacheline_aligned;
 
-void instrumentation_initialize();
-void instrumentation_update(instrumentation_enum type, int64_t change);
-void instrumentation_tick();
-void instrumentation_reset();
+void
+instrumentation_initialize();
+void
+instrumentation_update(instrumentation_enum type, int64_t change);
+void
+instrumentation_tick();
+void
+instrumentation_reset();
 
 //
 // Implementation:
@@ -119,7 +124,8 @@ void instrumentation_reset();
 
 inline void
 instrumentation_initialize() {
-  std::fill(instrumentation_values.begin(), instrumentation_values.end(), int64_t());
+  std::fill(
+    instrumentation_values.begin(), instrumentation_values.end(), int64_t());
 }
 
 inline void
@@ -129,6 +135,6 @@ instrumentation_update(instrumentation_enum type, int64_t change) {
 #endif
 }
 
-}
+} // namespace torrent
 
 #endif

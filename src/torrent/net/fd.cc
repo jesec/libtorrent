@@ -4,54 +4,100 @@
 
 #include <cerrno>
 #include <fcntl.h>
-#include <unistd.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
+#include <unistd.h>
 
 #include "torrent/exceptions.h"
 #include "torrent/net/socket_address.h"
 #include "torrent/utils/log.h"
 
-#define LT_LOG(log_fmt, ...)                                    \
+#define LT_LOG(log_fmt, ...)                                                   \
   lt_log_print(LOG_CONNECTION_FD, "fd: " log_fmt, __VA_ARGS__);
-#define LT_LOG_FLAG(log_fmt)                                            \
+#define LT_LOG_FLAG(log_fmt)                                                   \
   lt_log_print(LOG_CONNECTION_FD, "fd: " log_fmt " (flags:0x%x)", flags);
-#define LT_LOG_FLAG_ERROR(log_fmt)                                      \
-  lt_log_print(LOG_CONNECTION_FD, "fd: " log_fmt " (flags:0x%x errno:%i message:'%s')", \
-               flags, errno, std::strerror(errno));
-#define LT_LOG_FD(log_fmt)                                      \
+#define LT_LOG_FLAG_ERROR(log_fmt)                                             \
+  lt_log_print(LOG_CONNECTION_FD,                                              \
+               "fd: " log_fmt " (flags:0x%x errno:%i message:'%s')",           \
+               flags,                                                          \
+               errno,                                                          \
+               std::strerror(errno));
+#define LT_LOG_FD(log_fmt)                                                     \
   lt_log_print(LOG_CONNECTION_FD, "fd->%i: " log_fmt, fd);
-#define LT_LOG_FD_ERROR(log_fmt)                                        \
-  lt_log_print(LOG_CONNECTION_FD, "fd->%i: " log_fmt " (errno:%i message:'%s')", \
-               fd, errno, std::strerror(errno));
-#define LT_LOG_FD_SOCKADDR(log_fmt)                                   \
-  lt_log_print(LOG_CONNECTION_FD, "fd->%i: " log_fmt " (address:%s)", \
-               fd, sa_pretty_str(sa).c_str());
-#define LT_LOG_FD_SOCKADDR_ERROR(log_fmt)                               \
-  lt_log_print(LOG_CONNECTION_FD, "fd->%i: " log_fmt " (address:%s errno:%i message:'%s')", \
-               fd, sa_pretty_str(sa).c_str(), errno, std::strerror(errno));
-#define LT_LOG_FD_FLAG(log_fmt)                                         \
-  lt_log_print(LOG_CONNECTION_FD, "fd->%i: " log_fmt " (flags:0x%x)", fd, flags);
-#define LT_LOG_FD_FLAG_ERROR(log_fmt)                                   \
-  lt_log_print(LOG_CONNECTION_FD, "fd->%i: " log_fmt " (flags:0x%x errno:%i message:'%s')", \
-               fd, flags, errno, std::strerror(errno));
-#define LT_LOG_FD_VALUE(log_fmt, value)                                 \
-  lt_log_print(LOG_CONNECTION_FD, "fd->%i: " log_fmt " (value:%i)", fd, (int)value);
-#define LT_LOG_FD_VALUE_ERROR(log_fmt, value)                           \
-  lt_log_print(LOG_CONNECTION_FD, "fd->%i: " log_fmt " (value:%i errno:%i message:'%s')", \
-               fd, (int)value, errno, std::strerror(errno));
+#define LT_LOG_FD_ERROR(log_fmt)                                               \
+  lt_log_print(LOG_CONNECTION_FD,                                              \
+               "fd->%i: " log_fmt " (errno:%i message:'%s')",                  \
+               fd,                                                             \
+               errno,                                                          \
+               std::strerror(errno));
+#define LT_LOG_FD_SOCKADDR(log_fmt)                                            \
+  lt_log_print(LOG_CONNECTION_FD,                                              \
+               "fd->%i: " log_fmt " (address:%s)",                             \
+               fd,                                                             \
+               sa_pretty_str(sa).c_str());
+#define LT_LOG_FD_SOCKADDR_ERROR(log_fmt)                                      \
+  lt_log_print(LOG_CONNECTION_FD,                                              \
+               "fd->%i: " log_fmt " (address:%s errno:%i message:'%s')",       \
+               fd,                                                             \
+               sa_pretty_str(sa).c_str(),                                      \
+               errno,                                                          \
+               std::strerror(errno));
+#define LT_LOG_FD_FLAG(log_fmt)                                                \
+  lt_log_print(                                                                \
+    LOG_CONNECTION_FD, "fd->%i: " log_fmt " (flags:0x%x)", fd, flags);
+#define LT_LOG_FD_FLAG_ERROR(log_fmt)                                          \
+  lt_log_print(LOG_CONNECTION_FD,                                              \
+               "fd->%i: " log_fmt " (flags:0x%x errno:%i message:'%s')",       \
+               fd,                                                             \
+               flags,                                                          \
+               errno,                                                          \
+               std::strerror(errno));
+#define LT_LOG_FD_VALUE(log_fmt, value)                                        \
+  lt_log_print(                                                                \
+    LOG_CONNECTION_FD, "fd->%i: " log_fmt " (value:%i)", fd, (int)value);
+#define LT_LOG_FD_VALUE_ERROR(log_fmt, value)                                  \
+  lt_log_print(LOG_CONNECTION_FD,                                              \
+               "fd->%i: " log_fmt " (value:%i errno:%i message:'%s')",         \
+               fd,                                                             \
+               (int)value,                                                     \
+               errno,                                                          \
+               std::strerror(errno));
 
 namespace torrent {
 
-int fd__accept(int socket, sockaddr *address, socklen_t *address_len) { return ::accept(socket, address, address_len); }
-int fd__bind(int socket, const sockaddr *address, socklen_t address_len) { return ::bind(socket, address, address_len); }
-int fd__close(int fildes) { return ::close(fildes); }
-int fd__connect(int socket, const sockaddr *address, socklen_t address_len) { return ::connect(socket, address, address_len); }
-int fd__fcntl_int(int fildes, int cmd, int arg) { return ::fcntl(fildes, cmd, arg); }
-int fd__listen(int socket, int backlog) { return ::listen(socket, backlog); }
-int fd__setsockopt_int(int socket, int level, int option_name, int option_value) { return ::setsockopt(socket, level, option_name, &option_value, sizeof(int)); }
-int fd__socket(int domain, int type, int protocol) { return ::socket(domain, type, protocol); }
+int
+fd__accept(int socket, sockaddr* address, socklen_t* address_len) {
+  return ::accept(socket, address, address_len);
+}
+int
+fd__bind(int socket, const sockaddr* address, socklen_t address_len) {
+  return ::bind(socket, address, address_len);
+}
+int
+fd__close(int fildes) {
+  return ::close(fildes);
+}
+int
+fd__connect(int socket, const sockaddr* address, socklen_t address_len) {
+  return ::connect(socket, address, address_len);
+}
+int
+fd__fcntl_int(int fildes, int cmd, int arg) {
+  return ::fcntl(fildes, cmd, arg);
+}
+int
+fd__listen(int socket, int backlog) {
+  return ::listen(socket, backlog);
+}
+int
+fd__setsockopt_int(int socket, int level, int option_name, int option_value) {
+  return ::setsockopt(socket, level, option_name, &option_value, sizeof(int));
+}
+int
+fd__socket(int domain, int type, int protocol) {
+  return ::socket(domain, type, protocol);
+}
 
 int
 fd_open(fd_flags flags) {
@@ -62,7 +108,7 @@ fd_open(fd_flags flags) {
     throw internal_error("torrent::fd_open failed: invalid fd_flags");
 
   if ((flags & fd_flag_stream)) {
-    domain = SOCK_STREAM;
+    domain   = SOCK_STREAM;
     protocol = IPPROTO_TCP;
   } else {
     LT_LOG_FLAG("fd_open missing socket type");
@@ -122,17 +168,17 @@ fd_close(int fd) {
 
 fd_sap_tuple
 fd_accept(int fd) {
-  sa_unique_ptr sap = sa_make_inet6();
-  socklen_t socklen = sap_length(sap);
+  sa_unique_ptr sap     = sa_make_inet6();
+  socklen_t     socklen = sap_length(sap);
 
   int accept_fd = fd__accept(fd, sap.get(), &socklen);
 
   if (accept_fd == -1) {
     LT_LOG_FD_ERROR("fd_accept failed");
-    return fd_sap_tuple{-1, nullptr};
+    return fd_sap_tuple{ -1, nullptr };
   }
 
-  return fd_sap_tuple{accept_fd, std::move(sap)};
+  return fd_sap_tuple{ accept_fd, std::move(sap) };
 }
 
 bool
@@ -206,4 +252,4 @@ fd_set_v6only(int fd, bool state) {
   return true;
 }
 
-}
+} // namespace torrent

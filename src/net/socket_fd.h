@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -42,7 +42,7 @@
 struct sockaddr;
 
 namespace rak {
-  class socket_address;
+class socket_address;
 }
 
 namespace torrent {
@@ -51,57 +51,69 @@ class SocketFd {
 public:
   typedef uint8_t priority_type;
 
-  SocketFd() : m_fd(-1) {}
-  explicit SocketFd(int fd) : m_fd(fd) {}
-  SocketFd(int fd, bool ipv6_socket) : m_fd(fd), m_ipv6_socket(ipv6_socket) {}
+  SocketFd()
+    : m_fd(-1) {}
+  explicit SocketFd(int fd)
+    : m_fd(fd) {}
+  SocketFd(int fd, bool ipv6_socket)
+    : m_fd(fd)
+    , m_ipv6_socket(ipv6_socket) {}
 
-  bool                is_valid() const                        { return m_fd >= 0; }
-  
-  int                 get_fd() const                          { return m_fd; }
-  void                set_fd(int fd)                          { m_fd = fd; }
+  bool is_valid() const {
+    return m_fd >= 0;
+  }
 
-  bool                set_nonblock();
-  bool                set_reuse_address(bool state);
-  bool                set_ipv6_v6only(bool state);
+  int get_fd() const {
+    return m_fd;
+  }
+  void set_fd(int fd) {
+    m_fd = fd;
+  }
 
-  bool                set_priority(priority_type p);
+  bool set_nonblock();
+  bool set_reuse_address(bool state);
+  bool set_ipv6_v6only(bool state);
 
-  bool                set_send_buffer_size(uint32_t s);
-  bool                set_receive_buffer_size(uint32_t s);
+  bool set_priority(priority_type p);
 
-  int                 get_error() const;
+  bool set_send_buffer_size(uint32_t s);
+  bool set_receive_buffer_size(uint32_t s);
 
-  bool                open_stream();
-  bool                open_datagram();
-  bool                open_local();
+  int get_error() const;
 
-  static bool         open_socket_pair(int& fd1, int& fd2);
+  bool open_stream();
+  bool open_datagram();
+  bool open_local();
 
-  void                close();
-  void                clear() { m_fd = -1; }
+  static bool open_socket_pair(int& fd1, int& fd2);
 
-  bool                bind(const rak::socket_address& sa);
-  bool                bind(const rak::socket_address& sa, unsigned int length);
-  bool                bind_sa(const sockaddr* sa);
+  void close();
+  void clear() {
+    m_fd = -1;
+  }
 
-  bool                connect(const rak::socket_address& sa);
-  bool                connect_sa(const sockaddr* sa);
+  bool bind(const rak::socket_address& sa);
+  bool bind(const rak::socket_address& sa, unsigned int length);
+  bool bind_sa(const sockaddr* sa);
 
-  bool                getsockname(rak::socket_address* sa);
+  bool connect(const rak::socket_address& sa);
+  bool connect_sa(const sockaddr* sa);
 
-  bool                listen(int size);
-  SocketFd            accept(rak::socket_address* sa);
+  bool getsockname(rak::socket_address* sa);
 
-//   unsigned int        get_read_queue_size() const;
-//   unsigned int        get_write_queue_size() const;
+  bool     listen(int size);
+  SocketFd accept(rak::socket_address* sa);
+
+  //   unsigned int        get_read_queue_size() const;
+  //   unsigned int        get_write_queue_size() const;
 
 private:
-  inline void         check_valid() const;
+  inline void check_valid() const;
 
-  int                 m_fd;
-  bool                m_ipv6_socket;
+  int  m_fd;
+  bool m_ipv6_socket;
 };
 
-}
+} // namespace torrent
 
 #endif

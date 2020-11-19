@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -51,14 +51,15 @@ SocketSet::_replace_with_last(size_type idx) {
     base_type::pop_back();
 
   if (idx >= m_table.size())
-    throw internal_error("SocketSet::_replace_with_last(...) input out-of-bounds");
+    throw internal_error(
+      "SocketSet::_replace_with_last(...) input out-of-bounds");
 
   // This should handle both npos and those that have already been
   // removed with the above while loop.
   if (idx >= size())
     return;
 
-  *(begin() + idx) = base_type::back();
+  *(begin() + idx)          = base_type::back();
   _index(base_type::back()) = idx;
 
   base_type::pop_back();
@@ -66,8 +67,10 @@ SocketSet::_replace_with_last(size_type idx) {
 
 void
 SocketSet::prepare() {
-  std::for_each(m_erased.begin(), m_erased.end(),
-		std::bind1st(std::mem_fun(&SocketSet::_replace_with_last), this));
+  std::for_each(
+    m_erased.begin(),
+    m_erased.end(),
+    std::bind1st(std::mem_fun(&SocketSet::_replace_with_last), this));
 
   m_erased.clear();
 }
@@ -79,4 +82,4 @@ SocketSet::reserve(size_t openMax) {
   base_type::reserve(openMax);
 }
 
-}
+} // namespace torrent

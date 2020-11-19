@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -48,28 +48,41 @@ namespace torrent {
 
 class Listen : public SocketBase {
 public:
-  typedef std::function<void (SocketFd, const rak::socket_address&)> slot_connection;
+  typedef std::function<void(SocketFd, const rak::socket_address&)>
+    slot_connection;
 
-  Listen() : m_port(0) {}
-  ~Listen() { close(); }
+  Listen()
+    : m_port(0) {}
+  ~Listen() {
+    close();
+  }
 
-  bool                open(uint16_t first, uint16_t last, int backlog, const rak::socket_address* bindAddress);
-  void                close();
+  bool open(uint16_t                   first,
+            uint16_t                   last,
+            int                        backlog,
+            const rak::socket_address* bindAddress);
+  void close();
 
-  bool                is_open() const { return get_fd().is_valid(); }
+  bool is_open() const {
+    return get_fd().is_valid();
+  }
 
-  uint16_t            port() const { return m_port; }
+  uint16_t port() const {
+    return m_port;
+  }
 
-  slot_connection&    slot_accepted() { return m_slot_accepted; }
+  slot_connection& slot_accepted() {
+    return m_slot_accepted;
+  }
 
-  virtual void        event_read();
-  virtual void        event_write();
-  virtual void        event_error();
+  virtual void event_read();
+  virtual void event_write();
+  virtual void event_error();
 
 private:
-  uint64_t            m_port;
+  uint64_t m_port;
 
-  slot_connection     m_slot_accepted;
+  slot_connection m_slot_accepted;
 };
 
 } // namespace torrent

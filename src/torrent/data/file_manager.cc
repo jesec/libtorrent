@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -47,15 +47,16 @@
 
 namespace torrent {
 
-FileManager::FileManager() :
-  m_maxOpenFiles(0),
-  m_filesOpenedCounter(0),
-  m_filesClosedCounter(0),
-  m_filesFailedCounter(0) {}
+FileManager::FileManager()
+  : m_maxOpenFiles(0)
+  , m_filesOpenedCounter(0)
+  , m_filesClosedCounter(0)
+  , m_filesFailedCounter(0) {}
 
 FileManager::~FileManager() noexcept(false) {
   if (!empty())
-    throw internal_error("FileManager::~FileManager() called but empty() != true.");
+    throw internal_error(
+      "FileManager::~FileManager() called but empty() != true.");
 }
 
 void
@@ -75,7 +76,8 @@ FileManager::open(value_type file, int prot, int flags) {
     close(file);
 
   if (size() > m_maxOpenFiles)
-    throw internal_error("FileManager::open_file(...) m_openSize > m_maxOpenFiles.");
+    throw internal_error(
+      "FileManager::open_file(...) m_openSize > m_maxOpenFiles.");
 
   if (size() == m_maxOpenFiles)
     close_least_active();
@@ -106,7 +108,7 @@ FileManager::close(value_type file) {
 
   file->set_protection(0);
   file->set_file_descriptor(-1);
-  
+
   iterator itr = std::find(begin(), end(), file);
 
   if (itr == end())
@@ -119,17 +121,19 @@ FileManager::close(value_type file) {
 }
 
 struct FileManagerActivity {
-  FileManagerActivity() : m_last(rak::timer::max().usec()), m_file(NULL) {}
+  FileManagerActivity()
+    : m_last(rak::timer::max().usec())
+    , m_file(NULL) {}
 
-  void operator ()(File* f) {
+  void operator()(File* f) {
     if (f->is_open() && f->last_touched() <= m_last) {
       m_last = f->last_touched();
       m_file = f;
     }
   }
 
-  uint64_t   m_last;
-  File*      m_file;
+  uint64_t m_last;
+  File*    m_file;
 };
 
 void
@@ -137,4 +141,4 @@ FileManager::close_least_active() {
   close(std::for_each(begin(), end(), FileManagerActivity()).m_file);
 }
 
-}
+} // namespace torrent

@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -45,19 +45,23 @@
 namespace torrent {
 
 FileList::iterator
-file_split(FileList* fileList, FileList::iterator position, uint64_t maxSize, const std::string& suffix) {
-  const Path* srcPath = (*position)->path();
-  uint64_t splitSize = ((*position)->size_bytes() + maxSize - 1) / maxSize;
+file_split(FileList*          fileList,
+           FileList::iterator position,
+           uint64_t           maxSize,
+           const std::string& suffix) {
+  const Path* srcPath   = (*position)->path();
+  uint64_t    splitSize = ((*position)->size_bytes() + maxSize - 1) / maxSize;
 
   if (srcPath->empty() || (*position)->size_bytes() == 0)
-    throw input_error("Tried to split a file with an empty path or zero length file.");
+    throw input_error(
+      "Tried to split a file with an empty path or zero length file.");
 
   if (splitSize > 1000)
     throw input_error("Tried to split a file into more than 1000 parts.");
 
   // Also replace dwnlctor's vector.
   FileList::split_type* splitList = new FileList::split_type[splitSize];
-  FileList::split_type* splitItr = splitList;
+  FileList::split_type* splitItr  = splitList;
 
   unsigned int nameSize = srcPath->back().size() + suffix.size();
   char         name[nameSize + 4];
@@ -75,8 +79,8 @@ file_split(FileList* fileList, FileList::iterator position, uint64_t maxSize, co
     name[nameSize + 1] = '0' + (i / 10) % 10;
     name[nameSize + 2] = '0' + (i / 1) % 10;
     name[nameSize + 3] = '\0';
-    
-    splitItr->second = *srcPath;
+
+    splitItr->second        = *srcPath;
     splitItr->second.back() = name;
   }
 
@@ -84,7 +88,9 @@ file_split(FileList* fileList, FileList::iterator position, uint64_t maxSize, co
 }
 
 void
-file_split_all(FileList* fileList, uint64_t maxSize, const std::string& suffix) {
+file_split_all(FileList*          fileList,
+               uint64_t           maxSize,
+               const std::string& suffix) {
   if (maxSize == 0)
     throw input_error("Tried to split torrent files into zero sized chunks.");
 
@@ -97,4 +103,4 @@ file_split_all(FileList* fileList, uint64_t maxSize, const std::string& suffix) 
       itr++;
 }
 
-}
+} // namespace torrent

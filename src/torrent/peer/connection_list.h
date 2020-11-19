@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -67,29 +67,29 @@ public:
   typedef std::vector<Peer*>         base_type;
   typedef std::vector<HashString>    queue_type;
   typedef uint32_t                   size_type;
-  typedef std::function<void (Peer*)> slot_peer_type;
-  typedef std::list<slot_peer_type>        signal_peer_type;
+  typedef std::function<void(Peer*)> slot_peer_type;
+  typedef std::list<slot_peer_type>  signal_peer_type;
 
   typedef PeerConnectionBase* (*slot_new_conn_type)(bool encrypted);
 
-  using base_type::value_type;
-  using base_type::reference;
   using base_type::difference_type;
+  using base_type::reference;
+  using base_type::value_type;
 
-  using base_type::iterator;
-  using base_type::reverse_iterator;
   using base_type::const_iterator;
   using base_type::const_reverse_iterator;
+  using base_type::iterator;
+  using base_type::reverse_iterator;
   //  using base_type::size;
   using base_type::empty;
 
-  using base_type::front;
   using base_type::back;
   using base_type::begin;
   using base_type::end;
+  using base_type::front;
   using base_type::rbegin;
   using base_type::rend;
-  
+
   // Make sure any change here match PeerList's flags.
   static const int disconnect_available = (1 << 0);
   static const int disconnect_quick     = (1 << 1);
@@ -99,65 +99,82 @@ public:
   ConnectionList(DownloadMain* download);
 
   // Make these protected?
-  iterator            erase(iterator pos, int flags);
-  void                erase(Peer* p, int flags);
-  void                erase(PeerInfo* peerInfo, int flags);
+  iterator erase(iterator pos, int flags);
+  void     erase(Peer* p, int flags);
+  void     erase(PeerInfo* peerInfo, int flags);
 
-  void                erase_remaining(iterator pos, int flags);
-  void                erase_seeders();
+  void erase_remaining(iterator pos, int flags);
+  void erase_seeders();
 
-  iterator            find(const char* id);
-  iterator            find(const sockaddr* sa);
+  iterator find(const char* id);
+  iterator find(const sockaddr* sa);
 
-  size_type           min_size() const                          { return m_minSize; }
-  void                set_min_size(size_type v);
+  size_type min_size() const {
+    return m_minSize;
+  }
+  void set_min_size(size_type v);
 
-  size_type           size() const                              { return base_type::size(); }
+  size_type size() const {
+    return base_type::size();
+  }
 
-  size_type           max_size() const                          { return m_maxSize; }
-  void                set_max_size(size_type v);
+  size_type max_size() const {
+    return m_maxSize;
+  }
+  void set_max_size(size_type v);
 
   // Removes from 'l' addresses that are already connected to. Assumes
   // 'l' is sorted and unique.
-  void                set_difference(AddressList* l);
+  void set_difference(AddressList* l);
 
-  signal_peer_type&   signal_connected()                        { return m_signalConnected; }
-  signal_peer_type&   signal_disconnected()                     { return m_signalDisconnected; }
+  signal_peer_type& signal_connected() {
+    return m_signalConnected;
+  }
+  signal_peer_type& signal_disconnected() {
+    return m_signalDisconnected;
+  }
 
   // Move to protected:
-  void                slot_new_connection(slot_new_conn_type s) { m_slotNewConnection = s; }
+  void slot_new_connection(slot_new_conn_type s) {
+    m_slotNewConnection = s;
+  }
 
 protected:
   // Does not do the usual cleanup done by 'erase'.
-  void                clear() LIBTORRENT_NO_EXPORT;
+  void clear() LIBTORRENT_NO_EXPORT;
 
-  bool                want_connection(PeerInfo* p, Bitfield* bitfield);
+  bool want_connection(PeerInfo* p, Bitfield* bitfield);
 
   // Returns NULL if the connection was not added, the caller is then
   // responsible for cleaning up 'fd'.
   //
   // Clean this up, don't use this many arguments.
-  PeerConnectionBase* insert(PeerInfo* p, const SocketFd& fd, Bitfield* bitfield, EncryptionInfo* encryptionInfo, ProtocolExtension* extensions) LIBTORRENT_NO_EXPORT;
+  PeerConnectionBase* insert(PeerInfo*          p,
+                             const SocketFd&    fd,
+                             Bitfield*          bitfield,
+                             EncryptionInfo*    encryptionInfo,
+                             ProtocolExtension* extensions)
+    LIBTORRENT_NO_EXPORT;
 
-  void                disconnect_queued() LIBTORRENT_NO_EXPORT;
+  void disconnect_queued() LIBTORRENT_NO_EXPORT;
 
 private:
   ConnectionList(const ConnectionList&) LIBTORRENT_NO_EXPORT;
-  void operator = (const ConnectionList&) LIBTORRENT_NO_EXPORT;
+  void operator=(const ConnectionList&) LIBTORRENT_NO_EXPORT;
 
-  DownloadMain*       m_download;
+  DownloadMain* m_download;
 
-  size_type           m_minSize;
-  size_type           m_maxSize;
+  size_type m_minSize;
+  size_type m_maxSize;
 
-  signal_peer_type    m_signalConnected;
-  signal_peer_type    m_signalDisconnected;
+  signal_peer_type m_signalConnected;
+  signal_peer_type m_signalDisconnected;
 
-  slot_new_conn_type  m_slotNewConnection;
+  slot_new_conn_type m_slotNewConnection;
 
-  queue_type          m_disconnectQueue;
+  queue_type m_disconnectQueue;
 };
 
-}
+} // namespace torrent
 
 #endif

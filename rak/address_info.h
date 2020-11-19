@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -50,49 +50,88 @@ namespace rak {
 
 class address_info {
 public:
-  void                clear()                       { std::memset(this, 0, sizeof(address_info)); }
+  void clear() {
+    std::memset(this, 0, sizeof(address_info));
+  }
 
-  int                 flags() const                 { return m_addrinfo.ai_flags; }
-  void                set_flags(int f)              { m_addrinfo.ai_flags = f; }
+  int flags() const {
+    return m_addrinfo.ai_flags;
+  }
+  void set_flags(int f) {
+    m_addrinfo.ai_flags = f;
+  }
 
-  int                 family() const                { return m_addrinfo.ai_family; }
-  void                set_family(int f)             { m_addrinfo.ai_family = f; }
+  int family() const {
+    return m_addrinfo.ai_family;
+  }
+  void set_family(int f) {
+    m_addrinfo.ai_family = f;
+  }
 
-  int                 socket_type() const           { return m_addrinfo.ai_socktype; }
-  void                set_socket_type(int t)        { m_addrinfo.ai_socktype = t; }
-  
-  int                 protocol() const              { return m_addrinfo.ai_protocol; }
-  void                set_protocol(int p)           { m_addrinfo.ai_protocol = p; }
-  
-  size_t              length() const                { return m_addrinfo.ai_addrlen; }
+  int socket_type() const {
+    return m_addrinfo.ai_socktype;
+  }
+  void set_socket_type(int t) {
+    m_addrinfo.ai_socktype = t;
+  }
 
-  socket_address*     address()                     { return reinterpret_cast<socket_address*>(m_addrinfo.ai_addr); }
+  int protocol() const {
+    return m_addrinfo.ai_protocol;
+  }
+  void set_protocol(int p) {
+    m_addrinfo.ai_protocol = p;
+  }
 
-  addrinfo*           c_addrinfo()                  { return &m_addrinfo; }
-  const addrinfo*     c_addrinfo() const            { return &m_addrinfo; }
+  size_t length() const {
+    return m_addrinfo.ai_addrlen;
+  }
 
-  address_info*       next()                        { return reinterpret_cast<address_info*>(m_addrinfo.ai_next); }
+  socket_address* address() {
+    return reinterpret_cast<socket_address*>(m_addrinfo.ai_addr);
+  }
 
-  static int          get_address_info(const char* node, int domain, int type, address_info** ai);
+  addrinfo* c_addrinfo() {
+    return &m_addrinfo;
+  }
+  const addrinfo* c_addrinfo() const {
+    return &m_addrinfo;
+  }
 
-  static void         free_address_info(address_info* ai) { ::freeaddrinfo(ai->c_addrinfo()); }
+  address_info* next() {
+    return reinterpret_cast<address_info*>(m_addrinfo.ai_next);
+  }
 
-  static const char*  strerror(int err)                   { return gai_strerror(err); }
+  static int get_address_info(const char*    node,
+                              int            domain,
+                              int            type,
+                              address_info** ai);
+
+  static void free_address_info(address_info* ai) {
+    ::freeaddrinfo(ai->c_addrinfo());
+  }
+
+  static const char* strerror(int err) {
+    return gai_strerror(err);
+  }
 
 private:
-  addrinfo            m_addrinfo;
+  addrinfo m_addrinfo;
 };
 
 inline int
-address_info::get_address_info(const char* node, int pfamily, int stype, address_info** ai) {
+address_info::get_address_info(const char*    node,
+                               int            pfamily,
+                               int            stype,
+                               address_info** ai) {
   address_info hints;
   hints.clear();
   hints.set_family(pfamily);
   hints.set_socket_type(stype);
-  
-  return ::getaddrinfo(node, NULL, hints.c_addrinfo(), reinterpret_cast<addrinfo**>(ai));
+
+  return ::getaddrinfo(
+    node, NULL, hints.c_addrinfo(), reinterpret_cast<addrinfo**>(ai));
 }
 
-}
+} // namespace rak
 
 #endif

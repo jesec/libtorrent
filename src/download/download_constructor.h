@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,9 +37,9 @@
 #ifndef LIBTORRENT_PARSE_DOWNLOAD_CONSTRUCTOR_H
 #define LIBTORRENT_PARSE_DOWNLOAD_CONSTRUCTOR_H
 
+#include <cinttypes>
 #include <list>
 #include <string>
-#include <cinttypes>
 
 namespace torrent {
 
@@ -52,39 +52,48 @@ typedef std::list<std::string> EncodingList;
 
 class DownloadConstructor {
 public:
-  DownloadConstructor() : m_download(NULL), m_encodingList(NULL) {}
+  DownloadConstructor()
+    : m_download(NULL)
+    , m_encodingList(NULL) {}
 
-  void                initialize(Object& b);
+  void initialize(Object& b);
 
-  void                parse_tracker(const Object& b);
+  void parse_tracker(const Object& b);
 
-  void                set_download(DownloadWrapper* d)         { m_download = d; }
-  void                set_encoding_list(const EncodingList* e) { m_encodingList = e; }
+  void set_download(DownloadWrapper* d) {
+    m_download = d;
+  }
+  void set_encoding_list(const EncodingList* e) {
+    m_encodingList = e;
+  }
 
-private:  
-  void                parse_name(const Object& b);
-  void                parse_info(const Object& b);
-  void                parse_magnet_uri(Object& b, const std::string& uri);
+private:
+  void parse_name(const Object& b);
+  void parse_info(const Object& b);
+  void parse_magnet_uri(Object& b, const std::string& uri);
 
-  void                add_tracker_group(const Object& b);
-  void                add_tracker_single(const Object& b, int group);
-  void                add_dht_node(const Object& b);
+  void add_tracker_group(const Object& b);
+  void add_tracker_single(const Object& b, int group);
+  void add_dht_node(const Object& b);
 
-  static bool         is_valid_path_element(const Object& b);
-  static bool         is_invalid_path_element(const Object& b) { return !is_valid_path_element(b); }
+  static bool is_valid_path_element(const Object& b);
+  static bool is_invalid_path_element(const Object& b) {
+    return !is_valid_path_element(b);
+  }
 
-  void                parse_single_file(const Object& b, uint32_t chunkSize);
-  void                parse_multi_files(const Object& b, uint32_t chunkSize);
+  void parse_single_file(const Object& b, uint32_t chunkSize);
+  void parse_multi_files(const Object& b, uint32_t chunkSize);
 
-  inline Path         create_path(const Object::list_type& plist, const std::string enc);
-  inline Path         choose_path(std::list<Path>* pathList);
+  inline Path create_path(const Object::list_type& plist,
+                          const std::string        enc);
+  inline Path choose_path(std::list<Path>* pathList);
 
   DownloadWrapper*    m_download;
   const EncodingList* m_encodingList;
 
-  std::string         m_defaultEncoding;
+  std::string m_defaultEncoding;
 };
 
-}
+} // namespace torrent
 
 #endif

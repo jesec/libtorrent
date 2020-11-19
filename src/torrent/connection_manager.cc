@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -52,14 +52,18 @@ namespace torrent {
 
 // Fix TrackerUdp, etc, if this is made async.
 static ConnectionManager::slot_resolver_result_type*
-resolve_host(const char* host, int family, int socktype, ConnectionManager::slot_resolver_result_type slot) {
+resolve_host(const char*                                  host,
+             int                                          family,
+             int                                          socktype,
+             ConnectionManager::slot_resolver_result_type slot) {
   if (manager->main_thread_main()->is_current())
     thread_base::release_global_lock();
 
   rak::address_info* ai;
-  int err;
+  int                err;
 
-  if ((err = rak::address_info::get_address_info(host, family, socktype, &ai)) != 0) {
+  if ((err = rak::address_info::get_address_info(
+         host, family, socktype, &ai)) != 0) {
     if (manager->main_thread_main()->is_current())
       thread_base::acquire_global_lock();
 
@@ -70,28 +74,30 @@ resolve_host(const char* host, int family, int socktype, ConnectionManager::slot
   rak::socket_address sa;
   sa.copy(*ai->address(), ai->length());
   rak::address_info::free_address_info(ai);
-  
+
   if (manager->main_thread_main()->is_current())
     thread_base::acquire_global_lock();
-  
+
   slot(sa.c_sockaddr(), 0);
   return NULL;
 }
 
-ConnectionManager::ConnectionManager() :
-  m_size(0),
-  m_maxSize(0),
+ConnectionManager::ConnectionManager()
+  : m_size(0)
+  , m_maxSize(0)
+  ,
 
-  m_priority(iptos_throughput),
-  m_sendBufferSize(0),
-  m_receiveBufferSize(0),
-  m_encryptionOptions(encryption_none),
+  m_priority(iptos_throughput)
+  , m_sendBufferSize(0)
+  , m_receiveBufferSize(0)
+  , m_encryptionOptions(encryption_none)
+  ,
 
-  m_listen(new Listen),
-  m_listen_port(0),
-  m_listen_backlog(SOMAXCONN) {
+  m_listen(new Listen)
+  , m_listen_port(0)
+  , m_listen_backlog(SOMAXCONN) {
 
-  m_bindAddress = (new rak::socket_address())->c_sockaddr();
+  m_bindAddress  = (new rak::socket_address())->c_sockaddr();
   m_localAddress = (new rak::socket_address())->c_sockaddr();
   m_proxyAddress = (new rak::socket_address())->c_sockaddr();
 
@@ -143,7 +149,8 @@ ConnectionManager::set_bind_address(const sockaddr* sa) {
   const rak::socket_address* rsa = rak::socket_address::cast_from(sa);
 
   if (rsa->family() != rak::socket_address::af_inet)
-    throw input_error("Tried to set a bind address that is not an af_inet address.");
+    throw input_error(
+      "Tried to set a bind address that is not an af_inet address.");
 
   rak::socket_address::cast_from(m_bindAddress)->copy(*rsa, rsa->length());
 }
@@ -153,7 +160,8 @@ ConnectionManager::set_local_address(const sockaddr* sa) {
   const rak::socket_address* rsa = rak::socket_address::cast_from(sa);
 
   if (rsa->family() != rak::socket_address::af_inet)
-    throw input_error("Tried to set a local address that is not an af_inet address.");
+    throw input_error(
+      "Tried to set a local address that is not an af_inet address.");
 
   rak::socket_address::cast_from(m_localAddress)->copy(*rsa, rsa->length());
 }
@@ -163,7 +171,8 @@ ConnectionManager::set_proxy_address(const sockaddr* sa) {
   const rak::socket_address* rsa = rak::socket_address::cast_from(sa);
 
   if (rsa->family() != rak::socket_address::af_inet)
-    throw input_error("Tried to set a proxy address that is not an af_inet address.");
+    throw input_error(
+      "Tried to set a proxy address that is not an af_inet address.");
 
   rak::socket_address::cast_from(m_proxyAddress)->copy(*rsa, rsa->length());
 }
@@ -178,7 +187,10 @@ ConnectionManager::filter(const sockaddr* sa) {
 
 bool
 ConnectionManager::listen_open(port_type begin, port_type end) {
-  if (!m_listen->open(begin, end, m_listen_backlog, rak::socket_address::cast_from(m_bindAddress)))
+  if (!m_listen->open(begin,
+                      end,
+                      m_listen_backlog,
+                      rak::socket_address::cast_from(m_bindAddress)))
     return false;
 
   m_listen_port = m_listen->port();
@@ -202,4 +214,4 @@ ConnectionManager::set_listen_backlog(int v) {
   m_listen_backlog = v;
 }
 
-}
+} // namespace torrent

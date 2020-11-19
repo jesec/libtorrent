@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -53,22 +53,28 @@ namespace torrent {
 
 Block::~Block() noexcept(false) {
   if (m_state != STATE_INCOMPLETE && m_state != STATE_COMPLETED)
-    throw internal_error("Block dtor with 'm_state != STATE_INCOMPLETE && m_state != STATE_COMPLETED'");
+    throw internal_error("Block dtor with 'm_state != STATE_INCOMPLETE && "
+                         "m_state != STATE_COMPLETED'");
 
   if (m_state == STATE_COMPLETED) {
     if (m_leader == NULL)
-      throw internal_error("Block dtor with 'm_state == STATE_COMPLETED && m_leader == NULL'");
+      throw internal_error(
+        "Block dtor with 'm_state == STATE_COMPLETED && m_leader == NULL'");
 
     m_leader->set_peer_info(NULL);
   }
 
   m_leader = NULL;
-  m_state = STATE_INVALID;
+  m_state  = STATE_INVALID;
 
-  std::for_each(m_queued.begin(), m_queued.end(), std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(m_queued.begin(),
+                m_queued.end(),
+                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
   m_queued.clear();
 
-  std::for_each(m_transfers.begin(), m_transfers.end(), std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(m_transfers.begin(),
+                m_transfers.end(),
+                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
   m_transfers.clear();
 
   if (m_notStalled != 0)
@@ -80,11 +86,13 @@ Block::~Block() noexcept(false) {
 BlockTransfer*
 Block::insert(PeerInfo* peerInfo) {
   if (find_queued(peerInfo) || find_transfer(peerInfo))
-    throw internal_error("Block::insert(...) find_queued(peerInfo) || find_transfer(peerInfo).");
+    throw internal_error(
+      "Block::insert(...) find_queued(peerInfo) || find_transfer(peerInfo).");
 
   m_notStalled++;
 
-  transfer_list_type::iterator itr = m_queued.insert(m_queued.end(), new BlockTransfer());
+  transfer_list_type::iterator itr =
+    m_queued.insert(m_queued.end(), new BlockTransfer());
 
   (*itr)->set_peer_info(peerInfo);
   (*itr)->set_block(this);
@@ -97,7 +105,7 @@ Block::insert(PeerInfo* peerInfo) {
 
   return (*itr);
 }
-  
+
 void
 Block::erase(BlockTransfer* transfer) {
   if (transfer->is_erased())
@@ -109,7 +117,8 @@ Block::erase(BlockTransfer* transfer) {
   m_notStalled -= transfer->stall() == 0;
 
   if (transfer->is_queued()) {
-    transfer_list_type::iterator itr = std::find(m_queued.begin(), m_queued.end(), transfer);
+    transfer_list_type::iterator itr =
+      std::find(m_queued.begin(), m_queued.end(), transfer);
 
     if (itr == m_queued.end())
       throw internal_error("Block::erase(...) Could not find transfer.");
@@ -117,7 +126,8 @@ Block::erase(BlockTransfer* transfer) {
     m_queued.erase(itr);
 
   } else if (!transfer->is_finished()) {
-    transfer_list_type::iterator itr = std::find(m_transfers.begin(), m_transfers.end(), transfer);
+    transfer_list_type::iterator itr =
+      std::find(m_transfers.begin(), m_transfers.end(), transfer);
 
     if (itr == m_transfers.end())
       throw internal_error("Block::erase(...) Could not find transfer.");
@@ -128,7 +138,8 @@ Block::erase(BlockTransfer* transfer) {
     if (transfer == m_leader) {
 
       if (m_state == STATE_COMPLETED)
-        throw internal_error("Block::erase with 'transfer == m_transfer && m_state == STATE_COMPLETED'");
+        throw internal_error("Block::erase with 'transfer == m_transfer && "
+                             "m_state == STATE_COMPLETED'");
 
       // When the leader is erased then any non-leading transfer must
       // be promoted. These non-leading transfers are guaranteed to
@@ -138,10 +149,18 @@ Block::erase(BlockTransfer* transfer) {
       // Create a range containing transfers with
       // is_not_leader(). Erased transfer will end up in the back.
 
-      transfer_list_type::iterator first = std::find_if(m_transfers.begin(), m_transfers.end(), std::not1(std::mem_fun(&BlockTransfer::is_leader)));
-      transfer_list_type::iterator last = std::stable_partition(first, m_transfers.end(), std::mem_fun(&BlockTransfer::is_not_leader));
+      transfer_list_type::iterator first =
+        std::find_if(m_transfers.begin(),
+                     m_transfers.end(),
+                     std::not1(std::mem_fun(&BlockTransfer::is_leader)));
+      transfer_list_type::iterator last = std::stable_partition(
+        first, m_transfers.end(), std::mem_fun(&BlockTransfer::is_not_leader));
 
-      transfer_list_type::iterator newLeader = std::max_element(first, last, rak::less2(std::mem_fun(&BlockTransfer::position), std::mem_fun(&BlockTransfer::position)));
+      transfer_list_type::iterator newLeader =
+        std::max_element(first,
+                         last,
+                         rak::less2(std::mem_fun(&BlockTransfer::position),
+                                    std::mem_fun(&BlockTransfer::position)));
 
       if (newLeader != last) {
         m_leader = *newLeader;
@@ -172,7 +191,8 @@ Block::transfering(BlockTransfer* transfer) {
   if (!transfer->is_valid())
     throw internal_error("Block::transfering(...) transfer->block() == NULL.");
 
-  transfer_list_type::iterator itr = std::find(m_queued.begin(), m_queued.end(), transfer);
+  transfer_list_type::iterator itr =
+    std::find(m_queued.begin(), m_queued.end(), transfer);
 
   if (itr == m_queued.end())
     throw internal_error("Block::transfering(...) not queued.");
@@ -219,7 +239,10 @@ Block::completed(BlockTransfer* transfer) {
 
   m_parent->inc_finished();
 
-  if ((Block::size_type)std::count_if(m_parent->begin(), m_parent->end(), std::mem_fun_ref(&Block::is_finished)) < m_parent->finished())
+  if ((Block::size_type)std::count_if(m_parent->begin(),
+                                      m_parent->end(),
+                                      std::mem_fun_ref(&Block::is_finished)) <
+      m_parent->finished())
     throw internal_error("Block::completed(...) Finished blocks too large.");
 
   m_notStalled -= transfer->stall() == 0;
@@ -232,17 +255,20 @@ Block::completed(BlockTransfer* transfer) {
   // Block::transfering(...). But that would propably not be correct
   // as we want to trigger cancel messages from here, as hash fail is
   // a rare occurrence.
-  std::for_each(m_queued.begin(), m_queued.end(), std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(m_queued.begin(),
+                m_queued.end(),
+                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
   m_queued.clear();
 
   // We need to invalidate those unfinished and keep the one that
   // finished for later reference.
   remove_non_leader_transfers();
-  
+
   // We now know that all transfers except the current leader we're
   // handling has been invalidated.
   if (m_transfers.empty() || m_transfers.back() != transfer)
-    throw internal_error("Block::completed(...) m_transfers.empty() || m_transfers.back() != transfer.");
+    throw internal_error("Block::completed(...) m_transfers.empty() || "
+                         "m_transfers.back() != transfer.");
 
   m_state = STATE_COMPLETED;
 
@@ -261,14 +287,15 @@ Block::retry_transfer() {
 void
 Block::transfer_dissimilar(BlockTransfer* transfer) {
   if (!transfer->is_not_leader() || m_leader == transfer)
-    throw internal_error("Block::transfer_dissimilar(...) transfer is the leader.");
+    throw internal_error(
+      "Block::transfer_dissimilar(...) transfer is the leader.");
 
   m_notStalled -= transfer->stall() == 0;
 
   // Why not just delete? Gets done by completed(), though when
   // erasing the leader we need to remove dissimilar unless we have
   // another leader.
-  
+
   transfer->set_state(BlockTransfer::STATE_ERASED);
   transfer->set_position(0);
   transfer->set_block(NULL);
@@ -315,7 +342,9 @@ Block::failed_leader() {
 }
 
 void
-Block::create_dummy(BlockTransfer* transfer, PeerInfo* peerInfo, const Piece& piece) {
+Block::create_dummy(BlockTransfer* transfer,
+                    PeerInfo*      peerInfo,
+                    const Piece&   piece) {
   transfer->set_peer_info(peerInfo);
 
   transfer->set_block(NULL);
@@ -345,7 +374,8 @@ Block::release(BlockTransfer* transfer) {
 void
 Block::invalidate_transfer(BlockTransfer* transfer) {
   if (transfer == m_leader)
-    throw internal_error("Block::invalidate_transfer(...) transfer == m_leader.");
+    throw internal_error(
+      "Block::invalidate_transfer(...) transfer == m_leader.");
 
   // Check if the block is this.
 
@@ -358,30 +388,43 @@ Block::invalidate_transfer(BlockTransfer* transfer) {
 
   m_notStalled -= (transfer->stall() == 0);
 
-  // Do the canceling magic here. 
+  // Do the canceling magic here.
   if (transfer->peer_info()->connection() != NULL)
     transfer->peer_info()->connection()->cancel_transfer(transfer);
 }
 
 void
 Block::remove_erased_transfers() {
-  transfer_list_type::iterator split = std::stable_partition(m_transfers.begin(), m_transfers.end(), std::not1(std::mem_fun(&BlockTransfer::is_erased)));
+  transfer_list_type::iterator split =
+    std::stable_partition(m_transfers.begin(),
+                          m_transfers.end(),
+                          std::not1(std::mem_fun(&BlockTransfer::is_erased)));
 
-  std::for_each(split, m_transfers.end(), std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(split,
+                m_transfers.end(),
+                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
   m_transfers.erase(split, m_transfers.end());
 }
 
 void
 Block::remove_non_leader_transfers() {
-  transfer_list_type::iterator split = std::stable_partition(m_transfers.begin(), m_transfers.end(), std::mem_fun(&BlockTransfer::is_leader));
+  transfer_list_type::iterator split =
+    std::stable_partition(m_transfers.begin(),
+                          m_transfers.end(),
+                          std::mem_fun(&BlockTransfer::is_leader));
 
-  std::for_each(split, m_transfers.end(), std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(split,
+                m_transfers.end(),
+                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
   m_transfers.erase(split, m_transfers.end());
 }
 
 BlockTransfer*
 Block::find_queued(const PeerInfo* p) {
-  transfer_list_type::iterator itr = std::find_if(m_queued.begin(), m_queued.end(), rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
+  transfer_list_type::iterator itr =
+    std::find_if(m_queued.begin(),
+                 m_queued.end(),
+                 rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
 
   if (itr == m_queued.end())
     return NULL;
@@ -391,7 +434,10 @@ Block::find_queued(const PeerInfo* p) {
 
 const BlockTransfer*
 Block::find_queued(const PeerInfo* p) const {
-  transfer_list_type::const_iterator itr = std::find_if(m_queued.begin(), m_queued.end(), rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
+  transfer_list_type::const_iterator itr =
+    std::find_if(m_queued.begin(),
+                 m_queued.end(),
+                 rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
 
   if (itr == m_queued.end())
     return NULL;
@@ -401,7 +447,10 @@ Block::find_queued(const PeerInfo* p) const {
 
 BlockTransfer*
 Block::find_transfer(const PeerInfo* p) {
-  transfer_list_type::iterator itr = std::find_if(m_transfers.begin(), m_transfers.end(), rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
+  transfer_list_type::iterator itr =
+    std::find_if(m_transfers.begin(),
+                 m_transfers.end(),
+                 rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
 
   if (itr == m_transfers.end())
     return NULL;
@@ -411,7 +460,10 @@ Block::find_transfer(const PeerInfo* p) {
 
 const BlockTransfer*
 Block::find_transfer(const PeerInfo* p) const {
-  transfer_list_type::const_iterator itr = std::find_if(m_transfers.begin(), m_transfers.end(), rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
+  transfer_list_type::const_iterator itr =
+    std::find_if(m_transfers.begin(),
+                 m_transfers.end(),
+                 rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
 
   if (itr == m_transfers.end())
     return NULL;
@@ -419,4 +471,4 @@ Block::find_transfer(const PeerInfo* p) const {
     return *itr;
 }
 
-}
+} // namespace torrent

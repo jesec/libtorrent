@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -36,13 +36,13 @@
 
 #include "config.h"
 
-#include <sstream>
 #include <cstdio>
+#include <sstream>
 
 #include "dht/dht_router.h"
 #include "torrent/connection_manager.h"
-#include "torrent/download_info.h"
 #include "torrent/dht_manager.h"
+#include "torrent/download_info.h"
 #include "torrent/exceptions.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
@@ -56,11 +56,14 @@ namespace torrent {
 
 const char* TrackerDht::states[] = { "Idle", "Searching", "Announcing" };
 
-bool TrackerDht::is_allowed() { return manager->dht_manager()->is_valid(); }
+bool
+TrackerDht::is_allowed() {
+  return manager->dht_manager()->is_valid();
+}
 
-TrackerDht::TrackerDht(TrackerList* parent, const std::string& url, int flags) :
-  Tracker(parent, url, flags),
-  m_state(state_idle) {
+TrackerDht::TrackerDht(TrackerList* parent, const std::string& url, int flags)
+  : Tracker(parent, url, flags)
+  , m_state(state_idle) {
 
   if (!manager->dht_manager()->is_valid())
     throw internal_error("Trying to add DHT tracker with no DHT manager.");
@@ -84,13 +87,15 @@ TrackerDht::is_usable() const {
 void
 TrackerDht::send_state(int state) {
   if (m_parent == NULL)
-    throw internal_error("TrackerDht::send_state(...) does not have a valid m_parent.");
+    throw internal_error(
+      "TrackerDht::send_state(...) does not have a valid m_parent.");
 
   if (is_busy()) {
     manager->dht_manager()->router()->cancel_announce(m_parent->info(), this);
 
     if (is_busy())
-      throw internal_error("TrackerDht::send_state cancel_announce did not cancel announce.");
+      throw internal_error(
+        "TrackerDht::send_state cancel_announce did not cancel announce.");
   }
 
   m_latest_event = state;
@@ -158,7 +163,7 @@ TrackerDht::receive_progress(int replied, int contacted) {
   if (!is_busy())
     throw internal_error("TrackerDht::receive_status called while not busy.");
 
-  m_replied = replied;
+  m_replied   = replied;
   m_contacted = contacted;
 }
 
@@ -166,8 +171,13 @@ void
 TrackerDht::get_status(char* buffer, int length) {
   if (!is_busy())
     throw internal_error("TrackerDht::get_status called while not busy.");
-  
-  snprintf(buffer, length, "[%s: %d/%d nodes replied]", states[m_state], m_replied, m_contacted);
+
+  snprintf(buffer,
+           length,
+           "[%s: %d/%d nodes replied]",
+           states[m_state],
+           m_replied,
+           m_contacted);
 }
 
-}
+} // namespace torrent

@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -54,7 +54,7 @@ path_expand(const std::string& path) {
 
   if (home == NULL)
     return path;
-  
+
   return home + path.substr(1);
 }
 
@@ -62,8 +62,8 @@ path_expand(const std::string& path) {
 //
 // Same strlcpy as found in *bsd.
 inline size_t
-strlcpy(char *dest, const char *src, size_t size) {
-  size_t n = size;
+strlcpy(char* dest, const char* src, size_t size) {
+  size_t      n     = size;
   const char* first = src;
 
   if (n != 0) {
@@ -75,7 +75,7 @@ strlcpy(char *dest, const char *src, size_t size) {
   if (n == 0) {
     if (size != 0)
       *dest = '\0';
-    
+
     while (*src++)
       ;
   }
@@ -99,9 +99,10 @@ path_expand(const char* src, char* first, char* last) {
     src++;
   }
 
-  return std::min(first + strlcpy(first, src, std::distance(first, last)), last);
+  return std::min(first + strlcpy(first, src, std::distance(first, last)),
+                  last);
 }
 
-}
+} // namespace rak
 
 #endif

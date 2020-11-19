@@ -1,14 +1,14 @@
 #include "config.h"
 
-#include <sstream>
-#include <cppunit/extensions/HelperMacros.h>
 #include "torrent/object_stream.h"
+#include <cppunit/extensions/HelperMacros.h>
+#include <sstream>
 
 #include "object_test_utils.h"
 
 torrent::Object
 create_bencode(const char* str) {
-  torrent::Object obj;
+  torrent::Object   obj;
   std::stringstream stream(str);
 
   stream >> obj;
@@ -20,7 +20,7 @@ create_bencode(const char* str) {
 torrent::Object
 create_bencode_c(const char* str) {
   torrent::Object obj;
-  const char* last = str + strlen(str);
+  const char*     last = str + strlen(str);
 
   CPPUNIT_ASSERT(object_read_bencode_c(str, last, &obj) == last);
   return obj;
@@ -51,7 +51,9 @@ validate_bencode(const char* first, const char* last) {
 }
 
 bool
-compare_bencode(const torrent::Object& obj, const char* str, uint32_t skip_mask) {
+compare_bencode(const torrent::Object& obj,
+                const char*            str,
+                uint32_t               skip_mask) {
   char buffer[256];
   std::memset(buffer, 0, 256);
   torrent::object_write_bencode(buffer, buffer + 256, &obj, skip_mask);

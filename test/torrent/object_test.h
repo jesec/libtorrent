@@ -23,4 +23,3 @@ public:
 
   void test_create_normal();
 };
-

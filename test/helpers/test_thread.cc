@@ -2,8 +2,8 @@
 
 #import "test_thread.h"
 
-#import <unistd.h>
 #import <cppunit/extensions/HelperMacros.h>
+#import <unistd.h>
 
 #import "thread_disk.h"
 #import "torrent/exceptions.h"
@@ -19,21 +19,21 @@ const int test_thread::test_flag_do_work;
 const int test_thread::test_flag_pre_poke;
 const int test_thread::test_flag_post_poke;
 
-test_thread::test_thread() :
-  m_test_state(TEST_NONE),
-  m_test_flags(0) {
-}
+test_thread::test_thread()
+  : m_test_state(TEST_NONE)
+  , m_test_flags(0) {}
 
 void
 test_thread::init_thread() {
-  m_state = STATE_INITIALIZED;
+  m_state      = STATE_INITIALIZED;
   m_test_state = TEST_PRE_START;
-  m_poll = torrent::PollSelect::create(256);
+  m_poll       = torrent::PollSelect::create(256);
 }
 
 void
 test_thread::call_events() {
-  if ((m_test_flags & test_flag_pre_stop) && m_test_state == TEST_PRE_START && m_state == STATE_ACTIVE)
+  if ((m_test_flags & test_flag_pre_stop) && m_test_state == TEST_PRE_START &&
+      m_state == STATE_ACTIVE)
     __sync_lock_test_and_set(&m_test_state, TEST_PRE_STOP);
 
   if ((m_test_flags & test_flag_acquire_global)) {

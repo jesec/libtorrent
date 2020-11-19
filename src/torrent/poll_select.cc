@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,8 +39,8 @@
 #include <algorithm>
 
 #include <stdexcept>
-#include <unistd.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include "net/socket_set.h"
 #include "rak/allocators.h"
@@ -48,24 +48,31 @@
 #include "event.h"
 #include "exceptions.h"
 #include "poll_select.h"
-#include "torrent.h"
-#include "rak/timer.h"
 #include "rak/error_number.h"
+#include "rak/timer.h"
+#include "torrent.h"
 #include "utils/log.h"
 #include "utils/thread_base.h"
 
-#define LT_LOG_EVENT(event, log_level, log_fmt, ...)                    \
-  lt_log_print(LOG_SOCKET_##log_level, "select->%s(%i): " log_fmt, event->type_name(), event->file_descriptor(), __VA_ARGS__);
+#define LT_LOG_EVENT(event, log_level, log_fmt, ...)                           \
+  lt_log_print(LOG_SOCKET_##log_level,                                         \
+               "select->%s(%i): " log_fmt,                                     \
+               event->type_name(),                                             \
+               event->file_descriptor(),                                       \
+               __VA_ARGS__);
 
 namespace torrent {
 
 Poll::slot_poll Poll::m_slot_create_poll;
 
-template <typename _Operation>
+template<typename _Operation>
 struct poll_check_t {
-  poll_check_t(Poll* p, fd_set* s, _Operation op) : m_poll(p), m_set(s), m_op(op) {}
+  poll_check_t(Poll* p, fd_set* s, _Operation op)
+    : m_poll(p)
+    , m_set(s)
+    , m_op(op) {}
 
-  bool operator () (Event* s) {
+  bool operator()(Event* s) {
     // This check is nessesary as other events may remove a socket
     // from the set.
     if (s == NULL)
@@ -81,7 +88,8 @@ struct poll_check_t {
       // We waive the global lock after an event has been processed in
       // order to ensure that 's' doesn't get removed before the op is
       // called.
-      if ((m_poll->flags() & Poll::flag_waive_global_lock) && thread_base::global_queue_size() != 0)
+      if ((m_poll->flags() & Poll::flag_waive_global_lock) &&
+          thread_base::global_queue_size() != 0)
         thread_base::waive_global_lock();
 
       return true;
@@ -95,16 +103,18 @@ struct poll_check_t {
   _Operation m_op;
 };
 
-template <typename _Operation>
+template<typename _Operation>
 inline poll_check_t<_Operation>
 poll_check(Poll* p, fd_set* s, _Operation op) {
   return poll_check_t<_Operation>(p, s, op);
 }
 
 struct poll_mark {
-  poll_mark(fd_set* s, unsigned int* m) : m_max(m), m_set(s) {}
+  poll_mark(fd_set* s, unsigned int* m)
+    : m_max(m)
+    , m_set(s) {}
 
-  void operator () (Event* s) {
+  void operator()(Event* s) {
     // Neither of these checks are nessesary, just for debugging.
     if (s == NULL)
       throw internal_error("poll_mark: s == NULL");
@@ -117,14 +127,15 @@ struct poll_mark {
     FD_SET(s->file_descriptor(), m_set);
   }
 
-  unsigned int*       m_max;
-  fd_set*             m_set;
+  unsigned int* m_max;
+  fd_set*       m_set;
 };
 
 PollSelect*
 PollSelect::create(int maxOpenSockets) {
   if (maxOpenSockets <= 0)
-    throw internal_error("PollSelect::set_open_max(...) received an invalid value");
+    throw internal_error(
+      "PollSelect::set_open_max(...) received an invalid value");
 
   // Just a temp hack, make some special template function for this...
   //
@@ -132,18 +143,18 @@ PollSelect::create(int maxOpenSockets) {
   // allocators.
   struct block_type {
     PollSelect t1;
-    SocketSet t2;
-    SocketSet t3;
-    SocketSet t4;
+    SocketSet  t2;
+    SocketSet  t3;
+    SocketSet  t4;
   };
 
   rak::cacheline_allocator<Block*> cl_alloc;
-  block_type* block = new (cl_alloc) block_type;
+  block_type*                      block = new (cl_alloc) block_type;
 
   PollSelect* p = new (&block->t1) PollSelect;
 
-  p->m_readSet = new (&block->t2) SocketSet;
-  p->m_writeSet = new (&block->t3) SocketSet;
+  p->m_readSet   = new (&block->t2) SocketSet;
+  p->m_writeSet  = new (&block->t3) SocketSet;
   p->m_exceptSet = new (&block->t4) SocketSet;
 
   p->m_readSet->reserve(maxOpenSockets);
@@ -160,21 +171,25 @@ PollSelect::~PollSelect() noexcept(false) {
 
   // Re-add this check when you've cleaned up the client shutdown procedure.
   if (!m_readSet->empty() || !m_writeSet->empty() || !m_exceptSet->empty()) {
-    throw internal_error("PollSelect::~PollSelect() called but the sets are not empty");
+    throw internal_error(
+      "PollSelect::~PollSelect() called but the sets are not empty");
 
-    // for (SocketSet::const_iterator itr = m_readSet->begin(); itr != m_readSet->end(); itr++)
+    // for (SocketSet::const_iterator itr = m_readSet->begin(); itr !=
+    // m_readSet->end(); itr++)
     //   std::cout << "R" << (*itr)->file_descriptor() << std::endl;
 
-    // for (SocketSet::const_iterator itr = m_writeSet->begin(); itr != m_writeSet->end(); itr++)
+    // for (SocketSet::const_iterator itr = m_writeSet->begin(); itr !=
+    // m_writeSet->end(); itr++)
     //   std::cout << "W" << (*itr)->file_descriptor() << std::endl;
 
-    // for (SocketSet::const_iterator itr = m_exceptSet->begin(); itr != m_exceptSet->end(); itr++)
+    // for (SocketSet::const_iterator itr = m_exceptSet->begin(); itr !=
+    // m_exceptSet->end(); itr++)
     //   std::cout << "E" << (*itr)->file_descriptor() << std::endl;
   }
 
-//   delete m_readSet;
-//   delete m_writeSet;
-//   delete m_exceptSet;
+  //   delete m_readSet;
+  //   delete m_writeSet;
+  //   delete m_exceptSet;
 
   m_readSet = m_writeSet = m_exceptSet = NULL;
 }
@@ -189,13 +204,16 @@ PollSelect::fdset(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet) {
   unsigned int maxFd = 0;
 
   m_readSet->prepare();
-  std::for_each(m_readSet->begin(), m_readSet->end(), poll_mark(readSet, &maxFd));
+  std::for_each(
+    m_readSet->begin(), m_readSet->end(), poll_mark(readSet, &maxFd));
 
   m_writeSet->prepare();
-  std::for_each(m_writeSet->begin(), m_writeSet->end(), poll_mark(writeSet, &maxFd));
-  
+  std::for_each(
+    m_writeSet->begin(), m_writeSet->end(), poll_mark(writeSet, &maxFd));
+
   m_exceptSet->prepare();
-  std::for_each(m_exceptSet->begin(), m_exceptSet->end(), poll_mark(exceptSet, &maxFd));
+  std::for_each(
+    m_exceptSet->begin(), m_exceptSet->end(), poll_mark(exceptSet, &maxFd));
 
   return maxFd;
 }
@@ -207,16 +225,22 @@ PollSelect::perform(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet) {
   // Make sure we don't do read/write on fd's that are in except. This should
   // not be a problem as any except call should remove it from the m_*Set's.
   m_exceptSet->prepare();
-  count += std::count_if(m_exceptSet->begin(), m_exceptSet->end(),
-                         poll_check(this, exceptSet, std::mem_fun(&Event::event_error)));
+  count += std::count_if(
+    m_exceptSet->begin(),
+    m_exceptSet->end(),
+    poll_check(this, exceptSet, std::mem_fun(&Event::event_error)));
 
   m_readSet->prepare();
-  count += std::count_if(m_readSet->begin(), m_readSet->end(),
-                         poll_check(this, readSet, std::mem_fun(&Event::event_read)));
+  count +=
+    std::count_if(m_readSet->begin(),
+                  m_readSet->end(),
+                  poll_check(this, readSet, std::mem_fun(&Event::event_read)));
 
   m_writeSet->prepare();
-  count += std::count_if(m_writeSet->begin(), m_writeSet->end(),
-                         poll_check(this, writeSet, std::mem_fun(&Event::event_write)));
+  count += std::count_if(
+    m_writeSet->begin(),
+    m_writeSet->end(),
+    poll_check(this, writeSet, std::mem_fun(&Event::event_write)));
 
   return count;
 }
@@ -229,10 +253,10 @@ PollSelect::do_poll(int64_t timeout_usec, int flags) {
 
   uint32_t set_size = open_max();
 
-  char read_set_buffer[set_size];
-  char write_set_buffer[set_size];
-  char error_set_buffer[set_size];
-  fd_set* read_set = (fd_set*)read_set_buffer;
+  char    read_set_buffer[set_size];
+  char    write_set_buffer[set_size];
+  char    error_set_buffer[set_size];
+  fd_set* read_set  = (fd_set*)read_set_buffer;
   fd_set* write_set = (fd_set*)write_set_buffer;
   fd_set* error_set = (fd_set*)error_set_buffer;
   std::memset(read_set_buffer, 0, set_size);
@@ -240,7 +264,7 @@ PollSelect::do_poll(int64_t timeout_usec, int flags) {
   std::memset(error_set_buffer, 0, set_size);
 
   unsigned int maxFd = fdset(read_set, write_set, error_set);
-  timeval t = timeout.tval();
+  timeval      t     = timeout.tval();
 
   if (!(flags & poll_worker_thread)) {
     thread_base::entering_main_polling();
@@ -256,7 +280,9 @@ PollSelect::do_poll(int64_t timeout_usec, int flags) {
 
   if (status == -1) {
     if (rak::error_number::current().value() != rak::error_number::e_intr) {
-      throw std::runtime_error("PollSelect::work(): " + std::string(rak::error_number::current().c_str()));
+      throw std::runtime_error(
+        "PollSelect::work(): " +
+        std::string(rak::error_number::current().c_str()));
     }
 
     return 0;
@@ -269,18 +295,16 @@ PollSelect::do_poll(int64_t timeout_usec, int flags) {
 inline static void
 log_poll_open(Event* event) {
   static int log_fd = -1;
-  char buffer[256];
+  char       buffer[256];
 
   if (log_fd == -1) {
     snprintf(buffer, 256, LT_LOG_POLL_OPEN, getpid());
-    
+
     if ((log_fd = open(buffer, O_WRONLY | O_CREAT | O_TRUNC)) == -1)
       throw internal_error("Could not open poll open log file.");
   }
 
-  unsigned int buf_lenght = snprintf(buffer, 256, "open %i\n",
-                                     event->fd());
-
+  unsigned int buf_lenght = snprintf(buffer, 256, "open %i\n", event->fd());
 }
 #endif
 
@@ -289,7 +313,8 @@ PollSelect::open(Event* event) {
   LT_LOG_EVENT(event, DEBUG, "Open event.", 0);
 
   if ((uint32_t)event->file_descriptor() >= m_readSet->max_size())
-    throw internal_error("Tried to add a socket to PollSelect that is larger than PollSelect::get_open_max()");
+    throw internal_error("Tried to add a socket to PollSelect that is larger "
+                         "than PollSelect::get_open_max()");
 
   if (in_read(event) || in_write(event) || in_error(event))
     throw internal_error("PollSelect::open(...) called on an inserted event");
@@ -300,7 +325,8 @@ PollSelect::close(Event* event) {
   LT_LOG_EVENT(event, DEBUG, "Close event.", 0);
 
   if ((uint32_t)event->file_descriptor() >= m_readSet->max_size())
-    throw internal_error("PollSelect::close(...) called with an invalid file descriptor");
+    throw internal_error(
+      "PollSelect::close(...) called with an invalid file descriptor");
 
   if (in_read(event) || in_write(event) || in_error(event))
     throw internal_error("PollSelect::close(...) called on an inserted event");
@@ -367,4 +393,4 @@ PollSelect::remove_error(Event* event) {
   m_exceptSet->erase(event);
 }
 
-}
+} // namespace torrent

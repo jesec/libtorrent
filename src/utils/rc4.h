@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -53,13 +53,19 @@ namespace torrent {
 
 class RC4 {
 public:
-  RC4()                                                               { }
+  RC4() {}
 
 #ifdef USE_CYRUS_RC4
-  RC4(const unsigned char key[], int len)                             { rc4_init(&m_key, key, len); }
+  RC4(const unsigned char key[], int len) {
+    rc4_init(&m_key, key, len);
+  }
 
-  void crypt(const void* indata, void* outdata, unsigned int length)  { rc4_encrypt(&m_key, (const char*)indata, (char*)outdata, length); }
-  void crypt(void* data, unsigned int length)                         { rc4_encrypt(&m_key, (const char*)data, (char*)data, length); }
+  void crypt(const void* indata, void* outdata, unsigned int length) {
+    rc4_encrypt(&m_key, (const char*)indata, (char*)outdata, length);
+  }
+  void crypt(void* data, unsigned int length) {
+    rc4_encrypt(&m_key, (const char*)data, (char*)data, length);
+  }
 
 private:
   rc4_context_t m_key;
@@ -67,23 +73,30 @@ private:
 #else
 #ifdef USE_OPENSSL
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  RC4(const unsigned char key[], int len)                             { RC4_set_key(&m_key, len, key); }
+  RC4(const unsigned char key[], int len) {
+    RC4_set_key(&m_key, len, key);
+  }
 
-  void crypt(const void* indata, void* outdata, unsigned int length)  { ::RC4(&m_key, length, (const unsigned char*)indata, (unsigned char*)outdata); }
-  void crypt(void* data, unsigned int length)                         { ::RC4(&m_key, length, (unsigned char*)data, (unsigned char*)data); }
+  void crypt(const void* indata, void* outdata, unsigned int length) {
+    ::RC4(
+      &m_key, length, (const unsigned char*)indata, (unsigned char*)outdata);
+  }
+  void crypt(void* data, unsigned int length) {
+    ::RC4(&m_key, length, (unsigned char*)data, (unsigned char*)data);
+  }
 
 private:
   RC4_KEY m_key;
 
 #else
-  RC4(const unsigned char key[], int len) { }
+  RC4(const unsigned char key[], int len) {}
 
-  void crypt(const void* indata, void* outdata, unsigned int length) { }
+  void crypt(const void* indata, void* outdata, unsigned int length) {}
   void crypt(void* data, unsigned int length) {}
 #endif
 #endif
 };
 
-};
+}; // namespace torrent
 
 #endif

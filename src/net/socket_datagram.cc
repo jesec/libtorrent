@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,8 +37,8 @@
 #include "config.h"
 
 #include <cerrno>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 #include "torrent/exceptions.h"
 #include <rak/socket_address.h>
@@ -48,11 +48,13 @@
 namespace torrent {
 
 int
-SocketDatagram::read_datagram(void* buffer, unsigned int length, rak::socket_address* sa) {
+SocketDatagram::read_datagram(void*                buffer,
+                              unsigned int         length,
+                              rak::socket_address* sa) {
   if (length == 0)
     throw internal_error("Tried to receive buffer length 0");
 
-  int r;
+  int       r;
   socklen_t fromlen;
 
   if (sa != NULL) {
@@ -66,7 +68,9 @@ SocketDatagram::read_datagram(void* buffer, unsigned int length, rak::socket_add
 }
 
 int
-SocketDatagram::write_datagram(const void* buffer, unsigned int length, rak::socket_address* sa) {
+SocketDatagram::write_datagram(const void*          buffer,
+                               unsigned int         length,
+                               rak::socket_address* sa) {
   if (length == 0)
     throw internal_error("Tried to send buffer length 0");
 
@@ -75,9 +79,15 @@ SocketDatagram::write_datagram(const void* buffer, unsigned int length, rak::soc
   if (sa != NULL) {
     if (m_ipv6_socket && sa->family() == rak::socket_address::pf_inet) {
       rak::socket_address_inet6 sa_mapped = sa->sa_inet()->to_mapped_address();
-      r = ::sendto(m_fileDesc, buffer, length, 0, sa_mapped.c_sockaddr(), sizeof(rak::socket_address_inet6));
+      r                                   = ::sendto(m_fileDesc,
+                   buffer,
+                   length,
+                   0,
+                   sa_mapped.c_sockaddr(),
+                   sizeof(rak::socket_address_inet6));
     } else {
-      r = ::sendto(m_fileDesc, buffer, length, 0, sa->c_sockaddr(), sa->length());
+      r =
+        ::sendto(m_fileDesc, buffer, length, 0, sa->c_sockaddr(), sa->length());
     }
   } else {
     r = ::send(m_fileDesc, buffer, length, 0);
@@ -86,4 +96,4 @@ SocketDatagram::write_datagram(const void* buffer, unsigned int length, rak::soc
   return r;
 }
 
-}
+} // namespace torrent

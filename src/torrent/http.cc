@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -47,15 +47,15 @@ namespace torrent {
 
 Http::slot_http Http::m_factory;
 
-Http::~Http() {
-}
+Http::~Http() {}
 
 void
 Http::trigger_done() {
   if (signal_done().empty())
-    lt_log_print(LOG_TRACKER_INFO, "Disowned tracker done: url:'%s'.", m_url.c_str());
+    lt_log_print(
+      LOG_TRACKER_INFO, "Disowned tracker done: url:'%s'.", m_url.c_str());
 
-  bool should_delete_self = (m_flags & flag_delete_self);
+  bool should_delete_self   = (m_flags & flag_delete_self);
   bool should_delete_stream = (m_flags & flag_delete_stream);
 
   rak::slot_list_call(signal_done());
@@ -72,9 +72,10 @@ Http::trigger_done() {
 void
 Http::trigger_failed(const std::string& message) {
   if (signal_done().empty())
-    lt_log_print(LOG_TRACKER_INFO, "Disowned tracker failed: url:'%s'.", m_url.c_str());
+    lt_log_print(
+      LOG_TRACKER_INFO, "Disowned tracker failed: url:'%s'.", m_url.c_str());
 
-  bool should_delete_self = (m_flags & flag_delete_self);
+  bool should_delete_self   = (m_flags & flag_delete_self);
   bool should_delete_stream = (m_flags & flag_delete_stream);
 
   rak::slot_list_call(signal_failed(), message);
@@ -88,5 +89,4 @@ Http::trigger_failed(const std::string& message) {
     delete this;
 }
 
-}
-
+} // namespace torrent

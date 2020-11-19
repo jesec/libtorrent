@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -36,19 +36,19 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <rak/socket_address.h>
-#include <sys/types.h>
 #include <errno.h>
+#include <rak/socket_address.h>
+#include <stdio.h>
+#include <sys/types.h>
 
 #ifdef __linux__
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 #endif
 
-#include "torrent/exceptions.h"
-#include "socket_fd.h"
 #include "local_addr.h"
+#include "socket_fd.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 
@@ -91,10 +91,8 @@ get_priority_ipv4(const in_addr& addr) {
 //  5. Everything else (link-local, ULA, etc.)
 int
 get_priority_ipv6(const in6_addr& addr) {
-  const uint32_t *addr32 = reinterpret_cast<const uint32_t *>(addr.s6_addr);
-  if (addr32[0] == htonl(0) &&
-      addr32[1] == htonl(0) &&
-      addr32[2] == htonl(0) &&
+  const uint32_t* addr32 = reinterpret_cast<const uint32_t*>(addr.s6_addr);
+  if (addr32[0] == htonl(0) && addr32[1] == htonl(0) && addr32[2] == htonl(0) &&
       addr32[3] == htonl(0)) {
     return 4;
   }
@@ -113,33 +111,35 @@ get_priority_ipv6(const in6_addr& addr) {
 int
 get_priority(const rak::socket_address& addr) {
   switch (addr.family()) {
-  case AF_INET:
-    return get_priority_ipv4(addr.c_sockaddr_inet()->sin_addr);
-  case AF_INET6:
-    return get_priority_ipv6(addr.c_sockaddr_inet6()->sin6_addr);
-  default:
-    throw torrent::internal_error("Unknown address family given to compare");
+    case AF_INET:
+      return get_priority_ipv4(addr.c_sockaddr_inet()->sin_addr);
+    case AF_INET6:
+      return get_priority_ipv6(addr.c_sockaddr_inet6()->sin6_addr);
+    default:
+      throw torrent::internal_error("Unknown address family given to compare");
   }
 }
 
-}
+} // namespace
 
 // Linux-specific implementation that understands how to filter away
 // understands how to filter away secondary addresses.
-bool get_local_address(sa_family_t family, rak::socket_address *address) {
+bool
+get_local_address(sa_family_t family, rak::socket_address* address) {
   rak::socket_address best_addr;
   switch (family) {
-  case AF_INET:
-    best_addr.sa_inet()->clear();
-    break;
-  case AF_INET6:
-    best_addr.sa_inet6()->clear();
-    break;
-  default:
-    throw torrent::internal_error("Unknown address family given to get_local_address");
+    case AF_INET:
+      best_addr.sa_inet()->clear();
+      break;
+    case AF_INET6:
+      best_addr.sa_inet6()->clear();
+      break;
+    default:
+      throw torrent::internal_error(
+        "Unknown address family given to get_local_address");
   }
 
-  // The bottom bit of the priority is used to hold if the address is 
+  // The bottom bit of the priority is used to hold if the address is
   // a secondary address (e.g. with IPv6 privacy extensions) or not;
   // secondary addresses have lower priority (higher number).
   int best_addr_pri = get_priority(best_addr) * 2;
@@ -153,7 +153,7 @@ bool get_local_address(sa_family_t family, rak::socket_address *address) {
   struct sockaddr_nl nladdr;
   memset(&nladdr, 0, sizeof(nladdr));
   nladdr.nl_family = AF_NETLINK;
-  if (::bind(fd, (sockaddr *)&nladdr, sizeof(nladdr))) {
+  if (::bind(fd, (sockaddr*)&nladdr, sizeof(nladdr))) {
     ::close(fd);
     return false;
   }
@@ -165,16 +165,17 @@ bool get_local_address(sa_family_t family, rak::socket_address *address) {
   } req;
   memset(&req, 0, sizeof(req));
 
-  req.nh.nlmsg_len = sizeof(req);
-  req.nh.nlmsg_type = RTM_GETADDR;
+  req.nh.nlmsg_len   = sizeof(req);
+  req.nh.nlmsg_type  = RTM_GETADDR;
   req.nh.nlmsg_flags = NLM_F_ROOT | NLM_F_MATCH | NLM_F_REQUEST;
-  req.nh.nlmsg_pid = getpid();
-  req.nh.nlmsg_seq = seq_no;
+  req.nh.nlmsg_pid   = getpid();
+  req.nh.nlmsg_seq   = seq_no;
   req.g.rtgen_family = AF_UNSPEC;
 
   int ret;
   do {
-    ret = ::sendto(fd, &req, sizeof(req), 0, (sockaddr *)&nladdr, sizeof(nladdr));
+    ret =
+      ::sendto(fd, &req, sizeof(req), 0, (sockaddr*)&nladdr, sizeof(nladdr));
   } while (ret == -1 && errno == EINTR);
 
   if (ret == -1) {
@@ -184,10 +185,10 @@ bool get_local_address(sa_family_t family, rak::socket_address *address) {
 
   bool done = false;
   do {
-    char buf[4096];
+    char      buf[4096];
     socklen_t len = sizeof(nladdr);
     do {
-      ret = ::recvfrom(fd, buf, sizeof(buf), 0, (sockaddr *)&nladdr, &len);
+      ret = ::recvfrom(fd, buf, sizeof(buf), 0, (sockaddr*)&nladdr, &len);
     } while (ret == -1 && errno == EINTR);
 
     if (ret < 0) {
@@ -195,7 +196,7 @@ bool get_local_address(sa_family_t family, rak::socket_address *address) {
       return false;
     }
 
-    for (const nlmsghdr *nlmsg = (const nlmsghdr *)buf;
+    for (const nlmsghdr* nlmsg = (const nlmsghdr*)buf;
          NLMSG_OK(nlmsg, (unsigned int)ret);
          nlmsg = NLMSG_NEXT(nlmsg, ret)) {
       if (nlmsg->nlmsg_seq != seq_no)
@@ -211,10 +212,10 @@ bool get_local_address(sa_family_t family, rak::socket_address *address) {
       if (nlmsg->nlmsg_type != RTM_NEWADDR)
         continue;
 
-      const ifaddrmsg *ifa = (const ifaddrmsg *)NLMSG_DATA(nlmsg);
+      const ifaddrmsg* ifa = (const ifaddrmsg*)NLMSG_DATA(nlmsg);
 
       if (ifa->ifa_family != family)
-        continue; 
+        continue;
 
 #ifdef IFA_F_OPTIMISTIC
       if ((ifa->ifa_flags & IFA_F_OPTIMISTIC) != 0)
@@ -232,18 +233,16 @@ bool get_local_address(sa_family_t family, rak::socket_address *address) {
       if ((ifa->ifa_flags & IFA_F_TENTATIVE) != 0)
         continue;
 #endif
-  
+
       // Since there can be point-to-point links on the machine, we need to keep
       // track of the addresses we've seen for this interface; if we see both
       // IFA_LOCAL and IFA_ADDRESS for an interface, keep only the IFA_LOCAL.
       rak::socket_address this_addr;
-      bool seen_addr = false;
-      int plen = IFA_PAYLOAD(nlmsg);
-      for (const rtattr *rta = IFA_RTA(ifa);
-           RTA_OK(rta, plen);
-	   rta = RTA_NEXT(rta, plen)) {
-        if (rta->rta_type != IFA_LOCAL &&
-            rta->rta_type != IFA_ADDRESS) {
+      bool                seen_addr = false;
+      int                 plen      = IFA_PAYLOAD(nlmsg);
+      for (const rtattr* rta = IFA_RTA(ifa); RTA_OK(rta, plen);
+           rta               = RTA_NEXT(rta, plen)) {
+        if (rta->rta_type != IFA_LOCAL && rta->rta_type != IFA_ADDRESS) {
           continue;
         }
         if (rta->rta_type == IFA_ADDRESS && seen_addr) {
@@ -251,26 +250,26 @@ bool get_local_address(sa_family_t family, rak::socket_address *address) {
         }
         seen_addr = true;
         switch (ifa->ifa_family) {
-        case AF_INET:
-          this_addr.sa_inet()->clear();
-          this_addr.sa_inet()->set_address(*(const in_addr *)RTA_DATA(rta));
-          break;
-        case AF_INET6:
-          this_addr.sa_inet6()->clear();
-          this_addr.sa_inet6()->set_address(*(const in6_addr *)RTA_DATA(rta));
-          break;
+          case AF_INET:
+            this_addr.sa_inet()->clear();
+            this_addr.sa_inet()->set_address(*(const in_addr*)RTA_DATA(rta));
+            break;
+          case AF_INET6:
+            this_addr.sa_inet6()->clear();
+            this_addr.sa_inet6()->set_address(*(const in6_addr*)RTA_DATA(rta));
+            break;
         }
       }
       if (!seen_addr)
         continue;
-       
+
       int this_addr_pri = get_priority(this_addr) * 2;
       if ((ifa->ifa_flags & IFA_F_SECONDARY) == IFA_F_SECONDARY) {
         ++this_addr_pri;
       }
 
       if (this_addr_pri < best_addr_pri) {
-        best_addr = this_addr;
+        best_addr     = this_addr;
         best_addr_pri = this_addr_pri;
       }
     }
@@ -282,14 +281,14 @@ bool get_local_address(sa_family_t family, rak::socket_address *address) {
     return true;
   } else {
     return false;
-  } 
+  }
 }
 
 #else
 
 // Generic POSIX variant.
 bool
-get_local_address(sa_family_t family, rak::socket_address *address) {
+get_local_address(sa_family_t family, rak::socket_address* address) {
   SocketFd sock;
   if (!sock.open_datagram()) {
     return false;
@@ -299,14 +298,14 @@ get_local_address(sa_family_t family, rak::socket_address *address) {
   dummy_dest.clear();
 
   switch (family) {
-  case rak::socket_address::af_inet:
-    dummy_dest.set_address_c_str("4.0.0.0"); 
-    break;
-  case rak::socket_address::af_inet6:
-    dummy_dest.set_address_c_str("2001:700::"); 
-    break;
-  default:
-    throw internal_error("Unknown address family");
+    case rak::socket_address::af_inet:
+      dummy_dest.set_address_c_str("4.0.0.0");
+      break;
+    case rak::socket_address::af_inet6:
+      dummy_dest.set_address_c_str("2001:700::");
+      break;
+    default:
+      throw internal_error("Unknown address family");
   }
 
   dummy_dest.set_port(80);
@@ -324,4 +323,4 @@ get_local_address(sa_family_t family, rak::socket_address *address) {
 
 #endif
 
-}
+} // namespace torrent

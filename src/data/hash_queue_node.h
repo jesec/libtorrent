@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -50,38 +50,53 @@ class download_data;
 
 class HashQueueNode {
 public:
-  typedef std::function<void (ChunkHandle, const char*)> slot_done_type;
-  typedef download_data* id_type;
+  typedef std::function<void(ChunkHandle, const char*)> slot_done_type;
+  typedef download_data*                                id_type;
 
-  HashQueueNode(id_type id, HashChunk* c, slot_done_type d) :
-    m_id(id), m_chunk(c), m_willneed(false), m_slot_done(d) {}
+  HashQueueNode(id_type id, HashChunk* c, slot_done_type d)
+    : m_id(id)
+    , m_chunk(c)
+    , m_willneed(false)
+    , m_slot_done(d) {}
 
-  id_type             id() const                    { return m_id; }
-  ChunkHandle&        handle()                      { return *m_chunk->chunk(); }
+  id_type id() const {
+    return m_id;
+  }
+  ChunkHandle& handle() {
+    return *m_chunk->chunk();
+  }
 
-  uint32_t            get_index() const;
+  uint32_t get_index() const;
 
-  HashChunk*          get_chunk()                   { return m_chunk; }
-  bool                get_willneed() const          { return m_willneed; }
+  HashChunk* get_chunk() {
+    return m_chunk;
+  }
+  bool get_willneed() const {
+    return m_willneed;
+  }
 
-  bool                perform_remaining(bool force) { return m_chunk->perform(m_chunk->remaining(), force); }
+  bool perform_remaining(bool force) {
+    return m_chunk->perform(m_chunk->remaining(), force);
+  }
 
-  void                clear();
+  void clear();
 
   // Does not call multiple times on the same chunk. Returns the
   // number of bytes not checked in this chunk.
-  uint32_t            call_willneed();
+  uint32_t call_willneed();
 
-  slot_done_type&     slot_done()                   { return m_slot_done; }
+  slot_done_type& slot_done() {
+    return m_slot_done;
+  }
 
 private:
-  id_type             m_id;
-  HashChunk*          m_chunk;
-  bool                m_willneed;
+  id_type    m_id;
+  HashChunk* m_chunk;
+  bool       m_willneed;
 
-  slot_done_type      m_slot_done;
+  slot_done_type m_slot_done;
 };
 
-}
+} // namespace torrent
 
 #endif

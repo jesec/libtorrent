@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -53,16 +53,18 @@ thread_main::init_thread() {
   acquire_global_lock();
 
   if (!Poll::slot_create_poll())
-    throw internal_error("thread_main::init_thread(): Poll::slot_create_poll() not valid.");
+    throw internal_error(
+      "thread_main::init_thread(): Poll::slot_create_poll() not valid.");
 
   m_poll = Poll::slot_create_poll()();
   m_poll->set_flags(Poll::flag_waive_global_lock);
 
-  m_state = STATE_INITIALIZED;
+  m_state  = STATE_INITIALIZED;
   m_thread = pthread_self();
   m_flags |= flag_main_thread;
 
-  m_instrumentation_index = INSTRUMENTATION_POLLING_DO_POLL_MAIN - INSTRUMENTATION_POLLING_DO_POLL;
+  m_instrumentation_index =
+    INSTRUMENTATION_POLLING_DO_POLL_MAIN - INSTRUMENTATION_POLLING_DO_POLL;
 }
 
 void
@@ -92,9 +94,10 @@ thread_main::next_timeout_usec() {
   cachedTime = rak::timer::current();
 
   if (!taskScheduler.empty())
-    return std::max(taskScheduler.top()->time() - cachedTime, rak::timer()).usec();
+    return std::max(taskScheduler.top()->time() - cachedTime, rak::timer())
+      .usec();
   else
     return rak::timer::from_seconds(60).usec();
 }
 
-}
+} // namespace torrent

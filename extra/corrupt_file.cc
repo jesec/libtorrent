@@ -1,9 +1,9 @@
+#include <cinttypes>
+#include <fcntl.h>
 #include <iostream>
 #include <stdexcept>
-#include <cinttypes>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
 
 #include "../rak/file_stat.h"
 
@@ -43,7 +43,7 @@ main(int argc, char** argv) {
     throw std::runtime_error("Could not read fs stat.");
 
   srand(seed);
-  
+
   corrupt_region(fd, rand() % (fileStat.size() - length), length);
 
   return 0;

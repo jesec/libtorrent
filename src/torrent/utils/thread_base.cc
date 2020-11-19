@@ -8,30 +8,33 @@
 #include "poll.h"
 #include "thread_base.h"
 #include "thread_interrupt.h"
-#include "utils/log.h"
 #include "utils/instrumentation.h"
+#include "utils/log.h"
 
 namespace torrent {
 
-thread_base::global_lock_type lt_cacheline_aligned thread_base::m_global = { 0, 0, PTHREAD_MUTEX_INITIALIZER };
+thread_base::global_lock_type lt_cacheline_aligned
+  thread_base::m_global = { 0, 0, PTHREAD_MUTEX_INITIALIZER };
 
-thread_base::thread_base() :
-  m_state(STATE_UNKNOWN),
-  m_flags(0),
-  m_instrumentation_index(INSTRUMENTATION_POLLING_DO_POLL_OTHERS - INSTRUMENTATION_POLLING_DO_POLL),
+thread_base::thread_base()
+  : m_state(STATE_UNKNOWN)
+  , m_flags(0)
+  , m_instrumentation_index(INSTRUMENTATION_POLLING_DO_POLL_OTHERS -
+                            INSTRUMENTATION_POLLING_DO_POLL)
+  ,
 
-  m_poll(NULL),
-  m_interrupt_sender(NULL),
-  m_interrupt_receiver(NULL)
-{
+  m_poll(NULL)
+  , m_interrupt_sender(NULL)
+  , m_interrupt_receiver(NULL) {
   std::memset(&m_thread, 0, sizeof(pthread_t));
 
-// #ifdef USE_INTERRUPT_SOCKET
-  thread_interrupt::pair_type interrupt_sockets = thread_interrupt::create_pair();
+  // #ifdef USE_INTERRUPT_SOCKET
+  thread_interrupt::pair_type interrupt_sockets =
+    thread_interrupt::create_pair();
 
-  m_interrupt_sender = interrupt_sockets.first;
+  m_interrupt_sender   = interrupt_sockets.first;
   m_interrupt_receiver = interrupt_sockets.second;
-// #endif
+  // #endif
 }
 
 thread_base::~thread_base() {
@@ -44,7 +47,9 @@ thread_base::start_thread() {
   if (m_poll == NULL)
     throw internal_error("No poll object for thread defined.");
 
-  if (!is_initialized() || pthread_create(&m_thread, NULL, (pthread_func)&thread_base::event_loop, this))
+  if (!is_initialized() ||
+      pthread_create(
+        &m_thread, NULL, (pthread_func)&thread_base::event_loop, this))
     throw internal_error("Failed to create thread.");
 }
 
@@ -62,7 +67,7 @@ thread_base::stop_thread_wait() {
 
   while (!is_inactive()) {
     usleep(1000);
-  }  
+  }
 
   acquire_global_lock();
 }
@@ -90,13 +95,14 @@ thread_base::event_loop(thread_base* thread) {
   pthread_setname_np(thread->m_thread, thread->name());
 #endif
 
-  lt_log_print(torrent::LOG_THREAD_NOTICE, "%s: Starting thread.", thread->name());
-  
+  lt_log_print(
+    torrent::LOG_THREAD_NOTICE, "%s: Starting thread.", thread->name());
+
   try {
 
-// #ifdef USE_INTERRUPT_SOCKET
+    // #ifdef USE_INTERRUPT_SOCKET
     thread->m_poll->insert_read(thread->m_interrupt_receiver);
-// #endif
+    // #endif
 
     while (true) {
       if (thread->m_slot_do_work)
@@ -133,26 +139,33 @@ thread_base::event_loop(thread_base* thread) {
         poll_flags = torrent::Poll::poll_worker_thread;
 
       instrumentation_update(INSTRUMENTATION_POLLING_DO_POLL, 1);
-      instrumentation_update(instrumentation_enum(INSTRUMENTATION_POLLING_DO_POLL + thread->m_instrumentation_index), 1);
+      instrumentation_update(
+        instrumentation_enum(INSTRUMENTATION_POLLING_DO_POLL +
+                             thread->m_instrumentation_index),
+        1);
 
       int event_count = thread->m_poll->do_poll(next_timeout, poll_flags);
 
       instrumentation_update(INSTRUMENTATION_POLLING_EVENTS, event_count);
-      instrumentation_update(instrumentation_enum(INSTRUMENTATION_POLLING_EVENTS + thread->m_instrumentation_index), event_count);
+      instrumentation_update(
+        instrumentation_enum(INSTRUMENTATION_POLLING_EVENTS +
+                             thread->m_instrumentation_index),
+        event_count);
 
       __sync_fetch_and_and(&thread->m_flags, ~(flag_polling | flag_no_timeout));
     }
 
-// #ifdef USE_INTERRUPT_SOCKET
+    // #ifdef USE_INTERRUPT_SOCKET
     thread->m_poll->remove_write(thread->m_interrupt_receiver);
-// #endif
+    // #endif
 
   } catch (torrent::shutdown_exception& e) {
-    lt_log_print(torrent::LOG_THREAD_NOTICE, "%s: Shutting down thread.", thread->name());
+    lt_log_print(
+      torrent::LOG_THREAD_NOTICE, "%s: Shutting down thread.", thread->name());
   }
 
   __sync_lock_test_and_set(&thread->m_state, STATE_INACTIVE);
   return NULL;
 }
 
-}
+} // namespace torrent

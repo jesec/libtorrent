@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,8 +37,8 @@
 #ifndef LIBTORRENT_DOWNLOAD_MANAGER_H
 #define LIBTORRENT_DOWNLOAD_MANAGER_H
 
-#include <vector>
 #include <torrent/common.h>
+#include <vector>
 
 namespace torrent {
 
@@ -47,20 +47,21 @@ class DownloadWrapper;
 class DownloadInfo;
 class DownloadMain;
 
-class LIBTORRENT_EXPORT DownloadManager : private std::vector<DownloadWrapper*> {
+class LIBTORRENT_EXPORT DownloadManager
+  : private std::vector<DownloadWrapper*> {
 public:
   typedef std::vector<DownloadWrapper*> base_type;
 
-  typedef base_type::value_type value_type;
-  typedef base_type::pointer pointer;
-  typedef base_type::const_pointer const_pointer;
-  typedef base_type::reference reference;
+  typedef base_type::value_type      value_type;
+  typedef base_type::pointer         pointer;
+  typedef base_type::const_pointer   const_pointer;
+  typedef base_type::reference       reference;
   typedef base_type::const_reference const_reference;
-  typedef base_type::size_type size_type;
+  typedef base_type::size_type       size_type;
 
-  typedef base_type::iterator iterator;
-  typedef base_type::reverse_iterator reverse_iterator;
-  typedef base_type::const_iterator const_iterator;
+  typedef base_type::iterator               iterator;
+  typedef base_type::reverse_iterator       reverse_iterator;
+  typedef base_type::const_iterator         const_iterator;
   typedef base_type::const_reverse_iterator const_reverse_iterator;
 
   using base_type::empty;
@@ -71,27 +72,29 @@ public:
   using base_type::rbegin;
   using base_type::rend;
 
-  ~DownloadManager() { clear(); }
+  ~DownloadManager() {
+    clear();
+  }
 
-  iterator            find(const std::string& hash);
-  iterator            find(const HashString& hash);
-  iterator            find(DownloadInfo* info);
+  iterator find(const std::string& hash);
+  iterator find(const HashString& hash);
+  iterator find(DownloadInfo* info);
 
-  iterator            find_chunk_list(ChunkList* cl);
+  iterator find_chunk_list(ChunkList* cl);
 
-  DownloadMain*       find_main(const char* hash);
-  DownloadMain*       find_main_obfuscated(const char* hash);
+  DownloadMain* find_main(const char* hash);
+  DownloadMain* find_main_obfuscated(const char* hash);
 
   //
   // Don't export:
   //
 
-  iterator            insert(DownloadWrapper* d) LIBTORRENT_NO_EXPORT;
-  iterator            erase(DownloadWrapper* d) LIBTORRENT_NO_EXPORT;
+  iterator insert(DownloadWrapper* d) LIBTORRENT_NO_EXPORT;
+  iterator erase(DownloadWrapper* d) LIBTORRENT_NO_EXPORT;
 
-  void                clear() LIBTORRENT_NO_EXPORT;
+  void clear() LIBTORRENT_NO_EXPORT;
 };
 
-}
+} // namespace torrent
 
 #endif

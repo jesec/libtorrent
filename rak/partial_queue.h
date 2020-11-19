@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -37,9 +37,9 @@
 #ifndef RAK_PARTIAL_QUEUE_H
 #define RAK_PARTIAL_QUEUE_H
 
+#include <cinttypes>
 #include <cstring>
 #include <stdexcept>
-#include <cinttypes>
 
 namespace rak {
 
@@ -58,13 +58,23 @@ public:
 
   static const size_type num_layers = 8;
 
-  partial_queue() : m_data(NULL), m_maxLayerSize(0) {}
-  ~partial_queue() { disable(); }
+  partial_queue()
+    : m_data(NULL)
+    , m_maxLayerSize(0) {}
+  ~partial_queue() {
+    disable();
+  }
 
-  bool                is_full() const                         { return m_ceiling == 0; }
-  bool                is_layer_full(size_type l) const        { return m_layers[l].second >= m_maxLayerSize; }
+  bool is_full() const {
+    return m_ceiling == 0;
+  }
+  bool is_layer_full(size_type l) const {
+    return m_layers[l].second >= m_maxLayerSize;
+  }
 
-  bool                is_enabled() const                      { return m_data != NULL; }
+  bool is_enabled() const {
+    return m_data != NULL;
+  }
 
   // Add check to see if we can add more. Also make it possible to
   // check how full we are in the lower parts so the caller knows when
@@ -73,41 +83,47 @@ public:
   // Though propably not needed, as we must continue til the first
   // layer is full.
 
-  size_type           max_size() const                        { return m_maxLayerSize * num_layers; }
-  size_type           max_layer_size() const                  { return m_maxLayerSize; }
+  size_type max_size() const {
+    return m_maxLayerSize * num_layers;
+  }
+  size_type max_layer_size() const {
+    return m_maxLayerSize;
+  }
 
   // Must be less that or equal to (max size_type) / num_layers.
-  void                enable(size_type ls);
-  void                disable();
+  void enable(size_type ls);
+  void disable();
 
-  void                clear();
+  void clear();
 
   // Safe to call while pop'ing and it will not reuse pop'ed indices
   // so it is guaranteed to reach max_size at some point. This will
   // ensure that the user needs to refill with new data at regular
   // intervals.
-  bool                insert(key_type key, mapped_type value);
+  bool insert(key_type key, mapped_type value);
 
   // Only call this when pop'ing as it moves the index.
-  bool                prepare_pop();
+  bool prepare_pop();
 
-  mapped_type         pop();
+  mapped_type pop();
 
 private:
   partial_queue(const partial_queue&);
-  void operator = (const partial_queue&);
+  void operator=(const partial_queue&);
 
-  static size_type    ceiling(size_type layer)                { return (2 << layer) - 1; }
+  static size_type ceiling(size_type layer) {
+    return (2 << layer) - 1;
+  }
 
-  void                find_non_empty();
+  void find_non_empty();
 
-  mapped_type*        m_data;
-  size_type           m_maxLayerSize;
+  mapped_type* m_data;
+  size_type    m_maxLayerSize;
 
-  size_type           m_index;
-  size_type           m_ceiling;
+  size_type m_index;
+  size_type m_ceiling;
 
-  size_pair_type      m_layers[num_layers];
+  size_pair_type m_layers[num_layers];
 };
 
 inline void
@@ -115,7 +131,7 @@ partial_queue::enable(size_type ls) {
   if (ls == 0)
     throw std::logic_error("partial_queue::enable(...) ls == 0.");
 
-  delete [] m_data;
+  delete[] m_data;
   m_data = new mapped_type[ls * num_layers];
 
   m_maxLayerSize = ls;
@@ -123,7 +139,7 @@ partial_queue::enable(size_type ls) {
 
 inline void
 partial_queue::disable() {
-  delete [] m_data;
+  delete[] m_data;
   m_data = NULL;
 
   m_maxLayerSize = 0;
@@ -134,7 +150,7 @@ partial_queue::clear() {
   if (m_data == NULL)
     return;
 
-  m_index = 0;
+  m_index   = 0;
   m_ceiling = ceiling(num_layers - 1);
 
   std::memset(m_layers, 0, num_layers * sizeof(size_pair_type));
@@ -157,7 +173,7 @@ partial_queue::insert(key_type key, mapped_type value) {
   // Currently don't allow overflow.
   if (is_layer_full(idx))
     throw std::logic_error("partial_queue::insert(...) layer already full.");
-    //return false;
+  // return false;
 
   m_data[m_maxLayerSize * idx + m_layers[idx].second] = value;
   m_layers[idx].second++;
@@ -187,12 +203,13 @@ partial_queue::prepare_pop() {
 
 inline partial_queue::mapped_type
 partial_queue::pop() {
-  if (m_index >= num_layers || m_layers[m_index].first >= m_layers[m_index].second)
+  if (m_index >= num_layers ||
+      m_layers[m_index].first >= m_layers[m_index].second)
     throw std::logic_error("partial_queue::pop() bad state.");
 
   return m_data[m_index * m_maxLayerSize + m_layers[m_index].first++];
 }
 
-}
+} // namespace rak
 
 #endif

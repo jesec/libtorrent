@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -38,8 +38,8 @@
 #define LIBTORRENT_PATH_H
 
 #include <string>
-#include <vector>
 #include <torrent/common.h>
+#include <vector>
 
 namespace torrent {
 
@@ -47,16 +47,16 @@ namespace torrent {
 
 class LIBTORRENT_EXPORT Path : private std::vector<std::string> {
 public:
-  typedef std::vector<std::string>          base_type;
+  typedef std::vector<std::string> base_type;
 
-  typedef base_type::value_type             value_type;
-  typedef base_type::pointer                pointer;
-  typedef base_type::const_pointer          const_pointer;
-  typedef base_type::reference              reference;
-  typedef base_type::const_reference        const_reference;
-  typedef base_type::size_type              size_type;
-  typedef base_type::difference_type        difference_type;
-  typedef base_type::allocator_type         allocator_type;
+  typedef base_type::value_type      value_type;
+  typedef base_type::pointer         pointer;
+  typedef base_type::const_pointer   const_pointer;
+  typedef base_type::reference       reference;
+  typedef base_type::const_reference const_reference;
+  typedef base_type::size_type       size_type;
+  typedef base_type::difference_type difference_type;
+  typedef base_type::allocator_type  allocator_type;
 
   typedef base_type::iterator               iterator;
   typedef base_type::reverse_iterator       reverse_iterator;
@@ -65,13 +65,13 @@ public:
 
   using base_type::clear;
   using base_type::empty;
-  using base_type::size;
   using base_type::reserve;
+  using base_type::size;
 
-  using base_type::front;
   using base_type::back;
   using base_type::begin;
   using base_type::end;
+  using base_type::front;
   using base_type::rbegin;
   using base_type::rend;
 
@@ -80,23 +80,30 @@ public:
   using base_type::at;
   using base_type::operator[];
 
-  void               insert_path(iterator pos, const std::string& path);
+  void insert_path(iterator pos, const std::string& path);
 
   // Return the path as a string with '/' deliminator. The deliminator
   // is only inserted between path elements.
-  std::string        as_string() const;
+  std::string as_string() const;
 
-  const std::string  encoding() const                     { return m_encoding; }
-  void               set_encoding(const std::string& enc) { m_encoding = enc; }
+  const std::string encoding() const {
+    return m_encoding;
+  }
+  void set_encoding(const std::string& enc) {
+    m_encoding = enc;
+  }
 
-  base_type*         base()                               { return this; }
-  const base_type*   base() const                         { return this; }
+  base_type* base() {
+    return this;
+  }
+  const base_type* base() const {
+    return this;
+  }
 
 private:
-  std::string        m_encoding;
+  std::string m_encoding;
 };
 
-}
+} // namespace torrent
 
 #endif
-

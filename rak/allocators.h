@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -46,65 +46,88 @@
 
 namespace rak {
 
-template <class T = void*>
+template<class T = void*>
 class cacheline_allocator {
 public:
-  typedef size_t size_type;
-  typedef ptrdiff_t difference_type;
-  typedef T* pointer;
-  typedef const T* const_pointer;
+  typedef size_t      size_type;
+  typedef ptrdiff_t   difference_type;
+  typedef T*          pointer;
+  typedef const T*    const_pointer;
   typedef const void* const_void_pointer;
-  typedef T& reference;
-  typedef const T& const_reference;
-  typedef T value_type;
+  typedef T&          reference;
+  typedef const T&    const_reference;
+  typedef T           value_type;
 
-  cacheline_allocator() throw() { }
-  cacheline_allocator(const cacheline_allocator&) throw() { }
-  template <class U>
-  cacheline_allocator(const cacheline_allocator<U>&) throw() { }
-  ~cacheline_allocator() throw() { }
+  cacheline_allocator() throw() {}
+  cacheline_allocator(const cacheline_allocator&) throw() {}
+  template<class U>
+  cacheline_allocator(const cacheline_allocator<U>&) throw() {}
+  ~cacheline_allocator() throw() {}
 
-  template <class U>
-  struct rebind { typedef cacheline_allocator<U> other; };
+  template<class U>
+  struct rebind {
+    typedef cacheline_allocator<U> other;
+  };
 
   // return address of values
-  pointer address (reference value) const { return &value; }
-  const_pointer address (const_reference value) const { return &value; }
+  pointer address(reference value) const {
+    return &value;
+  }
+  const_pointer address(const_reference value) const {
+    return &value;
+  }
 
-  size_type max_size () const throw() { return std::numeric_limits<size_t>::max() / sizeof(T); }
+  size_type max_size() const throw() {
+    return std::numeric_limits<size_t>::max() / sizeof(T);
+  }
 
-  pointer allocate(size_type num, const_void_pointer = 0) { return alloc_size(num*sizeof(T)); }
+  pointer allocate(size_type num, const_void_pointer = 0) {
+    return alloc_size(num * sizeof(T));
+  }
 
   static pointer alloc_size(size_type size) {
-    pointer ptr = NULL;
-    int __UNUSED result = posix_memalign((void**)&ptr, LT_SMP_CACHE_BYTES, size);
+    pointer      ptr = NULL;
+    int __UNUSED result =
+      posix_memalign((void**)&ptr, LT_SMP_CACHE_BYTES, size);
 
     return ptr;
   }
 
-  void construct (pointer p, const T& value) { new((void*)p)T(value); }
-  void destroy (pointer p) { p->~T(); }
-  void deallocate (pointer p, size_type) { free((void*)p); }
+  void construct(pointer p, const T& value) {
+    new ((void*)p) T(value);
+  }
+  void destroy(pointer p) {
+    p->~T();
+  }
+  void deallocate(pointer p, size_type) {
+    free((void*)p);
+  }
 };
 
-
-template <class T1, class T2>
-bool operator== (const cacheline_allocator<T1>&, const cacheline_allocator<T2>&) throw() {
+template<class T1, class T2>
+bool
+operator==(const cacheline_allocator<T1>&,
+           const cacheline_allocator<T2>&) throw() {
   return true;
 }
 
-template <class T1, class T2>
-bool operator!= (const cacheline_allocator<T1>&, const cacheline_allocator<T2>&) throw() {
+template<class T1, class T2>
+bool
+operator!=(const cacheline_allocator<T1>&,
+           const cacheline_allocator<T2>&) throw() {
   return false;
 }
 
-}
+} // namespace rak
 
 //
 // Operator new with custom allocators:
 //
 
-template <typename T>
-void* operator new(size_t s, rak::cacheline_allocator<T> a) { return a.alloc_size(s); }
+template<typename T>
+void*
+operator new(size_t s, rak::cacheline_allocator<T> a) {
+  return a.alloc_size(s);
+}
 
 #endif // namespace rak

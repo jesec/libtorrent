@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -60,20 +60,33 @@ enum option_enum {
 
   OPTION_MAX_SIZE,
   OPTION_START_COMPACT = OPTION_HANDSHAKE_CONNECTION,
-  OPTION_SINGLE_SIZE = OPTION_MAX_SIZE - OPTION_START_COMPACT
+  OPTION_SINGLE_SIZE   = OPTION_MAX_SIZE - OPTION_START_COMPACT
 };
 
-int             option_find_string(option_enum opt_enum, const char* name) LIBTORRENT_EXPORT;
-inline int      option_find_string_str(option_enum opt_enum, const std::string& name) { return option_find_string(opt_enum, name.c_str()); }
+int
+option_find_string(option_enum opt_enum, const char* name) LIBTORRENT_EXPORT;
+inline int
+option_find_string_str(option_enum opt_enum, const std::string& name) {
+  return option_find_string(opt_enum, name.c_str());
+}
 
-const char*     option_to_string(option_enum opt_enum, unsigned int value, const char* not_found = "invalid") LIBTORRENT_EXPORT;
-const char*     option_to_string_or_throw(option_enum opt_enum, unsigned int value, const char* not_found = "Invalid option value") LIBTORRENT_EXPORT;
+const char*
+option_to_string(option_enum  opt_enum,
+                 unsigned int value,
+                 const char*  not_found = "invalid") LIBTORRENT_EXPORT;
+const char*
+option_to_string_or_throw(option_enum  opt_enum,
+                          unsigned int value,
+                          const char*  not_found = "Invalid option value")
+  LIBTORRENT_EXPORT;
 
 // TODO: Deprecated.
-const char*     option_as_string(option_enum opt_enum, unsigned int value) LIBTORRENT_EXPORT;
+const char*
+option_as_string(option_enum opt_enum, unsigned int value) LIBTORRENT_EXPORT;
 
-torrent::Object option_list_strings(option_enum opt_enum) LIBTORRENT_EXPORT;
+torrent::Object
+option_list_strings(option_enum opt_enum) LIBTORRENT_EXPORT;
 
-}
+} // namespace torrent
 
 #endif

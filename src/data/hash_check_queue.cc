@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -55,7 +55,8 @@ HashCheckQueue::~HashCheckQueue() {
 // Always poke thread_disk after calling this.
 void
 HashCheckQueue::push_back(HashChunk* hash_chunk) {
-  if (hash_chunk == NULL || !hash_chunk->chunk()->is_loaded() || !hash_chunk->chunk()->is_blocking())
+  if (hash_chunk == NULL || !hash_chunk->chunk()->is_loaded() ||
+      !hash_chunk->chunk()->is_blocking())
     throw internal_error("Invalid hash chunk passed to HashCheckQueue.");
 
   pthread_mutex_lock(&m_lock);
@@ -91,7 +92,7 @@ bool
 HashCheckQueue::remove(HashChunk* hash_chunk) {
   pthread_mutex_lock(&m_lock);
 
-  bool result;
+  bool     result;
   iterator itr = std::find(begin(), end(), hash_chunk);
 
   if (itr != end()) {
@@ -117,9 +118,10 @@ HashCheckQueue::perform() {
   while (!empty()) {
     HashChunk* hash_chunk = base_type::front();
     base_type::pop_front();
-    
+
     if (!hash_chunk->chunk()->is_loaded())
-      throw internal_error("HashCheckQueue::perform(): !entry.node->is_loaded().");
+      throw internal_error(
+        "HashCheckQueue::perform(): !entry.node->is_loaded().");
 
     int64_t size = hash_chunk->chunk()->chunk()->chunk_size();
     instrumentation_update(INSTRUMENTATION_MEMORY_HASHING_CHUNK_COUNT, -1);
@@ -128,7 +130,8 @@ HashCheckQueue::perform() {
     pthread_mutex_unlock(&m_lock);
 
     if (!hash_chunk->perform(~uint32_t(), true))
-      throw internal_error("HashCheckQueue::perform(): !hash_chunk->perform(~uint32_t(), true).");
+      throw internal_error("HashCheckQueue::perform(): "
+                           "!hash_chunk->perform(~uint32_t(), true).");
 
     HashString hash;
     hash_chunk->hash_c(hash.data());
@@ -140,4 +143,4 @@ HashCheckQueue::perform() {
   pthread_mutex_unlock(&m_lock);
 }
 
-}
+} // namespace torrent

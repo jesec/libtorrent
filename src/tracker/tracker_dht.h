@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -55,38 +55,44 @@ public:
   } state_type;
 
   static const char* states[];
-  
-  static bool         is_allowed();
 
-  virtual bool        is_busy() const;
-  virtual bool        is_usable() const;
+  static bool is_allowed();
 
-  virtual void        send_state(int state);
-  virtual void        close();
-  virtual void        disown();
+  virtual bool is_busy() const;
+  virtual bool is_usable() const;
 
-  virtual Type        type() const;
+  virtual void send_state(int state);
+  virtual void close();
+  virtual void disown();
 
-  virtual void        get_status(char* buffer, int length);
+  virtual Type type() const;
 
-  void                set_state(state_type state)      { m_state = state; }
-  state_type          get_state() const                { return m_state; }
+  virtual void get_status(char* buffer, int length);
 
-  bool                has_peers() const                { return !m_peers.empty(); }
+  void set_state(state_type state) {
+    m_state = state;
+  }
+  state_type get_state() const {
+    return m_state;
+  }
 
-  void                receive_peers(raw_list peers);
-  void                receive_success();
-  void                receive_failed(const char* msg);
-  void                receive_progress(int replied, int contacted);
+  bool has_peers() const {
+    return !m_peers.empty();
+  }
+
+  void receive_peers(raw_list peers);
+  void receive_success();
+  void receive_failed(const char* msg);
+  void receive_progress(int replied, int contacted);
 
 private:
-  AddressList  m_peers;
-  state_type   m_state;
+  AddressList m_peers;
+  state_type  m_state;
 
-  int          m_replied;
-  int          m_contacted;
+  int m_replied;
+  int m_contacted;
 };
 
-}
+} // namespace torrent
 
 #endif

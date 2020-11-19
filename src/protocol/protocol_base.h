@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -66,8 +66,8 @@ public:
 
     EXTENSION_PROTOCOL = 20,
 
-    NONE,           // These are not part of the protocol
-    KEEP_ALIVE      // Last command was a keep alive
+    NONE,      // These are not part of the protocol
+    KEEP_ALIVE // Last command was a keep alive
   } Protocol;
 
   typedef enum {
@@ -81,96 +81,144 @@ public:
     INTERNAL_ERROR
   } State;
 
-  ProtocolBase() :
-    m_state(IDLE),
-    m_lastCommand(NONE),
-    m_throttle(NULL) {
+  ProtocolBase()
+    : m_state(IDLE)
+    , m_lastCommand(NONE)
+    , m_throttle(NULL) {
 
     m_buffer.reset();
   }
 
-  Protocol            last_command() const                    { return m_lastCommand; }
-  void                set_last_command(Protocol p)            { m_lastCommand = p; }
+  Protocol last_command() const {
+    return m_lastCommand;
+  }
+  void set_last_command(Protocol p) {
+    m_lastCommand = p;
+  }
 
-  Buffer*             buffer()                                { return &m_buffer; }
+  Buffer* buffer() {
+    return &m_buffer;
+  }
 
-  ThrottleList*       throttle()                              { return m_throttle; }
-  void                set_throttle(ThrottleList* t)           { m_throttle = t; }
+  ThrottleList* throttle() {
+    return m_throttle;
+  }
+  void set_throttle(ThrottleList* t) {
+    m_throttle = t;
+  }
 
-  State               get_state() const                       { return m_state; }
-  void                set_state(State s)                      { m_state = s; }
+  State get_state() const {
+    return m_state;
+  }
+  void set_state(State s) {
+    m_state = s;
+  }
 
-  Piece               read_request();
-  Piece               read_piece(size_type length);
+  Piece read_request();
+  Piece read_piece(size_type length);
 
-  void                write_command(Protocol c)               { m_buffer.write_8(m_lastCommand = c); }
+  void write_command(Protocol c) {
+    m_buffer.write_8(m_lastCommand = c);
+  }
 
-  void                write_keepalive();
-  void                write_choke(bool s);
-  void                write_interested(bool s);
-  void                write_have(uint32_t index);
-  void                write_bitfield(size_type length);
-  void                write_request(const Piece& p);
-  void                write_cancel(const Piece& p);
-  void                write_piece(const Piece& p);
-  void                write_port(uint16_t port);
-  void                write_extension(uint8_t id, uint32_t length);
+  void write_keepalive();
+  void write_choke(bool s);
+  void write_interested(bool s);
+  void write_have(uint32_t index);
+  void write_bitfield(size_type length);
+  void write_request(const Piece& p);
+  void write_cancel(const Piece& p);
+  void write_piece(const Piece& p);
+  void write_port(uint16_t port);
+  void write_extension(uint8_t id, uint32_t length);
 
-  static const size_type sizeof_keepalive    = 4;
-  static const size_type sizeof_choke        = 5;
-  static const size_type sizeof_interested   = 5;
-  static const size_type sizeof_have         = 9;
-  static const size_type sizeof_have_body    = 4;
-  static const size_type sizeof_bitfield     = 5;
-  static const size_type sizeof_request      = 17;
-  static const size_type sizeof_request_body = 12;
-  static const size_type sizeof_cancel       = 17;
-  static const size_type sizeof_cancel_body  = 12;
-  static const size_type sizeof_piece        = 13;
-  static const size_type sizeof_piece_body   = 8;
-  static const size_type sizeof_port         = 7;
-  static const size_type sizeof_port_body    = 2;
-  static const size_type sizeof_extension    = 6;
-  static const size_type sizeof_extension_body=1;
+  static const size_type sizeof_keepalive      = 4;
+  static const size_type sizeof_choke          = 5;
+  static const size_type sizeof_interested     = 5;
+  static const size_type sizeof_have           = 9;
+  static const size_type sizeof_have_body      = 4;
+  static const size_type sizeof_bitfield       = 5;
+  static const size_type sizeof_request        = 17;
+  static const size_type sizeof_request_body   = 12;
+  static const size_type sizeof_cancel         = 17;
+  static const size_type sizeof_cancel_body    = 12;
+  static const size_type sizeof_piece          = 13;
+  static const size_type sizeof_piece_body     = 8;
+  static const size_type sizeof_port           = 7;
+  static const size_type sizeof_port_body      = 2;
+  static const size_type sizeof_extension      = 6;
+  static const size_type sizeof_extension_body = 1;
 
-  bool                can_write_keepalive() const             { return m_buffer.reserved_left() >= sizeof_keepalive; }
-  bool                can_write_choke() const                 { return m_buffer.reserved_left() >= sizeof_choke; }
-  bool                can_write_interested() const            { return m_buffer.reserved_left() >= sizeof_interested; }
-  bool                can_write_have() const                  { return m_buffer.reserved_left() >= sizeof_have; }
-  bool                can_write_bitfield() const              { return m_buffer.reserved_left() >= sizeof_bitfield; }
-  bool                can_write_request() const               { return m_buffer.reserved_left() >= sizeof_request; }
-  bool                can_write_cancel() const                { return m_buffer.reserved_left() >= sizeof_cancel; }
-  bool                can_write_piece() const                 { return m_buffer.reserved_left() >= sizeof_piece; }
-  bool                can_write_port() const                  { return m_buffer.reserved_left() >= sizeof_port; }
-  bool                can_write_extension() const             { return m_buffer.reserved_left() >= sizeof_extension; }
+  bool can_write_keepalive() const {
+    return m_buffer.reserved_left() >= sizeof_keepalive;
+  }
+  bool can_write_choke() const {
+    return m_buffer.reserved_left() >= sizeof_choke;
+  }
+  bool can_write_interested() const {
+    return m_buffer.reserved_left() >= sizeof_interested;
+  }
+  bool can_write_have() const {
+    return m_buffer.reserved_left() >= sizeof_have;
+  }
+  bool can_write_bitfield() const {
+    return m_buffer.reserved_left() >= sizeof_bitfield;
+  }
+  bool can_write_request() const {
+    return m_buffer.reserved_left() >= sizeof_request;
+  }
+  bool can_write_cancel() const {
+    return m_buffer.reserved_left() >= sizeof_cancel;
+  }
+  bool can_write_piece() const {
+    return m_buffer.reserved_left() >= sizeof_piece;
+  }
+  bool can_write_port() const {
+    return m_buffer.reserved_left() >= sizeof_port;
+  }
+  bool can_write_extension() const {
+    return m_buffer.reserved_left() >= sizeof_extension;
+  }
 
-  bool                can_read_have_body() const              { return m_buffer.remaining() >= sizeof_have_body; }
-  bool                can_read_request_body() const           { return m_buffer.remaining() >= sizeof_request_body; }
-  bool                can_read_cancel_body() const            { return m_buffer.remaining() >= sizeof_request_body; }
-  bool                can_read_piece_body() const             { return m_buffer.remaining() >= sizeof_piece_body; }
-  bool                can_read_port_body() const              { return m_buffer.remaining() >= sizeof_port_body; }
-  bool                can_read_extension_body() const         { return m_buffer.remaining() >= sizeof_extension_body; }
+  bool can_read_have_body() const {
+    return m_buffer.remaining() >= sizeof_have_body;
+  }
+  bool can_read_request_body() const {
+    return m_buffer.remaining() >= sizeof_request_body;
+  }
+  bool can_read_cancel_body() const {
+    return m_buffer.remaining() >= sizeof_request_body;
+  }
+  bool can_read_piece_body() const {
+    return m_buffer.remaining() >= sizeof_piece_body;
+  }
+  bool can_read_port_body() const {
+    return m_buffer.remaining() >= sizeof_port_body;
+  }
+  bool can_read_extension_body() const {
+    return m_buffer.remaining() >= sizeof_extension_body;
+  }
 
 protected:
-  State               m_state;
-  Protocol            m_lastCommand;
-  ThrottleList*       m_throttle;
+  State         m_state;
+  Protocol      m_lastCommand;
+  ThrottleList* m_throttle;
 
-  Buffer              m_buffer;
+  Buffer m_buffer;
 };
 
 inline Piece
 ProtocolBase::read_request() {
-  uint32_t index = m_buffer.read_32();
+  uint32_t index  = m_buffer.read_32();
   uint32_t offset = m_buffer.read_32();
   uint32_t length = m_buffer.read_32();
-  
+
   return Piece(index, offset, length);
 }
 
 inline Piece
 ProtocolBase::read_piece(size_type length) {
-  uint32_t index = m_buffer.read_32();
+  uint32_t index  = m_buffer.read_32();
   uint32_t offset = m_buffer.read_32();
 
   return Piece(index, offset, length);
@@ -247,6 +295,6 @@ ProtocolBase::write_extension(uint8_t id, uint32_t length) {
   m_buffer.write_8(id);
 }
 
-}
+} // namespace torrent
 
 #endif

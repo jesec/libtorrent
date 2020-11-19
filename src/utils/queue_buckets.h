@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -44,35 +44,56 @@
 
 namespace torrent {
 
-template <typename Type, typename Constants>
-class queue_buckets : private std::array<std::deque<Type>, Constants::bucket_count> {
+template<typename Type, typename Constants>
+class queue_buckets
+  : private std::array<std::deque<Type>, Constants::bucket_count> {
 public:
   typedef std::deque<Type>                                queue_type;
   typedef std::array<queue_type, Constants::bucket_count> base_type;
 
   typedef Constants constants;
 
-  typedef typename queue_type::value_type value_type;
-  typedef typename queue_type::size_type size_type;
+  typedef typename queue_type::value_type      value_type;
+  typedef typename queue_type::size_type       size_type;
   typedef typename queue_type::difference_type difference_type;
 
-  typedef typename queue_type::iterator iterator;
+  typedef typename queue_type::iterator       iterator;
   typedef typename queue_type::const_iterator const_iterator;
 
-  size_type queue_size(int idx)  const { return queue_at(idx).size(); }
-  bool      queue_empty(int idx) const { return queue_at(idx).empty(); }
+  size_type queue_size(int idx) const {
+    return queue_at(idx).size();
+  }
+  bool queue_empty(int idx) const {
+    return queue_at(idx).empty();
+  }
 
-  bool             empty() const;
+  bool empty() const;
 
-  iterator         begin(int idx)       { return queue_at(idx).begin(); }
-  iterator         end(int idx)         { return queue_at(idx).end(); }
-  const_iterator   begin(int idx) const { return queue_at(idx).begin(); }
-  const_iterator   end(int idx)   const { return queue_at(idx).end(); }
+  iterator begin(int idx) {
+    return queue_at(idx).begin();
+  }
+  iterator end(int idx) {
+    return queue_at(idx).end();
+  }
+  const_iterator begin(int idx) const {
+    return queue_at(idx).begin();
+  }
+  const_iterator end(int idx) const {
+    return queue_at(idx).end();
+  }
 
-  value_type       front(int idx)       { return queue_at(idx).front(); }
-  value_type       back(int idx)        { return queue_at(idx).back(); }
-  const value_type front(int idx) const { return queue_at(idx).front(); }
-  const value_type back(int idx)  const { return queue_at(idx).back(); }
+  value_type front(int idx) {
+    return queue_at(idx).front();
+  }
+  value_type back(int idx) {
+    return queue_at(idx).back();
+  }
+  const value_type front(int idx) const {
+    return queue_at(idx).front();
+  }
+  const value_type back(int idx) const {
+    return queue_at(idx).back();
+  }
 
   void pop_front(int idx);
   void pop_back(int idx);
@@ -92,8 +113,12 @@ public:
   void move_all_to(int src_idx, int dst_idx);
 
 private:
-  queue_type&       queue_at(int idx)       { return base_type::operator[](idx); }
-  const queue_type& queue_at(int idx) const { return base_type::operator[](idx); }
+  queue_type& queue_at(int idx) {
+    return base_type::operator[](idx);
+  }
+  const queue_type& queue_at(int idx) const {
+    return base_type::operator[](idx);
+  }
 };
 
 //
@@ -128,7 +153,8 @@ template<typename QueueBucket, typename Ftor>
 inline std::pair<int, typename QueueBucket::iterator>
 queue_bucket_find_if_in_any(QueueBucket& queues, Ftor ftor) {
   for (int i = 0; i < QueueBucket::constants::bucket_count; i++) {
-    typename QueueBucket::iterator itr = std::find_if(queues.begin(i), queues.end(i), ftor);
+    typename QueueBucket::iterator itr =
+      std::find_if(queues.begin(i), queues.end(i), ftor);
 
     if (itr != queues.end(i))
       return std::make_pair(i, itr);
@@ -142,7 +168,8 @@ template<typename QueueBucket, typename Ftor>
 inline std::pair<int, typename QueueBucket::const_iterator>
 queue_bucket_find_if_in_any(const QueueBucket& queues, Ftor ftor) {
   for (int i = 0; i < QueueBucket::constants::bucket_count; i++) {
-    typename QueueBucket::const_iterator itr = std::find_if(queues.begin(i), queues.end(i), ftor);
+    typename QueueBucket::const_iterator itr =
+      std::find_if(queues.begin(i), queues.end(i), ftor);
 
     if (itr != queues.end(i))
       return std::make_pair(i, itr);
@@ -161,7 +188,7 @@ queue_bucket_find_if_in_any(const QueueBucket& queues, Ftor ftor) {
 // TODO: when adding removal/etc of element or ranges do logging on if
 // it hit the first element or had to search.
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline bool
 queue_buckets<Type, Constants>::empty() const {
   for (int i = 0; i < constants::bucket_count; i++)
@@ -171,7 +198,7 @@ queue_buckets<Type, Constants>::empty() const {
   return true;
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline void
 queue_buckets<Type, Constants>::pop_front(int idx) {
   queue_at(idx).pop_front();
@@ -180,7 +207,7 @@ queue_buckets<Type, Constants>::pop_front(int idx) {
   instrumentation_update(constants::instrumentation_total[idx], -1);
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline void
 queue_buckets<Type, Constants>::pop_back(int idx) {
   queue_at(idx).pop_back();
@@ -189,7 +216,7 @@ queue_buckets<Type, Constants>::pop_back(int idx) {
   instrumentation_update(constants::instrumentation_total[idx], -1);
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline typename queue_buckets<Type, Constants>::value_type
 queue_buckets<Type, Constants>::pop_and_front(int idx) {
   value_type v = queue_at(idx).front();
@@ -197,7 +224,7 @@ queue_buckets<Type, Constants>::pop_and_front(int idx) {
   return v;
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline typename queue_buckets<Type, Constants>::value_type
 queue_buckets<Type, Constants>::pop_and_back(int idx) {
   value_type v = queue_at(idx).back();
@@ -205,7 +232,7 @@ queue_buckets<Type, Constants>::pop_and_back(int idx) {
   return v;
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline void
 queue_buckets<Type, Constants>::push_front(int idx, const value_type& value) {
   queue_at(idx).push_front(value);
@@ -214,7 +241,7 @@ queue_buckets<Type, Constants>::push_front(int idx, const value_type& value) {
   instrumentation_update(constants::instrumentation_total[idx], 1);
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline void
 queue_buckets<Type, Constants>::push_back(int idx, const value_type& value) {
   queue_at(idx).push_back(value);
@@ -223,7 +250,7 @@ queue_buckets<Type, Constants>::push_back(int idx, const value_type& value) {
   instrumentation_update(constants::instrumentation_total[idx], 1);
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline typename queue_buckets<Type, Constants>::value_type
 queue_buckets<Type, Constants>::take(int idx, iterator itr) {
   value_type v = *itr;
@@ -237,13 +264,13 @@ queue_buckets<Type, Constants>::take(int idx, iterator itr) {
   return v;
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline void
 queue_buckets<Type, Constants>::clear(int idx) {
   destroy(idx, begin(idx), end(idx));
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline void
 queue_buckets<Type, Constants>::destroy(int idx, iterator begin, iterator end) {
   difference_type difference = std::distance(begin, end);
@@ -251,23 +278,28 @@ queue_buckets<Type, Constants>::destroy(int idx, iterator begin, iterator end) {
   instrumentation_update(constants::instrumentation_total[idx], -difference);
 
   // Consider moving these to a temporary dequeue before releasing:
-  std::for_each(begin, end, std::function<void (value_type&)>(&constants::template destroy<value_type>));
+  std::for_each(
+    begin,
+    end,
+    std::function<void(value_type&)>(&constants::template destroy<value_type>));
   queue_at(idx).erase(begin, end);
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline void
-queue_buckets<Type, Constants>::move_to(int src_idx, iterator src_begin, iterator src_end,
-                                        int dst_idx) {
+queue_buckets<Type, Constants>::move_to(int      src_idx,
+                                        iterator src_begin,
+                                        iterator src_end,
+                                        int      dst_idx) {
   difference_type difference = std::distance(src_begin, src_end);
   instrumentation_update(constants::instrumentation_moved[src_idx], difference);
-  instrumentation_update(constants::instrumentation_total[src_idx], -difference);
+  instrumentation_update(constants::instrumentation_total[src_idx],
+                         -difference);
   instrumentation_update(constants::instrumentation_added[dst_idx], difference);
   instrumentation_update(constants::instrumentation_total[dst_idx], difference);
 
   // TODO: Check for better move operations:
-  if (queue_at(dst_idx).empty() &&
-      src_begin == queue_at(src_idx).begin() &&
+  if (queue_at(dst_idx).empty() && src_begin == queue_at(src_idx).begin() &&
       src_end == queue_at(src_idx).end()) {
     queue_at(dst_idx).swap(queue_at(src_idx));
   } else {
@@ -276,12 +308,12 @@ queue_buckets<Type, Constants>::move_to(int src_idx, iterator src_begin, iterato
   }
 }
 
-template <typename Type, typename Constants>
+template<typename Type, typename Constants>
 inline void
 queue_buckets<Type, Constants>::move_all_to(int src_idx, int dst_idx) {
   move_to(src_idx, queue_at(src_idx).begin(), queue_at(src_idx).end(), dst_idx);
 }
 
-}
+} // namespace torrent
 
 #endif // LIBTORRENT_QUEUE_BUCKETS_H

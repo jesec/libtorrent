@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -36,23 +36,24 @@
 
 #include "config.h"
 
-#include <stdlib.h>
 #include <algorithm>
 #include <iterator>
+#include <stdlib.h>
 
-#include "torrent/exceptions.h"
 #include "available_list.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 
 AvailableList::value_type
 AvailableList::pop_random() {
   if (empty())
-    throw internal_error("AvailableList::pop_random() called on an empty container");
+    throw internal_error(
+      "AvailableList::pop_random() called on an empty container");
 
   size_type idx = random() % size();
 
-  value_type tmp = *(begin() + idx);
+  value_type tmp   = *(begin() + idx);
   *(begin() + idx) = back();
 
   pop_back();
@@ -81,9 +82,12 @@ AvailableList::insert(AddressList* l) {
   // 'l' is guaranteed to be sorted, so we can just do
   // std::set_difference.
   AddressList difference;
-  std::set_difference(l->begin(), l->end(), begin(), end(), std::back_inserter(difference));
+  std::set_difference(
+    l->begin(), l->end(), begin(), end(), std::back_inserter(difference));
 
-  std::copy(difference.begin(), difference.end(), std::back_inserter(*static_cast<base_type*>(this)));
+  std::copy(difference.begin(),
+            difference.end(),
+            std::back_inserter(*static_cast<base_type*>(this)));
 }
 
 void
@@ -96,4 +100,4 @@ AvailableList::erase(const rak::socket_address& sa) {
   }
 }
 
-}
+} // namespace torrent

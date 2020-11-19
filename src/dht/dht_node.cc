@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -45,33 +45,35 @@
 
 #include "dht_node.h"
 
-#define LT_LOG_THIS(log_fmt, ...)                                       \
-  lt_log_print_hash(torrent::LOG_DHT_NODE, this->id(), "dht_node", log_fmt, __VA_ARGS__);
+#define LT_LOG_THIS(log_fmt, ...)                                              \
+  lt_log_print_hash(                                                           \
+    torrent::LOG_DHT_NODE, this->id(), "dht_node", log_fmt, __VA_ARGS__);
 
 namespace torrent {
 
-DhtNode::DhtNode(const HashString& id, const rak::socket_address* sa) :
-  HashString(id),
-  m_socketAddress(*sa),
-  m_lastSeen(0),
-  m_recentlyActive(false),
-  m_recentlyInactive(0),
-  m_bucket(NULL) {
+DhtNode::DhtNode(const HashString& id, const rak::socket_address* sa)
+  : HashString(id)
+  , m_socketAddress(*sa)
+  , m_lastSeen(0)
+  , m_recentlyActive(false)
+  , m_recentlyInactive(0)
+  , m_bucket(NULL) {
 
   // TODO: Change this to use the id hash similar to how peer info
   // hash'es are logged.
   LT_LOG_THIS("created (address:%s)", sa->pretty_address_str().c_str());
 
   // if (sa->family() != rak::socket_address::af_inet &&
-  //     (sa->family() != rak::socket_address::af_inet6 || !sa->sa_inet6()->is_any()))
+  //     (sa->family() != rak::socket_address::af_inet6 ||
+  //     !sa->sa_inet6()->is_any()))
   //   throw resource_error("Address not af_inet or in6addr_any");
 }
 
-DhtNode::DhtNode(const std::string& id, const Object& cache) :
-  HashString(*HashString::cast_from(id.c_str())),
-  m_recentlyActive(false),
-  m_recentlyInactive(0),
-  m_bucket(NULL) {
+DhtNode::DhtNode(const std::string& id, const Object& cache)
+  : HashString(*HashString::cast_from(id.c_str()))
+  , m_recentlyActive(false)
+  , m_recentlyInactive(0)
+  , m_bucket(NULL) {
 
   // TODO: Check how DHT handles inet6.
   rak::socket_address_inet* sa = m_socketAddress.sa_inet();
@@ -116,4 +118,4 @@ DhtNode::store_cache(Object* container) const {
   return container;
 }
 
-}
+} // namespace torrent

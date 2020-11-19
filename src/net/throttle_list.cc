@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -45,24 +45,26 @@
 
 namespace torrent {
 
-ThrottleList::ThrottleList() :
-  m_enabled(false),
-  m_size(0),
-  m_outstandingQuota(0),
-  m_unallocatedQuota(0),
-  m_unusedUnthrottledQuota(0),
-  m_rateAdded(0),
+ThrottleList::ThrottleList()
+  : m_enabled(false)
+  , m_size(0)
+  , m_outstandingQuota(0)
+  , m_unallocatedQuota(0)
+  , m_unusedUnthrottledQuota(0)
+  , m_rateAdded(0)
+  ,
 
-  m_minChunkSize(2 << 10),
-  m_maxChunkSize(16 << 10),
+  m_minChunkSize(2 << 10)
+  , m_maxChunkSize(16 << 10)
+  ,
 
-  m_rateSlow(60),
-  m_splitActive(end()) {
-}
+  m_rateSlow(60)
+  , m_splitActive(end()) {}
 
 bool
 ThrottleList::is_active(const ThrottleNode* node) const {
-  return std::find(begin(), (const_iterator)m_splitActive, node) != m_splitActive;
+  return std::find(begin(), (const_iterator)m_splitActive, node) !=
+         m_splitActive;
 }
 
 bool
@@ -108,8 +110,8 @@ ThrottleList::disable() {
 
   m_enabled = false;
 
-  m_outstandingQuota = 0;
-  m_unallocatedQuota = 0;
+  m_outstandingQuota       = 0;
+  m_unallocatedQuota       = 0;
   m_unusedUnthrottledQuota = 0;
 
   std::for_each(begin(), end(), std::mem_fun(&ThrottleNode::clear_quota));
@@ -121,7 +123,8 @@ ThrottleList::disable() {
 int32_t
 ThrottleList::update_quota(uint32_t quota) {
   if (!m_enabled)
-    throw internal_error("ThrottleList::update_quota(...) called but the object is not enabled.");
+    throw internal_error("ThrottleList::update_quota(...) called but the "
+                         "object is not enabled.");
 
   // Distribute new quota to unthrottled quota first, and use
   // left-over unthrottled quota from last turn to be allocated
@@ -164,9 +167,10 @@ ThrottleList::node_quota(ThrottleNode* node) {
     return std::numeric_limits<int32_t>::max();
 
   } else if (!is_active(node)) {
-    throw internal_error(is_inactive(node) ?
-                         "ThrottleList::node_quota(...) called on an inactive node." :
-                         "ThrottleList::node_quota(...) could not find node.");
+    throw internal_error(
+      is_inactive(node)
+        ? "ThrottleList::node_quota(...) called on an inactive node."
+        : "ThrottleList::node_quota(...) could not find node.");
 
   } else if (node->quota() + m_unallocatedQuota >= m_minChunkSize) {
     return node->quota() + m_unallocatedQuota;
@@ -218,9 +222,10 @@ ThrottleList::node_used_unthrottled(uint32_t used) {
 void
 ThrottleList::node_deactivate(ThrottleNode* node) {
   if (!is_active(node))
-    throw internal_error(is_inactive(node) ?
-                         "ThrottleList::node_deactivate(...) called on an inactive node." :
-                         "ThrottleList::node_deactivate(...) could not find node.");
+    throw internal_error(
+      is_inactive(node)
+        ? "ThrottleList::node_deactivate(...) called on an inactive node."
+        : "ThrottleList::node_deactivate(...) could not find node.");
 
   base_type::splice(end(), *this, node->list_iterator());
 
@@ -259,7 +264,8 @@ ThrottleList::erase(ThrottleNode* node) {
   // Do we need an if-statement here?
   if (node->quota() != 0) {
     if (node->quota() > m_outstandingQuota)
-      throw internal_error("ThrottleList::erase(...) node->quota() > m_outstandingQuota.");
+      throw internal_error(
+        "ThrottleList::erase(...) node->quota() > m_outstandingQuota.");
 
     m_outstandingQuota -= node->quota();
     m_unallocatedQuota += node->quota();
@@ -275,4 +281,4 @@ ThrottleList::erase(ThrottleNode* node) {
   m_size--;
 }
 
-}
+} // namespace torrent

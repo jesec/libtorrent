@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -36,20 +36,21 @@
 
 #include "config.h"
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/mman.h>
 #include <rak/error_number.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#include "torrent/exceptions.h"
 #include "memory_chunk.h"
+#include "torrent/exceptions.h"
 
 #ifdef __sun__
-extern "C" int madvise(void *, size_t, int);
+extern "C" int
+madvise(void*, size_t, int);
 //#include <sys/mman.h>
-//Should be the include line instead, but Solaris
-//has an annoying bug wherein it doesn't declare
-//madvise for C++.
+// Should be the include line instead, but Solaris
+// has an annoying bug wherein it doesn't declare
+// madvise for C++.
 #endif
 
 namespace torrent {
@@ -75,26 +76,28 @@ const int MemoryChunk::advice_dontneed;
 inline void
 MemoryChunk::align_pair(uint32_t* offset, uint32_t* length) const {
   *offset += page_align();
-  
+
   *length += *offset % m_pagesize;
   *offset -= *offset % m_pagesize;
 }
 
-MemoryChunk::MemoryChunk(char* ptr, char* begin, char* end, int prot, int flags) :
-  m_ptr(ptr),
-  m_begin(begin),
-  m_end(end),
-  m_prot(prot),
-  m_flags(flags) {
+MemoryChunk::MemoryChunk(char* ptr, char* begin, char* end, int prot, int flags)
+  : m_ptr(ptr)
+  , m_begin(begin)
+  , m_end(end)
+  , m_prot(prot)
+  , m_flags(flags) {
 
   if (ptr == NULL)
     throw internal_error("MemoryChunk::MemoryChunk(...) received ptr == NULL");
 
   if (page_align() >= m_pagesize)
-    throw internal_error("MemoryChunk::MemoryChunk(...) received an page alignment >= page size");
+    throw internal_error("MemoryChunk::MemoryChunk(...) received an page "
+                         "alignment >= page size");
 
   if ((std::ptrdiff_t)ptr % m_pagesize)
-    throw internal_error("MemoryChunk::MemoryChunk(...) is not aligned to a page");
+    throw internal_error(
+      "MemoryChunk::MemoryChunk(...) is not aligned to a page");
 }
 
 void
@@ -103,16 +106,19 @@ MemoryChunk::unmap() {
     throw internal_error("MemoryChunk::unmap() called on an invalid object");
 
   if (munmap(m_ptr, m_end - m_ptr) != 0)
-    throw internal_error("MemoryChunk::unmap() system call failed: " + std::string(rak::error_number::current().c_str()));
-}  
+    throw internal_error("MemoryChunk::unmap() system call failed: " +
+                         std::string(rak::error_number::current().c_str()));
+}
 
 void
 MemoryChunk::incore(char* buf, uint32_t offset, uint32_t length) {
   if (!is_valid())
-    throw internal_error("Called MemoryChunk::incore(...) on an invalid object");
+    throw internal_error(
+      "Called MemoryChunk::incore(...) on an invalid object");
 
   if (!is_valid_range(offset, length))
-    throw internal_error("MemoryChunk::incore(...) received out-of-range input");
+    throw internal_error(
+      "MemoryChunk::incore(...) received out-of-range input");
 
   align_pair(&offset, &length);
 
@@ -123,7 +129,8 @@ MemoryChunk::incore(char* buf, uint32_t offset, uint32_t length) {
 #else
   if (mincore(m_ptr + offset, length, (char*)buf))
 #endif
-    throw storage_error("System call mincore failed: " + std::string(rak::error_number::current().c_str()));
+    throw storage_error("System call mincore failed: " +
+                        std::string(rak::error_number::current().c_str()));
 
 #else // !USE_MINCORE
   // Pretend all pages are in memory.
@@ -138,7 +145,8 @@ MemoryChunk::advise(uint32_t offset, uint32_t length, int advice) {
     throw internal_error("Called MemoryChunk::advise() on an invalid object");
 
   if (!is_valid_range(offset, length))
-    throw internal_error("MemoryChunk::advise(...) received out-of-range input");
+    throw internal_error(
+      "MemoryChunk::advise(...) received out-of-range input");
 
 #if USE_MADVISE
   align_pair(&offset, &length);
@@ -146,9 +154,11 @@ MemoryChunk::advise(uint32_t offset, uint32_t length, int advice) {
   if (madvise(m_ptr + offset, length, advice) == 0)
     return true;
 
-  else if (errno == EINVAL || (errno == ENOMEM && advice != advice_willneed) || errno == EBADF)
-    throw internal_error("MemoryChunk::advise(...) " + std::string(strerror(errno)));
-  
+  else if (errno == EINVAL || (errno == ENOMEM && advice != advice_willneed) ||
+           errno == EBADF)
+    throw internal_error("MemoryChunk::advise(...) " +
+                         std::string(strerror(errno)));
+
   else
     return false;
 
@@ -167,8 +177,8 @@ MemoryChunk::sync(uint32_t offset, uint32_t length, int flags) {
     throw internal_error("MemoryChunk::sync(...) received out-of-range input");
 
   align_pair(&offset, &length);
-  
-  return msync(m_ptr + offset, length, flags) == 0;
-}    
 
+  return msync(m_ptr + offset, length, flags) == 0;
 }
+
+} // namespace torrent

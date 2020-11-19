@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -51,70 +51,86 @@ class PeerConnectionBase;
 // peer class may be invalidated during a torrent::work call. So if
 // you keep a list or single instances in the client, you need to
 // listen to the appropriate signals from the download to keep up to
-// date. 
+// date.
 class LIBTORRENT_EXPORT Peer {
 public:
   // Does not check if it has been removed from the download.
-  bool                 is_incoming() const                { return peer_info()->is_incoming(); }
-  bool                 is_encrypted() const;
-  bool                 is_obfuscated() const;
+  bool is_incoming() const {
+    return peer_info()->is_incoming();
+  }
+  bool is_encrypted() const;
+  bool is_obfuscated() const;
 
-  bool                 is_up_choked() const;
-  bool                 is_up_interested() const;
+  bool is_up_choked() const;
+  bool is_up_interested() const;
 
-  bool                 is_down_choked() const;
-  bool                 is_down_choked_limited() const;
-  bool                 is_down_queued() const;
-  bool                 is_down_interested() const;
+  bool is_down_choked() const;
+  bool is_down_choked_limited() const;
+  bool is_down_queued() const;
+  bool is_down_interested() const;
 
-  bool                 is_snubbed() const;
-  bool                 is_banned() const;
+  bool is_snubbed() const;
+  bool is_banned() const;
 
-  void                 set_snubbed(bool v);
-  void                 set_banned(bool v);
+  void set_snubbed(bool v);
+  void set_banned(bool v);
 
-  const HashString&    id() const                         { return peer_info()->id(); }
-  const char*          options() const                    { return peer_info()->options(); }
-  const sockaddr*      address() const                    { return peer_info()->socket_address(); }
+  const HashString& id() const {
+    return peer_info()->id();
+  }
+  const char* options() const {
+    return peer_info()->options();
+  }
+  const sockaddr* address() const {
+    return peer_info()->socket_address();
+  }
 
-  const Rate*          down_rate() const;
-  const Rate*          up_rate() const;
-  const Rate*          peer_rate() const;
+  const Rate* down_rate() const;
+  const Rate* up_rate() const;
+  const Rate* peer_rate() const;
 
-  const Bitfield*      bitfield() const;
+  const Bitfield* bitfield() const;
 
   const BlockTransfer* transfer() const;
 
-  uint32_t             incoming_queue_size() const;
-  uint32_t             outgoing_queue_size() const;
+  uint32_t incoming_queue_size() const;
+  uint32_t outgoing_queue_size() const;
 
-  uint32_t             chunks_done() const;
+  uint32_t chunks_done() const;
 
-  uint32_t             failed_counter() const             { return peer_info()->failed_counter(); }
+  uint32_t failed_counter() const {
+    return peer_info()->failed_counter();
+  }
 
-  void                 disconnect(int flags);
+  void disconnect(int flags);
 
   //
   // New interface:
   //
 
-  const PeerInfo*      peer_info() const                  { return m_peerInfo; }
+  const PeerInfo* peer_info() const {
+    return m_peerInfo;
+  }
 
-  PeerConnectionBase*       m_ptr()       { return reinterpret_cast<PeerConnectionBase*>(this); }
-  const PeerConnectionBase* c_ptr() const { return reinterpret_cast<const PeerConnectionBase*>(this); }
+  PeerConnectionBase* m_ptr() {
+    return reinterpret_cast<PeerConnectionBase*>(this);
+  }
+  const PeerConnectionBase* c_ptr() const {
+    return reinterpret_cast<const PeerConnectionBase*>(this);
+  }
 
 protected:
   Peer() {}
   virtual ~Peer() noexcept(false) {}
 
   Peer(const Peer&);
-  void operator = (const Peer&);
+  void operator=(const Peer&);
 
-  bool                 operator == (const Peer& p) const;
+  bool operator==(const Peer& p) const;
 
-  PeerInfo*            m_peerInfo;
+  PeerInfo* m_peerInfo;
 };
 
-}
+} // namespace torrent
 
 #endif

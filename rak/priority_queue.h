@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -46,7 +46,10 @@
 
 namespace rak {
 
-template <typename Value, typename Compare, typename Equal, typename Alloc = std::allocator<Value> >
+template<typename Value,
+         typename Compare,
+         typename Equal,
+         typename Alloc = std::allocator<Value>>
 class priority_queue : public std::vector<Value, Alloc> {
 public:
   typedef std::vector<Value, Alloc>           base_type;
@@ -57,13 +60,14 @@ public:
   typedef typename base_type::value_type      value_type;
 
   using base_type::begin;
+  using base_type::clear;
+  using base_type::empty;
   using base_type::end;
   using base_type::size;
-  using base_type::empty;
-  using base_type::clear;
 
   priority_queue(Compare l = Compare(), Equal e = Equal())
-    : m_compare(l), m_equal(e) {}
+    : m_compare(l)
+    , m_equal(e) {}
 
   const_reference top() const {
     return base_type::front();
@@ -79,12 +83,12 @@ public:
     std::push_heap(begin(), end(), m_compare);
   }
 
-  template <typename Key>
+  template<typename Key>
   iterator find(const Key& key) {
     return std::find_if(begin(), end(), std::bind2nd(m_equal, key));
   }
 
-  template <typename Key>
+  template<typename Key>
   bool erase(const Key& key) {
     iterator itr = find(key);
 
@@ -99,47 +103,62 @@ public:
   // modified such that it has a higher priority than any other
   // element in the queue.
   void erase(iterator itr) {
-//     std::push_heap(begin(), ++itr, m_compare);
-//     pop();
+    //     std::push_heap(begin(), ++itr, m_compare);
+    //     pop();
     base_type::erase(itr);
     std::make_heap(begin(), end(), m_compare);
   }
 
 private:
-  Compare             m_compare;
-  Equal               m_equal;
+  Compare m_compare;
+  Equal   m_equal;
 };
 
 // Iterate while the top node has higher priority, as 'Compare'
 // returns false.
-template <typename Queue, typename Compare>
+template<typename Queue, typename Compare>
 class queue_pop_iterator
   : public std::iterator<std::forward_iterator_tag, void, void, void, void> {
 public:
   typedef Queue container_type;
 
-  queue_pop_iterator() : m_queue(NULL) {}
-  queue_pop_iterator(Queue* q, Compare c) : m_queue(q), m_compare(c) {}
+  queue_pop_iterator()
+    : m_queue(NULL) {}
+  queue_pop_iterator(Queue* q, Compare c)
+    : m_queue(q)
+    , m_compare(c) {}
 
-  queue_pop_iterator& operator ++ ()                     { m_queue->pop(); return *this; }
-  queue_pop_iterator& operator ++ (int)                  { m_queue->pop(); return *this; }
+  queue_pop_iterator& operator++() {
+    m_queue->pop();
+    return *this;
+  }
+  queue_pop_iterator& operator++(int) {
+    m_queue->pop();
+    return *this;
+  }
 
-  typename container_type::const_reference operator * () { return m_queue->top(); }
+  typename container_type::const_reference operator*() {
+    return m_queue->top();
+  }
 
-  bool operator != (const queue_pop_iterator&)       { return !m_queue->empty() && !m_compare(m_queue->top()); }
-  bool operator == (const queue_pop_iterator&)       { return m_queue->empty() || m_compare(m_queue->top()); }
+  bool operator!=(const queue_pop_iterator&) {
+    return !m_queue->empty() && !m_compare(m_queue->top());
+  }
+  bool operator==(const queue_pop_iterator&) {
+    return m_queue->empty() || m_compare(m_queue->top());
+  }
 
 private:
   Queue*  m_queue;
   Compare m_compare;
 };
 
-template <typename Queue, typename Compare>
+template<typename Queue, typename Compare>
 inline queue_pop_iterator<Queue, Compare>
 queue_popper(Queue& queue, Compare comp) {
   return queue_pop_iterator<Queue, Compare>(&queue, comp);
 }
 
-}
+} // namespace rak
 
 #endif

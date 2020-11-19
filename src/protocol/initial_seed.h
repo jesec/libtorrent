@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -48,38 +48,39 @@ public:
 
   static const uint32_t no_offer = ~uint32_t();
 
-  void                new_peer(PeerConnectionBase* pcb);
+  void new_peer(PeerConnectionBase* pcb);
 
   // Chunk was seen distributed to a peer in the swarm.
-  void                chunk_seen(uint32_t index, PeerConnectionBase* pcb);
+  void chunk_seen(uint32_t index, PeerConnectionBase* pcb);
 
   // Returns chunk we may offer the peer or no_offer if none.
-  uint32_t            chunk_offer(PeerConnectionBase* pcb, uint32_t indexDone);
+  uint32_t chunk_offer(PeerConnectionBase* pcb, uint32_t indexDone);
 
   // During the second stage (seeding rare chunks), return
   // false if given chunk is already well-seeded now. True otherwise.
-  bool                should_upload(uint32_t index);
+  bool should_upload(uint32_t index);
 
 private:
-  static PeerInfo* const chunk_unsent;  // Chunk never sent to anyone.
-  static PeerInfo* const chunk_unknown; // Peer has chunk, we don't know who we sent it to.
-  static PeerInfo* const chunk_done;    // Chunk properly distributed by peer.
+  static PeerInfo* const chunk_unsent; // Chunk never sent to anyone.
+  static PeerInfo* const
+    chunk_unknown; // Peer has chunk, we don't know who we sent it to.
+  static PeerInfo* const chunk_done; // Chunk properly distributed by peer.
 
-  uint32_t            find_next(bool secondary, PeerConnectionBase* pcb);
+  uint32_t find_next(bool secondary, PeerConnectionBase* pcb);
 
-  bool                valid_peer(PeerInfo* peer);
-  void                clear_peer(PeerInfo* peer);
-  void                chunk_complete(uint32_t index, PeerConnectionBase* pcb);
+  bool valid_peer(PeerInfo* peer);
+  void clear_peer(PeerInfo* peer);
+  void chunk_complete(uint32_t index, PeerConnectionBase* pcb);
 
-  void                complete(PeerConnectionBase* pcb);
-  void                unblock_all();
+  void complete(PeerConnectionBase* pcb);
+  void unblock_all();
 
-  uint32_t            m_nextChunk;
-  uint32_t            m_chunksLeft;
-  DownloadMain*       m_download;
-  PeerInfo**          m_peerChunks;
+  uint32_t      m_nextChunk;
+  uint32_t      m_chunksLeft;
+  DownloadMain* m_download;
+  PeerInfo**    m_peerChunks;
 };
 
-}
+} // namespace torrent
 
 #endif

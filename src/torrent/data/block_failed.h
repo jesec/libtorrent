@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,24 +39,24 @@
 
 #include <algorithm>
 #include <functional>
-#include <vector>
 #include <torrent/common.h>
+#include <vector>
 
 namespace torrent {
 
-class BlockFailed : public std::vector<std::pair<char*, uint32_t> > {
+class BlockFailed : public std::vector<std::pair<char*, uint32_t>> {
 public:
-  typedef std::vector<std::pair<char*, uint32_t> > base_type;
+  typedef std::vector<std::pair<char*, uint32_t>> base_type;
 
-  using base_type::value_type;
+  using base_type::difference_type;
   using base_type::reference;
   using base_type::size_type;
-  using base_type::difference_type;
+  using base_type::value_type;
 
+  using base_type::empty;
   using base_type::iterator;
   using base_type::reverse_iterator;
   using base_type::size;
-  using base_type::empty;
 
   using base_type::begin;
   using base_type::end;
@@ -67,45 +67,63 @@ public:
 
   static const uint32_t invalid_index = ~uint32_t();
 
-  BlockFailed() : m_current(invalid_index) {}
+  BlockFailed()
+    : m_current(invalid_index) {}
   ~BlockFailed();
 
-  size_type           current() const                   { return m_current; }
-  iterator            current_iterator()                { return begin() + m_current; }
-  reverse_iterator    current_reverse_iterator()        { return reverse_iterator(begin() + m_current + 1); }
+  size_type current() const {
+    return m_current;
+  }
+  iterator current_iterator() {
+    return begin() + m_current;
+  }
+  reverse_iterator current_reverse_iterator() {
+    return reverse_iterator(begin() + m_current + 1);
+  }
 
-  void                set_current(size_type idx)        { m_current = idx; }
-  void                set_current(iterator itr)         { m_current = itr - begin(); }
-  void                set_current(reverse_iterator itr) { m_current = itr.base() - begin() - 1; }
+  void set_current(size_type idx) {
+    m_current = idx;
+  }
+  void set_current(iterator itr) {
+    m_current = itr - begin();
+  }
+  void set_current(reverse_iterator itr) {
+    m_current = itr.base() - begin() - 1;
+  }
 
-  iterator            max_element();
-  reverse_iterator    reverse_max_element();
+  iterator         max_element();
+  reverse_iterator reverse_max_element();
 
 private:
   BlockFailed(const BlockFailed&);
-  void operator = (const BlockFailed&);
+  void operator=(const BlockFailed&);
 
-  static void         delete_entry(value_type e)                    { delete [] e.first; }
-  static bool         compare_entries(value_type e1, value_type e2) { return e1.second < e2.second; }
+  static void delete_entry(value_type e) {
+    delete[] e.first;
+  }
+  static bool compare_entries(value_type e1, value_type e2) {
+    return e1.second < e2.second;
+  }
 
-  size_type           m_current;
+  size_type m_current;
 };
 
-inline
-BlockFailed::~BlockFailed() {
+inline BlockFailed::~BlockFailed() {
   std::for_each(begin(), end(), std::ptr_fun(&BlockFailed::delete_entry));
 }
 
 inline BlockFailed::iterator
 BlockFailed::max_element() {
-  return std::max_element(begin(), end(), std::ptr_fun(&BlockFailed::compare_entries));
+  return std::max_element(
+    begin(), end(), std::ptr_fun(&BlockFailed::compare_entries));
 }
 
 inline BlockFailed::reverse_iterator
 BlockFailed::reverse_max_element() {
-  return std::max_element(rbegin(), rend(), std::ptr_fun(&BlockFailed::compare_entries));
+  return std::max_element(
+    rbegin(), rend(), std::ptr_fun(&BlockFailed::compare_entries));
 }
 
-}
+} // namespace torrent
 
 #endif

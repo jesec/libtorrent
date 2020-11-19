@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -48,18 +48,19 @@ hash_string_from_hex_c_str(const char* first, HashString& hash) {
   const char* hash_first = first;
 
   torrent::HashString::iterator itr = hash.begin();
-  
+
   while (itr != hash.end()) {
     if (!std::isxdigit(*first) || !std::isxdigit(*(first + 1)))
       return hash_first;
 
-    *itr++ = (rak::hexchar_to_value(*first) << 4) + rak::hexchar_to_value(*(first + 1));
+    *itr++ = (rak::hexchar_to_value(*first) << 4) +
+             rak::hexchar_to_value(*(first + 1));
     first += 2;
   }
 
   return first;
 }
-  
+
 char*
 hash_string_to_hex(const HashString& hash, char* first) {
   return rak::transform_hex(hash.begin(), hash.end(), first);
@@ -73,4 +74,4 @@ hash_string_to_hex_str(const HashString& hash) {
   return str;
 }
 
-}
+} // namespace torrent

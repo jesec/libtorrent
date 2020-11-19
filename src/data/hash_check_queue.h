@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -48,38 +48,42 @@ namespace torrent {
 class HashString;
 class HashChunk;
 
-class lt_cacheline_aligned HashCheckQueue : private std::deque<HashChunk*, rak::cacheline_allocator<HashChunk*> > {
+class lt_cacheline_aligned HashCheckQueue
+  : private std::deque<HashChunk*, rak::cacheline_allocator<HashChunk*>> {
 public:
-  typedef std::deque<HashChunk*, rak::cacheline_allocator<HashChunk*> > base_type;
-  typedef std::function<void (HashChunk*, const HashString&)>      slot_chunk_handle;
+  typedef std::deque<HashChunk*, rak::cacheline_allocator<HashChunk*>>
+                                                             base_type;
+  typedef std::function<void(HashChunk*, const HashString&)> slot_chunk_handle;
 
   using base_type::iterator;
 
   using base_type::empty;
   using base_type::size;
 
+  using base_type::back;
   using base_type::begin;
   using base_type::end;
   using base_type::front;
-  using base_type::back;
-  
+
   HashCheckQueue();
   ~HashCheckQueue();
 
   // Guarded functions for adding new...
 
-  void                push_back(HashChunk* node);
-  void                perform();
+  void push_back(HashChunk* node);
+  void perform();
 
-  bool                remove(HashChunk* node);
+  bool remove(HashChunk* node);
 
-  slot_chunk_handle&  slot_chunk_done() { return m_slot_chunk_done; }
+  slot_chunk_handle& slot_chunk_done() {
+    return m_slot_chunk_done;
+  }
 
 private:
-  slot_chunk_handle   m_slot_chunk_done;
-  pthread_mutex_t     m_lock;
+  slot_chunk_handle m_slot_chunk_done;
+  pthread_mutex_t   m_lock;
 };
 
-}
+} // namespace torrent
 
 #endif

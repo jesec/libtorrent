@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,8 +39,8 @@
 
 #include <cinttypes>
 #include <functional>
-#include <string>
 #include <rak/priority_queue_default.h>
+#include <string>
 
 #include "data/chunk_handle.h"
 #include "torrent/utils/ranges.h"
@@ -53,48 +53,64 @@ class HashTorrent {
 public:
   typedef ranges<uint32_t> Ranges;
 
-  typedef std::function<void (ChunkHandle)> slot_chunk_handle;
+  typedef std::function<void(ChunkHandle)> slot_chunk_handle;
 
   HashTorrent(ChunkList* c);
-  ~HashTorrent() { clear(); }
+  ~HashTorrent() {
+    clear();
+  }
 
-  bool                start(bool try_quick);
-  void                clear();
+  bool start(bool try_quick);
+  void clear();
 
-  bool                is_checking()                          { return m_outstanding >= 0; }
-  bool                is_checked();
+  bool is_checking() {
+    return m_outstanding >= 0;
+  }
+  bool is_checked();
 
-  void                confirm_checked();
+  void confirm_checked();
 
-  Ranges&             hashing_ranges()                       { return m_ranges; }
-  uint32_t            position() const                       { return m_position; }
-  uint32_t            outstanding() const                    { return m_outstanding; }
+  Ranges& hashing_ranges() {
+    return m_ranges;
+  }
+  uint32_t position() const {
+    return m_position;
+  }
+  uint32_t outstanding() const {
+    return m_outstanding;
+  }
 
-  int                 error_number() const                   { return m_errno; }
+  int error_number() const {
+    return m_errno;
+  }
 
-  slot_chunk_handle&  slot_check_chunk() { return m_slot_check_chunk; }
+  slot_chunk_handle& slot_check_chunk() {
+    return m_slot_check_chunk;
+  }
 
-  rak::priority_item& delay_checked()                        { return m_delayChecked; }
+  rak::priority_item& delay_checked() {
+    return m_delayChecked;
+  }
 
-  void                receive_chunkdone(uint32_t index);
-  void                receive_chunk_cleared(uint32_t index);
-  
+  void receive_chunkdone(uint32_t index);
+  void receive_chunk_cleared(uint32_t index);
+
 private:
-  void                queue(bool quick);
+  void queue(bool quick);
 
-  unsigned int        m_position;
-  int                 m_outstanding;
-  Ranges              m_ranges;
+  unsigned int m_position;
+  int          m_outstanding;
+  Ranges       m_ranges;
 
-  int                 m_errno;
+  int m_errno;
 
-  ChunkList*          m_chunk_list;
+  ChunkList* m_chunk_list;
 
-  slot_chunk_handle   m_slot_check_chunk;
+  slot_chunk_handle m_slot_check_chunk;
 
-  rak::priority_item  m_delayChecked;
+  rak::priority_item m_delayChecked;
 };
 
-}
+} // namespace torrent
 
 #endif

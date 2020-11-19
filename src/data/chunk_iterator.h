@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -44,41 +44,48 @@ namespace torrent {
 class ChunkIterator {
 public:
   ChunkIterator(Chunk* chunk, uint32_t first, uint32_t last);
-  
-  bool                empty() const { return m_iterator == m_chunk->end() || m_first >= m_last; }
+
+  bool empty() const {
+    return m_iterator == m_chunk->end() || m_first >= m_last;
+  }
 
   // Only non-zero length ranges will be returned.
-  Chunk::data_type    data();
+  Chunk::data_type data();
 
-  MemoryChunk*        memory_chunk() { return &m_iterator->chunk(); }
+  MemoryChunk* memory_chunk() {
+    return &m_iterator->chunk();
+  }
 
-  uint32_t            memory_chunk_first() const { return m_first - m_iterator->position(); }
-  uint32_t            memory_chunk_last() const { return m_last - m_iterator->position(); }
+  uint32_t memory_chunk_first() const {
+    return m_first - m_iterator->position();
+  }
+  uint32_t memory_chunk_last() const {
+    return m_last - m_iterator->position();
+  }
 
-  bool                next();
-  bool                forward(uint32_t length);
+  bool next();
+  bool forward(uint32_t length);
 
 private:
-  Chunk*              m_chunk;
-  Chunk::iterator     m_iterator;
-  
-  uint32_t            m_first;
-  uint32_t            m_last;
+  Chunk*          m_chunk;
+  Chunk::iterator m_iterator;
+
+  uint32_t m_first;
+  uint32_t m_last;
 };
 
-inline
-ChunkIterator::ChunkIterator(Chunk* chunk, uint32_t first, uint32_t last) :
-  m_chunk(chunk),
-  m_iterator(chunk->at_position(first)),
+inline ChunkIterator::ChunkIterator(Chunk* chunk, uint32_t first, uint32_t last)
+  : m_chunk(chunk)
+  , m_iterator(chunk->at_position(first))
+  ,
 
-  m_first(first),
-  m_last(last) {
-}
+  m_first(first)
+  , m_last(last) {}
 
 inline Chunk::data_type
 ChunkIterator::data() {
   Chunk::data_type data = m_chunk->at_memory(m_first, m_iterator);
-  data.second = std::min(data.second, m_last - m_first);
+  data.second           = std::min(data.second, m_last - m_first);
 
   return data;
 }
@@ -117,6 +124,6 @@ ChunkIterator::forward(uint32_t length) {
   return false;
 }
 
-}
+} // namespace torrent
 
 #endif

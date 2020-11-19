@@ -1,9 +1,5 @@
 #include "config.h"
 
-#include <cstdlib>
-#include <stdexcept>
-#include <signal.h>
-#include <string.h>
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/TestResult.h>
@@ -11,6 +7,10 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <cstdlib>
+#include <signal.h>
+#include <stdexcept>
+#include <string.h>
 
 #ifdef HAVE_BACKTRACE
 #include <execinfo.h>
@@ -29,13 +29,16 @@ void
 do_test_panic(int signum) {
   signal(signum, SIG_DFL);
 
-  std::cout << std::endl << std::endl << "Caught " << strsignal(signum) << ", dumping stack:" << std::endl << std::endl;
-  
+  std::cout << std::endl
+            << std::endl
+            << "Caught " << strsignal(signum) << ", dumping stack:" << std::endl
+            << std::endl;
+
 #ifdef HAVE_BACKTRACE
   void* stackPtrs[20];
 
   // Print the stack and exit.
-  int stackSize = backtrace(stackPtrs, 20);
+  int    stackSize    = backtrace(stackPtrs, 20);
   char** stackStrings = backtrace_symbols(stackPtrs, stackSize);
 
   for (int i = 0; i < stackSize; ++i)
@@ -54,7 +57,7 @@ void
 register_signal_handlers() {
   struct sigaction sa;
   sigemptyset(&sa.sa_mask);
-  sa.sa_flags = SA_RESTART;
+  sa.sa_flags   = SA_RESTART;
   sa.sa_handler = &do_test_panic;
 
   if (sigaction(SIGSEGV, &sa, NULL) == -1) {
@@ -63,32 +66,33 @@ register_signal_handlers() {
   }
 }
 
-int main(int, char**) {
+int
+main(int, char**) {
   register_signal_handlers();
 
-  CppUnit::TestResult controller;
+  CppUnit::TestResult          controller;
   CppUnit::TestResultCollector result;
-  progress_listener progress;
+  progress_listener            progress;
 
-  controller.addListener( &result );        
-  controller.addListener( &progress );
+  controller.addListener(&result);
+  controller.addListener(&progress);
 
   CppUnit::TextUi::TestRunner runner;
   add_tests(runner, std::getenv("TEST_NAME"));
 
   try {
     std::cout << "Running ";
-    runner.run( controller );
- 
+    runner.run(controller);
+
     // TODO: Make outputter.
     dump_failures(progress.failures());
 
     // Print test in a compiler compatible format.
-    CppUnit::CompilerOutputter outputter( &result, std::cerr );
-    outputter.write();                      
+    CppUnit::CompilerOutputter outputter(&result, std::cerr);
+    outputter.write();
 
-  } catch ( std::invalid_argument &e ) { // Test path not resolved
-    std::cerr  <<  std::endl <<  "ERROR: "  <<  e.what() << std::endl;
+  } catch (std::invalid_argument& e) { // Test path not resolved
+    std::cerr << std::endl << "ERROR: " << e.what() << std::endl;
     return 1;
   }
 

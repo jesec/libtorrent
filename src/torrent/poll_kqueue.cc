@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,31 +39,35 @@
 #include <cerrno>
 
 #include <algorithm>
-#include <unistd.h>
-#include <stdexcept>
 #include <rak/error_number.h>
-#include <torrent/exceptions.h>
+#include <stdexcept>
 #include <torrent/event.h>
+#include <torrent/exceptions.h>
+#include <unistd.h>
 
 #include "poll_kqueue.h"
-#include "torrent.h"
+#include "rak/error_number.h"
 #include "rak/functional.h"
 #include "rak/timer.h"
-#include "rak/error_number.h"
+#include "torrent.h"
 #include "utils/log.h"
 #include "utils/thread_base.h"
 
 #ifdef USE_KQUEUE
-#include <sys/types.h>
 #include <sys/event.h>
 #include <sys/select.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #endif
 
 #include <assert.h>
 
-#define LT_LOG_EVENT(event, log_level, log_fmt, ...)                    \
-  lt_log_print(LOG_SOCKET_##log_level, "kqueue->%s(%i): " log_fmt, event->type_name(), event->file_descriptor(), __VA_ARGS__);
+#define LT_LOG_EVENT(event, log_level, log_fmt, ...)                           \
+  lt_log_print(LOG_SOCKET_##log_level,                                         \
+               "kqueue->%s(%i): " log_fmt,                                     \
+               event->type_name(),                                             \
+               event->file_descriptor(),                                       \
+               __VA_ARGS__);
 
 namespace torrent {
 
@@ -88,9 +92,15 @@ void
 PollKQueue::flush_events() {
   timespec timeout = { 0, 0 };
 
-  int nfds = kevent(m_fd, m_changes, m_changedEvents, m_events + m_waitingEvents, m_maxEvents - m_waitingEvents, &timeout);
+  int nfds = kevent(m_fd,
+                    m_changes,
+                    m_changedEvents,
+                    m_events + m_waitingEvents,
+                    m_maxEvents - m_waitingEvents,
+                    &timeout);
   if (nfds == -1)
-    throw internal_error("PollKQueue::flush_events() error: " + std::string(rak::error_number::current().c_str()));
+    throw internal_error("PollKQueue::flush_events() error: " +
+                         std::string(rak::error_number::current().c_str()));
 
   m_changedEvents = 0;
   m_waitingEvents += nfds;
@@ -98,12 +108,18 @@ PollKQueue::flush_events() {
 
 void
 PollKQueue::modify(Event* event, unsigned short op, short mask) {
-  LT_LOG_EVENT(event, DEBUG, "Modify event: op:%hx mask:%hx changed:%u.", op, mask, m_changedEvents);
+  LT_LOG_EVENT(event,
+               DEBUG,
+               "Modify event: op:%hx mask:%hx changed:%u.",
+               op,
+               mask,
+               m_changedEvents);
 
   // Flush the changed filters to the kernel if the buffer is full.
   if (m_changedEvents == m_maxEvents) {
     if (kevent(m_fd, m_changes, m_changedEvents, NULL, 0, NULL) == -1)
-      throw internal_error("PollKQueue::modify() error: " + std::string(rak::error_number::current().c_str()));
+      throw internal_error("PollKQueue::modify() error: " +
+                           std::string(rak::error_number::current().c_str()));
 
     m_changedEvents = 0;
   }
@@ -124,14 +140,14 @@ PollKQueue::create(int maxOpenSockets) {
   return new PollKQueue(fd, 1024, maxOpenSockets);
 }
 
-PollKQueue::PollKQueue(int fd, int maxEvents, int maxOpenSockets) :
-  m_fd(fd),
-  m_maxEvents(maxEvents),
-  m_waitingEvents(0),
-  m_changedEvents(0),
-  m_stdinEvent(NULL) {
+PollKQueue::PollKQueue(int fd, int maxEvents, int maxOpenSockets)
+  : m_fd(fd)
+  , m_maxEvents(maxEvents)
+  , m_waitingEvents(0)
+  , m_changedEvents(0)
+  , m_stdinEvent(NULL) {
 
-  m_events = new struct kevent[m_maxEvents];
+  m_events  = new struct kevent[m_maxEvents];
   m_changes = new struct kevent[maxOpenSockets];
 
   m_table.resize(maxOpenSockets);
@@ -139,8 +155,8 @@ PollKQueue::PollKQueue(int fd, int maxEvents, int maxOpenSockets) :
 
 PollKQueue::~PollKQueue() {
   m_table.clear();
-  delete [] m_events;
-  delete [] m_changes;
+  delete[] m_events;
+  delete[] m_changes;
 
   ::close(m_fd);
 }
@@ -164,7 +180,12 @@ PollKQueue::poll(int msec) {
 
   timespec timeout = { msec / 1000, (msec % 1000) * 1000000 };
 
-  int nfds = kevent(m_fd, m_changes, m_changedEvents, m_events + m_waitingEvents, m_maxEvents - m_waitingEvents, &timeout);
+  int nfds = kevent(m_fd,
+                    m_changes,
+                    m_changedEvents,
+                    m_events + m_waitingEvents,
+                    m_maxEvents - m_waitingEvents,
+                    &timeout);
 
   // Clear the changed events even on fail as we might have received a
   // signal or similar, and the changed events have already been
@@ -194,11 +215,11 @@ PollKQueue::poll_select(int msec) {
   // a low number, using ::poll() here would perform better.
   //
   // This kinda assumes fd_set's internal type is int.
-  int readBuffer[m_fd + 1];
+  int     readBuffer[m_fd + 1];
   fd_set* readSet = (fd_set*)&readBuffer;
 
   std::memset(readBuffer, 0, m_fd + 1);
-  FD_SET(0,    readSet);
+  FD_SET(0, readSet);
   FD_SET(m_fd, readSet);
 
   int nfds = select(m_fd + 1, readSet, NULL, NULL, &selectTimeout);
@@ -207,9 +228,9 @@ PollKQueue::poll_select(int msec) {
     return nfds;
 
   if (FD_ISSET(0, readSet)) {
-    m_events[m_waitingEvents].ident = 0;
+    m_events[m_waitingEvents].ident  = 0;
     m_events[m_waitingEvents].filter = EVFILT_READ;
-    m_events[m_waitingEvents].flags = 0;
+    m_events[m_waitingEvents].flags  = 0;
     m_waitingEvents++;
   }
 
@@ -221,11 +242,14 @@ unsigned int
 PollKQueue::perform() {
   unsigned int count = 0;
 
-  for (struct kevent *itr = m_events, *last = m_events + m_waitingEvents; itr != last; ++itr) {
+  for (struct kevent *itr = m_events, *last = m_events + m_waitingEvents;
+       itr != last;
+       ++itr) {
     if (itr->ident >= m_table.size())
       continue;
 
-    if ((flags() & flag_waive_global_lock) && thread_base::global_queue_size() != 0)
+    if ((flags() & flag_waive_global_lock) &&
+        thread_base::global_queue_size() != 0)
       thread_base::waive_global_lock();
 
     Table::iterator evItr = m_table.begin() + itr->ident;
@@ -240,12 +264,14 @@ PollKQueue::perform() {
 
     // Also check current mask.
 
-    if (itr->filter == EVFILT_READ && evItr->second != NULL && evItr->first & flag_read) {
+    if (itr->filter == EVFILT_READ && evItr->second != NULL &&
+        evItr->first & flag_read) {
       count++;
       evItr->second->event_read();
     }
 
-    if (itr->filter == EVFILT_WRITE && evItr->second != NULL && evItr->first & flag_write) {
+    if (itr->filter == EVFILT_WRITE && evItr->second != NULL &&
+        evItr->first & flag_write) {
       count++;
       evItr->second->event_write();
     }
@@ -274,7 +300,9 @@ PollKQueue::do_poll(int64_t timeout_usec, int flags) {
 
   if (status == -1) {
     if (rak::error_number::current().value() != rak::error_number::e_intr) {
-      throw std::runtime_error("PollKQueue::work(): " + std::string(rak::error_number::current().c_str()));
+      throw std::runtime_error(
+        "PollKQueue::work(): " +
+        std::string(rak::error_number::current().c_str()));
     }
 
     return 0;
@@ -293,7 +321,8 @@ PollKQueue::open(Event* event) {
   LT_LOG_EVENT(event, DEBUG, "Open event.", 0);
 
   if (event_mask(event) != 0)
-    throw internal_error("PollKQueue::open(...) called but the file descriptor is active");
+    throw internal_error(
+      "PollKQueue::open(...) called but the file descriptor is active");
 }
 
 void
@@ -308,17 +337,23 @@ PollKQueue::close(Event* event) {
 #endif
 
   if (event_mask(event) != 0)
-    throw internal_error("PollKQueue::close(...) called but the file descriptor is active");
+    throw internal_error(
+      "PollKQueue::close(...) called but the file descriptor is active");
 
   m_table[event->file_descriptor()] = Table::value_type();
 
   // Shouldn't be needed anymore.
-  for (struct kevent *itr = m_events, *last = m_events + m_waitingEvents; itr != last; ++itr)
+  for (struct kevent *itr = m_events, *last = m_events + m_waitingEvents;
+       itr != last;
+       ++itr)
     if (itr->udata == event)
       itr->udata = NULL;
 
-  m_changedEvents = std::remove_if(m_changes, m_changes + m_changedEvents,
-                                   rak::equal(event, rak::mem_ref(&kevent::udata))) - m_changes;
+  m_changedEvents =
+    std::remove_if(m_changes,
+                   m_changes + m_changedEvents,
+                   rak::equal(event, rak::mem_ref(&kevent::udata))) -
+    m_changes;
 }
 
 void
@@ -339,12 +374,17 @@ PollKQueue::closed(Event* event) {
     m_table[event->file_descriptor()] = Table::value_type();
 
   // Shouldn't be needed anymore.
-  for (struct kevent *itr = m_events, *last = m_events + m_waitingEvents; itr != last; ++itr)
+  for (struct kevent *itr = m_events, *last = m_events + m_waitingEvents;
+       itr != last;
+       ++itr)
     if (itr->udata == event)
       itr->udata = NULL;
 
-  m_changedEvents = std::remove_if(m_changes, m_changes + m_changedEvents,
-                                   rak::equal(event, rak::mem_ref(&kevent::udata))) - m_changes;
+  m_changedEvents =
+    std::remove_if(m_changes,
+                   m_changes + m_changedEvents,
+                   rak::equal(event, rak::mem_ref(&kevent::udata))) -
+    m_changes;
 }
 
 // Use custom defines for EPOLL* to make the below code compile with
@@ -437,84 +477,84 @@ PollKQueue::create(__UNUSED int maxOpenSockets) {
   return NULL;
 }
 
-PollKQueue::~PollKQueue() {
-}
+PollKQueue::~PollKQueue() {}
 
 int
 PollKQueue::poll(__UNUSED int msec) {
-  throw internal_error("An PollKQueue function was called, but it is disabled.");
+  throw internal_error(
+    "An PollKQueue function was called, but it is disabled.");
 }
 
 unsigned int
 PollKQueue::perform() {
-  throw internal_error("An PollKQueue function was called, but it is disabled.");
+  throw internal_error(
+    "An PollKQueue function was called, but it is disabled.");
 }
 
 unsigned int
 PollKQueue::do_poll(int64_t, int) {
-  throw internal_error("An PollKQueue function was called, but it is disabled.");
+  throw internal_error(
+    "An PollKQueue function was called, but it is disabled.");
 }
 
 uint32_t
 PollKQueue::open_max() const {
-  throw internal_error("An PollKQueue function was called, but it is disabled.");
+  throw internal_error(
+    "An PollKQueue function was called, but it is disabled.");
 }
 
 void
-PollKQueue::open(__UNUSED torrent::Event* event) {
-}
+PollKQueue::open(__UNUSED torrent::Event* event) {}
 
 void
-PollKQueue::close(__UNUSED torrent::Event* event) {
-}
+PollKQueue::close(__UNUSED torrent::Event* event) {}
 
 void
-PollKQueue::closed(__UNUSED torrent::Event* event) {
-}
+PollKQueue::closed(__UNUSED torrent::Event* event) {}
 
 bool
 PollKQueue::in_read(__UNUSED torrent::Event* event) {
-  throw internal_error("An PollKQueue function was called, but it is disabled.");
+  throw internal_error(
+    "An PollKQueue function was called, but it is disabled.");
 }
 
 bool
 PollKQueue::in_write(__UNUSED torrent::Event* event) {
-  throw internal_error("An PollKQueue function was called, but it is disabled.");
+  throw internal_error(
+    "An PollKQueue function was called, but it is disabled.");
 }
 
 bool
 PollKQueue::in_error(__UNUSED torrent::Event* event) {
-  throw internal_error("An PollKQueue function was called, but it is disabled.");
+  throw internal_error(
+    "An PollKQueue function was called, but it is disabled.");
 }
 
 void
-PollKQueue::insert_read(__UNUSED torrent::Event* event) {
-}
+PollKQueue::insert_read(__UNUSED torrent::Event* event) {}
 
 void
-PollKQueue::insert_write(__UNUSED torrent::Event* event) {
-}
+PollKQueue::insert_write(__UNUSED torrent::Event* event) {}
 
 void
-PollKQueue::insert_error(__UNUSED torrent::Event* event) {
-}
+PollKQueue::insert_error(__UNUSED torrent::Event* event) {}
 
 void
-PollKQueue::remove_read(__UNUSED torrent::Event* event) {
-}
+PollKQueue::remove_read(__UNUSED torrent::Event* event) {}
 
 void
-PollKQueue::remove_write(__UNUSED torrent::Event* event) {
-}
+PollKQueue::remove_write(__UNUSED torrent::Event* event) {}
 
 void
-PollKQueue::remove_error(__UNUSED torrent::Event* event) {
-}
+PollKQueue::remove_error(__UNUSED torrent::Event* event) {}
 
-PollKQueue::PollKQueue(__UNUSED int fd, __UNUSED int maxEvents, __UNUSED int maxOpenSockets) {
-  throw internal_error("An PollKQueue function was called, but it is disabled.");
+PollKQueue::PollKQueue(__UNUSED int fd,
+                       __UNUSED int maxEvents,
+                       __UNUSED int maxOpenSockets) {
+  throw internal_error(
+    "An PollKQueue function was called, but it is disabled.");
 }
 
 #endif // USE_KQUEUE
 
-}
+} // namespace torrent

@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -52,74 +52,114 @@ class PeerInfo;
 
 class PeerChunks {
 public:
-  typedef std::list<Piece>    piece_list_type;
+  typedef std::list<Piece> piece_list_type;
 
   PeerChunks();
 
-  bool                is_seeder() const             { return m_bitfield.is_all_set(); }
+  bool is_seeder() const {
+    return m_bitfield.is_all_set();
+  }
 
-  PeerInfo*           peer_info()                   { return m_peerInfo; }
-  const PeerInfo*     peer_info() const             { return m_peerInfo; }
-  void                set_peer_info(PeerInfo* p)    { m_peerInfo = p; }
+  PeerInfo* peer_info() {
+    return m_peerInfo;
+  }
+  const PeerInfo* peer_info() const {
+    return m_peerInfo;
+  }
+  void set_peer_info(PeerInfo* p) {
+    m_peerInfo = p;
+  }
 
-  bool                using_counter() const         { return m_usingCounter; }
-  void                set_using_counter(bool state) { m_usingCounter = state; }
+  bool using_counter() const {
+    return m_usingCounter;
+  }
+  void set_using_counter(bool state) {
+    m_usingCounter = state;
+  }
 
-  Bitfield*           bitfield()                    { return &m_bitfield; }
-  const Bitfield*     bitfield() const              { return &m_bitfield; }
+  Bitfield* bitfield() {
+    return &m_bitfield;
+  }
+  const Bitfield* bitfield() const {
+    return &m_bitfield;
+  }
 
-  rak::partial_queue* download_cache()              { return &m_downloadCache; }
+  rak::partial_queue* download_cache() {
+    return &m_downloadCache;
+  }
 
-  piece_list_type*       upload_queue()             { return &m_uploadQueue; }
-  const piece_list_type* upload_queue() const       { return &m_uploadQueue; }
-  piece_list_type*       cancel_queue()             { return &m_cancelQueue; }
+  piece_list_type* upload_queue() {
+    return &m_uploadQueue;
+  }
+  const piece_list_type* upload_queue() const {
+    return &m_uploadQueue;
+  }
+  piece_list_type* cancel_queue() {
+    return &m_cancelQueue;
+  }
 
   // Timer used to figure out what HAVE_PIECE messages have not been
   // sent.
-  rak::timer          have_timer() const            { return m_haveTimer; }
-  void                set_have_timer(rak::timer t)  { m_haveTimer = t; }
+  rak::timer have_timer() const {
+    return m_haveTimer;
+  }
+  void set_have_timer(rak::timer t) {
+    m_haveTimer = t;
+  }
 
-  Rate*               peer_rate()                   { return &m_peerRate; }
-  const Rate*         peer_rate() const             { return &m_peerRate; }
+  Rate* peer_rate() {
+    return &m_peerRate;
+  }
+  const Rate* peer_rate() const {
+    return &m_peerRate;
+  }
 
-  ThrottleNode*       download_throttle()           { return &m_downloadThrottle; }
-  const ThrottleNode* download_throttle() const     { return &m_downloadThrottle; }
-  ThrottleNode*       upload_throttle()             { return &m_uploadThrottle; }
-  const ThrottleNode* upload_throttle() const       { return &m_uploadThrottle; }
+  ThrottleNode* download_throttle() {
+    return &m_downloadThrottle;
+  }
+  const ThrottleNode* download_throttle() const {
+    return &m_downloadThrottle;
+  }
+  ThrottleNode* upload_throttle() {
+    return &m_uploadThrottle;
+  }
+  const ThrottleNode* upload_throttle() const {
+    return &m_uploadThrottle;
+  }
 
 private:
-  PeerInfo*           m_peerInfo;
+  PeerInfo* m_peerInfo;
 
-  bool                m_usingCounter;
+  bool m_usingCounter;
 
-  Bitfield            m_bitfield;
+  Bitfield m_bitfield;
 
-  rak::partial_queue  m_downloadCache;
+  rak::partial_queue m_downloadCache;
 
-  piece_list_type     m_uploadQueue;
-  piece_list_type     m_cancelQueue;
+  piece_list_type m_uploadQueue;
+  piece_list_type m_cancelQueue;
 
-  rak::timer          m_haveTimer;
+  rak::timer m_haveTimer;
 
-  Rate                m_peerRate;
+  Rate m_peerRate;
 
-  ThrottleNode        m_downloadThrottle;
-  ThrottleNode        m_uploadThrottle;
+  ThrottleNode m_downloadThrottle;
+  ThrottleNode m_uploadThrottle;
 };
 
-inline
-PeerChunks::PeerChunks() :
-  m_peerInfo(NULL),
+inline PeerChunks::PeerChunks()
+  : m_peerInfo(NULL)
+  ,
 
-  m_usingCounter(false),
+  m_usingCounter(false)
+  ,
 
-  m_peerRate(600),
+  m_peerRate(600)
+  ,
 
-  m_downloadThrottle(30),
-  m_uploadThrottle(30)
-{
-}
+  m_downloadThrottle(30)
+  , m_uploadThrottle(30) {}
 
-}
+} // namespace torrent
 
 #endif

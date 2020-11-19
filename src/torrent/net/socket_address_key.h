@@ -4,8 +4,8 @@
 #ifndef LIBTORRENT_UTILS_SOCKET_ADDRESS_KEY_H
 #define LIBTORRENT_UTILS_SOCKET_ADDRESS_KEY_H
 
-#include <cstring>
 #include <cinttypes>
+#include <cstring>
 #include <netinet/in.h>
 
 // Unique key for the socket address, excluding port numbers, etc.
@@ -20,7 +20,9 @@ public:
 
   // socket_address_key(const sockaddr* sa) : m_sockaddr(sa) {}
 
-  bool is_valid() const { return m_family != AF_UNSPEC; }
+  bool is_valid() const {
+    return m_family != AF_UNSPEC;
+  }
 
   // // Rename, add same family, valid inet4/6.
 
@@ -31,18 +33,18 @@ public:
   static socket_address_key from_sin_addr(const sockaddr_in& sa);
   static socket_address_key from_sin6_addr(const sockaddr_in6& sa);
 
-  bool operator < (const socket_address_key& sa) const;
-  bool operator > (const socket_address_key& sa) const;
-  bool operator == (const socket_address_key& sa) const;
+  bool operator<(const socket_address_key& sa) const;
+  bool operator>(const socket_address_key& sa) const;
+  bool operator==(const socket_address_key& sa) const;
 
 private:
   sa_family_t m_family;
 
   union {
-    in_addr m_addr;
+    in_addr  m_addr;
     in6_addr m_addr6;
   };
-} __attribute__ ((packed));
+} __attribute__((packed));
 
 inline bool
 socket_address_key::is_comparable_sockaddr(const sockaddr* sa) {
@@ -63,20 +65,22 @@ socket_address_key::from_sockaddr(const sockaddr* sa) {
     return result;
 
   switch (sa->sa_family) {
-  case AF_INET:
-    // Using hardware order to allo for the use of operator < to
-    // sort in lexical order.
-    result.m_family = AF_INET;
-    result.m_addr.s_addr = ntohl(reinterpret_cast<const struct sockaddr_in*>(sa)->sin_addr.s_addr);
-    break;
+    case AF_INET:
+      // Using hardware order to allo for the use of operator < to
+      // sort in lexical order.
+      result.m_family = AF_INET;
+      result.m_addr.s_addr =
+        ntohl(reinterpret_cast<const struct sockaddr_in*>(sa)->sin_addr.s_addr);
+      break;
 
-  case AF_INET6:
-    result.m_family = AF_INET6;
-    result.m_addr6 = reinterpret_cast<const struct sockaddr_in6*>(sa)->sin6_addr;
-    break;
-   
-  default:
-    break;
+    case AF_INET6:
+      result.m_family = AF_INET6;
+      result.m_addr6 =
+        reinterpret_cast<const struct sockaddr_in6*>(sa)->sin6_addr;
+      break;
+
+    default:
+      break;
   }
 
   return result;
@@ -88,7 +92,7 @@ socket_address_key::from_sin_addr(const sockaddr_in& sa) {
 
   std::memset(&result, 0, sizeof(socket_address_key));
 
-  result.m_family = AF_INET;
+  result.m_family      = AF_INET;
   result.m_addr.s_addr = ntohl(sa.sin_addr.s_addr);
 
   return result;
@@ -101,26 +105,26 @@ socket_address_key::from_sin6_addr(const sockaddr_in6& sa) {
   std::memset(&result, 0, sizeof(socket_address_key));
 
   result.m_family = AF_INET6;
-  result.m_addr6 = sa.sin6_addr;
+  result.m_addr6  = sa.sin6_addr;
 
   return result;
 }
 
 inline bool
-socket_address_key::operator < (const socket_address_key& sa) const {
+socket_address_key::operator<(const socket_address_key& sa) const {
   return std::memcmp(this, &sa, sizeof(socket_address_key)) < 0;
 }
 
 inline bool
-socket_address_key::operator > (const socket_address_key& sa) const {
+socket_address_key::operator>(const socket_address_key& sa) const {
   return std::memcmp(this, &sa, sizeof(socket_address_key)) > 0;
 }
 
 inline bool
-socket_address_key::operator == (const socket_address_key& sa) const {
+socket_address_key::operator==(const socket_address_key& sa) const {
   return std::memcmp(this, &sa, sizeof(socket_address_key)) == 0;
 }
 
-}
+} // namespace torrent
 
 #endif

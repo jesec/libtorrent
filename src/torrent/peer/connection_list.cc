@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -43,10 +43,10 @@
 #include "download/download_main.h"
 #include "net/address_list.h"
 #include "protocol/peer_connection_base.h"
-#include "torrent/exceptions.h"
-#include "torrent/download_info.h"
 #include "torrent/download/choke_group.h"
 #include "torrent/download/choke_queue.h"
+#include "torrent/download_info.h"
+#include "torrent/exceptions.h"
 
 #include "connection_list.h"
 #include "peer.h"
@@ -65,21 +65,26 @@ const int ConnectionList::disconnect_quick;
 const int ConnectionList::disconnect_unwanted;
 const int ConnectionList::disconnect_delayed;
 
-ConnectionList::ConnectionList(DownloadMain* download) :
-  m_download(download), m_minSize(50), m_maxSize(100) {
-}
+ConnectionList::ConnectionList(DownloadMain* download)
+  : m_download(download)
+  , m_minSize(50)
+  , m_maxSize(100) {}
 
 void
 ConnectionList::clear() {
-  std::for_each(begin(), end(), rak::on(std::mem_fun(&Peer::m_ptr), rak::call_delete<PeerConnectionBase>()));
+  std::for_each(begin(),
+                end(),
+                rak::on(std::mem_fun(&Peer::m_ptr),
+                        rak::call_delete<PeerConnectionBase>()));
   base_type::clear();
-  
+
   m_disconnectQueue.clear();
 }
 
 bool
 ConnectionList::want_connection(PeerInfo*, Bitfield* bitfield) {
-  if (m_download->file_list()->is_done() || m_download->initial_seeding() != NULL)
+  if (m_download->file_list()->is_done() ||
+      m_download->initial_seeding() != NULL)
     return !bitfield->is_all_set();
 
   if (!m_download->info()->is_accepting_seeders())
@@ -89,18 +94,25 @@ ConnectionList::want_connection(PeerInfo*, Bitfield* bitfield) {
 }
 
 PeerConnectionBase*
-ConnectionList::insert(PeerInfo* peerInfo, const SocketFd& fd, Bitfield* bitfield, EncryptionInfo* encryptionInfo, ProtocolExtension* extensions) {
+ConnectionList::insert(PeerInfo*          peerInfo,
+                       const SocketFd&    fd,
+                       Bitfield*          bitfield,
+                       EncryptionInfo*    encryptionInfo,
+                       ProtocolExtension* extensions) {
   if (size() >= m_maxSize)
     return NULL;
 
-  PeerConnectionBase* peerConnection = m_slotNewConnection(encryptionInfo->is_encrypted());
+  PeerConnectionBase* peerConnection =
+    m_slotNewConnection(encryptionInfo->is_encrypted());
 
   if (peerConnection == NULL || bitfield == NULL)
-    throw internal_error("ConnectionList::insert(...) received a NULL pointer.");
+    throw internal_error(
+      "ConnectionList::insert(...) received a NULL pointer.");
 
   peerInfo->set_connection(peerConnection);
   peerInfo->set_last_connection(cachedTime.seconds());
-  peerConnection->initialize(m_download, peerInfo, fd, bitfield, encryptionInfo, extensions);
+  peerConnection->initialize(
+    m_download, peerInfo, fd, bitfield, encryptionInfo, extensions);
 
   if (!peerConnection->get_fd().is_valid()) {
     delete peerConnection;
@@ -109,7 +121,8 @@ ConnectionList::insert(PeerInfo* peerInfo, const SocketFd& fd, Bitfield* bitfiel
 
   base_type::push_back(peerConnection);
 
-  m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers, size() < m_maxSize);
+  m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers,
+                                   size() < m_maxSize);
   rak::slot_list_call(m_signalConnected, peerConnection);
 
   return peerConnection;
@@ -123,7 +136,8 @@ ConnectionList::erase(iterator pos, int flags) {
   if (flags & disconnect_delayed) {
     m_disconnectQueue.push_back((*pos)->id());
     if (!m_download->delay_disconnect_peers().is_queued())
-      priority_queue_insert(&taskScheduler, &m_download->delay_disconnect_peers(), cachedTime);
+      priority_queue_insert(
+        &taskScheduler, &m_download->delay_disconnect_peers(), cachedTime);
     return pos;
   }
 
@@ -135,14 +149,16 @@ ConnectionList::erase(iterator pos, int flags) {
   *pos = base_type::back();
   base_type::pop_back();
 
-  m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers, size() < m_maxSize);
+  m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers,
+                                   size() < m_maxSize);
   rak::slot_list_call(m_signalDisconnected, peerConnection);
 
   // Before of after the signal?
   peerConnection->cleanup();
   peerConnection->mutable_peer_info()->set_connection(NULL);
 
-  m_download->peer_list()->disconnected(peerConnection->mutable_peer_info(), PeerList::disconnect_set_time);
+  m_download->peer_list()->disconnected(peerConnection->mutable_peer_info(),
+                                        PeerList::disconnect_set_time);
 
   // Delete after the signal to ensure the address of 'v' doesn't get
   // allocated for a different PCB in the signal.
@@ -174,18 +190,26 @@ ConnectionList::erase_remaining(iterator pos, int flags) {
   while (pos != end())
     erase(--end(), flags);
 
-  m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers, size() < m_maxSize);
+  m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers,
+                                   size() < m_maxSize);
 }
 
 void
 ConnectionList::erase_seeders() {
-  erase_remaining(std::partition(begin(), end(), rak::on(std::mem_fun(&Peer::c_ptr), std::mem_fun(&PeerConnectionBase::is_not_seeder))),
-                  disconnect_unwanted);
+  erase_remaining(
+    std::partition(begin(),
+                   end(),
+                   rak::on(std::mem_fun(&Peer::c_ptr),
+                           std::mem_fun(&PeerConnectionBase::is_not_seeder))),
+    disconnect_unwanted);
 }
 
 void
 ConnectionList::disconnect_queued() {
-  for (queue_type::const_iterator itr = m_disconnectQueue.begin(), last = m_disconnectQueue.end(); itr != last; itr++) {
+  for (queue_type::const_iterator itr  = m_disconnectQueue.begin(),
+                                  last = m_disconnectQueue.end();
+       itr != last;
+       itr++) {
     ConnectionList::iterator conn_itr = find(m_disconnectQueue.back().c_str());
 
     if (conn_itr != end())
@@ -196,44 +220,56 @@ ConnectionList::disconnect_queued() {
 }
 
 struct connection_list_less {
-  bool operator () (const Peer* p1, const Peer* p2) const {
-    return
-      *rak::socket_address::cast_from(p1->peer_info()->socket_address()) <
-      *rak::socket_address::cast_from(p2->peer_info()->socket_address());
+  bool operator()(const Peer* p1, const Peer* p2) const {
+    return *rak::socket_address::cast_from(p1->peer_info()->socket_address()) <
+           *rak::socket_address::cast_from(p2->peer_info()->socket_address());
   }
 
-  bool operator () (const rak::socket_address& sa1, const Peer* p2) const {
-    return sa1 < *rak::socket_address::cast_from(p2->peer_info()->socket_address());
+  bool operator()(const rak::socket_address& sa1, const Peer* p2) const {
+    return sa1 <
+           *rak::socket_address::cast_from(p2->peer_info()->socket_address());
   }
 
-  bool operator () (const Peer* p1, const rak::socket_address& sa2) const {
-    return *rak::socket_address::cast_from(p1->peer_info()->socket_address()) < sa2;
+  bool operator()(const Peer* p1, const rak::socket_address& sa2) const {
+    return *rak::socket_address::cast_from(p1->peer_info()->socket_address()) <
+           sa2;
   }
 };
 
 ConnectionList::iterator
 ConnectionList::find(const char* id) {
-  return std::find_if(begin(), end(), rak::equal(*HashString::cast_from(id),
-                                                 rak::on(std::mem_fun(&Peer::m_ptr), rak::on(std::mem_fun(&PeerConnectionBase::peer_info), std::mem_fun(&PeerInfo::id)))));
+  return std::find_if(
+    begin(),
+    end(),
+    rak::equal(*HashString::cast_from(id),
+               rak::on(std::mem_fun(&Peer::m_ptr),
+                       rak::on(std::mem_fun(&PeerConnectionBase::peer_info),
+                               std::mem_fun(&PeerInfo::id)))));
 }
 
 ConnectionList::iterator
 ConnectionList::find(const sockaddr* sa) {
-  return std::find_if(begin(), end(), rak::equal_ptr(rak::socket_address::cast_from(sa),
-                                                     rak::on(std::mem_fun(&Peer::m_ptr), rak::on(std::mem_fun(&PeerConnectionBase::peer_info),
-                                                                                                 std::mem_fun(&PeerInfo::socket_address)))));
+  return std::find_if(
+    begin(),
+    end(),
+    rak::equal_ptr(rak::socket_address::cast_from(sa),
+                   rak::on(std::mem_fun(&Peer::m_ptr),
+                           rak::on(std::mem_fun(&PeerConnectionBase::peer_info),
+                                   std::mem_fun(&PeerInfo::socket_address)))));
 }
 
 void
 ConnectionList::set_difference(AddressList* l) {
   std::sort(begin(), end(), connection_list_less());
 
-  l->erase(std::set_difference(l->begin(), l->end(), begin(), end(), l->begin(), connection_list_less()),
-           l->end());
+  l->erase(
+    std::set_difference(
+      l->begin(), l->end(), begin(), end(), l->begin(), connection_list_less()),
+    l->end());
 }
 
 void
-ConnectionList::set_min_size(size_type v) { 
+ConnectionList::set_min_size(size_type v) {
   if (v > (1 << 16))
     throw input_error("Min peer connections must be between 0 and 2^16.");
 
@@ -241,7 +277,7 @@ ConnectionList::set_min_size(size_type v) {
 }
 
 void
-ConnectionList::set_max_size(size_type v) { 
+ConnectionList::set_max_size(size_type v) {
   if (v > (1 << 16))
     throw input_error("Max peer connections must be between 0 and 2^16.");
 
@@ -249,8 +285,9 @@ ConnectionList::set_max_size(size_type v) {
     v = choke_queue::unlimited;
 
   m_maxSize = v;
-  m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers, size() < m_maxSize);
-  //m_download->choke_group()->up_queue()->balance();
+  m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers,
+                                   size() < m_maxSize);
+  // m_download->choke_group()->up_queue()->balance();
 }
 
-}
+} // namespace torrent

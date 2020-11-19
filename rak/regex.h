@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -45,19 +45,22 @@
 
 #include <algorithm>
 #include <functional>
-#include <string>
 #include <list>
+#include <string>
 
 namespace rak {
 
 class regex : public std::unary_function<std::string, bool> {
 public:
   regex() {}
-  regex(const std::string& p) : m_pattern(p) {}
+  regex(const std::string& p)
+    : m_pattern(p) {}
 
-  const std::string& pattern() const { return m_pattern; }
+  const std::string& pattern() const {
+    return m_pattern;
+  }
 
-  bool operator () (const std::string& p) const;
+  bool operator()(const std::string& p) const;
 
 private:
   std::string m_pattern;
@@ -65,9 +68,8 @@ private:
 
 // This isn't optimized, or very clean. A simple hack that should work.
 inline bool
-regex::operator () (const std::string& text) const {
-  if (m_pattern.empty() ||
-      text.empty() ||
+regex::operator()(const std::string& text) const {
+  if (m_pattern.empty() || text.empty() ||
       (m_pattern[0] != '*' && m_pattern[0] != text[0]))
     return false;
 
@@ -75,37 +77,43 @@ regex::operator () (const std::string& text) const {
   std::list<unsigned int> paths;
   paths.push_front(0);
 
-  for (std::string::const_iterator itrText = ++text.begin(), lastText = text.end(); itrText != lastText; ++itrText) {
-    
-    for (std::list<unsigned int>::iterator itrPaths = paths.begin(), lastPaths = paths.end(); itrPaths != lastPaths; ) {
+  for (std::string::const_iterator itrText  = ++text.begin(),
+                                   lastText = text.end();
+       itrText != lastText;
+       ++itrText) {
+
+    for (std::list<unsigned int>::iterator itrPaths  = paths.begin(),
+                                           lastPaths = paths.end();
+         itrPaths != lastPaths;) {
 
       unsigned int next = *itrPaths + 1;
 
       if (m_pattern[*itrPaths] != '*')
-	itrPaths = paths.erase(itrPaths);
+        itrPaths = paths.erase(itrPaths);
       else
-	itrPaths++;
+        itrPaths++;
 
       // When we reach the end of 'm_pattern', we don't have a whole
       // match of 'text'.
       if (next == m_pattern.size())
-	continue;
+        continue;
 
       // Push to the back so that '*' will match zero length strings.
       if (m_pattern[next] == '*')
-	paths.push_back(next);
+        paths.push_back(next);
 
       if (m_pattern[next] == *itrText)
-	paths.push_front(next);
+        paths.push_front(next);
     }
 
     if (paths.empty())
       return false;
   }
 
-  return std::find(paths.begin(), paths.end(), m_pattern.size() - 1) != paths.end();
+  return std::find(paths.begin(), paths.end(), m_pattern.size() - 1) !=
+         paths.end();
 }
 
-}
+} // namespace rak
 
 #endif

@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,25 +39,27 @@
 #include <rak/error_number.h>
 #include <rak/functional.h>
 
-#include "torrent/exceptions.h"
 #include "torrent/chunk_manager.h"
 #include "torrent/data/download_data.h"
+#include "torrent/exceptions.h"
 #include "torrent/utils/log.h"
 #include "utils/instrumentation.h"
 
-#include "chunk_list.h"
 #include "chunk.h"
+#include "chunk_list.h"
 #include "globals.h"
 
-#define LT_LOG_THIS(log_level, log_fmt, ...)                              \
-  lt_log_print_data(LOG_STORAGE_##log_level, m_data, "chunk_list", log_fmt, __VA_ARGS__);
+#define LT_LOG_THIS(log_level, log_fmt, ...)                                   \
+  lt_log_print_data(                                                           \
+    LOG_STORAGE_##log_level, m_data, "chunk_list", log_fmt, __VA_ARGS__);
 
 namespace torrent {
 
 struct chunk_list_earliest_modified {
-  chunk_list_earliest_modified() : m_time(cachedTime) {}
+  chunk_list_earliest_modified()
+    : m_time(cachedTime) {}
 
-  void operator () (ChunkListNode* node) {
+  void operator()(ChunkListNode* node) {
     if (node->time_modified() < m_time && node->time_modified() != rak::timer())
       m_time = node->time_modified();
   }
@@ -66,7 +68,7 @@ struct chunk_list_earliest_modified {
 };
 
 struct chunk_list_sort_index {
-  bool operator () (ChunkListNode* node1, ChunkListNode* node2) {
+  bool operator()(ChunkListNode* node1, ChunkListNode* node2) {
     return node1->index() < node2->index();
   }
 };
@@ -78,15 +80,18 @@ ChunkList::is_queued(ChunkListNode* node) {
 
 bool
 ChunkList::has_chunk(size_type index, int prot) const {
-  return base_type::at(index).is_valid() && base_type::at(index).chunk()->has_permissions(prot);
+  return base_type::at(index).is_valid() &&
+         base_type::at(index).chunk()->has_permissions(prot);
 }
 
 void
 ChunkList::resize(size_type to_size) {
-  LT_LOG_THIS(INFO, "Resizing: from:%" PRIu32 " to:%" PRIu32 ".", size(), to_size);
-  
+  LT_LOG_THIS(
+    INFO, "Resizing: from:%" PRIu32 " to:%" PRIu32 ".", size(), to_size);
+
   if (!empty())
-    throw internal_error("ChunkList::resize(...) called on an non-empty object.");
+    throw internal_error(
+      "ChunkList::resize(...) called on an non-empty object.");
 
   base_type::resize(to_size);
 
@@ -102,27 +107,37 @@ ChunkList::clear() {
 
   // Don't do any sync'ing as whomever decided to shut down really
   // doesn't care, so just de-reference all chunks in queue.
-  for (Queue::iterator itr = m_queue.begin(), last = m_queue.end(); itr != last; ++itr) {
+  for (Queue::iterator itr = m_queue.begin(), last = m_queue.end(); itr != last;
+       ++itr) {
     if ((*itr)->references() != 1 || (*itr)->writable() != 1)
-      throw internal_error("ChunkList::clear() called but a node in the queue is still referenced.");
-    
+      throw internal_error("ChunkList::clear() called but a node in the queue "
+                           "is still referenced.");
+
     (*itr)->dec_rw();
     clear_chunk(*itr);
   }
 
   m_queue.clear();
 
-  if (std::find_if(begin(), end(), std::mem_fun_ref(&ChunkListNode::chunk)) != end())
-    throw internal_error("ChunkList::clear() called but a node with a valid chunk was found.");
+  if (std::find_if(begin(), end(), std::mem_fun_ref(&ChunkListNode::chunk)) !=
+      end())
+    throw internal_error(
+      "ChunkList::clear() called but a node with a valid chunk was found.");
 
-  if (std::find_if(begin(), end(), std::mem_fun_ref(&ChunkListNode::references)) != end())
-    throw internal_error("ChunkList::clear() called but a node with references != 0 was found.");
+  if (std::find_if(
+        begin(), end(), std::mem_fun_ref(&ChunkListNode::references)) != end())
+    throw internal_error(
+      "ChunkList::clear() called but a node with references != 0 was found.");
 
-  if (std::find_if(begin(), end(), std::mem_fun_ref(&ChunkListNode::writable)) != end())
-    throw internal_error("ChunkList::clear() called but a node with writable != 0 was found.");
+  if (std::find_if(
+        begin(), end(), std::mem_fun_ref(&ChunkListNode::writable)) != end())
+    throw internal_error(
+      "ChunkList::clear() called but a node with writable != 0 was found.");
 
-  if (std::find_if(begin(), end(), std::mem_fun_ref(&ChunkListNode::blocking)) != end())
-    throw internal_error("ChunkList::clear() called but a node with blocking != 0 was found.");
+  if (std::find_if(
+        begin(), end(), std::mem_fun_ref(&ChunkListNode::blocking)) != end())
+    throw internal_error(
+      "ChunkList::clear() called but a node with blocking != 0 was found.");
 
   base_type::clear();
 }
@@ -135,13 +150,17 @@ ChunkList::get(size_type index, int flags) {
 
   ChunkListNode* node = &base_type::at(index);
 
-  int allocate_flags = (flags & get_dont_log) ? ChunkManager::allocate_dont_log : 0;
-  int prot_flags = MemoryChunk::prot_read | ((flags & get_writable) ? MemoryChunk::prot_write : 0);
+  int allocate_flags =
+    (flags & get_dont_log) ? ChunkManager::allocate_dont_log : 0;
+  int prot_flags = MemoryChunk::prot_read |
+                   ((flags & get_writable) ? MemoryChunk::prot_write : 0);
 
   if (!node->is_valid()) {
     if (!m_manager->allocate(m_chunk_size, allocate_flags)) {
-      LT_LOG_THIS(DEBUG, "Could not allocate: memory:%" PRIu64 " block:%" PRIu32 ".",
-                  m_manager->memory_usage(), m_manager->memory_block_count());
+      LT_LOG_THIS(DEBUG,
+                  "Could not allocate: memory:%" PRIu64 " block:%" PRIu32 ".",
+                  m_manager->memory_usage(),
+                  m_manager->memory_block_count());
       return ChunkHandle::from_error(rak::error_number::e_nomem);
     }
 
@@ -150,11 +169,17 @@ ChunkList::get(size_type index, int flags) {
     if (chunk == NULL) {
       rak::error_number current_error = rak::error_number::current();
 
-      LT_LOG_THIS(DEBUG, "Could not create: memory:%" PRIu64 " block:%" PRIu32 " errno:%i errmsg:%s.",
-                  m_manager->memory_usage(), m_manager->memory_block_count(),
-                  current_error.value(), current_error.c_str());
-      m_manager->deallocate(m_chunk_size, allocate_flags | ChunkManager::allocate_revert_log);
-      return ChunkHandle::from_error(current_error.is_valid() ? current_error : rak::error_number::e_noent);
+      LT_LOG_THIS(DEBUG,
+                  "Could not create: memory:%" PRIu64 " block:%" PRIu32
+                  " errno:%i errmsg:%s.",
+                  m_manager->memory_usage(),
+                  m_manager->memory_block_count(),
+                  current_error.value(),
+                  current_error.c_str());
+      m_manager->deallocate(m_chunk_size,
+                            allocate_flags | ChunkManager::allocate_revert_log);
+      return ChunkHandle::from_error(
+        current_error.is_valid() ? current_error : rak::error_number::e_noent);
     }
 
     node->set_chunk(chunk);
@@ -165,13 +190,16 @@ ChunkList::get(size_type index, int flags) {
       if ((flags & get_nonblock))
         return ChunkHandle::from_error(rak::error_number::e_again);
 
-      throw internal_error("No support yet for getting write permission for blocked chunk.");
+      throw internal_error(
+        "No support yet for getting write permission for blocked chunk.");
     }
 
     Chunk* chunk = m_slot_create_chunk(index, prot_flags);
 
     if (chunk == NULL)
-      return ChunkHandle::from_error(rak::error_number::current().is_valid() ? rak::error_number::current() : rak::error_number::e_noent);
+      return ChunkHandle::from_error(rak::error_number::current().is_valid()
+                                       ? rak::error_number::current()
+                                       : rak::error_number::e_noent);
 
     delete node->chunk();
 
@@ -208,12 +236,16 @@ ChunkList::release(ChunkHandle* handle, int release_flags) {
   if (handle->object() < &*begin() || handle->object() >= &*end())
     throw internal_error("ChunkList::release(...) received an unknown handle.");
 
-  LT_LOG_THIS(DEBUG, "Release: index:%" PRIu32 " flags:%#x.", handle->index(), release_flags);
- 
+  LT_LOG_THIS(DEBUG,
+              "Release: index:%" PRIu32 " flags:%#x.",
+              handle->index(),
+              release_flags);
+
   if (handle->object()->references() <= 0 ||
       (handle->is_writable() && handle->object()->writable() <= 0) ||
       (handle->is_blocking() && handle->object()->blocking() <= 0))
-    throw internal_error("ChunkList::release(...) received a node with bad reference count.");
+    throw internal_error(
+      "ChunkList::release(...) received a node with bad reference count.");
 
   if (handle->is_blocking()) {
     handle->object()->dec_blocking();
@@ -223,7 +255,8 @@ ChunkList::release(ChunkHandle* handle, int release_flags) {
 
     if (handle->object()->writable() == 1) {
       if (is_queued(handle->object()))
-        throw internal_error("ChunkList::release(...) tried to queue an already queued chunk.");
+        throw internal_error(
+          "ChunkList::release(...) tried to queue an already queued chunk.");
 
       // Only add those that have a modification time set?
       //
@@ -238,7 +271,8 @@ ChunkList::release(ChunkHandle* handle, int release_flags) {
   } else {
     if (handle->object()->dec_references() == 0) {
       if (is_queued(handle->object()))
-        throw internal_error("ChunkList::release(...) tried to unmap a queued chunk.");
+        throw internal_error(
+          "ChunkList::release(...) tried to unmap a queued chunk.");
 
       clear_chunk(handle->object(), release_flags);
     }
@@ -255,13 +289,15 @@ ChunkList::clear_chunk(ChunkListNode* node, int flags) {
   delete node->chunk();
   node->set_chunk(NULL);
 
-  m_manager->deallocate(m_chunk_size, (flags & get_dont_log) ? ChunkManager::allocate_dont_log : 0);
+  m_manager->deallocate(
+    m_chunk_size, (flags & get_dont_log) ? ChunkManager::allocate_dont_log : 0);
 }
 
 inline bool
-ChunkList::sync_chunk(ChunkListNode* node, std::pair<int,bool> options) {
+ChunkList::sync_chunk(ChunkListNode* node, std::pair<int, bool> options) {
   if (node->references() <= 0 || node->writable() <= 0)
-    throw internal_error("ChunkList::sync_chunk(...) got a node with invalid reference count.");
+    throw internal_error(
+      "ChunkList::sync_chunk(...) got a node with invalid reference count.");
 
   if (!node->chunk()->sync(options.first))
     return false;
@@ -275,7 +311,7 @@ ChunkList::sync_chunk(ChunkListNode* node, std::pair<int,bool> options) {
     return true;
 
   node->dec_rw();
- 
+
   if (node->references() == 0)
     clear_chunk(node);
 
@@ -291,7 +327,10 @@ ChunkList::sync_chunks(int flags) {
   if (flags & sync_all)
     split = m_queue.begin();
   else
-    split = std::stable_partition(m_queue.begin(), m_queue.end(), rak::not_equal(1, std::mem_fun(&ChunkListNode::writable)));
+    split = std::stable_partition(
+      m_queue.begin(),
+      m_queue.end(),
+      rak::not_equal(1, std::mem_fun(&ChunkListNode::writable)));
 
   // Allow a flag that does more culling, so that we only get large
   // continous sections.
@@ -300,11 +339,12 @@ ChunkList::sync_chunks(int flags) {
   // only areas with timers are (preferably) synced?
 
   std::sort(split, m_queue.end());
-  
+
   // If we got enough diskspace and have not requested safe syncing,
   // then sync all chunks with MS_ASYNC.
   if (!(flags & (sync_safe | sync_sloppy))) {
-    if (m_manager->safe_sync() || m_slot_free_diskspace() <= m_manager->safe_free_diskspace())
+    if (m_manager->safe_sync() ||
+        m_slot_free_diskspace() <= m_manager->safe_free_diskspace())
       flags |= sync_safe;
     else
       flags |= sync_force;
@@ -317,7 +357,7 @@ ChunkList::sync_chunks(int flags) {
   uint32_t failed = 0;
 
   for (Queue::iterator itr = split, last = m_queue.end(); itr != last; ++itr) {
-    
+
     // We can easily skip pieces by swap_iter, so there should be no
     // problem being selective about the ranges we sync.
 
@@ -327,11 +367,11 @@ ChunkList::sync_chunks(int flags) {
 
     // if we don't want to sync, swap and break.
 
-    std::pair<int,bool> options = sync_options(*itr, flags);
+    std::pair<int, bool> options = sync_options(*itr, flags);
 
     if (!sync_chunk(*itr, options)) {
       std::iter_swap(itr, split++);
-      
+
       failed++;
       continue;
     }
@@ -341,10 +381,15 @@ ChunkList::sync_chunks(int flags) {
   }
 
   if (lt_log_is_valid(LOG_INSTRUMENTATION_MINCORE)) {
-    instrumentation_update(INSTRUMENTATION_MINCORE_SYNC_SUCCESS, std::distance(split, m_queue.end()));
+    instrumentation_update(INSTRUMENTATION_MINCORE_SYNC_SUCCESS,
+                           std::distance(split, m_queue.end()));
     instrumentation_update(INSTRUMENTATION_MINCORE_SYNC_FAILED, failed);
-    instrumentation_update(INSTRUMENTATION_MINCORE_SYNC_NOT_SYNCED, std::distance(m_queue.begin(), split));
-    instrumentation_update(INSTRUMENTATION_MINCORE_SYNC_NOT_DEALLOCATED, std::count_if(split, m_queue.end(), std::mem_fun(&ChunkListNode::is_valid)));
+    instrumentation_update(INSTRUMENTATION_MINCORE_SYNC_NOT_SYNCED,
+                           std::distance(m_queue.begin(), split));
+    instrumentation_update(
+      INSTRUMENTATION_MINCORE_SYNC_NOT_DEALLOCATED,
+      std::count_if(
+        split, m_queue.end(), std::mem_fun(&ChunkListNode::is_valid)));
   }
 
   m_queue.erase(split, m_queue.end());
@@ -352,7 +397,8 @@ ChunkList::sync_chunks(int flags) {
   // The caller must either make sure that it is safe to close the
   // download or set the sync_ignore_error flag.
   if (failed && !(flags & sync_ignore_error))
-    m_slot_storage_error("Could not sync chunk: " + std::string(rak::error_number::current().c_str()));
+    m_slot_storage_error("Could not sync chunk: " +
+                         std::string(rak::error_number::current().c_str()));
 
   return failed;
 }
@@ -371,7 +417,7 @@ ChunkList::sync_options(ChunkListNode* node, int flags) {
       return std::make_pair(MemoryChunk::sync_async, true);
 
   } else if (flags & sync_safe) {
-      
+
     if (node->sync_triggered())
       return std::make_pair(MemoryChunk::sync_sync, true);
     else
@@ -401,9 +447,10 @@ ChunkList::seek_range(Queue::iterator first, Queue::iterator last) {
 
 inline bool
 ChunkList::check_node(ChunkListNode* node) {
-  return
-    node->time_modified() != rak::timer() &&
-    node->time_modified() + rak::timer::from_seconds(m_manager->timeout_sync()) < cachedTime;
+  return node->time_modified() != rak::timer() &&
+         node->time_modified() +
+             rak::timer::from_seconds(m_manager->timeout_sync()) <
+           cachedTime;
 }
 
 // Optimize the selection of chunks to sync. Continuous regions are
@@ -411,11 +458,18 @@ ChunkList::check_node(ChunkListNode* node) {
 // available it skips syncing of all chunks.
 
 ChunkList::Queue::iterator
-ChunkList::partition_optimize(Queue::iterator first, Queue::iterator last, int weight, int maxDistance, bool dontSkip) {
+ChunkList::partition_optimize(Queue::iterator first,
+                              Queue::iterator last,
+                              int             weight,
+                              int             maxDistance,
+                              bool            dontSkip) {
   for (Queue::iterator itr = first; itr != last;) {
     Queue::iterator range = seek_range(itr, last);
 
-    bool required = std::find_if(itr, range, std::bind1st(std::mem_fun(&ChunkList::check_node), this)) != range;
+    bool required =
+      std::find_if(
+        itr, range, std::bind1st(std::mem_fun(&ChunkList::check_node), this)) !=
+      range;
     dontSkip = dontSkip || required;
 
     if (!required && std::distance(itr, range) < maxDistance) {
@@ -443,7 +497,7 @@ ChunkList::partition_optimize(Queue::iterator first, Queue::iterator last, int w
 ChunkList::chunk_address_result
 ChunkList::find_address(void* ptr) {
   iterator first = begin();
-  iterator last = end();
+  iterator last  = end();
 
   for (; first != last; first++) {
     if (!first->is_valid())
@@ -460,4 +514,4 @@ ChunkList::find_address(void* ptr) {
   return chunk_address_result(end(), Chunk::iterator());
 }
 
-}
+} // namespace torrent
