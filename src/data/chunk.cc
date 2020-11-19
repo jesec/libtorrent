@@ -9,10 +9,9 @@
 #include <cstring>
 #include <functional>
 
+#include "data/chunk.h"
+#include "data/chunk_iterator.h"
 #include "torrent/exceptions.h"
-
-#include "chunk.h"
-#include "chunk_iterator.h"
 
 jmp_buf jmp_disk_full;
 

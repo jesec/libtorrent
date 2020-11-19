@@ -6,13 +6,10 @@
 #include <algorithm>
 #include <functional>
 
-#include "choke_group.h"
-#include "choke_queue.h"
-
-// TODO: Put resource_manager_entry in a separate file.
-#include "resource_manager.h"
-
 #include "download/download_main.h"
+#include "torrent/download/choke_group.h"
+#include "torrent/download/choke_queue.h"
+#include "torrent/download/resource_manager.h" // TODO: Put resource_manager_entry in a separate file.
 #include "torrent/exceptions.h"
 
 namespace torrent {

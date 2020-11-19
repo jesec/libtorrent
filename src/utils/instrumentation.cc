@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-#include "instrumentation.h"
+#include "utils/instrumentation.h"
 
 namespace torrent {
 

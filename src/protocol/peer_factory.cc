@@ -3,9 +3,9 @@
 
 #include "config.h"
 
-#include "peer_connection_leech.h"
-#include "peer_connection_metadata.h"
-#include "peer_factory.h"
+#include "protocol/peer_connection_leech.h"
+#include "protocol/peer_connection_metadata.h"
+#include "protocol/peer_factory.h"
 
 namespace torrent {
 

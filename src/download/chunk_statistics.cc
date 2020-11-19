@@ -3,11 +3,9 @@
 
 #include "config.h"
 
-#include "torrent/exceptions.h"
-
+#include "download/chunk_statistics.h"
 #include "protocol/peer_chunks.h"
-
-#include "chunk_statistics.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

@@ -2,23 +2,21 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include "config.h"
-#include "globals.h"
 
-#include <rak/functional.h>
 #include <sstream>
 
+#include "dht/dht_bucket.h"
+#include "dht/dht_router.h"
+#include "dht/dht_tracker.h"
+#include "dht/dht_transaction.h"
+#include "globals.h"
+#include "manager.h"
+#include "rak/functional.h"
 #include "torrent/dht_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
 #include "torrent/utils/log.h"
-
-#include "manager.h"
 #include "utils/sha1.h"
-
-#include "dht_bucket.h"
-#include "dht_router.h"
-#include "dht_tracker.h"
-#include "dht_transaction.h"
 
 #define LT_LOG_THIS(log_fmt, ...)                                              \
   lt_log_print_hash(                                                           \

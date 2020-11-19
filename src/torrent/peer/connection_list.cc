@@ -4,20 +4,19 @@
 #include "config.h"
 
 #include <algorithm>
-#include <rak/functional.h>
-#include <rak/socket_address.h>
 
 #include "download/download_main.h"
 #include "net/address_list.h"
 #include "protocol/peer_connection_base.h"
+#include "rak/functional.h"
+#include "rak/socket_address.h"
 #include "torrent/download/choke_group.h"
 #include "torrent/download/choke_queue.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
-
-#include "connection_list.h"
-#include "peer.h"
-#include "peer_info.h"
+#include "torrent/peer/connection_list.h"
+#include "torrent/peer/peer.h"
+#include "torrent/peer/peer_info.h"
 
 // When a peer is connected it should be removed from the list of
 // available peers.

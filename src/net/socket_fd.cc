@@ -9,12 +9,12 @@
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
-#include <rak/socket_address.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#include "socket_fd.h"
+#include "net/socket_fd.h"
+#include "rak/socket_address.h"
 #include "torrent/exceptions.h"
 
 namespace torrent {

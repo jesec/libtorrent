@@ -1,8 +1,7 @@
 #include "config.h"
 
-#include "socket_event.h"
-
 #include "torrent/exceptions.h"
+#include "torrent/net/socket_event.h"
 
 namespace torrent {
 

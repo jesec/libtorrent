@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <functional>
 
-#include "socket_set.h"
+#include "net/socket_set.h"
 
 namespace torrent {
 

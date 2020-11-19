@@ -3,12 +3,11 @@
 
 #include "config.h"
 
-#include <rak/functional.h>
-#include <rak/priority_queue_default.h>
-#include <rak/timer.h>
-
 #include "net/throttle_internal.h"
 #include "net/throttle_list.h"
+#include "rak/functional.h"
+#include "rak/priority_queue_default.h"
+#include "rak/timer.h"
 #include "torrent/exceptions.h"
 #include "torrent/throttle.h"
 

@@ -6,10 +6,9 @@
 #include <algorithm>
 
 #include "rak/algorithm.h"
+#include "torrent/bitfield.h"
+#include "torrent/exceptions.h"
 #include "utils/instrumentation.h"
-
-#include "bitfield.h"
-#include "exceptions.h"
 
 namespace torrent {
 

@@ -5,16 +5,15 @@
 
 #include <algorithm>
 #include <functional>
-#include <rak/functional.h>
 
-#include "peer/peer_info.h"
 #include "protocol/peer_connection_base.h"
-
-#include "block.h"
-#include "block_failed.h"
-#include "block_list.h"
-#include "block_transfer.h"
-#include "exceptions.h"
+#include "rak/functional.h"
+#include "torrent/data/block.h"
+#include "torrent/data/block_failed.h"
+#include "torrent/data/block_list.h"
+#include "torrent/data/block_transfer.h"
+#include "torrent/exceptions.h"
+#include "torrent/peer/peer_info.h"
 
 namespace torrent {
 

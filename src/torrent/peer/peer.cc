@@ -3,18 +3,17 @@
 
 #include "config.h"
 
-#include "data/block.h"
-#include "data/block_transfer.h"
 #include "download/download_main.h"
 #include "protocol/peer_chunks.h"
 #include "protocol/peer_connection_base.h"
+#include "torrent/data/block.h"
+#include "torrent/data/block_transfer.h"
 #include "torrent/download/choke_queue.h"
-
-#include "connection_list.h"
-#include "exceptions.h"
-#include "peer.h"
-#include "peer_info.h"
-#include "rate.h"
+#include "torrent/exceptions.h"
+#include "torrent/peer/connection_list.h"
+#include "torrent/peer/peer.h"
+#include "torrent/peer/peer_info.h"
+#include "torrent/rate.h"
 
 namespace torrent {
 

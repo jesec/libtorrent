@@ -1,15 +1,14 @@
 #include "config.h"
 
-#include "diffie_hellman.h"
-
-#include "torrent/exceptions.h"
-
 #include <cstring>
 
 #ifdef USE_OPENSSL
 #include <openssl/bn.h>
 #include <openssl/dh.h>
 #endif
+
+#include "torrent/exceptions.h"
+#include "utils/diffie_hellman.h"
 
 namespace torrent {
 

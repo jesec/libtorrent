@@ -4,6 +4,7 @@
 #ifndef LIBTORRENT_NET_SOCKET_FD_H
 #define LIBTORRENT_NET_SOCKET_FD_H
 
+#include <cstdint>
 #include <unistd.h>
 
 struct sockaddr;

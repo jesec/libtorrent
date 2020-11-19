@@ -6,7 +6,12 @@
 #include <stdio.h>
 
 #include "download/download_main.h"
+#include "globals.h"
+#include "manager.h"
 #include "net/throttle_list.h"
+#include "protocol/extensions.h"
+#include "protocol/handshake.h"
+#include "protocol/handshake_manager.h"
 #include "torrent/dht_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/error.h"
@@ -15,13 +20,6 @@
 #include "torrent/throttle.h"
 #include "torrent/utils/log.h"
 #include "utils/diffie_hellman.h"
-
-#include "globals.h"
-#include "manager.h"
-
-#include "extensions.h"
-#include "handshake.h"
-#include "handshake_manager.h"
 
 #define LT_LOG(log_fmt, ...)                                                   \
   lt_log_print(LOG_CONNECTION_HANDSHAKE,                                       \

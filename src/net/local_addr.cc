@@ -4,7 +4,6 @@
 #include "config.h"
 
 #include <errno.h>
-#include <rak/socket_address.h>
 #include <stdio.h>
 #include <sys/types.h>
 
@@ -13,8 +12,9 @@
 #include <linux/rtnetlink.h>
 #endif
 
-#include "local_addr.h"
-#include "socket_fd.h"
+#include "net/local_addr.h"
+#include "net/socket_fd.h"
+#include "rak/socket_address.h"
 #include "torrent/exceptions.h"
 
 namespace torrent {

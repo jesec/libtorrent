@@ -3,8 +3,6 @@
 
 #include "config.h"
 
-#include "directory_events.h"
-
 #include <errno.h>
 #include <string>
 #include <unistd.h>
@@ -18,6 +16,7 @@
 #include "rak/error_number.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
+#include "torrent/utils/directory_events.h"
 
 namespace torrent {
 

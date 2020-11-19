@@ -6,19 +6,8 @@
 #include <cerrno>
 
 #include <algorithm>
-#include <rak/error_number.h>
 #include <stdexcept>
-#include <torrent/event.h>
-#include <torrent/exceptions.h>
 #include <unistd.h>
-
-#include "poll_kqueue.h"
-#include "rak/error_number.h"
-#include "rak/functional.h"
-#include "rak/timer.h"
-#include "torrent.h"
-#include "utils/log.h"
-#include "utils/thread_base.h"
 
 #ifdef USE_KQUEUE
 #include <sys/event.h>
@@ -28,6 +17,16 @@
 #endif
 
 #include <assert.h>
+
+#include "rak/error_number.h"
+#include "rak/functional.h"
+#include "rak/timer.h"
+#include "torrent/event.h"
+#include "torrent/exceptions.h"
+#include "torrent/poll_kqueue.h"
+#include "torrent/torrent.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/thread_base.h"
 
 #define LT_LOG_EVENT(event, log_level, log_fmt, ...)                           \
   lt_log_print(LOG_SOCKET_##log_level,                                         \

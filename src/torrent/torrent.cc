@@ -1,28 +1,25 @@
 #include "config.h"
 
-#include <rak/address_info.h>
-#include <rak/string_manip.h>
-
-#include "connection_manager.h"
-#include "exceptions.h"
-#include "object.h"
-#include "object_stream.h"
-#include "poll.h"
-#include "throttle.h"
-#include "torrent.h"
-
-#include "manager.h"
-
-#include "data/file_manager.h"
 #include "data/hash_queue.h"
 #include "data/hash_torrent.h"
 #include "download/download_constructor.h"
-#include "download/download_manager.h"
 #include "download/download_wrapper.h"
+#include "manager.h"
 #include "protocol/handshake_manager.h"
 #include "protocol/peer_factory.h"
+#include "rak/address_info.h"
+#include "rak/string_manip.h"
+#include "torrent/connection_manager.h"
+#include "torrent/data/file_manager.h"
+#include "torrent/download/download_manager.h"
 #include "torrent/download/resource_manager.h"
+#include "torrent/exceptions.h"
+#include "torrent/object.h"
+#include "torrent/object_stream.h"
 #include "torrent/peer/connection_list.h"
+#include "torrent/poll.h"
+#include "torrent/throttle.h"
+#include "torrent/torrent.h"
 #include "utils/instrumentation.h"
 
 namespace torrent {

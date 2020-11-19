@@ -9,9 +9,9 @@
 
 #include <cstdio>
 
-#include "rak/error_number.h"
-
+#include "manager.h"
 #include "net/address_list.h"
+#include "rak/error_number.h"
 #include "torrent/connection_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
@@ -20,9 +20,7 @@
 #include "torrent/utils/log.h"
 #include "torrent/utils/option_strings.h"
 #include "torrent/utils/uri_parser.h"
-
-#include "manager.h"
-#include "tracker_udp.h"
+#include "tracker/tracker_udp.h"
 
 #define LT_LOG_TRACKER(log_level, log_fmt, ...)                                \
   lt_log_print_info(LOG_TRACKER_##log_level,                                   \

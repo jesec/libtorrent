@@ -3,9 +3,9 @@
 
 #include "config.h"
 
-#include "exceptions.h"
 #include "globals.h"
-#include "rate.h"
+#include "torrent/exceptions.h"
+#include "torrent/rate.h"
 
 namespace torrent {
 

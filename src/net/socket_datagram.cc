@@ -7,10 +7,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#include "net/socket_datagram.h"
+#include "rak/socket_address.h"
 #include "torrent/exceptions.h"
-#include <rak/socket_address.h>
-
-#include "socket_datagram.h"
 
 namespace torrent {
 

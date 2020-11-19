@@ -4,12 +4,12 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "exceptions.h"
-#include "poll.h"
-#include "thread_base.h"
-#include "thread_interrupt.h"
+#include "torrent/exceptions.h"
+#include "torrent/poll.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/thread_base.h"
+#include "torrent/utils/thread_interrupt.h"
 #include "utils/instrumentation.h"
-#include "utils/log.h"
 
 namespace torrent {
 

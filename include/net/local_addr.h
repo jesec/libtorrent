@@ -11,6 +11,7 @@
 #ifndef LIBTORRENT_NET_LOCAL_ADDR_H
 #define LIBTORRENT_NET_LOCAL_ADDR_H
 
+#include <sys/socket.h>
 #include <unistd.h>
 
 namespace rak {

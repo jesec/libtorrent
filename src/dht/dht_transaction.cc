@@ -3,12 +3,11 @@
 
 #include "config.h"
 
+#include "dht/dht_bucket.h"
+#include "dht/dht_transaction.h"
 #include "torrent/exceptions.h"
 #include "torrent/object_stream.h"
 #include "tracker/tracker_dht.h"
-
-#include "dht_bucket.h"
-#include "dht_transaction.h"
 
 namespace torrent {
 

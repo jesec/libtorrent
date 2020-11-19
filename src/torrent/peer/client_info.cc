@@ -5,7 +5,7 @@
 
 #include <cstring>
 
-#include "client_info.h"
+#include "torrent/peer/client_info.h"
 
 namespace torrent {
 

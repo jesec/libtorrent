@@ -7,15 +7,14 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
-#include <rak/algorithm.h>
-#include <rak/string_manip.h>
 #include <stdexcept>
 
+#include "rak/algorithm.h"
+#include "rak/string_manip.h"
+#include "torrent/object.h"
+#include "torrent/object_static_map.h"
+#include "torrent/object_stream.h"
 #include "utils/sha1.h"
-
-#include "object.h"
-#include "object_static_map.h"
-#include "object_stream.h"
 
 namespace torrent {
 

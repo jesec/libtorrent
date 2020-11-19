@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <unistd.h>
 
-#include "chunk_part.h"
+#include "data/chunk_part.h"
 #include "torrent/exceptions.h"
 
 namespace torrent {

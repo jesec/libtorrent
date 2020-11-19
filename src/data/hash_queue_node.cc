@@ -3,9 +3,9 @@
 
 #include "config.h"
 
-#include "chunk_list_node.h"
-#include "hash_chunk.h"
-#include "hash_queue_node.h"
+#include "data/chunk_list_node.h"
+#include "data/hash_chunk.h"
+#include "data/hash_queue_node.h"
 
 namespace torrent {
 

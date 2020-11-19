@@ -4,9 +4,9 @@
 #include "config.h"
 
 #include <algorithm>
-#include <rak/functional.h>
 
-#include "address_list.h"
+#include "net/address_list.h"
+#include "rak/functional.h"
 
 namespace torrent {
 

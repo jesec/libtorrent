@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-#include "error.h"
+#include "torrent/error.h"
 
 namespace torrent {
 

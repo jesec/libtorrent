@@ -13,7 +13,7 @@
 #include <execinfo.h>
 #endif
 
-#include "exceptions.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

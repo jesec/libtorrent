@@ -5,15 +5,13 @@
 #define LIBTORRENT_DOWNLOAD_MAIN_H
 
 #include <deque>
-#include <rak/functional.h>
-
-#include "globals.h"
-
-#include "delegator.h"
 
 #include "data/chunk_handle.h"
+#include "delegator.h"
 #include "download/available_list.h"
+#include "globals.h"
 #include "net/data_buffer.h"
+#include "rak/functional.h"
 #include "torrent/data/file_list.h"
 #include "torrent/download/group_entry.h"
 #include "torrent/download_info.h"

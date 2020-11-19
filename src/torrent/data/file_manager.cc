@@ -6,11 +6,10 @@
 #include <algorithm>
 
 #include "data/socket_file.h"
-#include "torrent/exceptions.h"
-
-#include "file.h"
-#include "file_manager.h"
 #include "manager.h"
+#include "torrent/data/file.h"
+#include "torrent/data/file_manager.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

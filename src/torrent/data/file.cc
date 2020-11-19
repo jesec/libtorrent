@@ -3,17 +3,15 @@
 
 #include "config.h"
 
-#include <rak/error_number.h>
-#include <rak/file_stat.h>
-
 #include "data/memory_chunk.h"
 #include "data/socket_file.h"
-#include "torrent/exceptions.h"
-
-#include "file.h"
-#include "file_manager.h"
 #include "globals.h"
 #include "manager.h"
+#include "rak/error_number.h"
+#include "rak/file_stat.h"
+#include "torrent/data/file.h"
+#include "torrent/data/file_manager.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

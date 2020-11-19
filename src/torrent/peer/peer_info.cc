@@ -4,14 +4,13 @@
 #include "config.h"
 
 #include <cstring>
-#include <rak/socket_address.h>
 
 #include "protocol/extensions.h"
 #include "protocol/peer_connection_base.h"
+#include "rak/socket_address.h"
+#include "torrent/exceptions.h"
+#include "torrent/peer/peer_info.h"
 #include "utils/instrumentation.h"
-
-#include "exceptions.h"
-#include "peer_info.h"
 
 namespace torrent {
 

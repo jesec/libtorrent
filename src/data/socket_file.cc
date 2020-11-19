@@ -3,12 +3,7 @@
 
 #include "config.h"
 
-#include "socket_file.h"
-#include "torrent/exceptions.h"
-
 #include <fcntl.h>
-#include <rak/error_number.h>
-#include <rak/file_stat.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -20,6 +15,11 @@
 #endif
 #include <linux/falloc.h>
 #endif
+
+#include "data/socket_file.h"
+#include "rak/error_number.h"
+#include "rak/file_stat.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

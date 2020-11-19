@@ -5,11 +5,13 @@
 
 #include <cstdio>
 #include <cstring>
-#include <rak/functional.h>
-#include <rak/string_manip.h>
 #include <string.h>
 
+#include "download/download_constructor.h"
 #include "download/download_wrapper.h"
+#include "manager.h"
+#include "rak/functional.h"
+#include "rak/string_manip.h"
 #include "torrent/data/file.h"
 #include "torrent/data/file_list.h"
 #include "torrent/dht_manager.h"
@@ -17,10 +19,6 @@
 #include "torrent/object.h"
 #include "torrent/tracker_controller.h"
 #include "torrent/tracker_list.h"
-
-#include "download_constructor.h"
-
-#include "manager.h"
 
 namespace torrent {
 

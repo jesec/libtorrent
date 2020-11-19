@@ -5,20 +5,18 @@
 
 #include <algorithm>
 #include <functional>
-#include <rak/functional.h>
-#include <rak/timer.h>
 #include <set>
 
 #include "data/chunk.h"
-#include "peer/peer_info.h"
-
-#include "block_failed.h"
-#include "block_list.h"
-#include "block_transfer.h"
-#include "exceptions.h"
-#include "piece.h"
-
-#include "transfer_list.h"
+#include "rak/functional.h"
+#include "rak/timer.h"
+#include "torrent/data/block_failed.h"
+#include "torrent/data/block_list.h"
+#include "torrent/data/block_transfer.h"
+#include "torrent/data/piece.h"
+#include "torrent/data/transfer_list.h"
+#include "torrent/exceptions.h"
+#include "torrent/peer/peer_info.h"
 
 namespace torrent {
 

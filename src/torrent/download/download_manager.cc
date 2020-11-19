@@ -3,12 +3,10 @@
 
 #include "config.h"
 
-#include <rak/functional.h>
-
-#include "torrent/exceptions.h"
-
 #include "download/download_wrapper.h"
-#include "download_manager.h"
+#include "rak/functional.h"
+#include "torrent/download/download_manager.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

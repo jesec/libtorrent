@@ -5,10 +5,10 @@
 
 #include <algorithm>
 #include <cstring>
-#include <rak/functional.h>
 
-#include "object.h"
-#include "object_stream.h"
+#include "rak/functional.h"
+#include "torrent/object.h"
+#include "torrent/object_stream.h"
 
 namespace torrent {
 

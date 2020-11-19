@@ -3,11 +3,10 @@
 
 #include "config.h"
 
-#include <torrent/utils/uri_parser.h>
-
 #include <cctype>
 
 #include "rak/string_manip.h"
+#include "torrent/utils/uri_parser.h"
 
 namespace torrent {
 namespace utils {

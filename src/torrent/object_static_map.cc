@@ -3,9 +3,8 @@
 
 #include "config.h"
 
-#include <rak/algorithm.h>
-
-#include "object_static_map.h"
+#include "rak/algorithm.h"
+#include "torrent/object_static_map.h"
 
 namespace torrent {
 

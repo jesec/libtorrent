@@ -3,10 +3,9 @@
 
 #include "config.h"
 
+#include "torrent/data/file.h"
+#include "torrent/data/file_list_iterator.h"
 #include "torrent/exceptions.h"
-
-#include "file.h"
-#include "file_list_iterator.h"
 
 namespace torrent {
 

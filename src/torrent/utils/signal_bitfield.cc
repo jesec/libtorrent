@@ -4,8 +4,7 @@
 #include "config.h"
 
 #include "torrent/exceptions.h"
-
-#include "signal_bitfield.h"
+#include "torrent/utils/signal_bitfield.h"
 
 namespace torrent {
 

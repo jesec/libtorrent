@@ -4,14 +4,13 @@
 #include "config.h"
 
 #include <algorithm>
-#include <rak/functional.h>
 #include <stdlib.h>
 
+#include "download/chunk_selector.h"
+#include "download/chunk_statistics.h"
 #include "protocol/peer_chunks.h"
+#include "rak/functional.h"
 #include "torrent/exceptions.h"
-
-#include "chunk_selector.h"
-#include "chunk_statistics.h"
 
 namespace torrent {
 

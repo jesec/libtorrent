@@ -5,11 +5,11 @@
 
 #include <algorithm>
 #include <functional>
-#include <rak/string_manip.h>
 
-#include "client_list.h"
-#include "exceptions.h"
-#include "hash_string.h"
+#include "rak/string_manip.h"
+#include "torrent/exceptions.h"
+#include "torrent/hash_string.h"
+#include "torrent/peer/client_list.h"
 
 namespace torrent {
 

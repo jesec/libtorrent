@@ -3,11 +3,9 @@
 
 #include "config.h"
 
-#include <rak/timer.h>
-
-#include "thread_main.h"
-
 #include "globals.h"
+#include "rak/timer.h"
+#include "thread_main.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/utils/log.h"

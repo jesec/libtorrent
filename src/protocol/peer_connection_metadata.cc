@@ -10,6 +10,8 @@
 #include "download/chunk_selector.h"
 #include "download/chunk_statistics.h"
 #include "download/download_main.h"
+#include "protocol/extensions.h"
+#include "protocol/peer_connection_metadata.h"
 #include "rak/functional.h"
 #include "torrent/dht_manager.h"
 #include "torrent/download/choke_queue.h"
@@ -17,9 +19,6 @@
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer_info.h"
 #include "torrent/utils/log.h"
-
-#include "extensions.h"
-#include "peer_connection_metadata.h"
 
 #define LT_LOG_METADATA_EVENTS(log_fmt, ...)                                   \
   lt_log_print_info(LOG_PROTOCOL_METADATA_EVENTS,                              \

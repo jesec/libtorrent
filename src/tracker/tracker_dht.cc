@@ -13,8 +13,7 @@
 #include "torrent/exceptions.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
-
-#include "tracker_dht.h"
+#include "tracker/tracker_dht.h"
 
 #include "globals.h"
 #include "manager.h"

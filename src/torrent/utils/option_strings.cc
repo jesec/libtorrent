@@ -8,14 +8,13 @@
 #include <functional>
 
 #include "torrent/connection_manager.h"
+#include "torrent/download.h"
 #include "torrent/download/choke_group.h"
 #include "torrent/download/choke_queue.h"
+#include "torrent/exceptions.h"
 #include "torrent/object.h"
-
-#include "download.h"
-#include "exceptions.h"
-#include "log.h"
-#include "option_strings.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/option_strings.h"
 
 namespace torrent {
 

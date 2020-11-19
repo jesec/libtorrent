@@ -8,11 +8,10 @@
 #include <sys/types.h>
 
 #include "data/chunk_list.h"
-#include "utils/instrumentation.h"
-
-#include "chunk_manager.h"
-#include "exceptions.h"
 #include "globals.h"
+#include "torrent/chunk_manager.h"
+#include "torrent/exceptions.h"
+#include "utils/instrumentation.h"
 
 namespace torrent {
 

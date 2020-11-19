@@ -3,18 +3,16 @@
 
 #include "config.h"
 
-#include <rak/error_number.h>
-#include <rak/functional.h>
-
+#include "data/chunk.h"
+#include "data/chunk_list.h"
+#include "globals.h"
+#include "rak/error_number.h"
+#include "rak/functional.h"
 #include "torrent/chunk_manager.h"
 #include "torrent/data/download_data.h"
 #include "torrent/exceptions.h"
 #include "torrent/utils/log.h"
 #include "utils/instrumentation.h"
-
-#include "chunk.h"
-#include "chunk_list.h"
-#include "globals.h"
 
 #define LT_LOG_THIS(log_level, log_fmt, ...)                                   \
   lt_log_print_data(                                                           \

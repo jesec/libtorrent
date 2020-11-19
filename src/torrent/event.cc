@@ -1,7 +1,6 @@
 #include "config.h"
 
-#include "event.h"
-
+#include "torrent/event.h"
 #include "torrent/exceptions.h"
 #include "torrent/net/fd.h"
 

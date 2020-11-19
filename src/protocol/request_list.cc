@@ -3,16 +3,15 @@
 #include <algorithm>
 #include <cinttypes>
 #include <functional>
-#include <rak/functional.h>
 
 #include "download/delegator.h"
+#include "protocol/peer_chunks.h"
+#include "protocol/request_list.h"
+#include "rak/functional.h"
 #include "torrent/data/block.h"
 #include "torrent/data/block_list.h"
 #include "torrent/exceptions.h"
 #include "utils/instrumentation.h"
-
-#include "peer_chunks.h"
-#include "request_list.h"
 
 namespace torrent {
 

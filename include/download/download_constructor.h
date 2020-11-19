@@ -8,6 +8,8 @@
 #include <list>
 #include <string>
 
+#include <torrent/object.h>
+
 namespace torrent {
 
 class Object;

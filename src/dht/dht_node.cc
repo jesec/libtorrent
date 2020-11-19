@@ -2,15 +2,13 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include "config.h"
-#include "globals.h"
 
+#include "dht/dht_node.h"
+#include "globals.h"
+#include "net/address_list.h" // For SA.
 #include "torrent/exceptions.h"
 #include "torrent/object.h"
 #include "torrent/utils/log.h"
-
-#include "net/address_list.h" // For SA.
-
-#include "dht_node.h"
 
 #define LT_LOG_THIS(log_fmt, ...)                                              \
   lt_log_print_hash(                                                           \

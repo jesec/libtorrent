@@ -5,19 +5,18 @@
 
 #include <algorithm>
 #include <functional>
-#include <rak/functional.h>
-#include <rak/socket_address.h>
 
 #include "download/available_list.h"
-#include "torrent/peer/client_list.h"
-#include "torrent/utils/log.h"
-
-#include "download_info.h"
-#include "exceptions.h"
 #include "globals.h"
 #include "manager.h"
-#include "peer_info.h"
-#include "peer_list.h"
+#include "rak/functional.h"
+#include "rak/socket_address.h"
+#include "torrent/download_info.h"
+#include "torrent/exceptions.h"
+#include "torrent/peer/client_list.h"
+#include "torrent/peer/peer_info.h"
+#include "torrent/peer/peer_list.h"
+#include "torrent/utils/log.h"
 
 #define LT_LOG_EVENTS(log_fmt, ...)                                            \
   lt_log_print_info(                                                           \

@@ -3,10 +3,8 @@
 
 #include "config.h"
 
-#include <rak/timer.h>
-
+#include "rak/timer.h"
 #include "thread_disk.h"
-
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/utils/log.h"

@@ -6,18 +6,17 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
-
 #include <stdexcept>
-#include <torrent/event.h>
-#include <torrent/exceptions.h>
 #include <unistd.h>
 
-#include "poll_epoll.h"
 #include "rak/error_number.h"
 #include "rak/timer.h"
-#include "torrent.h"
-#include "utils/log.h"
-#include "utils/thread_base.h"
+#include "torrent/event.h"
+#include "torrent/exceptions.h"
+#include "torrent/poll_epoll.h"
+#include "torrent/torrent.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/thread_base.h"
 
 #ifdef USE_EPOLL
 #include <sys/epoll.h>

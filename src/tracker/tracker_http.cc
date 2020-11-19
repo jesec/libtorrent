@@ -6,12 +6,14 @@
 #define __STDC_FORMAT_MACROS
 
 #include <iomanip>
-#include <rak/functional.h>
-#include <rak/string_manip.h>
 #include <sstream>
 
+#include "globals.h"
+#include "manager.h"
 #include "net/address_list.h"
 #include "net/local_addr.h"
+#include "rak/functional.h"
+#include "rak/string_manip.h"
 #include "torrent/connection_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
@@ -20,11 +22,7 @@
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/option_strings.h"
-
-#include "tracker_http.h"
-
-#include "globals.h"
-#include "manager.h"
+#include "tracker/tracker_http.h"
 
 #define LT_LOG_TRACKER(log_level, log_fmt, ...)                                \
   lt_log_print_info(LOG_TRACKER_##log_level,                                   \

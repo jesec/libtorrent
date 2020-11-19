@@ -1,16 +1,13 @@
 #include "config.h"
 
-#include "torrent/exceptions.h"
-
 #include "data/chunk_list.h"
 #include "data/hash_queue.h"
 #include "data/hash_torrent.h"
 #include "download/download_main.h"
 #include "download/download_wrapper.h"
+#include "manager.h"
 #include "net/listen.h"
 #include "protocol/handshake_manager.h"
-#include "utils/instrumentation.h"
-
 #include "torrent/chunk_manager.h"
 #include "torrent/connection_manager.h"
 #include "torrent/data/file_manager.h"
@@ -19,10 +16,10 @@
 #include "torrent/download/choke_queue.h"
 #include "torrent/download/download_manager.h"
 #include "torrent/download/resource_manager.h"
+#include "torrent/exceptions.h"
 #include "torrent/peer/client_list.h"
 #include "torrent/throttle.h"
-
-#include "manager.h"
+#include "utils/instrumentation.h"
 
 namespace torrent {
 

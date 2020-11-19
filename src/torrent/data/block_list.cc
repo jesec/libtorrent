@@ -6,9 +6,9 @@
 #include <algorithm>
 #include <functional>
 
-#include "block_list.h"
-#include "block_transfer.h"
-#include "exceptions.h"
+#include "torrent/data/block_list.h"
+#include "torrent/data/block_transfer.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

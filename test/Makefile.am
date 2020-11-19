@@ -11,8 +11,8 @@ check_PROGRAMS = $(TESTS)
 
 LibTorrent_Test_LDADD = \
 	../src/libtorrent.la \
-	../src/libtorrent_other.la \
-	../src/torrent/libtorrent_torrent.la
+	../src/libtorrent_torrent.la \
+	../src/libtorrent_other.la
 
 LibTorrent_Test_Torrent_Net_LDADD = $(LibTorrent_Test_LDADD)
 LibTorrent_Test_Torrent_Utils_LDADD = $(LibTorrent_Test_LDADD)
@@ -131,4 +131,4 @@ LibTorrent_Test_Tracker_LDFLAGS = $(CPPUNIT_LIBS) -ldl
 LibTorrent_Test_CXXFLAGS = $(CPPUNIT_CFLAGS)
 LibTorrent_Test_LDFLAGS = $(CPPUNIT_LIBS) -ldl
 
-AM_CPPFLAGS = -I$(srcdir) -I$(top_srcdir) -I$(top_srcdir)/src
+AM_CPPFLAGS = -I$(top_srcdir)/include

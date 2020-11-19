@@ -5,15 +5,13 @@
 
 #include <sys/types.h>
 
-#include <rak/address_info.h>
-#include <rak/socket_address.h>
-
-#include "net/listen.h"
-
-#include "connection_manager.h"
-#include "error.h"
-#include "exceptions.h"
 #include "manager.h"
+#include "net/listen.h"
+#include "rak/address_info.h"
+#include "rak/socket_address.h"
+#include "torrent/connection_manager.h"
+#include "torrent/error.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

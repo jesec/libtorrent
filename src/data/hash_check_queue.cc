@@ -3,8 +3,7 @@
 
 #include "config.h"
 
-#include "hash_check_queue.h"
-
+#include "data/hash_check_queue.h"
 #include "data/hash_chunk.h"
 #include "torrent/hash_string.h"
 #include "utils/instrumentation.h"

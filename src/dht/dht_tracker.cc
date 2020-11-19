@@ -3,9 +3,8 @@
 
 #include "config.h"
 
+#include "dht/dht_tracker.h"
 #include "torrent/object.h"
-
-#include "dht_tracker.h"
 
 namespace torrent {
 

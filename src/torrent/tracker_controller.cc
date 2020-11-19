@@ -3,16 +3,14 @@
 
 #include "config.h"
 
-#include "download_info.h"
-#include "exceptions.h"
-#include "tracker.h"
-#include "tracker_controller.h"
-#include "tracker_list.h"
-
-#include "rak/priority_queue_default.h"
-#include "utils/log.h"
-
 #include "globals.h"
+#include "rak/priority_queue_default.h"
+#include "torrent/download_info.h"
+#include "torrent/exceptions.h"
+#include "torrent/tracker.h"
+#include "torrent/tracker_controller.h"
+#include "torrent/tracker_list.h"
+#include "torrent/utils/log.h"
 
 #define LT_LOG_TRACKER(log_level, log_fmt, ...)                                \
   lt_log_print_info(LOG_TRACKER_##log_level,                                   \

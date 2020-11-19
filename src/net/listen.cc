@@ -4,17 +4,16 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include <rak/socket_address.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "manager.h"
+#include "net/listen.h"
+#include "rak/socket_address.h"
 #include "torrent/connection_manager.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/utils/log.h"
-
-#include "listen.h"
-#include "manager.h"
 
 namespace torrent {
 

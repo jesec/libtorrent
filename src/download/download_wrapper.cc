@@ -10,6 +10,9 @@
 #include "data/chunk_list.h"
 #include "data/hash_queue.h"
 #include "data/hash_torrent.h"
+#include "download/available_list.h"
+#include "download/chunk_selector.h"
+#include "download/download_wrapper.h"
 #include "protocol/handshake_manager.h"
 #include "protocol/peer_connection_base.h"
 #include "torrent/data/file.h"
@@ -22,11 +25,6 @@
 #include "torrent/tracker_controller.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
-
-#include "available_list.h"
-#include "chunk_selector.h"
-
-#include "download_wrapper.h"
 
 #define LT_LOG_STORAGE_ERRORS(log_fmt, ...)                                    \
   lt_log_print_info(LOG_PROTOCOL_STORAGE_ERRORS,                               \

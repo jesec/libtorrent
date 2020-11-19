@@ -1,9 +1,8 @@
 #include "config.h"
 
-#include "socket_listen.h"
-
 #include <algorithm>
 
+#include "net/socket_listen.h"
 #include "torrent/connection_manager.h"
 #include "torrent/exceptions.h"
 #include "torrent/utils/log.h"

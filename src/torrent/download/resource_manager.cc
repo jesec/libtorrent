@@ -7,16 +7,15 @@
 #include <functional>
 #include <limits>
 #include <numeric>
-#include <rak/functional.h>
 
 #include "download/download_main.h"
 #include "protocol/peer_connection_base.h"
+#include "rak/functional.h"
 #include "torrent/download/choke_group.h"
+#include "torrent/download/choke_queue.h"
+#include "torrent/download/resource_manager.h"
 #include "torrent/exceptions.h"
 #include "torrent/utils/log.h"
-
-#include "choke_queue.h"
-#include "resource_manager.h"
 
 namespace torrent {
 

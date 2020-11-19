@@ -24,9 +24,9 @@ AC_PROG_CXX
 AC_SYS_LARGEFILE
 
 AC_C_BIGENDIAN(
-    AC_DEFINE(IS_BIG_ENDIAN, 1, Big endian),
-    AC_DEFINE(IS_LITTLE_ENDIAN, 1, Little endian),
-    AC_MSG_ERROR([Could not determine endianness])
+	AC_DEFINE(IS_BIG_ENDIAN, 1, Big endian),
+	AC_DEFINE(IS_LITTLE_ENDIAN, 1, Little endian),
+	AC_MSG_ERROR([Could not determine endianness])
 )
 
 RAK_CHECK_CFLAGS
@@ -95,9 +95,7 @@ CC_ATTRIBUTE_UNUSED(
 AC_OUTPUT([
 	libtorrent.pc
 	Makefile
+	include/Makefile
 	src/Makefile
-	src/torrent/Makefile
-        test/Makefile
-        test/torrent/net/Makefile
-        test/net/Makefile
+	test/Makefile
 ])

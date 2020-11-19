@@ -5,9 +5,9 @@
 
 #include <cstring>
 
-#include "exceptions.h"
-#include "file.h"
-#include "file_utils.h"
+#include "torrent/data/file.h"
+#include "torrent/data/file_utils.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

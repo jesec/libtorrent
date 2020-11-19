@@ -3,10 +3,9 @@
 
 #include "config.h"
 
+#include "dht/dht_bucket.h"
+#include "dht/dht_node.h"
 #include "torrent/exceptions.h"
-
-#include "dht_bucket.h"
-#include "dht_node.h"
 
 namespace torrent {
 

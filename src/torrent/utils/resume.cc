@@ -3,29 +3,25 @@
 
 #include "config.h"
 
-#include <rak/file_stat.h>
-#include <rak/socket_address.h>
-
-#include "peer/peer_info.h"
-#include "peer/peer_list.h"
-#include "torrent/utils/log.h"
-
-#include "data/file.h"
-#include "data/file_list.h"
-#include "data/transfer_list.h"
 #include "net/address_list.h"
-
-#include "bitfield.h"
-#include "common.h"
-#include "download.h"
-#include "download_info.h"
-#include "object.h"
-#include "tracker.h"
-#include "tracker_list.h"
+#include "rak/file_stat.h"
+#include "rak/socket_address.h"
+#include "torrent/bitfield.h"
+#include "torrent/common.h"
+#include "torrent/data/file.h"
+#include "torrent/data/file_list.h"
+#include "torrent/data/transfer_list.h"
+#include "torrent/download.h"
+#include "torrent/download_info.h"
+#include "torrent/object.h"
+#include "torrent/peer/peer_info.h"
+#include "torrent/peer/peer_list.h"
+#include "torrent/tracker.h"
+#include "torrent/tracker_list.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/resume.h"
 
 #include "globals.h"
-
-#include "resume.h"
 
 #define LT_LOG_LOAD(log_fmt, ...)                                              \
   lt_log_print_info(                                                           \

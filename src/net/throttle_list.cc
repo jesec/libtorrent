@@ -5,10 +5,10 @@
 
 #include <algorithm>
 #include <limits>
-#include <torrent/exceptions.h>
 
-#include "throttle_list.h"
-#include "throttle_node.h"
+#include "net/throttle_list.h"
+#include "net/throttle_node.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

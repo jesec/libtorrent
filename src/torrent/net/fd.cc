@@ -1,7 +1,5 @@
 #include "config.h"
 
-#include "fd.h"
-
 #include <cerrno>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -10,6 +8,7 @@
 #include <unistd.h>
 
 #include "torrent/exceptions.h"
+#include "torrent/net/fd.h"
 #include "torrent/net/socket_address.h"
 #include "torrent/utils/log.h"
 

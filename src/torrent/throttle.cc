@@ -3,15 +3,12 @@
 
 #include "config.h"
 
-#include <rak/timer.h>
-
+#include "globals.h"
 #include "net/throttle_internal.h"
 #include "net/throttle_list.h"
-
-#include "globals.h"
-
-#include "exceptions.h"
-#include "throttle.h"
+#include "rak/timer.h"
+#include "torrent/exceptions.h"
+#include "torrent/throttle.h"
 
 namespace torrent {
 

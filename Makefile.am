@@ -1,4 +1,4 @@
-SUBDIRS = src test
+SUBDIRS = include src test
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libtorrent.pc

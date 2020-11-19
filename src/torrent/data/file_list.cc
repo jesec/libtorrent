@@ -8,25 +8,23 @@
 #include <functional>
 #include <limits>
 #include <memory>
-#include <rak/error_number.h>
-#include <rak/file_stat.h>
-#include <rak/fs_stat.h>
-#include <rak/functional.h>
 #include <set>
 
 #include "data/chunk.h"
 #include "data/memory_chunk.h"
 #include "data/socket_file.h"
-
+#include "manager.h"
+#include "rak/error_number.h"
+#include "rak/file_stat.h"
+#include "rak/fs_stat.h"
+#include "rak/functional.h"
+#include "torrent/data/file.h"
+#include "torrent/data/file_list.h"
+#include "torrent/data/file_manager.h"
+#include "torrent/data/piece.h"
 #include "torrent/exceptions.h"
 #include "torrent/path.h"
 #include "torrent/utils/log.h"
-
-#include "file.h"
-#include "file_list.h"
-#include "file_manager.h"
-#include "manager.h"
-#include "piece.h"
 
 #define LT_LOG_FL(log_level, log_fmt, ...)                                     \
   lt_log_print_data(                                                           \

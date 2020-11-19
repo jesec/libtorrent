@@ -6,11 +6,10 @@
 #include <string.h>
 
 #include "download/chunk_statistics.h"
+#include "protocol/initial_seed.h"
+#include "protocol/peer_connection_leech.h"
 #include "torrent/download/choke_group.h"
 #include "torrent/download/choke_queue.h"
-
-#include "initial_seed.h"
-#include "peer_connection_leech.h"
 
 namespace torrent {
 

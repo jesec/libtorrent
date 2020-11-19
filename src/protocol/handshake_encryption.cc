@@ -8,12 +8,11 @@
 #include <algorithm>
 #include <functional>
 
+#include "protocol/handshake_encryption.h"
 #include "torrent/connection_manager.h"
 #include "torrent/exceptions.h"
 #include "utils/diffie_hellman.h"
 #include "utils/sha1.h"
-
-#include "handshake_encryption.h"
 
 namespace torrent {
 

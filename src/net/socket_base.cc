@@ -8,7 +8,7 @@
 #include <sys/types.h>
 
 #include "manager.h"
-#include "socket_base.h"
+#include "net/socket_base.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
 

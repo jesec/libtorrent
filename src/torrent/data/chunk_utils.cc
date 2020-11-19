@@ -3,18 +3,15 @@
 
 #include "config.h"
 
-#include "chunk_utils.h"
-#include "download.h"
-#include "exceptions.h"
-
-#include "chunk_manager.h"
-#include "manager.h"
-
-#include "download/download_wrapper.h"
-#include "torrent/download/download_manager.h"
-
 #include "data/chunk.h"
 #include "data/chunk_list.h"
+#include "download/download_wrapper.h"
+#include "manager.h"
+#include "torrent/chunk_manager.h"
+#include "torrent/data/chunk_utils.h"
+#include "torrent/download.h"
+#include "torrent/download/download_manager.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

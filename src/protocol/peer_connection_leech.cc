@@ -4,14 +4,17 @@
 #include "config.h"
 
 #include <cstring>
-#include <rak/functional.h>
-#include <rak/string_manip.h>
 #include <sstream>
 
 #include "data/chunk_list_node.h"
 #include "download/chunk_selector.h"
 #include "download/chunk_statistics.h"
 #include "download/download_main.h"
+#include "protocol/extensions.h"
+#include "protocol/initial_seed.h"
+#include "protocol/peer_connection_leech.h"
+#include "rak/functional.h"
+#include "rak/string_manip.h"
 #include "torrent/dht_manager.h"
 #include "torrent/download/choke_group.h"
 #include "torrent/download/choke_queue.h"
@@ -19,10 +22,6 @@
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer_info.h"
 #include "torrent/utils/log.h"
-
-#include "extensions.h"
-#include "initial_seed.h"
-#include "peer_connection_leech.h"
 
 #define LT_LOG_NETWORK_ERRORS(log_fmt, ...)                                    \
   lt_log_print_info(LOG_PROTOCOL_NETWORK_ERRORS,                               \

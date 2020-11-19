@@ -11,15 +11,14 @@
 
 #include "net/socket_set.h"
 #include "rak/allocators.h"
-
-#include "event.h"
-#include "exceptions.h"
-#include "poll_select.h"
 #include "rak/error_number.h"
 #include "rak/timer.h"
-#include "torrent.h"
-#include "utils/log.h"
-#include "utils/thread_base.h"
+#include "torrent/event.h"
+#include "torrent/exceptions.h"
+#include "torrent/poll_select.h"
+#include "torrent/torrent.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/thread_base.h"
 
 #define LT_LOG_EVENT(event, log_level, log_fmt, ...)                           \
   lt_log_print(LOG_SOCKET_##log_level,                                         \

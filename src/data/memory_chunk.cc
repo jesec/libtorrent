@@ -3,12 +3,12 @@
 
 #include "config.h"
 
-#include <rak/error_number.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "memory_chunk.h"
+#include "data/memory_chunk.h"
+#include "rak/error_number.h"
 #include "torrent/exceptions.h"
 
 #ifdef __sun__

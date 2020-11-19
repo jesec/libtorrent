@@ -7,6 +7,11 @@
 #include <limits>
 
 #include "data/chunk_list.h"
+#include "download/available_list.h"
+#include "download/chunk_selector.h"
+#include "download/chunk_statistics.h"
+#include "download/download_main.h"
+#include "download/download_wrapper.h"
 #include "protocol/extensions.h"
 #include "protocol/handshake_manager.h"
 #include "protocol/initial_seed.h"
@@ -25,12 +30,6 @@
 #include "torrent/tracker_controller.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
-
-#include "available_list.h"
-#include "chunk_selector.h"
-#include "chunk_statistics.h"
-#include "download_main.h"
-#include "download_wrapper.h"
 
 #define LT_LOG_THIS(log_level, log_fmt, ...)                                   \
   lt_log_print_info(                                                           \

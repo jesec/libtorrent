@@ -5,8 +5,8 @@
 
 #include <algorithm>
 
-#include "exceptions.h"
-#include "path.h"
+#include "torrent/exceptions.h"
+#include "torrent/path.h"
 
 namespace torrent {
 

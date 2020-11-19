@@ -8,14 +8,13 @@
 #include <algorithm>
 #include <cinttypes>
 
+#include "download/delegator.h"
 #include "protocol/peer_chunks.h"
 #include "torrent/bitfield.h"
 #include "torrent/data/block.h"
 #include "torrent/data/block_list.h"
 #include "torrent/data/block_transfer.h"
 #include "torrent/exceptions.h"
-
-#include "delegator.h"
 
 namespace torrent {
 

@@ -1,9 +1,8 @@
 #include "config.h"
 
-#include "log_buffer.h"
-
 #include "globals.h"
-#include "log.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/log_buffer.h"
 
 namespace torrent {
 

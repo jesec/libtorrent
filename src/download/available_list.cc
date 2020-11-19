@@ -7,7 +7,7 @@
 #include <iterator>
 #include <stdlib.h>
 
-#include "available_list.h"
+#include "download/available_list.h"
 #include "torrent/exceptions.h"
 
 namespace torrent {

@@ -4,9 +4,9 @@
 #include "config.h"
 
 #include <cctype>
-#include <rak/string_manip.h>
 
-#include "hash_string.h"
+#include "rak/string_manip.h"
+#include "torrent/hash_string.h"
 
 namespace torrent {
 

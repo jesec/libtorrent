@@ -5,16 +5,19 @@
 
 #include <cstdio>
 #include <fcntl.h>
-#include <rak/error_number.h>
-#include <rak/functional.h>
-#include <rak/string_manip.h>
 
 #include "data/chunk_iterator.h"
 #include "data/chunk_list.h"
 #include "download/chunk_selector.h"
 #include "download/chunk_statistics.h"
 #include "download/download_main.h"
+#include "manager.h"
 #include "net/socket_base.h"
+#include "protocol/extensions.h"
+#include "protocol/peer_connection_base.h"
+#include "rak/error_number.h"
+#include "rak/functional.h"
+#include "rak/string_manip.h"
 #include "torrent/chunk_manager.h"
 #include "torrent/connection_manager.h"
 #include "torrent/data/block.h"
@@ -27,11 +30,6 @@
 #include "torrent/throttle.h"
 #include "torrent/utils/log.h"
 #include "utils/instrumentation.h"
-
-#include "extensions.h"
-#include "peer_connection_base.h"
-
-#include "manager.h"
 
 #define LT_LOG_PIECE_EVENTS(log_fmt, ...)                                      \
   lt_log_print_info(LOG_PROTOCOL_PIECE_EVENTS,                                 \

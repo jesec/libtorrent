@@ -7,15 +7,14 @@
 #include <cstdlib>
 #include <functional>
 #include <numeric>
-#include <rak/functional.h>
 
 #include "protocol/peer_connection_base.h"
+#include "rak/functional.h"
+#include "torrent/download/choke_queue.h"
 #include "torrent/download/group_entry.h"
 #include "torrent/peer/choke_status.h"
 #include "torrent/peer/connection_list.h"
 #include "torrent/utils/log.h"
-
-#include "choke_queue.h"
 
 namespace torrent {
 

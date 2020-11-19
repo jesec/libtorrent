@@ -3,13 +3,12 @@
 
 #include "config.h"
 
-#include "thread_interrupt.h"
-
 #include <sys/socket.h>
 
 #include "net/socket_fd.h"
 #include "rak/error_number.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/thread_interrupt.h"
 #include "utils/instrumentation.h"
 
 namespace torrent {

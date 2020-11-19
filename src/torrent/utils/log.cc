@@ -1,20 +1,19 @@
 #include "config.h"
 
-#include "log.h"
-
-#include "globals.h"
-#include "torrent/exceptions.h"
-#include "torrent/hash_string.h"
+#include <algorithm>
+#include <fstream>
+#include <functional>
+#include <memory>
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <zlib.h>
 
-#include <algorithm>
-#include <fstream>
-#include <functional>
-#include <memory>
+#include "globals.h"
+#include "torrent/exceptions.h"
+#include "torrent/hash_string.h"
+#include "torrent/utils/log.h"
 
 #define GROUPFMT                                                               \
   (group >= LOG_NON_CASCADING) ? ("%" PRIi32 " ") : ("%" PRIi32 " %c ")

@@ -3,9 +3,8 @@
 
 #include "config.h"
 
+#include "torrent/data/download_data.h"
 #include "torrent/exceptions.h"
-
-#include "download_data.h"
 
 namespace torrent {
 

@@ -4,20 +4,19 @@
 #include "config.h"
 
 #include <functional>
-#include <rak/functional.h>
 #include <unistd.h>
 
+#include "data/chunk.h"
+#include "data/chunk_list_node.h"
+#include "data/hash_chunk.h"
+#include "data/hash_queue.h"
+#include "globals.h"
+#include "rak/functional.h"
+#include "thread_disk.h"
 #include "torrent/data/download_data.h"
 #include "torrent/exceptions.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/thread_base.h"
-
-#include "chunk.h"
-#include "chunk_list_node.h"
-#include "globals.h"
-#include "hash_chunk.h"
-#include "hash_queue.h"
-#include "thread_disk.h"
 
 #define LT_LOG_DATA(data, log_level, log_fmt, ...)                             \
   lt_log_print_data(                                                           \

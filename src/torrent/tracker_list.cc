@@ -4,20 +4,19 @@
 #include "config.h"
 
 #include <functional>
-#include <rak/functional.h>
 
+#include "globals.h"
 #include "net/address_list.h"
+#include "rak/functional.h"
 #include "torrent/download_info.h"
+#include "torrent/exceptions.h"
+#include "torrent/tracker.h"
+#include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/option_strings.h"
 #include "tracker/tracker_dht.h"
 #include "tracker/tracker_http.h"
 #include "tracker/tracker_udp.h"
-
-#include "exceptions.h"
-#include "globals.h"
-#include "tracker.h"
-#include "tracker_list.h"
 
 #define LT_LOG_TRACKER(log_level, log_fmt, ...)                                \
   lt_log_print_info(                                                           \

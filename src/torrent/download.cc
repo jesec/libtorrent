@@ -5,8 +5,6 @@
 
 #include <cinttypes>
 
-#include "data/block.h"
-#include "data/block_list.h"
 #include "data/chunk_list.h"
 #include "data/hash_queue.h"
 #include "data/hash_torrent.h"
@@ -14,23 +12,23 @@
 #include "download/chunk_selector.h"
 #include "download/chunk_statistics.h"
 #include "download/download_wrapper.h"
-#include "peer/peer_info.h"
 #include "protocol/peer_connection_base.h"
 #include "protocol/peer_factory.h"
+#include "torrent/data/block.h"
+#include "torrent/data/block_list.h"
 #include "torrent/data/file.h"
+#include "torrent/download.h"
 #include "torrent/download/choke_group.h"
 #include "torrent/download/choke_queue.h"
 #include "torrent/download_info.h"
+#include "torrent/exceptions.h"
+#include "torrent/object.h"
 #include "torrent/peer/connection_list.h"
+#include "torrent/peer/peer_info.h"
+#include "torrent/throttle.h"
 #include "torrent/tracker_controller.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
-
-#include "download.h"
-#include "exceptions.h"
-#include "object.h"
-#include "throttle.h"
-#include "tracker_list.h"
 
 #define LT_LOG_THIS(log_level, log_fmt, ...)                                   \
   lt_log_print_info(                                                           \
