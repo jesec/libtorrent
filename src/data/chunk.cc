@@ -13,15 +13,31 @@
 #include "data/chunk_iterator.h"
 #include "torrent/exceptions.h"
 
-jmp_buf jmp_disk_full;
+sigjmp_buf jmp_disk_full;
 
 void
 bus_handler(int, siginfo_t* si, void*) {
   if (si->si_code == BUS_ADRERR)
-    longjmp(jmp_disk_full, 1);
+    siglongjmp(jmp_disk_full, 1);
 }
 
 namespace torrent {
+
+static inline int
+intercept_sigbus(struct sigaction* oldact) noexcept(false) {
+  struct sigaction sa;
+  std::memset(&sa, 0, sizeof(sa));
+  sa.sa_sigaction = bus_handler;
+  sa.sa_flags     = SA_SIGINFO;
+  sigfillset(&sa.sa_mask);
+  sigaction(SIGBUS, &sa, oldact);
+
+  if (sigsetjmp(jmp_disk_full, 1)) {
+    return 1;
+  }
+
+  return 0;
+}
 
 bool
 Chunk::is_all_valid() const {
@@ -217,13 +233,6 @@ Chunk::to_buffer(void* buffer, uint32_t position, uint32_t length) {
 // matching.
 bool
 Chunk::from_buffer(const void* buffer, uint32_t position, uint32_t length) {
-  struct sigaction sa, oldact;
-  std::memset(&sa, 0, sizeof(sa));
-  sa.sa_sigaction = bus_handler;
-  sa.sa_flags     = SA_SIGINFO;
-  sigfillset(&sa.sa_mask);
-  sigaction(SIGBUS, &sa, &oldact);
-
   if (position + length > m_chunkSize)
     throw internal_error(
       "Chunk::from_buffer(...) position + length > m_chunkSize.");
@@ -234,17 +243,22 @@ Chunk::from_buffer(const void* buffer, uint32_t position, uint32_t length) {
   Chunk::data_type data;
   ChunkIterator    itr(this, position, position + length);
 
-  if (setjmp(jmp_disk_full) == 0) {
-    do {
-      data = itr.data();
-      std::memcpy(data.first, buffer, data.second);
-
-      buffer = static_cast<const char*>(buffer) + data.second;
-    } while (itr.next());
-  } else {
+  // Start to intercept SIGBUS
+  struct sigaction oldact;
+  if (intercept_sigbus(&oldact)) {
+    // Stop intercepting SIGBUS
+    sigaction(SIGBUS, &oldact, NULL);
     throw storage_error("no space left on disk");
   }
 
+  do {
+    data = itr.data();
+    std::memcpy(data.first, buffer, data.second);
+
+    buffer = static_cast<const char*>(buffer) + data.second;
+  } while (itr.next());
+
+  // Stop intercepting SIGBUS
   sigaction(SIGBUS, &oldact, NULL);
 
   return true;
