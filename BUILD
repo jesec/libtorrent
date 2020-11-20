@@ -8,6 +8,7 @@ COPTS = [
     "-Wall",
     "-Wextra",
     "-Werror",
+    "-faligned-new",
 ]
 
 filegroup(
