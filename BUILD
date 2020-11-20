@@ -7,6 +7,7 @@ COPTS = [
     "-O3",
     "-Wall",
     "-Wextra",
+    "-Werror",
 ]
 
 filegroup(
