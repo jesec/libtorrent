@@ -755,6 +755,7 @@ Handshake::event_read() {
         if (m_state != READ_ENC_SYNC)
           goto restart;
 
+        // fallthrough
       case READ_ENC_SYNC:
         if (!read_encryption_sync())
           break;
@@ -762,10 +763,12 @@ Handshake::event_read() {
         if (m_state != READ_ENC_SKEY)
           goto restart;
 
+        // fallthrough
       case READ_ENC_SKEY:
         if (!read_encryption_skey())
           break;
 
+        // fallthrough
       case READ_ENC_NEGOT:
         if (!read_encryption_negotiation())
           break;
@@ -773,6 +776,7 @@ Handshake::event_read() {
         if (m_state != READ_ENC_PAD)
           goto restart;
 
+        // fallthrough
       case READ_ENC_PAD:
         if (m_readPos) {
           // Read padC + lenIA or padD; pad length in m_readPos.
@@ -790,6 +794,7 @@ Handshake::event_read() {
         if (m_state != READ_ENC_IA)
           goto restart;
 
+        // fallthrough
       case READ_ENC_IA:
         // Just read (and automatically decrypt) the initial payload
         // and leave it in the buffer for READ_INFO later.
@@ -806,6 +811,7 @@ Handshake::event_read() {
 
         m_state = READ_INFO;
 
+        // fallthrough
       case READ_INFO:
         if (!read_info())
           break;
@@ -813,6 +819,7 @@ Handshake::event_read() {
         if (m_state != READ_PEER)
           goto restart;
 
+        // fallthrough
       case READ_PEER:
         if (!read_peer())
           break;
@@ -821,6 +828,7 @@ Handshake::event_read() {
         if (m_state != READ_MESSAGE)
           goto restart;
 
+        // fallthrough
       case READ_MESSAGE:
       case POST_HANDSHAKE:
         // For meta-downloads, we aren't interested in the bitfield or
@@ -890,6 +898,7 @@ Handshake::event_read() {
           break;
         }
 
+        // fallthrough
       case READ_BITFIELD:
       case READ_EXT:
       case READ_PORT:
@@ -910,6 +919,7 @@ Handshake::event_read() {
 
         goto restart;
 
+        // fallthrough
       default:
         throw internal_error(
           "Handshake::event_read() called in invalid state.");
@@ -983,6 +993,7 @@ Handshake::event_write() {
           break;
         }
 
+        // fallthrough
       case PROXY_DONE:
         // If there's any bytes remaining, it means we got a reply from
         // the other side before our proxy connect command was finished
