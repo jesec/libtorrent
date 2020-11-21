@@ -5,16 +5,13 @@
 
 namespace torrent {
 
+#ifdef LT_INSTRUMENTATION
 std::array<int64_t, INSTRUMENTATION_MAX_SIZE> instrumentation_values
   lt_cacheline_aligned;
 
 inline int64_t
 instrumentation_fetch_and_clear(instrumentation_enum type) {
-#ifdef LT_INSTRUMENTATION
   return __sync_fetch_and_and(&instrumentation_values[type], int64_t());
-#else
-  return instrumentation_values[type] = 0;
-#endif
 }
 
 void
@@ -183,5 +180,6 @@ instrumentation_reset() {
   instrumentation_fetch_and_clear(
     INSTRUMENTATION_TRANSFER_REQUESTS_CHOKED_REMOVED);
 }
+#endif
 
 } // namespace torrent

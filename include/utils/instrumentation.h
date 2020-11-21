@@ -91,6 +91,7 @@ instrumentation_reset();
 // Implementation:
 //
 
+#ifdef LT_INSTRUMENTATION
 inline void
 instrumentation_initialize() {
   std::fill(
@@ -99,10 +100,21 @@ instrumentation_initialize() {
 
 inline void
 instrumentation_update(instrumentation_enum type, int64_t change) {
-#ifdef LT_INSTRUMENTATION
   __sync_add_and_fetch(&instrumentation_values[type], change);
-#endif
 }
+#else
+inline void
+instrumentation_initialize() {}
+
+inline void
+instrumentation_update(instrumentation_enum, int64_t) {}
+
+inline void
+instrumentation_tick() {}
+
+inline void
+instrumentation_reset() {}
+#endif
 
 } // namespace torrent
 
