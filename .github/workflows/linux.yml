@@ -16,9 +16,14 @@ jobs:
       - uses: actions/checkout@v2
 
       - run: sudo apt install -y libc6-dev libcppunit-dev libssl-dev ninja-build zlib1g-dev
-      - run: cmake -GNinja .
-      - run: ninja
+      - run: cmake -DCMAKE_INSTALL_PREFIX=install -GNinja .
+      - run: ninja install
       - run: ninja test
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: libtorrent
+          path: install/
 
   bazel:
     runs-on: ubuntu-20.04
