@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
+#include "globals.h"
 #include "net/address_list.h"
 #include "rak/file_stat.h"
 #include "rak/socket_address.h"
@@ -19,9 +18,8 @@
 #include "torrent/tracker.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
-#include "torrent/utils/resume.h"
 
-#include "globals.h"
+#include "torrent/utils/resume.h"
 
 #define LT_LOG_LOAD(log_fmt, ...)                                              \
   lt_log_print_info(                                                           \
@@ -420,7 +418,7 @@ resume_save_uncertain_pieces(Download download, Object& object) {
 }
 
 bool
-resume_check_target_files(Download download, __UNUSED const Object& object) {
+resume_check_target_files(Download download, const Object&) {
   FileList* fileList = download.file_list();
 
   if (!fileList->is_open())

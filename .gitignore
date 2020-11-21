@@ -1,24 +1,26 @@
 # Compiled source #
 ###################
+libtorrent_test
 *.o
 *.lo
 *.a
 *.la
 *.so
-*.in
+*.so.*
 *.sub
 *.pc
+*.out
 *.orig
 *.rej
 
 # Autoconf files #
 ##################
-
 .deps
 .libs
 Makefile
 aclocal.m4
 autom4te.cache
+buildinfo.h
 compile
 config.h
 config.guess
@@ -38,6 +40,7 @@ scripts/lt*.m4
 
 # Editor poo #
 ##############
+.vscode
 .#*
 \#*#
 *~
@@ -52,6 +55,7 @@ scripts/lt*.m4
 
 # Logs and databases #
 ######################
+test_log.*
 *.log
 
 # OS generated files #
@@ -63,13 +67,28 @@ Icon?
 Thumbs.db
 TAGS
 
-# LibTorrent specific files
-###########################
+# LibTorrent specific files #
+#############################
 test/utils_log_test.*
 test/LibTorrentTest
 test/LibTorrentTest.trs
 test-driver
 
 # Bazel files #
-######################
-bazel-*
+###############
+/bazel-*
+
+# CMake generated files #
+#########################
+/build
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps

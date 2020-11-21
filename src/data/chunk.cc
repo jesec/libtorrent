@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include <algorithm>
 #include <csetjmp>
 #include <csignal>
@@ -195,10 +193,10 @@ Chunk::preload(uint32_t position, uint32_t length, bool useAdvise) {
                 *last  = (char*)data.first + data.second;
            first < last;
            first += 4096)
-        volatile char __UNUSED touchChunk = *(char*)data.first;
+        volatile char __attribute__((unused)) touchChunk = *(char*)data.first;
 
       // Make sure we touch the last page in the range.
-      volatile char __UNUSED touchChunk =
+      volatile char __attribute__((unused)) touchChunk =
         *((char*)data.first + data.second - 1);
     }
 

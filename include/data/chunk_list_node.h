@@ -4,6 +4,8 @@
 #ifndef LIBTORRENT_DATA_CHUNK_LIST_NODE_H
 #define LIBTORRENT_DATA_CHUNK_LIST_NODE_H
 
+#include "torrent/buildinfo.h"
+
 #include <cinttypes>
 #include <cstdlib>
 #include <rak/timer.h>

@@ -1,4 +1,4 @@
-#include "config.h"
+#include "torrent/buildinfo.h"
 
 #include "data/hash_queue.h"
 #include "data/hash_torrent.h"

@@ -1,8 +1,6 @@
-#include "config.h"
+#include <cstdint>
 
-#include <stdint.h>
-
-#include "allocators_test.h"
+#include "test/rak/allocators_test.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AllocatorsTest);
 

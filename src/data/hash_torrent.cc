@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include "data/chunk_list.h"
 #include "data/hash_queue.h"
-#include "data/hash_torrent.h"
 #include "globals.h"
 #include "torrent/data/download_data.h"
 #include "torrent/exceptions.h"
 #include "torrent/utils/log.h"
+
+#include "data/hash_torrent.h"
 
 #define LT_LOG_THIS(log_level, log_fmt, ...)                                   \
   lt_log_print_data(LOG_STORAGE_##log_level,                                   \

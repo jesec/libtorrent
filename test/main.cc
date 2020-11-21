@@ -1,4 +1,4 @@
-#include "config.h"
+#include "torrent/buildinfo.h"
 
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
@@ -16,8 +16,8 @@
 #include <execinfo.h>
 #endif
 
-#include "helpers/progress_listener.h"
-#include "helpers/utils.h"
+#include "test/helpers/progress_listener.h"
+#include "test/helpers/utils.h"
 
 CPPUNIT_REGISTRY_ADD_TO_DEFAULT("torrent/net");
 CPPUNIT_REGISTRY_ADD_TO_DEFAULT("torrent/utils");

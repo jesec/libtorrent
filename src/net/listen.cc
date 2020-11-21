@@ -1,5 +1,3 @@
-#include "config.h"
-
 #define __STDC_FORMAT_MACROS
 
 #include <arpa/inet.h>

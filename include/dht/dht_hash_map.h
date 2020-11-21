@@ -4,7 +4,7 @@
 #ifndef LIBTORRENT_DHT_HASH_MAP_H
 #define LIBTORRENT_DHT_HASH_MAP_H
 
-#include "config.h"
+#include "torrent/buildinfo.h"
 
 #include <unordered_map>
 

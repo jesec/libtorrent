@@ -1,15 +1,14 @@
-#include "config.h"
-
-#include "test_socket_listen.h"
-
-#include "helpers/expect_fd.h"
-#include "helpers/expect_utils.h"
-#include "helpers/mock_function.h"
-#include "helpers/network.h"
-
 #include <net/socket_listen.h>
-#include <torrent/exceptions.h>
-#include <torrent/utils/log.h>
+
+#include "torrent/exceptions.h"
+#include "torrent/utils/log.h"
+
+#include "test/net/test_socket_listen.h"
+
+#include "test/helpers/expect_fd.h"
+#include "test/helpers/expect_utils.h"
+#include "test/helpers/mock_function.h"
+#include "test/helpers/network.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_socket_listen, "net");
 

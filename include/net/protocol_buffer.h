@@ -4,6 +4,8 @@
 #ifndef LIBTORRENT_NET_PROTOCOL_BUFFER_H
 #define LIBTORRENT_NET_PROTOCOL_BUFFER_H
 
+#include "torrent/buildinfo.h"
+
 #include <cinttypes>
 #include <memory>
 #include <netinet/in.h>

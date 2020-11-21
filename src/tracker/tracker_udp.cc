@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #define __STDC_FORMAT_MACROS
 
 #include <sys/types.h>
@@ -316,7 +314,7 @@ TrackerUdp::event_write() {
     throw internal_error(
       "TrackerUdp::write() called but the write buffer is empty.");
 
-  int __UNUSED s = write_datagram(
+  write_datagram(
     m_writeBuffer->begin(), m_writeBuffer->size_end(), &m_connectAddress);
 
   manager->poll()->remove_write(this);

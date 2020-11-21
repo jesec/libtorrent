@@ -6,6 +6,7 @@
 
 #include <functional>
 
+#include <torrent/buildinfo.h>
 #include <torrent/common.h>
 
 namespace torrent {

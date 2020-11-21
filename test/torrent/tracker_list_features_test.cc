@@ -1,13 +1,11 @@
-#include "config.h"
-
 #include <functional>
 
+#include "globals.h"
 #include "net/address_list.h"
 #include "torrent/http.h"
 
-#include "globals.h"
-#include "tracker_list_features_test.h"
-#include "tracker_list_test.h"
+#include "test/torrent/tracker_list_features_test.h"
+#include "test/torrent/tracker_list_test.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(tracker_list_features_test);
 

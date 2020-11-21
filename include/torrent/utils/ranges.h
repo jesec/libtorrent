@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "rak/functional.h"
+#include <rak/functional.h>
 
 namespace torrent {
 

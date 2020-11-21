@@ -1,5 +1,3 @@
-#include "config.h"
-
 #include "torrent/net/address_info.h"
 
 namespace torrent {

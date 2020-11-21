@@ -1,24 +1,21 @@
-#import "config.h"
+#include <csignal>
+#include <functional>
 
-#import "test_hash_queue.h"
+#include "data/hash_queue.h"
+#include "data/hash_queue_node.h"
+#include "globals.h"
+#include "thread_disk.h"
+#include "torrent/chunk_manager.h"
+#include "torrent/exceptions.h"
+#include "torrent/hash_string.h"
+#include "torrent/poll_select.h"
 
-#import "helpers/test_thread.h"
-#import "helpers/test_utils.h"
+#include "test/data/test_chunk_list.h"
+#include "test/data/test_hash_check_queue.h"
+#include "test/data/test_hash_queue.h"
 
-#import <functional>
-#import <signal.h>
-
-#import "data/hash_queue.h"
-#import "data/hash_queue_node.h"
-#import "globals.h"
-#import "thread_disk.h"
-#import "torrent/chunk_manager.h"
-#import "torrent/exceptions.h"
-#import "torrent/hash_string.h"
-#import "torrent/poll_select.h"
-
-#import "test_chunk_list.h"
-#import "test_hash_check_queue.h"
+#include "test/helpers/test_thread.h"
+#include "test/helpers/test_utils.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_hash_queue, "data");
 

@@ -3,8 +3,6 @@
 
 // Fucked up ugly piece of hack, this code.
 
-#include "config.h"
-
 #include <algorithm>
 #include <cinttypes>
 

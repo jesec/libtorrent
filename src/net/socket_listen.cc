@@ -1,5 +1,3 @@
-#include "config.h"
-
 #include <algorithm>
 
 #include "net/socket_listen.h"

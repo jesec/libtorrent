@@ -1,10 +1,3 @@
-#include "config.h"
-
-#include "test_hash_check_queue.h"
-
-#include "helpers/test_thread.h"
-#include "helpers/test_utils.h"
-
 #include <functional>
 #include <signal.h>
 
@@ -15,7 +8,11 @@
 #include "torrent/poll_select.h"
 #include "utils/sha1.h"
 
-#include "test_chunk_list.h"
+#include "test/data/test_chunk_list.h"
+#include "test/data/test_hash_check_queue.h"
+
+#include "test/helpers/test_thread.h"
+#include "test/helpers/test_utils.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_hash_check_queue, "data");
 

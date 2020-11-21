@@ -1,15 +1,13 @@
-#include "config.h"
-
-#include "test_log.h"
-
 #include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <functional>
 #include <iostream>
 
-#include <torrent/exceptions.h>
-#include <torrent/utils/log.h>
+#include "torrent/exceptions.h"
+#include "torrent/utils/log.h"
+
+#include "test/torrent/utils/test_log.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_log, "torrent/utils");
 

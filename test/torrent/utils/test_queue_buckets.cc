@@ -1,9 +1,7 @@
-#include "config.h"
-
-#include "test_queue_buckets.h"
-
 #include "utils/instrumentation.h"
 #include "utils/queue_buckets.h"
+
+#include "test/torrent/utils/test_queue_buckets.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_queue_buckets, "torrent/utils");
 
@@ -52,7 +50,7 @@ static int items_destroyed = 0;
 
 template<>
 void
-test_constants::destroy<int>(__UNUSED int& obj) {
+test_constants::destroy<int>(int&) {
   items_destroyed++;
 }
 

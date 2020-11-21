@@ -1,5 +1,3 @@
-#include "config.h"
-
 #include <cstring>
 #include <signal.h>
 #include <unistd.h>
@@ -28,13 +26,11 @@ thread_base::thread_base()
   , m_interrupt_receiver(NULL) {
   std::memset(&m_thread, 0, sizeof(pthread_t));
 
-  // #ifdef USE_INTERRUPT_SOCKET
   thread_interrupt::pair_type interrupt_sockets =
     thread_interrupt::create_pair();
 
   m_interrupt_sender   = interrupt_sockets.first;
   m_interrupt_receiver = interrupt_sockets.second;
-  // #endif
 }
 
 thread_base::~thread_base() {
@@ -89,20 +85,13 @@ void*
 thread_base::event_loop(thread_base* thread) {
   __sync_lock_test_and_set(&thread->m_state, STATE_ACTIVE);
 
-#if defined(HAS_PTHREAD_SETNAME_NP_DARWIN)
-  pthread_setname_np(thread->name());
-#elif defined(HAS_PTHREAD_SETNAME_NP_GENERIC)
   pthread_setname_np(thread->m_thread, thread->name());
-#endif
 
   lt_log_print(
     torrent::LOG_THREAD_NOTICE, "%s: Starting thread.", thread->name());
 
   try {
-
-    // #ifdef USE_INTERRUPT_SOCKET
     thread->m_poll->insert_read(thread->m_interrupt_receiver);
-    // #endif
 
     while (true) {
       if (thread->m_slot_do_work)
@@ -155,10 +144,7 @@ thread_base::event_loop(thread_base* thread) {
       __sync_fetch_and_and(&thread->m_flags, ~(flag_polling | flag_no_timeout));
     }
 
-    // #ifdef USE_INTERRUPT_SOCKET
     thread->m_poll->remove_write(thread->m_interrupt_receiver);
-    // #endif
-
   } catch (torrent::shutdown_exception& e) {
     lt_log_print(
       torrent::LOG_THREAD_NOTICE, "%s: Shutting down thread.", thread->name());

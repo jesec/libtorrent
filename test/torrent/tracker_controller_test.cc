@@ -1,13 +1,11 @@
-#include "config.h"
-
 #include <functional>
 #include <iostream>
 
+#include "globals.h"
 #include "rak/priority_queue_default.h"
 
-#include "globals.h"
-#include "tracker_controller_test.h"
-#include "tracker_list_test.h"
+#include "test/torrent/tracker_controller_test.h"
+#include "test/torrent/tracker_list_test.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(tracker_controller_test);
 

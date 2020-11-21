@@ -1,6 +1,5 @@
-#include "config.h"
-
 #include "torrent/exceptions.h"
+
 #include "torrent/utils/random.h"
 
 namespace torrent {

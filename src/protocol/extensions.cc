@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
+#include "torrent/buildinfo.h"
 
-#include <limits>
-#include <stdarg.h>
-
+#include <cstdarg>
 #include <cstdio>
+#include <limits>
 
 #include "download/available_list.h"
 #include "download/download_main.h"

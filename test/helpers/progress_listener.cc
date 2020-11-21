@@ -1,14 +1,13 @@
-#include "config.h"
-
-#include "progress_listener.h"
-
-#include "torrent/utils/log.h"
-#include "torrent/utils/log_buffer.h"
 #include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <numeric>
 #include <stdexcept>
+
+#include "torrent/utils/log.h"
+#include "torrent/utils/log_buffer.h"
+
+#include "test/helpers/progress_listener.h"
 
 static std::string
 get_test_path(const test_list_type& tl) {

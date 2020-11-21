@@ -1,10 +1,3 @@
-#include "config.h"
-
-#include "test_thread_base.h"
-
-#include "helpers/test_thread.h"
-#include "helpers/test_utils.h"
-
 #include <functional>
 #include <unistd.h>
 
@@ -12,6 +5,11 @@
 #include "torrent/poll_select.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/thread_base.h"
+
+#include "test/torrent/utils/test_thread_base.h"
+
+#include "test/helpers/test_thread.h"
+#include "test/helpers/test_utils.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_thread_base, "torrent/utils");
 

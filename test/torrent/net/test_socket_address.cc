@@ -1,8 +1,6 @@
-#include "config.h"
+#include "test/torrent/net/test_socket_address.h"
 
-#include "test_socket_address.h"
-
-#include "helpers/network.h"
+#include "test/helpers/network.h"
 #include "torrent/exceptions.h"
 #include "torrent/net/socket_address.h"
 

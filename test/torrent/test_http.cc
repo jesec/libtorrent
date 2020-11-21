@@ -1,9 +1,8 @@
-#include "config.h"
-
-#include "test_http.h"
+#include <sstream>
 
 #include "torrent/http.h"
-#include <sstream>
+
+#include "test/torrent/test_http.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_http, "torrent");
 

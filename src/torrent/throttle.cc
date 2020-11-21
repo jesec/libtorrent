@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include "globals.h"
 #include "net/throttle_internal.h"
 #include "net/throttle_list.h"
 #include "rak/timer.h"
 #include "torrent/exceptions.h"
+
 #include "torrent/throttle.h"
 
 namespace torrent {

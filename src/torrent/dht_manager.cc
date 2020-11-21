@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include "dht/dht_router.h"
 #include "manager.h"
-#include "torrent/dht_manager.h"
 #include "torrent/exceptions.h"
 #include "torrent/throttle.h"
 #include "torrent/utils/log.h"
+
+#include "torrent/dht_manager.h"
 
 #define LT_LOG_THIS(log_fmt, ...)                                              \
   lt_log_print_subsystem(                                                      \

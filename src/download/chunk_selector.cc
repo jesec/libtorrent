@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include <algorithm>
 #include <stdlib.h>
 
@@ -57,7 +55,7 @@ ChunkSelector::update_priorities() {
 }
 
 uint32_t
-ChunkSelector::find(PeerChunks* pc, __UNUSED bool highPriority) {
+ChunkSelector::find(PeerChunks* pc, bool) {
   // This needs to be re-enabled.
   if (m_position == invalid_chunk)
     return invalid_chunk;

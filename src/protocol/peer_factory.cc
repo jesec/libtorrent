@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include "protocol/peer_connection_leech.h"
 #include "protocol/peer_connection_metadata.h"
+
 #include "protocol/peer_factory.h"
 
 namespace torrent {

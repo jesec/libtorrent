@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include "globals.h"
 #include "rak/priority_queue_default.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
 #include "torrent/tracker.h"
-#include "torrent/tracker_controller.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
+
+#include "torrent/tracker_controller.h"
 
 #define LT_LOG_TRACKER(log_level, log_fmt, ...)                                \
   lt_log_print_info(LOG_TRACKER_##log_level,                                   \

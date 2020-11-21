@@ -1,10 +1,9 @@
-#include "config.h"
-
-#include "torrent/object_stream.h"
 #include <cppunit/extensions/HelperMacros.h>
 #include <sstream>
 
-#include "object_test_utils.h"
+#include "torrent/object_stream.h"
+
+#include "test/torrent/object_test_utils.h"
 
 torrent::Object
 create_bencode(const char* str) {

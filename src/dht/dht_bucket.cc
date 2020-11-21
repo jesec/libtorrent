@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
+#include "torrent/buildinfo.h"
 
 #include "dht/dht_bucket.h"
 #include "dht/dht_node.h"

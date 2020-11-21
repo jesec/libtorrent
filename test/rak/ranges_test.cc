@@ -1,8 +1,6 @@
-#include "config.h"
-
 #include <iostream>
 
-#include "ranges_test.h"
+#include "test/rak/ranges_test.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(RangesTest);
 

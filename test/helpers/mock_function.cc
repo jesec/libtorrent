@@ -1,14 +1,13 @@
-#include "config.h"
-
-#include "mock_function.h"
-
 #include <fcntl.h>
 #include <iostream>
-#include <torrent/event.h>
-#include <torrent/net/fd.h>
-#include <torrent/net/socket_address.h>
-#include <torrent/utils/log.h>
-#include <torrent/utils/random.h>
+
+#include "torrent/event.h"
+#include "torrent/net/fd.h"
+#include "torrent/net/socket_address.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/random.h"
+
+#include "test/helpers/mock_function.h"
 
 #define MOCK_CLEANUP_MAP(MOCK_FUNC)                                            \
   CPPUNIT_ASSERT_MESSAGE(                                                      \

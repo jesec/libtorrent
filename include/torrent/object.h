@@ -452,7 +452,6 @@ private:
 
   uint32_t m_flags;
 
-#ifndef HAVE_STDCXX_0X
   value_type& _value() {
     return t_value;
   }
@@ -543,90 +542,6 @@ private:
     raw_list      t_raw_list;
     raw_map       t_raw_map;
   };
-
-#else
-  // #error "WTF we're testing C++11 now."
-
-  value_type& _value() {
-    return reinterpret_cast<value_type&>(t_pod);
-  }
-  const value_type& _value() const {
-    return reinterpret_cast<const value_type&>(t_pod);
-  }
-  string_type& _string() {
-    return reinterpret_cast<string_type&>(t_string);
-  }
-  const string_type& _string() const {
-    return reinterpret_cast<const string_type&>(t_string);
-  }
-  list_type& _list() {
-    return reinterpret_cast<list_type&>(t_list);
-  }
-  const list_type& _list() const {
-    return reinterpret_cast<const list_type&>(t_list);
-  }
-  map_type& _map() {
-    return *reinterpret_cast<map_ptr_type&>(t_pod);
-  }
-  const map_type& _map() const {
-    return *reinterpret_cast<const map_ptr_type&>(t_pod);
-  }
-  map_ptr_type& _map_ptr() {
-    return reinterpret_cast<map_ptr_type&>(t_pod);
-  }
-  const map_ptr_type& _map_ptr() const {
-    return reinterpret_cast<const map_ptr_type&>(t_pod);
-  }
-  dict_key_type& _dict_key() {
-    return reinterpret_cast<dict_key_type&>(t_pod);
-  }
-  const dict_key_type& _dict_key() const {
-    return reinterpret_cast<const dict_key_type&>(t_pod);
-  }
-  raw_object& _raw_object() {
-    return reinterpret_cast<raw_object&>(t_pod);
-  }
-  const raw_object& _raw_object() const {
-    return reinterpret_cast<const raw_object&>(t_pod);
-  }
-  raw_bencode& _raw_bencode() {
-    return reinterpret_cast<raw_bencode&>(t_pod);
-  }
-  const raw_bencode& _raw_bencode() const {
-    return reinterpret_cast<const raw_bencode&>(t_pod);
-  }
-  raw_string& _raw_string() {
-    return reinterpret_cast<raw_string&>(t_pod);
-  }
-  const raw_string& _raw_string() const {
-    return reinterpret_cast<const raw_string&>(t_pod);
-  }
-  raw_list& _raw_list() {
-    return reinterpret_cast<raw_list&>(t_pod);
-  }
-  const raw_list& _raw_list() const {
-    return reinterpret_cast<const raw_list&>(t_pod);
-  }
-  raw_map& _raw_map() {
-    return reinterpret_cast<raw_map&>(t_pod);
-  }
-  const raw_map& _raw_map() const {
-    return reinterpret_cast<const raw_map&>(t_pod);
-  }
-
-  union pod_types {
-    value_type t_value;
-    map_type*  t_map;
-    char       t_raw_object[sizeof(raw_object)];
-  };
-
-  union {
-    pod_types t_pod;
-    char      t_string[sizeof(string_type)];
-    char      t_list[sizeof(list_type)];
-    char      t_dict_key[sizeof(dict_key_type)];
-  };
-#endif
 };
 
 inline Object::Object(const Object& b) {

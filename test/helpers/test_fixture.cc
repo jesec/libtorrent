@@ -1,8 +1,6 @@
-#include "config.h"
-
-#include "test_fixture.h"
-
 #include "torrent/utils/log.h"
+
+#include "test/helpers/test_fixture.h"
 
 void
 test_fixture::setUp() {

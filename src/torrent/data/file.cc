@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include "data/memory_chunk.h"
 #include "data/socket_file.h"
 #include "globals.h"
 #include "manager.h"
 #include "rak/error_number.h"
 #include "rak/file_stat.h"
-#include "torrent/data/file.h"
 #include "torrent/data/file_manager.h"
 #include "torrent/exceptions.h"
+
+#include "torrent/data/file.h"
 
 namespace torrent {
 

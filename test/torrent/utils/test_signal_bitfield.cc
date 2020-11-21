@@ -1,13 +1,11 @@
-#include "config.h"
+#include "torrent/exceptions.h"
+#include "torrent/utils/signal_bitfield.h"
+#include "torrent/utils/thread_base.h"
 
-#include "test_signal_bitfield.h"
+#include "test/torrent/utils/test_signal_bitfield.h"
 
-#include "helpers/test_thread.h"
-#include "helpers/test_utils.h"
-
-#include <torrent/exceptions.h>
-#include <torrent/utils/signal_bitfield.h>
-#include <torrent/utils/thread_base.h>
+#include "test/helpers/test_thread.h"
+#include "test/helpers/test_utils.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_signal_bitfield, "torrent/utils");
 

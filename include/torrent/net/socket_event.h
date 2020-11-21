@@ -3,8 +3,8 @@
 
 #include <cinttypes>
 
-#include "torrent/event.h"
-#include "torrent/net/socket_address.h"
+#include <torrent/event.h>
+#include <torrent/net/socket_address.h>
 
 namespace torrent {
 

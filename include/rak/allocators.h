@@ -6,6 +6,8 @@
 #ifndef RAK_ALLOCATORS_H
 #define RAK_ALLOCATORS_H
 
+#include "torrent/buildinfo.h"
+
 #include <cstddef>
 #include <limits>
 #include <stdlib.h>
@@ -53,8 +55,9 @@ public:
   }
 
   static pointer alloc_size(size_type size) {
-    pointer      ptr = NULL;
-    int __UNUSED result =
+    pointer ptr = NULL;
+
+    int result [[maybe_unused]] =
       posix_memalign((void**)&ptr, LT_SMP_CACHE_BYTES, size);
 
     return ptr;

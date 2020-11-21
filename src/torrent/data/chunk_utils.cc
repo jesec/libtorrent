@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include "data/chunk.h"
 #include "data/chunk_list.h"
 #include "download/download_wrapper.h"
 #include "manager.h"
 #include "torrent/chunk_manager.h"
-#include "torrent/data/chunk_utils.h"
 #include "torrent/download.h"
 #include "torrent/download/download_manager.h"
 #include "torrent/exceptions.h"
+
+#include "torrent/data/chunk_utils.h"
 
 namespace torrent {
 

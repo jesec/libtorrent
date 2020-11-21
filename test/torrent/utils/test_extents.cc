@@ -1,9 +1,7 @@
-#include "config.h"
+#include "torrent/utils/extents.h"
+#include "torrent/utils/log.h"
 
-#include "test_extents.h"
-
-#include <torrent/utils/extents.h>
-#include <torrent/utils/log.h>
+#include "test/torrent/utils/test_extents.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_extents, "torrent/utils");
 

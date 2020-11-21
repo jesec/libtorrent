@@ -4,25 +4,52 @@
 #ifndef RAK_FS_STAT_H
 #define RAK_FS_STAT_H
 
+#include "torrent/buildinfo.h"
+
 #include <cinttypes>
 #include <string>
 
 #include <rak/error_number.h>
 
-#if HAVE_SYS_VFS_H
-#include <sys/vfs.h>
-#endif
-#if HAVE_SYS_STATVFS_H
-#include <sys/statvfs.h>
-#endif
-#if HAVE_SYS_STATFS_H
+#if HAVE_STATVFS
+
 #include <sys/statfs.h>
-#endif
-#if HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#if HAVE_SYS_MOUNT_H
+#include <sys/statvfs.h>
+#include <sys/vfs.h>
+
+#define FS_STAT_FD         fstatvfs(fd, &m_stat) == 0
+#define FS_STAT_FN         statvfs(fn, &m_stat) == 0
+#define FS_STAT_STRUCT     struct statvfs
+#define FS_STAT_SIZE_TYPE  unsigned long
+#define FS_STAT_COUNT_TYPE fsblkcnt_t
+#define FS_STAT_BLOCK_SIZE (m_stat.f_frsize)
+
+#elif HAVE_STATFS
+
 #include <sys/mount.h>
+#include <sys/param.h>
+#include <sys/statfs.h>
+
+#define FS_STAT_FD         fstatfs(fd, &m_stat) == 0
+#define FS_STAT_FN         statfs(fn, &m_stat) == 0
+#define FS_STAT_STRUCT     struct statfs
+#define FS_STAT_SIZE_TYPE  long
+#define FS_STAT_COUNT_TYPE long
+#define FS_STAT_BLOCK_SIZE (m_stat.f_bsize)
+
+#else
+
+#define FS_STAT_FD (errno = ENOSYS) == 0
+#define FS_STAT_FN (errno = ENOSYS) == 0
+#define FS_STAT_STRUCT                                                         \
+  struct {                                                                     \
+    blocksize_type  f_bsize;                                                   \
+    blockcount_type f_bavail;                                                  \
+  }
+#define FS_STAT_SIZE_TYPE  int
+#define FS_STAT_COUNT_TYPE int
+#define FS_STAT_BLOCK_SIZE 4096
+
 #endif
 
 namespace rak {

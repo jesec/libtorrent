@@ -4,6 +4,8 @@
 #ifndef LIBTORRENT_PROTOCOL_PEER_CONNECTION_BASE_H
 #define LIBTORRENT_PROTOCOL_PEER_CONNECTION_BASE_H
 
+#include "torrent/buildinfo.h"
+
 #include "data/chunk_handle.h"
 #include "net/socket_stream.h"
 #include "torrent/peer/choke_status.h"

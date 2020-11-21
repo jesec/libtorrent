@@ -4,6 +4,8 @@
 #ifndef LIBTORRENT_HASH_CHUNK_H
 #define LIBTORRENT_HASH_CHUNK_H
 
+#include "torrent/buildinfo.h"
+
 #include "torrent/exceptions.h"
 #include "utils/sha1.h"
 

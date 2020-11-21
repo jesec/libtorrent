@@ -1,13 +1,11 @@
-#include "config.h"
-
-#include "test_request_list.h"
-
 #include "download/delegator.h"
 #include "protocol/peer_chunks.h"
 #include "protocol/request_list.h"
 #include "rak/socket_address.h"
 #include "torrent/exceptions.h"
 #include "torrent/peer/peer_info.h"
+
+#include "test/protocol/test_request_list.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestRequestList);
 

@@ -4,8 +4,10 @@
 #ifndef LIBTORRENT_UTILS_THREAD_INTERRUPT_H
 #define LIBTORRENT_UTILS_THREAD_INTERRUPT_H
 
-#include <torrent/event.h>
 #include <utility>
+
+#include <torrent/buildinfo.h>
+#include <torrent/event.h>
 
 namespace torrent {
 

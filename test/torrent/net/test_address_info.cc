@@ -1,10 +1,9 @@
-#include "config.h"
-
-#include "test_address_info.h"
-
-#include "helpers/network.h"
 #include "torrent/net/address_info.h"
 #include "torrent/net/socket_address.h"
+
+#include "test/torrent/net/test_address_info.h"
+
+#include "test/helpers/network.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_address_info, "torrent/net");
 

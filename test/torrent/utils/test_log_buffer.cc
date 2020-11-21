@@ -1,9 +1,7 @@
-#include "config.h"
-
-#include "test_log_buffer.h"
-
 #include "globals.h"
-#include <torrent/utils/log_buffer.h>
+#include "torrent/utils/log_buffer.h"
+
+#include "test/torrent/utils/test_log_buffer.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_log_buffer, "torrent/utils");
 

@@ -1,10 +1,9 @@
-#include "config.h"
-
 #include <iostream>
-#include <torrent/object.h>
 
-#include "object_test.h"
-#include "object_test_utils.h"
+#include "torrent/object.h"
+
+#include "test/torrent/object_test.h"
+#include "test/torrent/object_test_utils.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ObjectTest);
 

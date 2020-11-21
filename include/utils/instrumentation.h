@@ -4,6 +4,8 @@
 #ifndef LIBTORRENT_UTILS_INSTRUMENTATION_H
 #define LIBTORRENT_UTILS_INSTRUMENTATION_H
 
+#include "torrent/buildinfo.h"
+
 #include <algorithm>
 #include <array>
 

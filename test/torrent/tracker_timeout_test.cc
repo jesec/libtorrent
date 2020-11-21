@@ -1,13 +1,11 @@
-#include "config.h"
-
 #include <iostream>
-#include <torrent/tracker_controller.h>
-
-#include "rak/priority_queue_default.h"
 
 #include "globals.h"
-#include "tracker_list_test.h"
-#include "tracker_timeout_test.h"
+#include "rak/priority_queue_default.h"
+#include "torrent/tracker_controller.h"
+
+#include "test/torrent/tracker_list_test.h"
+#include "test/torrent/tracker_timeout_test.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(tracker_timeout_test);
 

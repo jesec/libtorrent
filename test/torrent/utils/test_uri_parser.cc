@@ -1,9 +1,7 @@
-#include "config.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/uri_parser.h"
 
-#include "test_uri_parser.h"
-
-#include <torrent/utils/log.h>
-#include <torrent/utils/uri_parser.h>
+#include "test/torrent/utils/test_uri_parser.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_uri_parser, "torrent/utils");
 

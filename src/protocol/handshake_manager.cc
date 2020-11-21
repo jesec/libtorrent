@@ -1,9 +1,6 @@
-#include "config.h"
-
 #include "download/download_main.h"
 #include "manager.h"
 #include "protocol/handshake.h"
-#include "protocol/handshake_manager.h"
 #include "protocol/peer_connection_base.h"
 #include "rak/socket_address.h"
 #include "torrent/connection_manager.h"
@@ -14,6 +11,8 @@
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer_info.h"
 #include "torrent/utils/log.h"
+
+#include "protocol/handshake_manager.h"
 
 #define LT_LOG_SA(sa, log_fmt, ...)                                            \
   lt_log_print(LOG_CONNECTION_HANDSHAKE,                                       \

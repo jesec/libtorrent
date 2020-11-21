@@ -4,6 +4,8 @@
 #ifndef LIBTORRENT_DATA_HASH_CHECK_QUEUE_H
 #define LIBTORRENT_DATA_HASH_CHECK_QUEUE_H
 
+#include "torrent/buildinfo.h"
+
 #include <deque>
 #include <functional>
 #include <pthread.h>

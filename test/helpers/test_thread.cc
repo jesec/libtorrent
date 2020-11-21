@@ -1,13 +1,11 @@
-#import "config.h"
+#include <cppunit/extensions/HelperMacros.h>
+#include <unistd.h>
 
-#import "test_thread.h"
+#include "thread_disk.h"
+#include "torrent/exceptions.h"
+#include "torrent/poll_select.h"
 
-#import <cppunit/extensions/HelperMacros.h>
-#import <unistd.h>
-
-#import "thread_disk.h"
-#import "torrent/exceptions.h"
-#import "torrent/poll_select.h"
+#include "test/helpers/test_thread.h"
 
 const int test_thread::test_flag_pre_stop;
 const int test_thread::test_flag_long_timeout;

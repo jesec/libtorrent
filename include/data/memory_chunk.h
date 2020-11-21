@@ -4,6 +4,8 @@
 #ifndef LIBTORRENT_DATA_MEMORY_CHUNK_H
 #define LIBTORRENT_DATA_MEMORY_CHUNK_H
 
+#include "torrent/buildinfo.h"
+
 #include <algorithm>
 #include <cinttypes>
 #include <cstddef>

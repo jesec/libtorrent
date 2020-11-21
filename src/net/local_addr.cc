@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include <errno.h>
 #include <stdio.h>
 #include <sys/types.h>

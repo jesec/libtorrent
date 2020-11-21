@@ -1,9 +1,7 @@
-#import "config.h"
+#include "torrent/chunk_manager.h"
+#include "torrent/exceptions.h"
 
-#import "test_chunk_list.h"
-
-#import "torrent/chunk_manager.h"
-#import "torrent/exceptions.h"
+#include "test/data/test_chunk_list.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_chunk_list, "data");
 

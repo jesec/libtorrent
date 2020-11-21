@@ -1,8 +1,6 @@
-#include "config.h"
+#include "test/torrent/net/test_fd.h"
 
-#include "test_fd.h"
-
-#include <torrent/net/fd.h>
+#include "torrent/net/fd.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_fd, "torrent/net");
 

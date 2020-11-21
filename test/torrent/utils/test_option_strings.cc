@@ -1,10 +1,8 @@
-#include "config.h"
+#include "torrent/download.h"
+#include "torrent/utils/log.h"
+#include "torrent/utils/option_strings.h"
 
-#include "test_option_strings.h"
-
-#include <torrent/download.h>
-#include <torrent/utils/log.h>
-#include <torrent/utils/option_strings.h>
+#include "test/torrent/utils/test_option_strings.h"
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_option_strings, "torrent/utils");
 

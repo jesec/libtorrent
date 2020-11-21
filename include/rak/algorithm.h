@@ -4,6 +4,8 @@
 #ifndef RAK_ALGORITHM_H
 #define RAK_ALGORITHM_H
 
+#include "torrent/buildinfo.h"
+
 #include <algorithm>
 #include <functional>
 #include <limits>

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include <sys/types.h>
 
 #include "manager.h"
@@ -102,11 +100,7 @@ ConnectionManager::set_receive_buffer_size(uint32_t s) {
 
 void
 ConnectionManager::set_encryption_options(uint32_t options) {
-#ifdef USE_OPENSSL
   m_encryptionOptions = options;
-#else
-  throw input_error("Compiled without encryption support.");
-#endif
 }
 
 void

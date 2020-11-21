@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include "globals.h"
 #include "torrent/exceptions.h"
+
 #include "torrent/rate.h"
 
 namespace torrent {

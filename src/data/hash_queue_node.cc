@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "config.h"
-
 #include "data/chunk_list_node.h"
 #include "data/hash_chunk.h"
+
 #include "data/hash_queue_node.h"
 
 namespace torrent {

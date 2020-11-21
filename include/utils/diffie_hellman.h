@@ -1,8 +1,6 @@
 #ifndef LIBTORRENT_DIFFIE_HELLMAN_H
 #define LIBTORRENT_DIFFIE_HELLMAN_H
 
-#include "config.h"
-
 #include <memory>
 #include <string>
 
