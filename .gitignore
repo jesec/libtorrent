@@ -1,5 +1,6 @@
 # Compiled source #
 ###################
+/install
 libtorrent_test
 *.o
 *.lo
@@ -81,6 +82,9 @@ test-driver
 # CMake generated files #
 #########################
 /build
+*.ninja
+.ninja_deps
+.ninja_log
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
