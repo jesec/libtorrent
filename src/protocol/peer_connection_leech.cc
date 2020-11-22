@@ -11,15 +11,15 @@
 #include "protocol/extensions.h"
 #include "protocol/initial_seed.h"
 #include "protocol/peer_connection_leech.h"
-#include "rak/functional.h"
-#include "rak/string_manip.h"
 #include "torrent/dht_manager.h"
 #include "torrent/download/choke_group.h"
 #include "torrent/download/choke_queue.h"
 #include "torrent/download_info.h"
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer_info.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/string_manip.h"
 
 #define LT_LOG_NETWORK_ERRORS(log_fmt, ...)                                    \
   lt_log_print_info(LOG_PROTOCOL_NETWORK_ERRORS,                               \
@@ -92,7 +92,7 @@ PeerConnection<type>::update_interested() {
 template<Download::ConnectionType type>
 bool
 PeerConnection<type>::receive_keepalive() {
-  if (cachedTime - m_timeLastRead > rak::timer::from_seconds(240))
+  if (cachedTime - m_timeLastRead > utils::timer::from_seconds(240))
     return false;
 
   // There's no point in adding ourselves to the write poll if the
@@ -460,7 +460,7 @@ PeerConnection<type>::event_read() {
   } catch (network_error& e) {
     LT_LOG_NETWORK_ERRORS(
       "%s network read error: %s",
-      rak::socket_address::cast_from(m_peerInfo->socket_address())
+      utils::socket_address::cast_from(m_peerInfo->socket_address())
         ->address_str()
         .c_str(),
       e.what());
@@ -476,8 +476,8 @@ PeerConnection<type>::event_read() {
       << m_down->get_state() << ',' << m_down->last_command() << ") \""
       << e.what() << '"';
     s << " '"
-      << rak::copy_escape_html((char*)m_down->buffer()->begin(),
-                               (char*)m_down->buffer()->position())
+      << utils::copy_escape_html((char*)m_down->buffer()->begin(),
+                                 (char*)m_down->buffer()->position())
       << "'";
 
     throw internal_error(s.str());
@@ -544,9 +544,9 @@ PeerConnection<type>::fill_write_buffer() {
     DownloadMain::have_queue_type::iterator last = std::find_if(
       haveQueue->begin(),
       haveQueue->end(),
-      rak::greater(
+      utils::greater(
         m_peerChunks.have_timer(),
-        rak::mem_ref(&DownloadMain::have_queue_type::value_type::first)));
+        utils::mem_ref(&DownloadMain::have_queue_type::value_type::first)));
 
     do {
       m_up->write_have((--last)->second);
@@ -657,7 +657,7 @@ PeerConnection<type>::event_write() {
   } catch (network_error& e) {
     LT_LOG_NETWORK_ERRORS(
       "%s write error: %s",
-      rak::socket_address::cast_from(m_peerInfo->socket_address())
+      utils::socket_address::cast_from(m_peerInfo->socket_address())
         ->address_str()
         .c_str(),
       e.what());

@@ -5,10 +5,10 @@
 #define LIBTORRENT_DOWNLOAD_CHUNK_SELECTOR_H
 
 #include <cinttypes>
-#include <rak/partial_queue.h>
 
 #include "torrent/bitfield.h"
 #include "torrent/data/download_data.h"
+#include "torrent/utils/partial_queue.h"
 #include "torrent/utils/ranges.h"
 
 namespace torrent {
@@ -76,17 +76,17 @@ public:
 
 private:
   bool        search_linear(const Bitfield*                       bf,
-                            rak::partial_queue*                   pq,
+                            utils::partial_queue*                 pq,
                             const download_data::priority_ranges* ranges,
                             uint32_t                              first,
                             uint32_t                              last);
-  inline bool search_linear_range(const Bitfield*     bf,
-                                  rak::partial_queue* pq,
-                                  uint32_t            first,
-                                  uint32_t            last);
-  inline bool search_linear_byte(rak::partial_queue*  pq,
-                                 uint32_t             index,
-                                 Bitfield::value_type wanted);
+  inline bool search_linear_range(const Bitfield*       bf,
+                                  utils::partial_queue* pq,
+                                  uint32_t              first,
+                                  uint32_t              last);
+  inline bool search_linear_byte(utils::partial_queue* pq,
+                                 uint32_t              index,
+                                 Bitfield::value_type  wanted);
 
   //   inline uint32_t     search_rarest(const Bitfield* bf, priority_ranges*
   //   ranges, uint32_t first, uint32_t last); inline uint32_t
@@ -99,7 +99,7 @@ private:
 
   ChunkStatistics* m_statistics;
 
-  rak::partial_queue m_sharedQueue;
+  utils::partial_queue m_sharedQueue;
 
   uint32_t m_position;
 };

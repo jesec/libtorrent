@@ -7,11 +7,9 @@
 #include <cstdint>
 #include <unistd.h>
 
-struct sockaddr;
+#include "torrent/utils/socket_address.h"
 
-namespace rak {
-class socket_address;
-}
+struct sockaddr;
 
 namespace torrent {
 
@@ -60,17 +58,17 @@ public:
     m_fd = -1;
   }
 
-  bool bind(const rak::socket_address& sa);
-  bool bind(const rak::socket_address& sa, unsigned int length);
+  bool bind(const utils::socket_address& sa);
+  bool bind(const utils::socket_address& sa, unsigned int length);
   bool bind_sa(const sockaddr* sa);
 
-  bool connect(const rak::socket_address& sa);
+  bool connect(const utils::socket_address& sa);
   bool connect_sa(const sockaddr* sa);
 
-  bool getsockname(rak::socket_address* sa);
+  bool getsockname(utils::socket_address* sa);
 
   bool     listen(int size);
-  SocketFd accept(rak::socket_address* sa);
+  SocketFd accept(utils::socket_address* sa);
 
   //   unsigned int        get_read_queue_size() const;
   //   unsigned int        get_write_queue_size() const;

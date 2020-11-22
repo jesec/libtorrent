@@ -27,7 +27,7 @@ AvailableList::pop_random() {
 }
 
 void
-AvailableList::push_back(const rak::socket_address* sa) {
+AvailableList::push_back(const utils::socket_address* sa) {
   if (std::find(begin(), end(), *sa) != end())
     return;
 
@@ -56,7 +56,7 @@ AvailableList::insert(AddressList* l) {
 }
 
 void
-AvailableList::erase(const rak::socket_address& sa) {
+AvailableList::erase(const utils::socket_address& sa) {
   iterator itr = std::find(begin(), end(), sa);
 
   if (itr != end()) {

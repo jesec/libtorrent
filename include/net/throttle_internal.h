@@ -4,11 +4,11 @@
 #ifndef LIBTORRENT_NET_THROTTLE_INTERNAL_H
 #define LIBTORRENT_NET_THROTTLE_INTERNAL_H
 
-#include <rak/priority_queue_default.h>
 #include <vector>
 
 #include "torrent/common.h"
 #include "torrent/throttle.h"
+#include "torrent/utils/priority_queue_default.h"
 
 namespace torrent {
 
@@ -49,8 +49,8 @@ private:
 
   uint32_t m_unusedQuota;
 
-  rak::timer         m_timeLastTick;
-  rak::priority_item m_taskTick;
+  utils::timer         m_timeLastTick;
+  utils::priority_item m_taskTick;
 };
 
 } // namespace torrent

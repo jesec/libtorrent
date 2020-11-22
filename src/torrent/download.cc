@@ -628,7 +628,7 @@ Download::add_peer(const sockaddr* sa, int port) {
   if (m_ptr->info()->is_private())
     return;
 
-  rak::socket_address sa_port = *rak::socket_address::cast_from(sa);
+  utils::socket_address sa_port = *utils::socket_address::cast_from(sa);
   sa_port.set_port(port);
   m_ptr->main()->add_peer(sa_port);
 }

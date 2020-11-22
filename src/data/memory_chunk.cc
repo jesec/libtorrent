@@ -6,8 +6,8 @@
 #include <unistd.h>
 
 #include "data/memory_chunk.h"
-#include "rak/error_number.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/error_number.h"
 
 #ifdef __sun__
 extern "C" int
@@ -72,7 +72,7 @@ MemoryChunk::unmap() {
 
   if (munmap(m_ptr, m_end - m_ptr) != 0)
     throw internal_error("MemoryChunk::unmap() system call failed: " +
-                         std::string(rak::error_number::current().c_str()));
+                         std::string(utils::error_number::current().c_str()));
 }
 
 void
@@ -87,17 +87,17 @@ MemoryChunk::incore(char* buf, uint32_t offset, uint32_t length) {
 
   align_pair(&offset, &length);
 
-#if USE_MINCORE
+#if LT_USE_MINCORE
 
-#if USE_MINCORE_UNSIGNED
+#if LT_USE_MINCORE_UNSIGNED
   if (mincore(m_ptr + offset, length, (unsigned char*)buf))
 #else
   if (mincore(m_ptr + offset, length, (char*)buf))
 #endif
     throw storage_error("System call mincore failed: " +
-                        std::string(rak::error_number::current().c_str()));
+                        std::string(utils::error_number::current().c_str()));
 
-#else // !USE_MINCORE
+#else // !LT_USE_MINCORE
   // Pretend all pages are in memory.
   memset(buf, 1, pages_touched(offset, length));
 
@@ -113,7 +113,7 @@ MemoryChunk::advise(uint32_t offset, uint32_t length, int advice) {
     throw internal_error(
       "MemoryChunk::advise(...) received out-of-range input");
 
-#if USE_MADVISE
+#if LT_USE_MADVISE
   align_pair(&offset, &length);
 
   if (madvise(m_ptr + offset, length, advice) == 0)

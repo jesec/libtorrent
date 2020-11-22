@@ -2,7 +2,6 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <iterator>
-#include <rak/file_stat.h>
 #include <stdlib.h>
 
 #include "data/chunk_list.h"
@@ -22,6 +21,7 @@
 #include "torrent/peer/peer.h"
 #include "torrent/tracker_controller.h"
 #include "torrent/tracker_list.h"
+#include "torrent/utils/file_stat.h"
 #include "torrent/utils/log.h"
 
 #define LT_LOG_STORAGE_ERRORS(log_fmt, ...)                                    \
@@ -92,7 +92,7 @@ DownloadWrapper::initialize(const std::string& hash, const std::string& id) {
   file_list()->mutable_data()->mutable_hash().assign(hash.c_str());
 
   m_main->slot_hash_check_add(
-    rak::make_mem_fun(this, &DownloadWrapper::check_chunk_hash));
+    utils::make_mem_fun(this, &DownloadWrapper::check_chunk_hash));
 
   // Info hash must be calculate from here on.
   m_hashChecker = new HashTorrent(m_main->chunk_list());
@@ -144,7 +144,7 @@ DownloadWrapper::receive_initial_hash() {
   if (!m_hashChecker->is_checking()) {
     receive_storage_error(
       "Hash checker was unable to map chunk: " +
-      std::string(rak::error_number(m_hashChecker->error_number()).c_str()));
+      std::string(utils::error_number(m_hashChecker->error_number()).c_str()));
 
   } else {
     m_hashChecker->confirm_checked();
@@ -274,13 +274,13 @@ DownloadWrapper::receive_tracker_success(AddressList* l) {
   m_main->receive_connect_peers();
   m_main->receive_tracker_success();
 
-  rak::slot_list_call(info()->signal_tracker_success());
+  utils::slot_list_call(info()->signal_tracker_success());
   return inserted;
 }
 
 void
 DownloadWrapper::receive_tracker_failed(const std::string& msg) {
-  rak::slot_list_call(info()->signal_tracker_failed(), msg);
+  utils::slot_list_call(info()->signal_tracker_failed(), msg);
 }
 
 void
@@ -327,9 +327,9 @@ DownloadWrapper::receive_tick(uint32_t ticks) {
     std::find_if(
       haveQueue->rbegin(),
       haveQueue->rend(),
-      rak::less(
-        cachedTime - rak::timer::from_seconds(600),
-        rak::mem_ref(&DownloadMain::have_queue_type::value_type::first)))
+      utils::less(
+        cachedTime - utils::timer::from_seconds(600),
+        utils::mem_ref(&DownloadMain::have_queue_type::value_type::first)))
       .base(),
     haveQueue->end());
 
@@ -382,10 +382,11 @@ DownloadWrapper::receive_update_priorities() {
 
   m_main->chunk_selector()->update_priorities();
 
-  std::for_each(m_main->connection_list()->begin(),
-                m_main->connection_list()->end(),
-                rak::on(std::mem_fun(&Peer::m_ptr),
-                        std::mem_fun(&PeerConnectionBase::update_interested)));
+  std::for_each(
+    m_main->connection_list()->begin(),
+    m_main->connection_list()->end(),
+    utils::on(std::mem_fun(&Peer::m_ptr),
+              std::mem_fun(&PeerConnectionBase::update_interested)));
 
   // The 'partially_done/restarted' signal only gets triggered when a
   // download is active and not completed.

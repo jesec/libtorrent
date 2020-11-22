@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "globals.h"
-#include "rak/priority_queue_default.h"
+#include "torrent/utils/priority_queue_default.h"
 
 #include "test/torrent/tracker_controller_test.h"
 #include "test/torrent/tracker_list_test.h"
@@ -48,8 +48,9 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
   }
 
   torrent::cachedTime +=
-    rak::timer::from_seconds(is_scrape ? next_scrape : next_timeout);
-  rak::priority_queue_perform(&torrent::taskScheduler, torrent::cachedTime);
+    torrent::utils::timer::from_seconds(is_scrape ? next_scrape : next_timeout);
+  torrent::utils::priority_queue_perform(&torrent::taskScheduler,
+                                         torrent::cachedTime);
   return true;
 }
 
@@ -57,7 +58,7 @@ void
 tracker_controller_test::setUp() {
   CPPUNIT_ASSERT(torrent::taskScheduler.empty());
 
-  torrent::cachedTime = rak::timer::current();
+  torrent::cachedTime = torrent::utils::timer::current();
 }
 
 void
@@ -113,7 +114,8 @@ tracker_controller_test::test_timeout() {
 
   tracker_controller.enable();
 
-  rak::priority_queue_perform(&torrent::taskScheduler, torrent::cachedTime);
+  torrent::utils::priority_queue_perform(&torrent::taskScheduler,
+                                         torrent::cachedTime);
 
   CPPUNIT_ASSERT(timeout_counter == 1);
   TEST_SINGLE_END(0, 0);
@@ -135,15 +137,16 @@ tracker_controller_test::test_single_success() {
 }
 
 #define TEST_SINGLE_FAILURE_TIMEOUT(test_interval)                             \
-  rak::priority_queue_perform(&torrent::taskScheduler, torrent::cachedTime);   \
+  torrent::utils::priority_queue_perform(&torrent::taskScheduler,              \
+                                         torrent::cachedTime);                 \
   CPPUNIT_ASSERT(tracker_0_0->trigger_failure());                              \
   CPPUNIT_ASSERT(tracker_controller.seconds_to_next_timeout() ==               \
                  test_interval);                                               \
-  torrent::cachedTime += rak::timer::from_seconds(test_interval);
+  torrent::cachedTime += torrent::utils::timer::from_seconds(test_interval);
 
 void
 tracker_controller_test::test_single_failure() {
-  torrent::cachedTime = rak::timer::from_seconds(1 << 20);
+  torrent::cachedTime = torrent::utils::timer::from_seconds(1 << 20);
   TEST_SINGLE_BEGIN();
 
   TEST_SINGLE_FAILURE_TIMEOUT(5);
@@ -158,7 +161,7 @@ tracker_controller_test::test_single_failure() {
   // TODO: Test with cachedTime not rounded to second.
 
   // Test also with a low timer value...
-  // torrent::cachedTime = rak::timer::from_seconds(1000);
+  // torrent::cachedTime = torrent::utils::timer::from_seconds(1000);
 
   TEST_SINGLE_END(0, 4);
 }
@@ -272,7 +275,7 @@ tracker_controller_test::test_send_update_normal() {
 
 void
 tracker_controller_test::test_send_update_failure() {
-  torrent::cachedTime = rak::timer::from_seconds(1 << 20);
+  torrent::cachedTime = torrent::utils::timer::from_seconds(1 << 20);
   TEST_SINGLE_BEGIN();
 
   tracker_controller.send_update_event();

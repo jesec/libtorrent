@@ -6,16 +6,16 @@
 
 #include <cinttypes>
 #include <functional>
-#include <rak/socket_address.h>
 
 #include "socket_base.h"
 #include "socket_fd.h"
+#include "torrent/utils/socket_address.h"
 
 namespace torrent {
 
 class Listen : public SocketBase {
 public:
-  typedef std::function<void(SocketFd, const rak::socket_address&)>
+  typedef std::function<void(SocketFd, const utils::socket_address&)>
     slot_connection;
 
   Listen()
@@ -24,10 +24,10 @@ public:
     close();
   }
 
-  bool open(uint16_t                   first,
-            uint16_t                   last,
-            int                        backlog,
-            const rak::socket_address* bindAddress);
+  bool open(uint16_t                     first,
+            uint16_t                     last,
+            int                          backlog,
+            const utils::socket_address* bindAddress);
   void close();
 
   bool is_open() const {

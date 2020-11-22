@@ -4,13 +4,14 @@
 // Various functions for manipulating file paths. Also consider making
 // a directory iterator.
 
-#ifndef RAK_PATH_H
-#define RAK_PATH_H
+#ifndef LIBTORRENT_UTILS_PATH_H
+#define LIBTORRENT_UTILS_PATH_H
 
 #include <cstdlib>
 #include <string>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 inline std::string
 path_expand(const std::string& path) {
@@ -70,6 +71,7 @@ path_expand(const char* src, char* first, char* last) {
                   last);
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

@@ -9,16 +9,16 @@
 #include <stdexcept>
 #include <unistd.h>
 
-#include "rak/error_number.h"
-#include "rak/timer.h"
 #include "torrent/event.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll_epoll.h"
 #include "torrent/torrent.h"
+#include "torrent/utils/error_number.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/thread_base.h"
+#include "torrent/utils/timer.h"
 
-#ifdef USE_EPOLL
+#ifdef LT_USE_EPOLL
 #include <sys/epoll.h>
 #endif
 
@@ -31,7 +31,7 @@
 
 namespace torrent {
 
-#ifdef USE_EPOLL
+#ifdef LT_USE_EPOLL
 
 inline uint32_t
 PollEPoll::event_mask(Event* e) {
@@ -182,7 +182,7 @@ PollEPoll::perform() {
 
 unsigned int
 PollEPoll::do_poll(int64_t timeout_usec, int flags) {
-  rak::timer timeout = rak::timer(timeout_usec);
+  utils::timer timeout = utils::timer(timeout_usec);
 
   timeout += 10;
 
@@ -199,10 +199,10 @@ PollEPoll::do_poll(int64_t timeout_usec, int flags) {
   }
 
   if (status == -1) {
-    if (rak::error_number::current().value() != rak::error_number::e_intr) {
+    if (utils::error_number::current().value() != utils::error_number::e_intr) {
       throw std::runtime_error(
         "PollEPoll::work(): " +
-        std::string(rak::error_number::current().c_str()));
+        std::string(utils::error_number::current().c_str()));
     }
 
     return 0;
@@ -329,7 +329,7 @@ PollEPoll::remove_error(Event* event) {
   modify(event, mask ? EPOLL_CTL_MOD : EPOLL_CTL_DEL, mask);
 }
 
-#else // USE_EPOLL
+#else // LT_USE_EPOLL
 
 PollEPoll*
 PollEPoll::create(int maxOpenSockets) {
@@ -392,6 +392,6 @@ PollEPoll::PollEPoll(int fd, int maxEvents, int maxOpenSockets) {
   throw internal_error("An PollEPoll function was called, but it is disabled.");
 }
 
-#endif // USE_EPOLL
+#endif // LT_USE_EPOLL
 
 } // namespace torrent

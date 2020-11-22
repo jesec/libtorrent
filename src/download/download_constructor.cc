@@ -8,8 +8,6 @@
 #include "download/download_constructor.h"
 #include "download/download_wrapper.h"
 #include "manager.h"
-#include "rak/functional.h"
-#include "rak/string_manip.h"
 #include "torrent/data/file.h"
 #include "torrent/data/file_list.h"
 #include "torrent/dht_manager.h"
@@ -17,6 +15,8 @@
 #include "torrent/object.h"
 #include "torrent/tracker_controller.h"
 #include "torrent/tracker_list.h"
+#include "torrent/utils/functional.h"
+#include "torrent/utils/string_manip.h"
 
 namespace torrent {
 
@@ -165,7 +165,7 @@ DownloadConstructor::parse_tracker(const Object& b) {
     std::for_each(
       announce_list->begin(),
       announce_list->end(),
-      rak::make_mem_fun(this, &DownloadConstructor::add_tracker_group));
+      utils::make_mem_fun(this, &DownloadConstructor::add_tracker_group));
 
   else if (b.has_key("announce"))
     add_tracker_single(b.get_key("announce"), 0);
@@ -179,9 +179,10 @@ DownloadConstructor::parse_tracker(const Object& b) {
       m_download->main()->tracker_list()->size_group(), "dht://");
 
   if (manager->dht_manager()->is_valid() && b.has_key_list("nodes"))
-    std::for_each(b.get_key_list("nodes").begin(),
-                  b.get_key_list("nodes").end(),
-                  rak::make_mem_fun(this, &DownloadConstructor::add_dht_node));
+    std::for_each(
+      b.get_key_list("nodes").begin(),
+      b.get_key_list("nodes").end(),
+      utils::make_mem_fun(this, &DownloadConstructor::add_dht_node));
 
   m_download->main()->tracker_list()->randomize_group_entries();
 }
@@ -191,11 +192,12 @@ DownloadConstructor::add_tracker_group(const Object& b) {
   if (!b.is_list())
     throw bencode_error("Tracker group list not a list");
 
-  std::for_each(b.as_list().begin(),
-                b.as_list().end(),
-                rak::bind2nd(rak::make_mem_fun(
-                               this, &DownloadConstructor::add_tracker_single),
-                             m_download->main()->tracker_list()->size_group()));
+  std::for_each(
+    b.as_list().begin(),
+    b.as_list().end(),
+    utils::bind2nd(
+      utils::make_mem_fun(this, &DownloadConstructor::add_tracker_single),
+      m_download->main()->tracker_list()->size_group()));
 }
 
 void
@@ -204,7 +206,7 @@ DownloadConstructor::add_tracker_single(const Object& b, int group) {
     throw bencode_error("Tracker entry not a string");
 
   m_download->main()->tracker_list()->insert_url(
-    group, rak::trim_classic(b.as_string()));
+    group, utils::trim_classic(b.as_string()));
 }
 
 void
@@ -357,8 +359,8 @@ DownloadConstructor::choose_path(std::list<Path>* pathList) {
     std::list<Path>::iterator itr =
       std::find_if(pathFirst,
                    pathLast,
-                   rak::bind2nd(download_constructor_encoding_match(),
-                                encodingFirst->c_str()));
+                   utils::bind2nd(download_constructor_encoding_match(),
+                                  encodingFirst->c_str()));
 
     if (itr != pathLast)
       pathList->splice(pathFirst, *pathList, itr);
@@ -471,8 +473,8 @@ DownloadConstructor::parse_magnet_uri(Object& b, const std::string& uri) {
         for (HashString::iterator itr = hash.begin(), last = hash.end();
              itr != last;
              itr++, hexItr += 2)
-          *itr = (rak::hexchar_to_value(*hexItr) << 4) +
-                 rak::hexchar_to_value(*(hexItr + 1));
+          *itr = (utils::hexchar_to_value(*hexItr) << 4) +
+                 utils::hexchar_to_value(*(hexItr + 1));
         hashValid = true;
 
       } else {
@@ -491,7 +493,7 @@ DownloadConstructor::parse_magnet_uri(Object& b, const std::string& uri) {
 
   Object& info = b.insert_key("info", Object::create_map());
   info.insert_key("pieces", hash.str());
-  info.insert_key("name", rak::transform_hex(hash.str()) + ".meta");
+  info.insert_key("name", utils::transform_hex(hash.str()) + ".meta");
   info.insert_key("meta_download", (int64_t)1);
 
   if (!trackers.as_list().empty()) {

@@ -3,9 +3,9 @@
 
 #include <algorithm>
 
-#include "rak/algorithm.h"
 #include "torrent/bitfield.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/algorithm.h"
 #include "utils/instrumentation.h"
 
 namespace torrent {
@@ -61,12 +61,12 @@ Bitfield::update() {
   iterator last = end();
 
   while (itr + sizeof(unsigned int) <= last) {
-    m_set += rak::popcount_wrapper(*reinterpret_cast<unsigned int*>(itr));
+    m_set += utils::popcount_wrapper(*reinterpret_cast<unsigned int*>(itr));
     itr += sizeof(unsigned int);
   }
 
   while (itr != last) {
-    m_set += rak::popcount_wrapper(*itr++);
+    m_set += utils::popcount_wrapper(*itr++);
   }
 }
 

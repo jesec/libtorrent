@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "globals.h"
-#include "rak/priority_queue_default.h"
+#include "torrent/utils/priority_queue_default.h"
 
 #include "test/torrent/tracker_controller_requesting.h"
 #include "test/torrent/tracker_list_test.h"
@@ -13,7 +13,7 @@ void
 tracker_controller_requesting::setUp() {
   CPPUNIT_ASSERT(torrent::taskScheduler.empty());
 
-  torrent::cachedTime = rak::timer::current();
+  torrent::cachedTime = torrent::utils::timer::current();
 }
 
 void

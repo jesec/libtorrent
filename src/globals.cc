@@ -9,8 +9,8 @@
 
 namespace torrent {
 
-LIBTORRENT_EXPORT rak::priority_queue_default taskScheduler;
-LIBTORRENT_EXPORT rak::timer cachedTime;
+LIBTORRENT_EXPORT utils::priority_queue_default taskScheduler;
+LIBTORRENT_EXPORT utils::timer cachedTime;
 
 void
 poll_event_open(Event* event) {

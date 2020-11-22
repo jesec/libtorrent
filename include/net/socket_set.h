@@ -6,11 +6,11 @@
 
 #include <cinttypes>
 #include <list>
-#include <rak/allocators.h>
 #include <vector>
 
 #include "torrent/event.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/allocators.h"
 
 namespace torrent {
 
@@ -21,12 +21,12 @@ namespace torrent {
 // Propably should rename to EventSet...
 
 class SocketSet
-  : private std::vector<Event*, rak::cacheline_allocator<Event*>> {
+  : private std::vector<Event*, utils::cacheline_allocator<Event*>> {
 public:
   typedef uint32_t size_type;
 
-  typedef std::vector<Event*, rak::cacheline_allocator<Event*>>       base_type;
-  typedef std::vector<size_type, rak::cacheline_allocator<size_type>> Table;
+  typedef std::vector<Event*, utils::cacheline_allocator<Event*>> base_type;
+  typedef std::vector<size_type, utils::cacheline_allocator<size_type>> Table;
 
   static const size_type npos = static_cast<size_type>(-1);
 

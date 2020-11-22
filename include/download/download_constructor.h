@@ -8,7 +8,7 @@
 #include <list>
 #include <string>
 
-#include <torrent/object.h>
+#include "torrent/object.h"
 
 namespace torrent {
 

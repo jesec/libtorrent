@@ -12,8 +12,8 @@
 
 #include "net/local_addr.h"
 #include "net/socket_fd.h"
-#include "rak/socket_address.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/socket_address.h"
 
 namespace torrent {
 
@@ -74,7 +74,7 @@ get_priority_ipv6(const in6_addr& addr) {
 }
 
 int
-get_priority(const rak::socket_address& addr) {
+get_priority(const utils::socket_address& addr) {
   switch (addr.family()) {
     case AF_INET:
       return get_priority_ipv4(addr.c_sockaddr_inet()->sin_addr);
@@ -90,8 +90,8 @@ get_priority(const rak::socket_address& addr) {
 // Linux-specific implementation that understands how to filter away
 // understands how to filter away secondary addresses.
 bool
-get_local_address(sa_family_t family, rak::socket_address* address) {
-  rak::socket_address best_addr;
+get_local_address(sa_family_t family, utils::socket_address* address) {
+  utils::socket_address best_addr;
   switch (family) {
     case AF_INET:
       best_addr.sa_inet()->clear();
@@ -202,9 +202,9 @@ get_local_address(sa_family_t family, rak::socket_address* address) {
       // Since there can be point-to-point links on the machine, we need to keep
       // track of the addresses we've seen for this interface; if we see both
       // IFA_LOCAL and IFA_ADDRESS for an interface, keep only the IFA_LOCAL.
-      rak::socket_address this_addr;
-      bool                seen_addr = false;
-      int                 plen      = IFA_PAYLOAD(nlmsg);
+      utils::socket_address this_addr;
+      bool                  seen_addr = false;
+      int                   plen      = IFA_PAYLOAD(nlmsg);
       for (const rtattr* rta = IFA_RTA(ifa); RTA_OK(rta, plen);
            rta               = RTA_NEXT(rta, plen)) {
         if (rta->rta_type != IFA_LOCAL && rta->rta_type != IFA_ADDRESS) {
@@ -253,20 +253,20 @@ get_local_address(sa_family_t family, rak::socket_address* address) {
 
 // Generic POSIX variant.
 bool
-get_local_address(sa_family_t family, rak::socket_address* address) {
+get_local_address(sa_family_t family, utils::socket_address* address) {
   SocketFd sock;
   if (!sock.open_datagram()) {
     return false;
   }
 
-  rak::socket_address dummy_dest;
+  utils::socket_address dummy_dest;
   dummy_dest.clear();
 
   switch (family) {
-    case rak::socket_address::af_inet:
+    case utils::socket_address::af_inet:
       dummy_dest.set_address_c_str("4.0.0.0");
       break;
-    case rak::socket_address::af_inet6:
+    case utils::socket_address::af_inet6:
       dummy_dest.set_address_c_str("2001:700::");
       break;
     default:

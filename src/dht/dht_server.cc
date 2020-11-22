@@ -11,7 +11,6 @@
 #include "dht/dht_transaction.h"
 #include "globals.h"
 #include "manager.h"
-#include "rak/functional.h"
 #include "torrent/connection_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
@@ -20,6 +19,7 @@
 #include "torrent/object_stream.h"
 #include "torrent/poll.h"
 #include "torrent/throttle.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "tracker/tracker_dht.h"
 
@@ -112,10 +112,10 @@ DhtServer::~DhtServer() {
 
   std::for_each(m_highQueue.begin(),
                 m_highQueue.end(),
-                rak::call_delete<DhtTransactionPacket>());
+                utils::call_delete<DhtTransactionPacket>());
   std::for_each(m_lowQueue.begin(),
                 m_lowQueue.end(),
-                rak::call_delete<DhtTransactionPacket>());
+                utils::call_delete<DhtTransactionPacket>());
 
   manager->connection_manager()->dec_socket_count();
 }
@@ -129,9 +129,9 @@ DhtServer::start(int port) {
     if (!get_fd().set_reuse_address(true))
       throw resource_error("Could not set listening port to reuse address.");
 
-    rak::socket_address sa = *m_router->address();
+    utils::socket_address sa = *m_router->address();
 
-    if (sa.family() == rak::socket_address::af_unspec)
+    if (sa.family() == utils::socket_address::af_unspec)
       sa.sa_inet6()->clear();
 
     sa.set_port(port);
@@ -201,7 +201,7 @@ DhtServer::reset_statistics() {
 
 // Ping a node whose ID we know.
 void
-DhtServer::ping(const HashString& id, const rak::socket_address* sa) {
+DhtServer::ping(const HashString& id, const utils::socket_address* sa) {
   // No point pinging a node that we're already contacting otherwise.
   transaction_itr itr = m_transactions.lower_bound(DhtTransaction::key(sa, 0));
   if (itr == m_transactions.end() || !DhtTransaction::key_match(itr->first, sa))
@@ -271,9 +271,9 @@ DhtServer::update() {
 }
 
 void
-DhtServer::process_query(const HashString&          id,
-                         const rak::socket_address* sa,
-                         const DhtMessage&          msg) {
+DhtServer::process_query(const HashString&            id,
+                         const utils::socket_address* sa,
+                         const DhtMessage&            msg) {
   m_queriesReceived++;
   m_networkUp = true;
 
@@ -313,9 +313,9 @@ DhtServer::create_find_node_response(const DhtMessage& req, DhtMessage& reply) {
 }
 
 void
-DhtServer::create_get_peers_response(const DhtMessage&          req,
-                                     const rak::socket_address* sa,
-                                     DhtMessage&                reply) {
+DhtServer::create_get_peers_response(const DhtMessage&            req,
+                                     const utils::socket_address* sa,
+                                     DhtMessage&                  reply) {
   reply[key_r_token] = m_router->make_token(sa, reply.data_end);
   reply.data_end += reply[key_r_token].as_raw_string().size();
 
@@ -343,8 +343,8 @@ DhtServer::create_get_peers_response(const DhtMessage&          req,
 }
 
 void
-DhtServer::create_announce_peer_response(const DhtMessage&          req,
-                                         const rak::socket_address* sa,
+DhtServer::create_announce_peer_response(const DhtMessage&            req,
+                                         const utils::socket_address* sa,
                                          DhtMessage&) {
   raw_string info_hash = req[key_a_infoHash].as_raw_string();
 
@@ -360,9 +360,9 @@ DhtServer::create_announce_peer_response(const DhtMessage&          req,
 }
 
 void
-DhtServer::process_response(const HashString&          id,
-                            const rak::socket_address* sa,
-                            const DhtMessage&          response) {
+DhtServer::process_response(const HashString&            id,
+                            const utils::socket_address* sa,
+                            const DhtMessage&            response) {
   int transactionId = (unsigned char)response[key_t].as_raw_string().data()[0];
   transaction_itr itr =
     m_transactions.find(DhtTransaction::key(sa, transactionId));
@@ -381,7 +381,7 @@ DhtServer::process_response(const HashString&          id,
   // Make sure transaction is erased even if an exception is thrown.
   try {
     DhtTransaction* transaction = itr->second;
-#ifdef USE_EXTRA_DEBUG
+#ifdef LT_USE_EXTRA_DEBUG
     if (DhtTransaction::key(sa, transactionId) !=
         transaction->key(transactionId))
       throw internal_error("DhtServer::process_response key mismatch.");
@@ -426,8 +426,8 @@ DhtServer::process_response(const HashString&          id,
 }
 
 void
-DhtServer::process_error(const rak::socket_address* sa,
-                         const DhtMessage&          error) {
+DhtServer::process_error(const utils::socket_address* sa,
+                         const DhtMessage&            error) {
   int transactionId = (unsigned char)error[key_t].as_raw_string().data()[0];
   transaction_itr itr =
     m_transactions.find(DhtTransaction::key(sa, transactionId));
@@ -467,7 +467,7 @@ DhtServer::parse_find_node_reply(DhtTransactionSearch* transaction,
 
   for (node_info_list::iterator itr = list.begin(); itr != list.end(); ++itr) {
     if (itr->id() != m_router->id()) {
-      rak::socket_address sa = itr->address();
+      utils::socket_address sa = itr->address();
       transaction->search()->add_contact(itr->id(), &sa);
     }
   }
@@ -562,7 +562,7 @@ DhtServer::drop_packet(DhtTransactionPacket* packet) {
 void
 DhtServer::create_query(transaction_itr itr,
                         int             tID,
-                        const rak::socket_address*,
+                        const utils::socket_address*,
                         int priority) {
   if (itr->second->id() == m_router->id())
     throw internal_error("DhtServer::create_query trying to send to itself.");
@@ -578,7 +578,7 @@ DhtServer::create_query(transaction_itr itr,
   DhtTransaction* transaction = itr->second;
   query[key_q]    = raw_string::from_c_str(queries[transaction->type()]);
   query[key_y]    = raw_bencode::from_c_str("1:q");
-  query[key_v]    = raw_bencode("4:" PEER_VERSION, 6);
+  query[key_v]    = raw_bencode("4:" LT_PEER_VERSION, 6);
   query[key_a_id] = m_router->id_raw_string();
 
   switch (transaction->type()) {
@@ -613,29 +613,29 @@ DhtServer::create_query(transaction_itr itr,
 }
 
 void
-DhtServer::create_response(const DhtMessage&          req,
-                           const rak::socket_address* sa,
-                           DhtMessage&                reply) {
+DhtServer::create_response(const DhtMessage&            req,
+                           const utils::socket_address* sa,
+                           DhtMessage&                  reply) {
   reply[key_r_id] = m_router->id_raw_string();
   reply[key_t]    = req[key_t];
   reply[key_y]    = raw_bencode::from_c_str("1:r");
-  reply[key_v]    = raw_bencode("4:" PEER_VERSION, 6);
+  reply[key_v]    = raw_bencode("4:" LT_PEER_VERSION, 6);
 
   add_packet(new DhtTransactionPacket(sa, reply), packet_prio_reply);
 }
 
 void
-DhtServer::create_error(const DhtMessage&          req,
-                        const rak::socket_address* sa,
-                        int                        num,
-                        const char*                msg) {
+DhtServer::create_error(const DhtMessage&            req,
+                        const utils::socket_address* sa,
+                        int                          num,
+                        const char*                  msg) {
   DhtMessage error;
 
   if (req[key_t].is_raw_string() && req[key_t].as_raw_string().size() < 67)
     error[key_t] = req[key_t];
 
   error[key_y]   = raw_bencode::from_c_str("1:e");
-  error[key_v]   = raw_bencode("4:" PEER_VERSION, 6);
+  error[key_v]   = raw_bencode("4:" LT_PEER_VERSION, 6);
   error[key_e_0] = num;
   error[key_e_1] = raw_string::from_c_str(msg);
 
@@ -752,11 +752,11 @@ DhtServer::event_read() {
   uint32_t total = 0;
 
   while (true) {
-    Object              request;
-    rak::socket_address sa;
-    int                 type = '?';
-    DhtMessage          message;
-    const HashString*   nodeId = NULL;
+    Object                request;
+    utils::socket_address sa;
+    int                   type = '?';
+    DhtMessage            message;
+    const HashString*     nodeId = NULL;
 
     try {
       char    buffer[2048];
@@ -767,10 +767,10 @@ DhtServer::event_read() {
 
       // We can currently only process mapped-IPv4 addresses, not real IPv6.
       // Translate them to an af_inet socket_address.
-      if (sa.family() == rak::socket_address::af_inet6)
+      if (sa.family() == utils::socket_address::af_inet6)
         sa = sa.sa_inet6()->normalize_address();
 
-      if (sa.family() != rak::socket_address::af_inet)
+      if (sa.family() != utils::socket_address::af_inet)
         continue;
 
       total += read;
@@ -976,7 +976,7 @@ DhtServer::start_write() {
     priority_queue_insert(
       &taskScheduler,
       &m_taskTimeout,
-      (cachedTime + rak::timer::from_seconds(5)).round_seconds());
+      (cachedTime + utils::timer::from_seconds(5)).round_seconds());
 }
 
 void

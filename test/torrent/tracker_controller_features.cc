@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "globals.h"
-#include "rak/priority_queue_default.h"
+#include "torrent/utils/priority_queue_default.h"
 
 #include "test/torrent/tracker_controller_features.h"
 #include "test/torrent/tracker_list_test.h"
@@ -13,7 +13,7 @@ void
 tracker_controller_features::setUp() {
   CPPUNIT_ASSERT(torrent::taskScheduler.empty());
 
-  torrent::cachedTime = rak::timer::current();
+  torrent::cachedTime = torrent::utils::timer::current();
 }
 
 void
@@ -131,7 +131,7 @@ tracker_controller_features::test_promiscious_failed() {
   CPPUNIT_ASSERT(tracker_controller.task_timeout()->is_queued());
 
   CPPUNIT_ASSERT(tracker_3_0->trigger_failure());
-  torrent::cachedTime += rak::timer::from_seconds(2);
+  torrent::cachedTime += torrent::utils::timer::from_seconds(2);
   CPPUNIT_ASSERT(tracker_2_0->trigger_failure());
 
   TEST_MULTI3_IS_BUSY("01100", "01100");
@@ -218,9 +218,10 @@ tracker_controller_features::test_scrape_priority() {
 
   CPPUNIT_ASSERT(tracker_controller.seconds_to_next_timeout() > 1);
 
-  torrent::cachedTime +=
-    rak::timer::from_seconds(tracker_controller.seconds_to_next_timeout() - 1);
-  rak::priority_queue_perform(&torrent::taskScheduler, torrent::cachedTime);
+  torrent::cachedTime += torrent::utils::timer::from_seconds(
+    tracker_controller.seconds_to_next_timeout() - 1);
+  torrent::utils::priority_queue_perform(&torrent::taskScheduler,
+                                         torrent::cachedTime);
 
   tracker_controller.scrape_request(0);
   TEST_GOTO_NEXT_SCRAPE(0);

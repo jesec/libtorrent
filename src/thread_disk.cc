@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "rak/timer.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/timer.h"
 #include "utils/instrumentation.h"
 
 #include "thread_disk.h"
@@ -42,7 +42,7 @@ thread_disk::call_events() {
 
 int64_t
 thread_disk::next_timeout_usec() {
-  return rak::timer::from_seconds(10).round_seconds().usec();
+  return utils::timer::from_seconds(10).round_seconds().usec();
 }
 
 } // namespace torrent

@@ -11,8 +11,8 @@
 
 // Add define for inet6 scope id?
 
-#ifndef RAK_SOCKET_ADDRESS_H
-#define RAK_SOCKET_ADDRESS_H
+#ifndef LIBTORRENT_UTILS_SOCKET_ADDRESS_H
+#define LIBTORRENT_UTILS_SOCKET_ADDRESS_H
 
 #include <cinttypes>
 #include <cstdint>
@@ -25,7 +25,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 class socket_address_inet;
 class socket_address_inet6;
@@ -657,6 +658,7 @@ socket_address_inet6::operator<(const socket_address_inet6& rhs) const {
          (addr_comp == 0 || m_sockaddr.sin6_port < rhs.m_sockaddr.sin6_port);
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

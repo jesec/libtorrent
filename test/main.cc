@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <string.h>
 
-#ifdef HAVE_BACKTRACE
+#ifdef LT_HAVE_BACKTRACE
 #include <execinfo.h>
 #endif
 
@@ -34,7 +34,7 @@ do_test_panic(int signum) {
             << "Caught " << strsignal(signum) << ", dumping stack:" << std::endl
             << std::endl;
 
-#ifdef HAVE_BACKTRACE
+#ifdef LT_HAVE_BACKTRACE
   void* stackPtrs[20];
 
   // Print the stack and exit.

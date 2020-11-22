@@ -8,15 +8,15 @@
 #include <unistd.h>
 
 #include "net/socket_set.h"
-#include "rak/allocators.h"
-#include "rak/error_number.h"
-#include "rak/timer.h"
 #include "torrent/event.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll_select.h"
 #include "torrent/torrent.h"
+#include "torrent/utils/allocators.h"
+#include "torrent/utils/error_number.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/thread_base.h"
+#include "torrent/utils/timer.h"
 
 #define LT_LOG_EVENT(event, log_level, log_fmt, ...)                           \
   lt_log_print(LOG_SOCKET_##log_level,                                         \
@@ -112,8 +112,8 @@ PollSelect::create(int maxOpenSockets) {
     SocketSet  t4;
   };
 
-  rak::cacheline_allocator<Block*> cl_alloc;
-  block_type*                      block = new (cl_alloc) block_type;
+  utils::cacheline_allocator<Block*> cl_alloc;
+  block_type*                        block = new (cl_alloc) block_type;
 
   PollSelect* p = new (&block->t1) PollSelect;
 
@@ -211,7 +211,7 @@ PollSelect::perform(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet) {
 
 unsigned int
 PollSelect::do_poll(int64_t timeout_usec, int flags) {
-  rak::timer timeout = rak::timer(timeout_usec);
+  utils::timer timeout = utils::timer(timeout_usec);
 
   timeout += 10;
 
@@ -243,10 +243,10 @@ PollSelect::do_poll(int64_t timeout_usec, int flags) {
   }
 
   if (status == -1) {
-    if (rak::error_number::current().value() != rak::error_number::e_intr) {
+    if (utils::error_number::current().value() != utils::error_number::e_intr) {
       throw std::runtime_error(
         "PollSelect::work(): " +
-        std::string(rak::error_number::current().c_str()));
+        std::string(utils::error_number::current().c_str()));
     }
 
     return 0;

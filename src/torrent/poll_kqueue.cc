@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <unistd.h>
 
-#ifdef USE_KQUEUE
+#ifdef LT_USE_KQUEUE
 #include <sys/event.h>
 #include <sys/select.h>
 #include <sys/time.h>
@@ -18,15 +18,15 @@
 
 #include <assert.h>
 
-#include "rak/error_number.h"
-#include "rak/functional.h"
-#include "rak/timer.h"
 #include "torrent/event.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll_kqueue.h"
 #include "torrent/torrent.h"
+#include "torrent/utils/error_number.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/thread_base.h"
+#include "torrent/utils/timer.h"
 
 #define LT_LOG_EVENT(event, log_level, log_fmt, ...)                           \
   lt_log_print(LOG_SOCKET_##log_level,                                         \
@@ -37,7 +37,7 @@
 
 namespace torrent {
 
-#ifdef USE_KQUEUE
+#ifdef LT_USE_KQUEUE
 
 inline uint32_t
 PollKQueue::event_mask(Event* e) {
@@ -66,7 +66,7 @@ PollKQueue::flush_events() {
                     &timeout);
   if (nfds == -1)
     throw internal_error("PollKQueue::flush_events() error: " +
-                         std::string(rak::error_number::current().c_str()));
+                         std::string(utils::error_number::current().c_str()));
 
   m_changedEvents = 0;
   m_waitingEvents += nfds;
@@ -85,7 +85,7 @@ PollKQueue::modify(Event* event, unsigned short op, short mask) {
   if (m_changedEvents == m_maxEvents) {
     if (kevent(m_fd, m_changes, m_changedEvents, NULL, 0, NULL) == -1)
       throw internal_error("PollKQueue::modify() error: " +
-                           std::string(rak::error_number::current().c_str()));
+                           std::string(utils::error_number::current().c_str()));
 
     m_changedEvents = 0;
   }
@@ -129,7 +129,7 @@ PollKQueue::~PollKQueue() {
 
 int
 PollKQueue::poll(int msec) {
-#if KQUEUE_SOCKET_ONLY
+#if LT_KQUEUE_SOCKET_ONLY
   if (m_stdinEvent != NULL) {
     // Flush all changes to the kqueue poll before we start select
     // polling, so that they get included.
@@ -169,7 +169,7 @@ PollKQueue::poll(int msec) {
   return nfds;
 }
 
-#if KQUEUE_SOCKET_ONLY
+#if LT_KQUEUE_SOCKET_ONLY
 int
 PollKQueue::poll_select(int msec) {
   if (m_waitingEvents >= m_maxEvents)
@@ -249,7 +249,7 @@ PollKQueue::perform() {
 
 unsigned int
 PollKQueue::do_poll(int64_t timeout_usec, int flags) {
-  rak::timer timeout = rak::timer(timeout_usec);
+  utils::timer timeout = utils::timer(timeout_usec);
   timeout += 10;
 
   if (!(flags & poll_worker_thread)) {
@@ -265,10 +265,10 @@ PollKQueue::do_poll(int64_t timeout_usec, int flags) {
   }
 
   if (status == -1) {
-    if (rak::error_number::current().value() != rak::error_number::e_intr) {
+    if (utils::error_number::current().value() != utils::error_number::e_intr) {
       throw std::runtime_error(
         "PollKQueue::work(): " +
-        std::string(rak::error_number::current().c_str()));
+        std::string(utils::error_number::current().c_str()));
     }
 
     return 0;
@@ -295,7 +295,7 @@ void
 PollKQueue::close(Event* event) {
   LT_LOG_EVENT(event, DEBUG, "close event", 0);
 
-#if KQUEUE_SOCKET_ONLY
+#if LT_KQUEUE_SOCKET_ONLY
   if (event->file_descriptor() == 0) {
     m_stdinEvent = NULL;
     return;
@@ -318,7 +318,7 @@ PollKQueue::close(Event* event) {
   m_changedEvents =
     std::remove_if(m_changes,
                    m_changes + m_changedEvents,
-                   rak::equal(event, rak::mem_ref(&kevent::udata))) -
+                   utils::equal(event, utils::mem_ref(&kevent::udata))) -
     m_changes;
 }
 
@@ -326,7 +326,7 @@ void
 PollKQueue::closed(Event* event) {
   LT_LOG_EVENT(event, DEBUG, "closed event", 0);
 
-#if KQUEUE_SOCKET_ONLY
+#if LT_KQUEUE_SOCKET_ONLY
   if (event->file_descriptor() == 0) {
     m_stdinEvent = NULL;
     return;
@@ -349,7 +349,7 @@ PollKQueue::closed(Event* event) {
   m_changedEvents =
     std::remove_if(m_changes,
                    m_changes + m_changedEvents,
-                   rak::equal(event, rak::mem_ref(&kevent::udata))) -
+                   utils::equal(event, utils::mem_ref(&kevent::udata))) -
     m_changes;
 }
 
@@ -378,7 +378,7 @@ PollKQueue::insert_read(Event* event) {
   LT_LOG_EVENT(event, DEBUG, "Insert read.", 0);
   set_event_mask(event, event_mask(event) | flag_read);
 
-#if KQUEUE_SOCKET_ONLY
+#if LT_KQUEUE_SOCKET_ONLY
   if (event->file_descriptor() == 0) {
     m_stdinEvent = event;
     return;
@@ -411,7 +411,7 @@ PollKQueue::remove_read(Event* event) {
   LT_LOG_EVENT(event, DEBUG, "Remove read.", 0);
   set_event_mask(event, event_mask(event) & ~flag_read);
 
-#if KQUEUE_SOCKET_ONLY
+#if LT_KQUEUE_SOCKET_ONLY
   if (event->file_descriptor() == 0) {
     m_stdinEvent = NULL;
     return;
@@ -519,6 +519,6 @@ PollKQueue::PollKQueue(int, int, int) {
     "An PollKQueue function was called, but it is disabled.");
 }
 
-#endif // USE_KQUEUE
+#endif // LT_USE_KQUEUE
 
 } // namespace torrent

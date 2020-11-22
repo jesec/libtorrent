@@ -8,11 +8,11 @@
 
 #include "download/download_main.h"
 #include "protocol/peer_connection_base.h"
-#include "rak/functional.h"
 #include "torrent/download/choke_group.h"
 #include "torrent/download/choke_queue.h"
 #include "torrent/download/resource_manager.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 
 namespace torrent {
@@ -43,7 +43,7 @@ ResourceManager::~ResourceManager() noexcept(false) {
 
   std::for_each(choke_base_type::begin(),
                 choke_base_type::end(),
-                rak::call_delete<choke_group>());
+                utils::call_delete<choke_group>());
 }
 
 // If called directly ensure a valid group has been selected.
@@ -88,11 +88,11 @@ ResourceManager::update_group_iterators() {
 
   while (group_itr != choke_base_type::end()) {
     (*group_itr)->set_first(&*entry_itr);
-    entry_itr =
-      std::find_if(entry_itr,
-                   end(),
-                   rak::less(std::distance(choke_base_type::begin(), group_itr),
-                             std::mem_fun_ref(&value_type::group)));
+    entry_itr = std::find_if(
+      entry_itr,
+      end(),
+      utils::less(std::distance(choke_base_type::begin(), group_itr),
+                  std::mem_fun_ref(&value_type::group)));
     (*group_itr)->set_last(&*entry_itr);
     group_itr++;
   }
@@ -108,11 +108,11 @@ ResourceManager::validate_group_iterators() noexcept(false) {
       throw internal_error(
         "ResourceManager::receive_tick() invalid first iterator.");
 
-    entry_itr =
-      std::find_if(entry_itr,
-                   end(),
-                   rak::less(std::distance(choke_base_type::begin(), group_itr),
-                             std::mem_fun_ref(&value_type::group)));
+    entry_itr = std::find_if(
+      entry_itr,
+      end(),
+      utils::less(std::distance(choke_base_type::begin(), group_itr),
+                  std::mem_fun_ref(&value_type::group)));
     if ((*group_itr)->last() != &*entry_itr)
       throw internal_error(
         "ResourceManager::receive_tick() invalid last iterator.");
@@ -124,7 +124,7 @@ ResourceManager::validate_group_iterators() noexcept(false) {
 void
 ResourceManager::erase(DownloadMain* d) noexcept(false) {
   iterator itr = std::find_if(
-    begin(), end(), rak::equal(d, std::mem_fun_ref(&value_type::download)));
+    begin(), end(), utils::equal(d, std::mem_fun_ref(&value_type::download)));
 
   if (itr == end())
     throw internal_error("ResourceManager::erase() itr == end().");
@@ -149,7 +149,7 @@ ResourceManager::push_group(const std::string& name) {
   if (name.empty() ||
       std::find_if(choke_base_type::begin(),
                    choke_base_type::end(),
-                   rak::equal(name, std::mem_fun(&choke_group::name))) !=
+                   utils::equal(name, std::mem_fun(&choke_group::name))) !=
         choke_base_type::end())
     throw input_error("Duplicate name for choke group.");
 
@@ -185,13 +185,13 @@ ResourceManager::push_group(const std::string& name) {
 ResourceManager::iterator
 ResourceManager::find(DownloadMain* d) {
   return std::find_if(
-    begin(), end(), rak::equal(d, std::mem_fun_ref(&value_type::download)));
+    begin(), end(), utils::equal(d, std::mem_fun_ref(&value_type::download)));
 }
 
 ResourceManager::iterator
 ResourceManager::find_throw(DownloadMain* d) {
   iterator itr = std::find_if(
-    begin(), end(), rak::equal(d, std::mem_fun_ref(&value_type::download)));
+    begin(), end(), utils::equal(d, std::mem_fun_ref(&value_type::download)));
 
   if (itr == end())
     throw input_error("Could not find download in resource manager.");
@@ -202,7 +202,7 @@ ResourceManager::find_throw(DownloadMain* d) {
 ResourceManager::iterator
 ResourceManager::find_group_end(uint16_t group) {
   return std::find_if(
-    begin(), end(), rak::less(group, std::mem_fun_ref(&value_type::group)));
+    begin(), end(), utils::less(group, std::mem_fun_ref(&value_type::group)));
 }
 
 choke_group*
@@ -218,7 +218,7 @@ ResourceManager::group_at_name(const std::string& name) {
   choke_base_type::iterator itr =
     std::find_if(choke_base_type::begin(),
                  choke_base_type::end(),
-                 rak::equal(name, std::mem_fun(&choke_group::name)));
+                 utils::equal(name, std::mem_fun(&choke_group::name)));
 
   if (itr == choke_base_type::end())
     throw input_error("Choke group not found.");
@@ -231,7 +231,7 @@ ResourceManager::group_index_of(const std::string& name) {
   choke_base_type::iterator itr =
     std::find_if(choke_base_type::begin(),
                  choke_base_type::end(),
-                 rak::equal(name, std::mem_fun(&choke_group::name)));
+                 utils::equal(name, std::mem_fun(&choke_group::name)));
 
   if (itr == choke_base_type::end())
     throw input_error("Choke group not found.");
@@ -387,10 +387,11 @@ ResourceManager::receive_tick() {
 unsigned int
 ResourceManager::total_weight() const {
   // TODO: This doesn't take into account inactive downloads.
-  return std::for_each(begin(),
-                       end(),
-                       rak::accumulate((unsigned int)0,
-                                       std::mem_fun_ref(&value_type::priority)))
+  return std::for_each(
+           begin(),
+           end(),
+           utils::accumulate((unsigned int)0,
+                             std::mem_fun_ref(&value_type::priority)))
     .result;
 }
 

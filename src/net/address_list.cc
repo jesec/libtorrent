@@ -4,13 +4,13 @@
 #include <algorithm>
 
 #include "net/address_list.h"
-#include "rak/functional.h"
+#include "torrent/utils/functional.h"
 
 namespace torrent {
 
-inline rak::socket_address
+inline utils::socket_address
 AddressList::parse_address(const Object& b) {
-  rak::socket_address sa;
+  utils::socket_address sa;
   sa.clear();
 
   if (!b.is_map())
@@ -32,8 +32,8 @@ void
 AddressList::parse_address_normal(const Object::list_type& b) {
   std::for_each(b.begin(),
                 b.end(),
-                rak::on(std::ptr_fun(&AddressList::parse_address),
-                        AddressList::add_address(this)));
+                utils::on(std::ptr_fun(&AddressList::parse_address),
+                          AddressList::add_address(this)));
 }
 
 void

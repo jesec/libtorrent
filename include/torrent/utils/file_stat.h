@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#ifndef RAK_FILE_STAT_H
-#define RAK_FILE_STAT_H
+#ifndef LIBTORRENT_UTILS_FILE_STAT_H
+#define LIBTORRENT_UTILS_FILE_STAT_H
 
 #include <cinttypes>
 #include <string>
 #include <sys/stat.h>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 class file_stat {
 public:
-  // Consider storing rak::error_number.
+  // Consider storing torrent::utils::error_number.
 
   bool update(int fd) {
     return fstat(fd, &m_stat) == 0;
@@ -71,6 +72,7 @@ private:
   struct stat m_stat;
 };
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

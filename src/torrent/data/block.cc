@@ -5,13 +5,13 @@
 #include <functional>
 
 #include "protocol/peer_connection_base.h"
-#include "rak/functional.h"
 #include "torrent/data/block.h"
 #include "torrent/data/block_failed.h"
 #include "torrent/data/block_list.h"
 #include "torrent/data/block_transfer.h"
 #include "torrent/exceptions.h"
 #include "torrent/peer/peer_info.h"
+#include "torrent/utils/functional.h"
 
 namespace torrent {
 
@@ -123,8 +123,8 @@ Block::erase(BlockTransfer* transfer) {
       transfer_list_type::iterator newLeader =
         std::max_element(first,
                          last,
-                         rak::less2(std::mem_fun(&BlockTransfer::position),
-                                    std::mem_fun(&BlockTransfer::position)));
+                         utils::less2(std::mem_fun(&BlockTransfer::position),
+                                      std::mem_fun(&BlockTransfer::position)));
 
       if (newLeader != last) {
         m_leader = *newLeader;
@@ -388,7 +388,7 @@ Block::find_queued(const PeerInfo* p) {
   transfer_list_type::iterator itr =
     std::find_if(m_queued.begin(),
                  m_queued.end(),
-                 rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
+                 utils::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
 
   if (itr == m_queued.end())
     return NULL;
@@ -401,7 +401,7 @@ Block::find_queued(const PeerInfo* p) const {
   transfer_list_type::const_iterator itr =
     std::find_if(m_queued.begin(),
                  m_queued.end(),
-                 rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
+                 utils::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
 
   if (itr == m_queued.end())
     return NULL;
@@ -414,7 +414,7 @@ Block::find_transfer(const PeerInfo* p) {
   transfer_list_type::iterator itr =
     std::find_if(m_transfers.begin(),
                  m_transfers.end(),
-                 rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
+                 utils::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
 
   if (itr == m_transfers.end())
     return NULL;
@@ -427,7 +427,7 @@ Block::find_transfer(const PeerInfo* p) const {
   transfer_list_type::const_iterator itr =
     std::find_if(m_transfers.begin(),
                  m_transfers.end(),
-                 rak::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
+                 utils::equal(p, std::mem_fun(&BlockTransfer::peer_info)));
 
   if (itr == m_transfers.end())
     return NULL;

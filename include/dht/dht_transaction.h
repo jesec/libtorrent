@@ -5,11 +5,11 @@
 #define LIBTORRENT_DHT_TRANSACTION_H
 
 #include <map>
-#include <rak/socket_address.h>
 
 #include "dht/dht_node.h"
 #include "torrent/hash_string.h"
 #include "torrent/object_static_map.h"
+#include "torrent/utils/socket_address.h"
 #include "tracker/tracker_dht.h"
 
 namespace torrent {
@@ -94,7 +94,7 @@ public:
   typedef accessor_wrapper<base_type::iterator>       accessor;
 
   // Add a potential node to contact for the search.
-  bool add_contact(const HashString& id, const rak::socket_address* sa);
+  bool add_contact(const HashString& id, const utils::socket_address* sa);
   void add_contacts(const DhtBucket& contacts);
 
   // Return next node to contact. Up to concurrent_searches nodes are returned,
@@ -251,10 +251,10 @@ const DhtMessage::key_list_type DhtMessage::base_type::keys;
 class DhtTransactionPacket {
 public:
   // transaction packet
-  DhtTransactionPacket(const rak::socket_address* s,
-                       const DhtMessage&          d,
-                       unsigned int               id,
-                       DhtTransaction*            t)
+  DhtTransactionPacket(const utils::socket_address* s,
+                       const DhtMessage&            d,
+                       unsigned int                 id,
+                       DhtTransaction*              t)
     : m_sa(*s)
     , m_id(id)
     , m_transaction(t) {
@@ -262,7 +262,7 @@ public:
   };
 
   // non-transaction packet
-  DhtTransactionPacket(const rak::socket_address* s, const DhtMessage& d)
+  DhtTransactionPacket(const utils::socket_address* s, const DhtMessage& d)
     : m_sa(*s)
     , m_id(-cachedTime.seconds())
     , m_transaction(NULL) {
@@ -283,10 +283,10 @@ public:
     m_id = -1;
   }
 
-  const rak::socket_address* address() const {
+  const utils::socket_address* address() const {
     return &m_sa;
   }
-  rak::socket_address* address() {
+  utils::socket_address* address() {
     return &m_sa;
   }
 
@@ -313,11 +313,11 @@ public:
 private:
   void build_buffer(const DhtMessage& data);
 
-  rak::socket_address m_sa;
-  char*               m_data;
-  size_t              m_length;
-  int                 m_id;
-  DhtTransaction*     m_transaction;
+  utils::socket_address m_sa;
+  char*                 m_data;
+  size_t                m_length;
+  int                   m_id;
+  DhtTransaction*       m_transaction;
 };
 
 // DHT Transaction classes. DhtTransaction and DhtTransactionSearch
@@ -345,14 +345,14 @@ public:
   key_type key(int id) const {
     return key(&m_sa, id);
   }
-  static key_type key(const rak::socket_address* sa, int id);
-  static bool     key_match(key_type key, const rak::socket_address* sa);
+  static key_type key(const utils::socket_address* sa, int id);
+  static bool     key_match(key_type key, const utils::socket_address* sa);
 
   // Node ID and address.
   const HashString& id() {
     return m_id;
   }
-  const rak::socket_address* address() {
+  const utils::socket_address* address() {
     return &m_sa;
   }
 
@@ -381,10 +381,10 @@ public:
   DhtTransactionAnnouncePeer* as_announce_peer();
 
 protected:
-  DhtTransaction(int                        quick_timeout,
-                 int                        timeout,
-                 const HashString&          id,
-                 const rak::socket_address* sa);
+  DhtTransaction(int                          quick_timeout,
+                 int                          timeout,
+                 const HashString&            id,
+                 const utils::socket_address* sa);
 
   // m_id must be the first element to ensure it is aligned properly,
   // because we later read a size_t value from it.
@@ -394,7 +394,7 @@ protected:
 private:
   DhtTransaction(const DhtTransaction& t);
 
-  rak::socket_address   m_sa;
+  utils::socket_address m_sa;
   int                   m_timeout;
   int                   m_quickTimeout;
   DhtTransactionPacket* m_packet;
@@ -441,7 +441,7 @@ private:
 // Actual transaction classes.
 class DhtTransactionPing : public DhtTransaction {
 public:
-  DhtTransactionPing(const HashString& id, const rak::socket_address* sa)
+  DhtTransactionPing(const HashString& id, const utils::socket_address* sa)
     : DhtTransaction(-1, 30, id, sa) {}
 
   virtual transaction_type type() {
@@ -471,10 +471,10 @@ public:
 
 class DhtTransactionAnnouncePeer : public DhtTransaction {
 public:
-  DhtTransactionAnnouncePeer(const HashString&          id,
-                             const rak::socket_address* sa,
-                             const HashString&          infoHash,
-                             raw_string                 token)
+  DhtTransactionAnnouncePeer(const HashString&            id,
+                             const utils::socket_address* sa,
+                             const HashString&            infoHash,
+                             raw_string                   token)
     : DhtTransaction(-1, 30, id, sa)
     , m_infoHash(infoHash)
     , m_token(token) {}
@@ -520,12 +520,12 @@ dht_compare_closer::operator()(const DhtNode* one, const DhtNode* two) const {
 }
 
 inline DhtTransaction::key_type
-DhtTransaction::key(const rak::socket_address* sa, int id) {
+DhtTransaction::key(const utils::socket_address* sa, int id) {
   return ((uint64_t)sa->sa_inet()->address_n() << 32) + id;
 }
 
 inline bool
-DhtTransaction::key_match(key_type key, const rak::socket_address* sa) {
+DhtTransaction::key_match(key_type key, const utils::socket_address* sa) {
   return (key >> 32) == sa->sa_inet()->address_n();
 }
 

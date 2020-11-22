@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "globals.h"
-#include "rak/priority_queue_default.h"
 #include "torrent/tracker_controller.h"
+#include "torrent/utils/priority_queue_default.h"
 
 #include "test/torrent/tracker_list_test.h"
 #include "test/torrent/tracker_timeout_test.h"
@@ -11,8 +11,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(tracker_timeout_test);
 
 void
 tracker_timeout_test::setUp() {
-  torrent::cachedTime = rak::timer::current();
-  //  torrent::cachedTime = rak::timer::current().round_seconds();
+  torrent::cachedTime = torrent::utils::timer::current();
+  //  torrent::cachedTime = torrent::utils::timer::current().round_seconds();
 }
 
 void
@@ -41,7 +41,7 @@ tracker_timeout_test::test_timeout_tracker() {
   int         flags = 0;
 
   CPPUNIT_ASSERT(torrent::tracker_next_timeout(&tracker, flags) == 0);
-  torrent::cachedTime += rak::timer::from_seconds(3);
+  torrent::cachedTime += torrent::utils::timer::from_seconds(3);
   CPPUNIT_ASSERT(torrent::tracker_next_timeout(&tracker, flags) == 0);
 
   flags = torrent::TrackerController::flag_active;

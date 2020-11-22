@@ -3,11 +3,11 @@
 
 #include "data/chunk.h"
 #include "globals.h"
-#include "rak/error_number.h"
-#include "rak/functional.h"
 #include "torrent/chunk_manager.h"
 #include "torrent/data/download_data.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/error_number.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "utils/instrumentation.h"
 
@@ -24,11 +24,12 @@ struct chunk_list_earliest_modified {
     : m_time(cachedTime) {}
 
   void operator()(ChunkListNode* node) {
-    if (node->time_modified() < m_time && node->time_modified() != rak::timer())
+    if (node->time_modified() < m_time &&
+        node->time_modified() != utils::timer())
       m_time = node->time_modified();
   }
 
-  rak::timer m_time;
+  utils::timer m_time;
 };
 
 struct chunk_list_sort_index {
@@ -110,7 +111,7 @@ ChunkHandle
 ChunkList::get(size_type index, int flags) {
   LT_LOG_THIS(DEBUG, "Get: index:%" PRIu32 " flags:%#x.", index, flags);
 
-  rak::error_number::clear_global();
+  utils::error_number::clear_global();
 
   ChunkListNode* node = &base_type::at(index);
 
@@ -125,13 +126,13 @@ ChunkList::get(size_type index, int flags) {
                   "Could not allocate: memory:%" PRIu64 " block:%" PRIu32 ".",
                   m_manager->memory_usage(),
                   m_manager->memory_block_count());
-      return ChunkHandle::from_error(rak::error_number::e_nomem);
+      return ChunkHandle::from_error(utils::error_number::e_nomem);
     }
 
     Chunk* chunk = m_slot_create_chunk(index, prot_flags);
 
     if (chunk == NULL) {
-      rak::error_number current_error = rak::error_number::current();
+      utils::error_number current_error = utils::error_number::current();
 
       LT_LOG_THIS(DEBUG,
                   "Could not create: memory:%" PRIu64 " block:%" PRIu32
@@ -142,17 +143,18 @@ ChunkList::get(size_type index, int flags) {
                   current_error.c_str());
       m_manager->deallocate(m_chunk_size,
                             allocate_flags | ChunkManager::allocate_revert_log);
-      return ChunkHandle::from_error(
-        current_error.is_valid() ? current_error : rak::error_number::e_noent);
+      return ChunkHandle::from_error(current_error.is_valid()
+                                       ? current_error
+                                       : utils::error_number::e_noent);
     }
 
     node->set_chunk(chunk);
-    node->set_time_modified(rak::timer());
+    node->set_time_modified(utils::timer());
 
   } else if (flags & get_writable && !node->chunk()->is_writable()) {
     if (node->blocking() != 0) {
       if ((flags & get_nonblock))
-        return ChunkHandle::from_error(rak::error_number::e_again);
+        return ChunkHandle::from_error(utils::error_number::e_again);
 
       throw internal_error(
         "No support yet for getting write permission for blocked chunk.");
@@ -161,14 +163,14 @@ ChunkList::get(size_type index, int flags) {
     Chunk* chunk = m_slot_create_chunk(index, prot_flags);
 
     if (chunk == NULL)
-      return ChunkHandle::from_error(rak::error_number::current().is_valid()
-                                       ? rak::error_number::current()
-                                       : rak::error_number::e_noent);
+      return ChunkHandle::from_error(utils::error_number::current().is_valid()
+                                       ? utils::error_number::current()
+                                       : utils::error_number::e_noent);
 
     delete node->chunk();
 
     node->set_chunk(chunk);
-    node->set_time_modified(rak::timer());
+    node->set_time_modified(utils::timer());
   }
 
   node->inc_references();
@@ -294,7 +296,7 @@ ChunkList::sync_chunks(int flags) {
     split = std::stable_partition(
       m_queue.begin(),
       m_queue.end(),
-      rak::not_equal(1, std::mem_fun(&ChunkListNode::writable)));
+      utils::not_equal(1, std::mem_fun(&ChunkListNode::writable)));
 
   // Allow a flag that does more culling, so that we only get large
   // continous sections.
@@ -362,7 +364,7 @@ ChunkList::sync_chunks(int flags) {
   // download or set the sync_ignore_error flag.
   if (failed && !(flags & sync_ignore_error))
     m_slot_storage_error("Could not sync chunk: " +
-                         std::string(rak::error_number::current().c_str()));
+                         std::string(utils::error_number::current().c_str()));
 
   return failed;
 }
@@ -411,9 +413,9 @@ ChunkList::seek_range(Queue::iterator first, Queue::iterator last) {
 
 inline bool
 ChunkList::check_node(ChunkListNode* node) {
-  return node->time_modified() != rak::timer() &&
+  return node->time_modified() != utils::timer() &&
          node->time_modified() +
-             rak::timer::from_seconds(m_manager->timeout_sync()) <
+             utils::timer::from_seconds(m_manager->timeout_sync()) <
            cachedTime;
 }
 

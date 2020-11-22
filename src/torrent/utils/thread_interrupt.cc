@@ -4,8 +4,8 @@
 #include <sys/socket.h>
 
 #include "net/socket_fd.h"
-#include "rak/error_number.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/error_number.h"
 #include "torrent/utils/thread_interrupt.h"
 #include "utils/instrumentation.h"
 
@@ -33,7 +33,7 @@ thread_interrupt::poke() {
   int result = ::send(m_fileDesc, "a", 1, 0);
 
   if (result == 0 ||
-      (result == -1 && !rak::error_number::current().is_blocked_momentary()))
+      (result == -1 && !utils::error_number::current().is_blocked_momentary()))
     throw internal_error("Invalid result writing to thread_interrupt socket.");
 
   instrumentation_update(INSTRUMENTATION_POLLING_INTERRUPT_POKE, 1);
@@ -47,7 +47,7 @@ thread_interrupt::create_pair() {
 
   if (!SocketFd::open_socket_pair(fd1, fd2))
     throw internal_error("Could not create socket pair for thread_interrupt: " +
-                         std::string(rak::error_number::current().c_str()) +
+                         std::string(utils::error_number::current().c_str()) +
                          ".");
 
   thread_interrupt* t1 = new thread_interrupt(fd1);
@@ -65,7 +65,7 @@ thread_interrupt::event_read() {
   int  result = ::recv(m_fileDesc, buffer, 256, 0);
 
   if (result == 0 ||
-      (result == -1 && !rak::error_number::current().is_blocked_momentary()))
+      (result == -1 && !utils::error_number::current().is_blocked_momentary()))
     throw internal_error(
       "Invalid result reading from thread_interrupt socket.");
 

@@ -13,7 +13,7 @@ void
 tracker_list_features_test::setUp() {
   CPPUNIT_ASSERT(torrent::taskScheduler.empty());
 
-  torrent::cachedTime = rak::timer::current();
+  torrent::cachedTime = torrent::utils::timer::current();
 }
 
 void
@@ -229,7 +229,7 @@ tracker_list_features_test::test_request_safeguard() {
     true));
   CPPUNIT_ASSERT(tracker_1->trigger_success());
 
-  torrent::cachedTime += rak::timer::from_seconds(1000);
+  torrent::cachedTime += torrent::utils::timer::from_seconds(1000);
 
   for (unsigned int i = 0; i < 9; i++) {
     CPPUNIT_ASSERT(verify_did_internal_error(
@@ -253,7 +253,7 @@ tracker_list_features_test::test_request_safeguard() {
     CPPUNIT_ASSERT(tracker_2->trigger_success());
     CPPUNIT_ASSERT(tracker_2->success_counter() == (i + 1));
 
-    torrent::cachedTime += rak::timer::from_seconds(1);
+    torrent::cachedTime += torrent::utils::timer::from_seconds(1);
   }
 
   for (unsigned int i = 0; i < 17; i++) {
@@ -264,7 +264,7 @@ tracker_list_features_test::test_request_safeguard() {
     CPPUNIT_ASSERT(tracker_3->success_counter() == (i + 1));
 
     if (i % 2)
-      torrent::cachedTime += rak::timer::from_seconds(1);
+      torrent::cachedTime += torrent::utils::timer::from_seconds(1);
   }
 
   CPPUNIT_ASSERT(verify_did_internal_error(

@@ -9,10 +9,10 @@
 #include "data/hash_chunk.h"
 #include "data/hash_queue.h"
 #include "globals.h"
-#include "rak/functional.h"
 #include "thread_disk.h"
 #include "torrent/data/download_data.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/thread_base.h"
 
@@ -82,7 +82,7 @@ bool
 HashQueue::has(HashQueueNode::id_type id) {
   return std::find_if(begin(),
                       end(),
-                      rak::equal(id, std::mem_fun_ref(&HashQueueNode::id))) !=
+                      utils::equal(id, std::mem_fun_ref(&HashQueueNode::id))) !=
          end();
 }
 
@@ -97,7 +97,7 @@ HashQueue::remove(HashQueueNode::id_type id) {
 
   while (
     (itr = std::find_if(
-       itr, end(), rak::equal(id, std::mem_fun_ref(&HashQueueNode::id)))) !=
+       itr, end(), utils::equal(id, std::mem_fun_ref(&HashQueueNode::id)))) !=
     end()) {
     HashChunk* hash_chunk = itr->get_chunk();
 

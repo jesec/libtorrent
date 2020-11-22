@@ -14,7 +14,7 @@
 
 namespace torrent {
 
-DhtNode::DhtNode(const HashString& id, const rak::socket_address* sa)
+DhtNode::DhtNode(const HashString& id, const utils::socket_address* sa)
   : HashString(id)
   , m_socketAddress(*sa)
   , m_lastSeen(0)
@@ -26,8 +26,8 @@ DhtNode::DhtNode(const HashString& id, const rak::socket_address* sa)
   // hash'es are logged.
   LT_LOG_THIS("created (address:%s)", sa->pretty_address_str().c_str());
 
-  // if (sa->family() != rak::socket_address::af_inet &&
-  //     (sa->family() != rak::socket_address::af_inet6 ||
+  // if (sa->family() != utils::socket_address::af_inet &&
+  //     (sa->family() != utils::socket_address::af_inet6 ||
   //     !sa->sa_inet6()->is_any()))
   //   throw resource_error("Address not af_inet or in6addr_any");
 }
@@ -39,7 +39,7 @@ DhtNode::DhtNode(const std::string& id, const Object& cache)
   , m_bucket(NULL) {
 
   // TODO: Check how DHT handles inet6.
-  rak::socket_address_inet* sa = m_socketAddress.sa_inet();
+  utils::socket_address_inet* sa = m_socketAddress.sa_inet();
 
   sa->set_family();
   sa->set_address_h(cache.get_key_value("i"));
@@ -64,7 +64,7 @@ DhtNode::store_compact(char* buffer) const {
 
 Object*
 DhtNode::store_cache(Object* container) const {
-  if (m_socketAddress.family() == rak::socket_address::af_inet6) {
+  if (m_socketAddress.family() == utils::socket_address::af_inet6) {
     // Currently, all we support is in6addr_any (checked in the constructor),
     // which is effectively equivalent to this. Note that we need to specify
     // int64_t explicitly here because a zero constant is special in C++ and

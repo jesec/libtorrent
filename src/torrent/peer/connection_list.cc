@@ -6,8 +6,6 @@
 #include "download/download_main.h"
 #include "net/address_list.h"
 #include "protocol/peer_connection_base.h"
-#include "rak/functional.h"
-#include "rak/socket_address.h"
 #include "torrent/download/choke_group.h"
 #include "torrent/download/choke_queue.h"
 #include "torrent/download_info.h"
@@ -15,6 +13,8 @@
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer.h"
 #include "torrent/peer/peer_info.h"
+#include "torrent/utils/functional.h"
+#include "torrent/utils/socket_address.h"
 
 // When a peer is connected it should be removed from the list of
 // available peers.
@@ -38,8 +38,8 @@ void
 ConnectionList::clear() {
   std::for_each(begin(),
                 end(),
-                rak::on(std::mem_fun(&Peer::m_ptr),
-                        rak::call_delete<PeerConnectionBase>()));
+                utils::on(std::mem_fun(&Peer::m_ptr),
+                          utils::call_delete<PeerConnectionBase>()));
   base_type::clear();
 
   m_disconnectQueue.clear();
@@ -87,7 +87,7 @@ ConnectionList::insert(PeerInfo*          peerInfo,
 
   m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers,
                                    size() < m_maxSize);
-  rak::slot_list_call(m_signalConnected, peerConnection);
+  utils::slot_list_call(m_signalConnected, peerConnection);
 
   return peerConnection;
 }
@@ -115,7 +115,7 @@ ConnectionList::erase(iterator pos, int flags) {
 
   m_download->info()->change_flags(DownloadInfo::flag_accepting_new_peers,
                                    size() < m_maxSize);
-  rak::slot_list_call(m_signalDisconnected, peerConnection);
+  utils::slot_list_call(m_signalDisconnected, peerConnection);
 
   // Before of after the signal?
   peerConnection->cleanup();
@@ -163,8 +163,8 @@ ConnectionList::erase_seeders() {
   erase_remaining(
     std::partition(begin(),
                    end(),
-                   rak::on(std::mem_fun(&Peer::c_ptr),
-                           std::mem_fun(&PeerConnectionBase::is_not_seeder))),
+                   utils::on(std::mem_fun(&Peer::c_ptr),
+                             std::mem_fun(&PeerConnectionBase::is_not_seeder))),
     disconnect_unwanted);
 }
 
@@ -185,18 +185,19 @@ ConnectionList::disconnect_queued() {
 
 struct connection_list_less {
   bool operator()(const Peer* p1, const Peer* p2) const {
-    return *rak::socket_address::cast_from(p1->peer_info()->socket_address()) <
-           *rak::socket_address::cast_from(p2->peer_info()->socket_address());
+    return *utils::socket_address::cast_from(
+             p1->peer_info()->socket_address()) <
+           *utils::socket_address::cast_from(p2->peer_info()->socket_address());
   }
 
-  bool operator()(const rak::socket_address& sa1, const Peer* p2) const {
+  bool operator()(const utils::socket_address& sa1, const Peer* p2) const {
     return sa1 <
-           *rak::socket_address::cast_from(p2->peer_info()->socket_address());
+           *utils::socket_address::cast_from(p2->peer_info()->socket_address());
   }
 
-  bool operator()(const Peer* p1, const rak::socket_address& sa2) const {
-    return *rak::socket_address::cast_from(p1->peer_info()->socket_address()) <
-           sa2;
+  bool operator()(const Peer* p1, const utils::socket_address& sa2) const {
+    return *utils::socket_address::cast_from(
+             p1->peer_info()->socket_address()) < sa2;
   }
 };
 
@@ -205,10 +206,11 @@ ConnectionList::find(const char* id) {
   return std::find_if(
     begin(),
     end(),
-    rak::equal(*HashString::cast_from(id),
-               rak::on(std::mem_fun(&Peer::m_ptr),
-                       rak::on(std::mem_fun(&PeerConnectionBase::peer_info),
-                               std::mem_fun(&PeerInfo::id)))));
+    utils::equal(
+      *HashString::cast_from(id),
+      utils::on(std::mem_fun(&Peer::m_ptr),
+                utils::on(std::mem_fun(&PeerConnectionBase::peer_info),
+                          std::mem_fun(&PeerInfo::id)))));
 }
 
 ConnectionList::iterator
@@ -216,10 +218,11 @@ ConnectionList::find(const sockaddr* sa) {
   return std::find_if(
     begin(),
     end(),
-    rak::equal_ptr(rak::socket_address::cast_from(sa),
-                   rak::on(std::mem_fun(&Peer::m_ptr),
-                           rak::on(std::mem_fun(&PeerConnectionBase::peer_info),
-                                   std::mem_fun(&PeerInfo::socket_address)))));
+    utils::equal_ptr(
+      utils::socket_address::cast_from(sa),
+      utils::on(std::mem_fun(&Peer::m_ptr),
+                utils::on(std::mem_fun(&PeerConnectionBase::peer_info),
+                          std::mem_fun(&PeerInfo::socket_address)))));
 }
 
 void

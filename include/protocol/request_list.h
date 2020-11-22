@@ -142,12 +142,12 @@ private:
 
   int32_t m_affinity;
 
-  rak::timer m_last_choke;
-  rak::timer m_last_unchoke;
-  size_t     m_last_unordered_position;
+  utils::timer m_last_choke;
+  utils::timer m_last_unchoke;
+  size_t       m_last_unordered_position;
 
-  rak::priority_item m_delay_remove_choked;
-  rak::priority_item m_delay_process_unordered;
+  utils::priority_item m_delay_remove_choked;
+  utils::priority_item m_delay_process_unordered;
 };
 
 inline RequestList::RequestList()

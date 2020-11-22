@@ -4,15 +4,13 @@
 #ifndef LIBTORRENT_HANDSHAKE_H
 #define LIBTORRENT_HANDSHAKE_H
 
-#include <rak/priority_queue_default.h>
-
+#include "handshake_encryption.h"
 #include "net/protocol_buffer.h"
 #include "net/socket_stream.h"
 #include "torrent/bitfield.h"
 #include "torrent/peer/peer_info.h"
+#include "torrent/utils/priority_queue_default.h"
 #include "utils/sha1.h"
-
-#include "handshake_encryption.h"
 
 namespace torrent {
 
@@ -77,10 +75,10 @@ public:
     return m_state;
   }
 
-  void initialize_incoming(const rak::socket_address& sa);
-  void initialize_outgoing(const rak::socket_address& sa,
-                           DownloadMain*              d,
-                           PeerInfo*                  peerInfo);
+  void initialize_incoming(const utils::socket_address& sa);
+  void initialize_outgoing(const utils::socket_address& sa,
+                           DownloadMain*                d,
+                           PeerInfo*                    peerInfo);
 
   PeerInfo* peer_info() {
     return m_peerInfo;
@@ -93,7 +91,7 @@ public:
     m_peerInfo = p;
   }
 
-  const rak::socket_address* socket_address() const {
+  const utils::socket_address* socket_address() const {
     return &m_address;
   }
 
@@ -115,7 +113,7 @@ public:
     return m_readBuffer.remaining();
   }
 
-  rak::timer initialized_time() const {
+  utils::timer initialized_time() const {
     return m_initializedTime;
   }
 
@@ -183,8 +181,8 @@ protected:
   ThrottleList* m_uploadThrottle;
   ThrottleList* m_downloadThrottle;
 
-  rak::priority_item m_taskTimeout;
-  rak::timer         m_initializedTime;
+  utils::priority_item m_taskTimeout;
+  utils::timer         m_initializedTime;
 
   uint32_t m_readPos;
   uint32_t m_writePos;
@@ -194,8 +192,8 @@ protected:
 
   bool m_incoming;
 
-  rak::socket_address m_address;
-  char                m_options[8];
+  utils::socket_address m_address;
+  char                  m_options[8];
 
   HandshakeEncryption m_encryption;
   ProtocolExtension*  m_extensions;

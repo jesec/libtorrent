@@ -53,7 +53,7 @@ DownloadInfo::DownloadInfo()
   ,
 
   m_creationDate(0)
-  , m_loadDate(rak::timer::current_seconds())
+  , m_loadDate(utils::timer::current_seconds())
   ,
 
   m_upload_unchoked(0)
@@ -330,7 +330,7 @@ DownloadMain::receive_corrupt_chunk(PeerInfo* peerInfo) {
 }
 
 void
-DownloadMain::add_peer(const rak::socket_address& sa) {
+DownloadMain::add_peer(const utils::socket_address& sa) {
   m_slotStartHandshake(sa, this);
 }
 
@@ -353,7 +353,7 @@ DownloadMain::receive_connect_peers() {
          connection_list()->size() < connection_list()->min_size() &&
          connection_list()->size() + m_slotCountHandshakes(this) <
            connection_list()->max_size()) {
-    rak::socket_address sa = peer_list()->available_list()->pop_random();
+    utils::socket_address sa = peer_list()->available_list()->pop_random();
 
     if (connection_list()->find(sa.c_sockaddr()) == connection_list()->end())
       m_slotStartHandshake(sa, this);
@@ -369,7 +369,7 @@ DownloadMain::receive_tracker_success() {
   priority_queue_insert(
     &taskScheduler,
     &m_taskTrackerRequest,
-    (cachedTime + rak::timer::from_seconds(10)).round_seconds());
+    (cachedTime + utils::timer::from_seconds(10)).round_seconds());
 }
 
 void
@@ -427,12 +427,12 @@ DownloadMain::do_peer_exchange() {
   for (ConnectionList::iterator itr = m_connectionList->begin();
        itr != m_connectionList->end();
        ++itr) {
-    PeerConnectionBase*        pcb = (*itr)->m_ptr();
-    const rak::socket_address* sa =
-      rak::socket_address::cast_from(pcb->peer_info()->socket_address());
+    PeerConnectionBase*          pcb = (*itr)->m_ptr();
+    const utils::socket_address* sa =
+      utils::socket_address::cast_from(pcb->peer_info()->socket_address());
 
     if (pcb->peer_info()->listen_port() != 0 &&
-        sa->family() == rak::socket_address::af_inet)
+        sa->family() == utils::socket_address::af_inet)
       current.push_back(SocketAddressCompact(
         sa->sa_inet()->address_n(), htons(pcb->peer_info()->listen_port())));
 

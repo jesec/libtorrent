@@ -6,10 +6,10 @@
 
 #include <cinttypes>
 #include <functional>
-#include <rak/priority_queue_default.h>
 #include <string>
 
 #include "data/chunk_handle.h"
+#include "torrent/utils/priority_queue_default.h"
 #include "torrent/utils/ranges.h"
 
 namespace torrent {
@@ -55,7 +55,7 @@ public:
     return m_slot_check_chunk;
   }
 
-  rak::priority_item& delay_checked() {
+  utils::priority_item& delay_checked() {
     return m_delayChecked;
   }
 
@@ -75,7 +75,7 @@ private:
 
   slot_chunk_handle m_slot_check_chunk;
 
-  rak::priority_item m_delayChecked;
+  utils::priority_item m_delayChecked;
 };
 
 } // namespace torrent

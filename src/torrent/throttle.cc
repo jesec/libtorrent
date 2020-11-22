@@ -4,8 +4,8 @@
 #include "globals.h"
 #include "net/throttle_internal.h"
 #include "net/throttle_list.h"
-#include "rak/timer.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/timer.h"
 
 #include "torrent/throttle.h"
 

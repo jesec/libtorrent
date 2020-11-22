@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#ifndef RAK_FUNCTIONAL_H
-#define RAK_FUNCTIONAL_H
+#ifndef LIBTORRENT_UTILS_FUNCTIONAL_H
+#define LIBTORRENT_UTILS_FUNCTIONAL_H
 
 #include <cstddef>
 #include <functional>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 template<typename Type>
 struct reference_fix {
@@ -774,6 +775,7 @@ slot_list_call(const Container& slot_list,
   (*first)(arg1, arg2, arg3, arg4);
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

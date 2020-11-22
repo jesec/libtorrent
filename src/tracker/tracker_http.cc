@@ -10,16 +10,16 @@
 #include "manager.h"
 #include "net/address_list.h"
 #include "net/local_addr.h"
-#include "rak/functional.h"
-#include "rak/string_manip.h"
 #include "torrent/connection_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
 #include "torrent/http.h"
 #include "torrent/object_stream.h"
 #include "torrent/tracker_list.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/option_strings.h"
+#include "torrent/utils/string_manip.h"
 #include "tracker/tracker_http.h"
 
 #define LT_LOG_TRACKER(log_level, log_fmt, ...)                                \
@@ -83,9 +83,9 @@ void
 TrackerHttp::request_prefix(std::stringstream* stream, const std::string& url) {
   char hash[61];
 
-  *rak::copy_escape_html(m_parent->info()->hash().begin(),
-                         m_parent->info()->hash().end(),
-                         hash) = '\0';
+  *utils::copy_escape_html(m_parent->info()->hash().begin(),
+                           m_parent->info()->hash().end(),
+                           hash) = '\0';
   *stream << url << (m_dropDeliminator ? '&' : '?') << "info_hash=" << hash;
 }
 
@@ -108,7 +108,7 @@ TrackerHttp::send_state(int state) {
 
   request_prefix(&s, m_url);
 
-  *rak::copy_escape_html(
+  *utils::copy_escape_html(
     info->local_id().begin(), info->local_id().end(), localId) = '\0';
 
   s << "&peer_id=" << localId;
@@ -118,25 +118,25 @@ TrackerHttp::send_state(int state) {
       << m_parent->key() << std::dec;
 
   if (!m_tracker_id.empty())
-    s << "&trackerid=" << rak::copy_escape_html(m_tracker_id);
+    s << "&trackerid=" << utils::copy_escape_html(m_tracker_id);
 
-  const rak::socket_address* localAddress = rak::socket_address::cast_from(
+  const utils::socket_address* localAddress = utils::socket_address::cast_from(
     manager->connection_manager()->local_address());
 
   if (!localAddress->is_address_any())
     s << "&ip=" << localAddress->address_str();
 
   if (localAddress->is_address_any() &&
-      localAddress->family() == rak::socket_address::pf_inet) {
-    rak::socket_address local_v6;
-    if (get_local_address(rak::socket_address::af_inet6, &local_v6))
-      s << "&ipv6=" << rak::copy_escape_html(local_v6.address_str());
+      localAddress->family() == utils::socket_address::pf_inet) {
+    utils::socket_address local_v6;
+    if (get_local_address(utils::socket_address::af_inet6, &local_v6))
+      s << "&ipv6=" << utils::copy_escape_html(local_v6.address_str());
   }
 
   if (localAddress->is_address_any() &&
-      localAddress->family() == rak::socket_address::pf_inet6) {
-    rak::socket_address local_v4;
-    if (get_local_address(rak::socket_address::af_inet, &local_v4))
+      localAddress->family() == utils::socket_address::pf_inet6) {
+    utils::socket_address local_v4;
+    if (get_local_address(utils::socket_address::af_inet, &local_v4))
       s << "&ipv4=" << local_v4.address_str();
   }
 
@@ -284,8 +284,9 @@ TrackerHttp::receive_done() {
 
   if (m_data->fail()) {
     std::string dump = m_data->str();
-    return receive_failed("Could not parse bencoded data: " +
-                          rak::sanitize(rak::striptags(dump)).substr(0, 99));
+    return receive_failed(
+      "Could not parse bencoded data: " +
+      utils::sanitize(utils::striptags(dump)).substr(0, 99));
   }
 
   if (!b.is_map())

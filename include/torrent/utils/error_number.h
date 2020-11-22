@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#ifndef RAK_ERROR_NUMBER_H
-#define RAK_ERROR_NUMBER_H
+#ifndef LIBTORRENT_UTILS_ERROR_NUMBER_H
+#define LIBTORRENT_UTILS_ERROR_NUMBER_H
 
 #include <cerrno>
 #include <cstring>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 class error_number {
 public:
@@ -74,6 +75,7 @@ private:
   int m_errno;
 };
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

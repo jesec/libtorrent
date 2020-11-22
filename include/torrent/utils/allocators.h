@@ -3,17 +3,18 @@
 
 // Some allocators for cacheline aligned chunks of memory, etc.
 
-#ifndef RAK_ALLOCATORS_H
-#define RAK_ALLOCATORS_H
-
-#include "torrent/buildinfo.h"
+#ifndef LIBTORRENT_UTILS_ALLOCATORS_H
+#define LIBTORRENT_UTILS_ALLOCATORS_H
 
 #include <cstddef>
 #include <limits>
 #include <stdlib.h>
 #include <sys/types.h>
 
-namespace rak {
+#include <torrent/buildinfo.h>
+
+namespace torrent {
+namespace utils {
 
 template<class T = void*>
 class cacheline_allocator {
@@ -88,7 +89,8 @@ operator!=(const cacheline_allocator<T1>&,
   return false;
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 //
 // Operator new with custom allocators:
@@ -96,8 +98,8 @@ operator!=(const cacheline_allocator<T1>&,
 
 template<typename T>
 void*
-operator new(size_t s, rak::cacheline_allocator<T> a) {
+operator new(size_t s, torrent::utils::cacheline_allocator<T> a) {
   return a.alloc_size(s);
 }
 
-#endif // namespace rak
+#endif

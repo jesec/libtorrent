@@ -10,12 +10,12 @@
 #include "download/download_main.h"
 #include "protocol/extensions.h"
 #include "protocol/peer_connection_metadata.h"
-#include "rak/functional.h"
 #include "torrent/dht_manager.h"
 #include "torrent/download/choke_queue.h"
 #include "torrent/download_info.h"
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer_info.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 
 #define LT_LOG_METADATA_EVENTS(log_fmt, ...)                                   \
@@ -45,7 +45,7 @@ PeerConnectionMetadata::update_interested() {}
 
 bool
 PeerConnectionMetadata::receive_keepalive() {
-  if (cachedTime - m_timeLastRead > rak::timer::from_seconds(240))
+  if (cachedTime - m_timeLastRead > utils::timer::from_seconds(240))
     return false;
 
   m_tryRequest = true;

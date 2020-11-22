@@ -3,11 +3,11 @@
 
 #include "net/throttle_internal.h"
 #include "net/throttle_list.h"
-#include "rak/functional.h"
-#include "rak/priority_queue_default.h"
-#include "rak/timer.h"
 #include "torrent/exceptions.h"
 #include "torrent/throttle.h"
+#include "torrent/utils/functional.h"
+#include "torrent/utils/priority_queue_default.h"
+#include "torrent/utils/timer.h"
 
 #include "globals.h"
 
@@ -35,7 +35,7 @@ ThrottleInternal::~ThrottleInternal() {
 
   std::for_each(m_slaveList.begin(),
                 m_slaveList.end(),
-                rak::call_delete<ThrottleInternal>());
+                utils::call_delete<ThrottleInternal>());
 }
 
 void
@@ -48,7 +48,7 @@ ThrottleInternal::enable() {
   if (is_root()) {
     // We need to start the ticks, and make sure we set timeLastTick
     // to a value that gives an reasonable initial quota.
-    m_timeLastTick = cachedTime - rak::timer::from_seconds(1);
+    m_timeLastTick = cachedTime - utils::timer::from_seconds(1);
     receive_tick();
   }
 }
@@ -82,7 +82,7 @@ ThrottleInternal::create_slave() {
 
 void
 ThrottleInternal::receive_tick() {
-  if (cachedTime <= m_timeLastTick + rak::timer::from_milliseconds(90))
+  if (cachedTime <= m_timeLastTick + utils::timer::from_milliseconds(90))
     throw internal_error(
       "ThrottleInternal::receive_tick() called at a to short interval.");
 

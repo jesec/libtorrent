@@ -7,8 +7,6 @@
 #include "manager.h"
 #include "protocol/handshake_manager.h"
 #include "protocol/peer_factory.h"
-#include "rak/address_info.h"
-#include "rak/string_manip.h"
 #include "torrent/connection_manager.h"
 #include "torrent/data/file_manager.h"
 #include "torrent/download/download_manager.h"
@@ -20,6 +18,8 @@
 #include "torrent/poll.h"
 #include "torrent/throttle.h"
 #include "torrent/torrent.h"
+#include "torrent/utils/address_info.h"
+#include "torrent/utils/string_manip.h"
 #include "utils/instrumentation.h"
 
 namespace torrent {
@@ -58,7 +58,7 @@ initialize() {
     throw internal_error("torrent::initialize(...) called but the library has "
                          "already been initialized");
 
-  cachedTime = rak::timer::current();
+  cachedTime = utils::timer::current();
 
   instrumentation_initialize();
 
@@ -153,7 +153,7 @@ up_rate() {
 }
 const char*
 version() {
-  return VERSION;
+  return LT_VERSION;
 }
 
 uint32_t
@@ -196,8 +196,9 @@ download_add(Object* object) {
     download->main()->set_metadata_size(metadata_size);
   }
 
-  std::string local_id = PEER_NAME + rak::generate_random<std::string>(
-                                       20 - std::string(PEER_NAME).size());
+  std::string local_id =
+    LT_PEER_NAME +
+    utils::generate_random<std::string>(20 - std::string(LT_PEER_NAME).size());
 
   download->set_hash_queue(manager->hash_queue());
   download->initialize(infoHash, local_id);

@@ -7,16 +7,16 @@
 #include <string>
 #include <unistd.h>
 
-#ifdef HAVE_INOTIFY
+#ifdef LT_HAVE_INOTIFY
 #include <sys/inotify.h>
 #endif
 
 #include "manager.h"
 #include "net/socket_fd.h"
-#include "rak/error_number.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/utils/directory_events.h"
+#include "torrent/utils/error_number.h"
 
 namespace torrent {
 
@@ -25,9 +25,9 @@ directory_events::open() {
   if (m_fileDesc != -1)
     return true;
 
-  rak::error_number::current().clear_global();
+  utils::error_number::current().clear_global();
 
-#ifdef HAVE_INOTIFY
+#ifdef LT_HAVE_INOTIFY
   m_fileDesc = inotify_init();
 
   if (!SocketFd(m_fileDesc).set_nonblock()) {
@@ -35,7 +35,7 @@ directory_events::open() {
     m_fileDesc = -1;
   }
 #else
-  rak::error_number::set_global(rak::error_number::e_nodev);
+  utils::error_number::set_global(utils::error_number::e_nodev);
 #endif
 
   if (m_fileDesc == -1)
@@ -67,7 +67,7 @@ directory_events::notify_on(const std::string& path,
   if (path.empty())
     throw input_error("Cannot add notification event for empty paths.");
 
-#ifdef HAVE_INOTIFY
+#ifdef LT_HAVE_INOTIFY
   int in_flags = IN_MASK_ADD;
 
 #ifdef IN_EXCL_UNLINK
@@ -91,7 +91,7 @@ directory_events::notify_on(const std::string& path,
 
   if (result == -1)
     throw input_error("Call to inotify_add_watch(...) failed: " +
-                      std::string(rak::error_number::current().c_str()));
+                      std::string(utils::error_number::current().c_str()));
 
   wd_list::iterator itr = m_wd_list.insert(m_wd_list.end(), watch_descriptor());
   itr->descriptor       = result;
@@ -105,7 +105,7 @@ directory_events::notify_on(const std::string& path,
 
 void
 directory_events::event_read() {
-#ifdef HAVE_INOTIFY
+#ifdef LT_HAVE_INOTIFY
   char    buffer[2048];
   ssize_t result = ::read(m_fileDesc, buffer, 2048);
 

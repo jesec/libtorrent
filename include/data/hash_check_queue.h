@@ -4,13 +4,12 @@
 #ifndef LIBTORRENT_DATA_HASH_CHECK_QUEUE_H
 #define LIBTORRENT_DATA_HASH_CHECK_QUEUE_H
 
-#include "torrent/buildinfo.h"
-
 #include <deque>
 #include <functional>
 #include <pthread.h>
 
-#include "rak/allocators.h"
+#include "torrent/buildinfo.h"
+#include "torrent/utils/allocators.h"
 
 namespace torrent {
 
@@ -18,9 +17,9 @@ class HashString;
 class HashChunk;
 
 class lt_cacheline_aligned HashCheckQueue
-  : private std::deque<HashChunk*, rak::cacheline_allocator<HashChunk*>> {
+  : private std::deque<HashChunk*, utils::cacheline_allocator<HashChunk*>> {
 public:
-  typedef std::deque<HashChunk*, rak::cacheline_allocator<HashChunk*>>
+  typedef std::deque<HashChunk*, utils::cacheline_allocator<HashChunk*>>
                                                              base_type;
   typedef std::function<void(HashChunk*, const HashString&)> slot_chunk_handle;
 

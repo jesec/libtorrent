@@ -86,7 +86,7 @@ FileManager::close(value_type file) {
 
 struct FileManagerActivity {
   FileManagerActivity()
-    : m_last(rak::timer::max().usec())
+    : m_last(utils::timer::max().usec())
     , m_file(NULL) {}
 
   void operator()(File* f) {

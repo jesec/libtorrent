@@ -7,8 +7,8 @@
 #include "download/chunk_selector.h"
 #include "download/chunk_statistics.h"
 #include "protocol/peer_chunks.h"
-#include "rak/functional.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/functional.h"
 
 namespace torrent {
 
@@ -26,7 +26,7 @@ ChunkSelector::initialize(ChunkStatistics* cs) {
   std::transform(completed->begin(),
                  completed->end(),
                  untouched->begin(),
-                 rak::invert<Bitfield::value_type>());
+                 utils::invert<Bitfield::value_type>());
   untouched->update();
 
   m_sharedQueue.enable(32);
@@ -65,7 +65,7 @@ ChunkSelector::find(PeerChunks* pc, bool) {
   // for non-seeders. This generalization does incur a slight
   // performance hit as it compares against a bitfield we know has all
   // set.
-  rak::partial_queue* queue =
+  utils::partial_queue* queue =
     pc->is_seeder() ? &m_sharedQueue : pc->download_cache();
 
   // Randomize position on average every 16 chunks to prevent
@@ -194,7 +194,7 @@ ChunkSelector::received_have_chunk(PeerChunks* pc, uint32_t index) {
 
 bool
 ChunkSelector::search_linear(const Bitfield*                       bf,
-                             rak::partial_queue*                   pq,
+                             utils::partial_queue*                 pq,
                              const download_data::priority_ranges* ranges,
                              uint32_t                              first,
                              uint32_t                              last) {
@@ -215,10 +215,10 @@ ChunkSelector::search_linear(const Bitfield*                       bf,
 // Could propably add another argument for max seen or something, this
 // would be used to find better chunks to request.
 inline bool
-ChunkSelector::search_linear_range(const Bitfield*     bf,
-                                   rak::partial_queue* pq,
-                                   uint32_t            first,
-                                   uint32_t            last) {
+ChunkSelector::search_linear_range(const Bitfield*       bf,
+                                   utils::partial_queue* pq,
+                                   uint32_t              first,
+                                   uint32_t              last) {
   if (first >= last || last > size())
     throw internal_error(
       "ChunkSelector::search_linear_range(...) received an invalid range.");
@@ -252,9 +252,9 @@ ChunkSelector::search_linear_range(const Bitfield*     bf,
 
 // Take pointer to partial_queue
 inline bool
-ChunkSelector::search_linear_byte(rak::partial_queue*  pq,
-                                  uint32_t             index,
-                                  Bitfield::value_type wanted) {
+ChunkSelector::search_linear_byte(utils::partial_queue* pq,
+                                  uint32_t              index,
+                                  Bitfield::value_type  wanted) {
   for (int i = 0; i < 8; ++i) {
     if (!(wanted & Bitfield::mask_at(i)))
       continue;

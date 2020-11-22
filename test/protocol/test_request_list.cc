@@ -1,9 +1,9 @@
 #include "download/delegator.h"
 #include "protocol/peer_chunks.h"
 #include "protocol/request_list.h"
-#include "rak/socket_address.h"
 #include "torrent/exceptions.h"
 #include "torrent/peer/peer_info.h"
+#include "torrent/utils/socket_address.h"
 
 #include "test/protocol/test_request_list.h"
 
@@ -50,8 +50,8 @@ transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
 
 // Set bitfield size...
 #define SETUP_PEER_CHUNKS()                                                    \
-  rak::socket_address peer_info_address;                                       \
-  torrent::PeerInfo*  peer_info =                                              \
+  torrent::utils::socket_address peer_info_address;                            \
+  torrent::PeerInfo*             peer_info =                                   \
     new torrent::PeerInfo(peer_info_address.c_sockaddr());                     \
   torrent::PeerChunks* peer_chunks = new torrent::PeerChunks;                  \
   peer_chunks->set_peer_info(peer_info);
@@ -107,8 +107,9 @@ transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
   CPPUNIT_ASSERT(transfer->peer_info()->transfer_counter() == count);
 
 #define SET_CACHED_TIME(seconds)                                               \
-  torrent::cachedTime = rak::timer::from_seconds(1000 + seconds);              \
-  rak::priority_queue_perform(&torrent::taskScheduler, torrent::cachedTime);
+  torrent::cachedTime = torrent::utils::timer::from_seconds(1000 + seconds);   \
+  torrent::utils::priority_queue_perform(&torrent::taskScheduler,              \
+                                         torrent::cachedTime);
 
 //
 // Basic tests:

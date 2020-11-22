@@ -1,7 +1,8 @@
-#include "../src/torrent/object_stream.h"
 #include <iomanip>
 #include <iostream>
-#include <rak/timer.h>
+
+#include "torrent/object_stream.h"
+#include "torrent/utils/timer.h"
 
 #ifdef NEW_OBJECT
 #include "object.h"
@@ -11,7 +12,7 @@ typedef torrent::Object return_type;
 #define OBJECTREF_MOVE(x) x
 
 #else
-#include "../src/torrent/object.h"
+#include "torrent/object.h"
 
 typedef torrent::Object return_type;
 #define OBJECTREF_MOVE(x) x
@@ -19,14 +20,14 @@ typedef torrent::Object return_type;
 #endif
 
 #define TIME_WRAPPER(name, body)                                               \
-  rak::timer time_##name(unsigned int n) {                                     \
-    rak::timer started = rak::timer::current();                                \
+  torrent::utils::timer time_##name(unsigned int n) {                          \
+    torrent::utils::timer started = torrent::utils::timer::current();          \
                                                                                \
     for (unsigned int i = 0; i < n; i++) {                                     \
       body;                                                                    \
     }                                                                          \
                                                                                \
-    return rak::timer::current() - started;                                    \
+    return torrent::utils::timer::current() - started;                         \
   }
 
 typedef std::list<std::string> std_list_type;

@@ -7,14 +7,14 @@
 #include "download/available_list.h"
 #include "globals.h"
 #include "manager.h"
-#include "rak/functional.h"
-#include "rak/socket_address.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
 #include "torrent/peer/client_list.h"
 #include "torrent/peer/peer_info.h"
 #include "torrent/peer/peer_list.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/socket_address.h"
 
 #define LT_LOG_EVENTS(log_fmt, ...)                                            \
   lt_log_print_info(                                                           \
@@ -31,18 +31,18 @@ ipv4_table PeerList::m_ipv4_table;
 // TODO: Clean up...
 bool
 socket_address_less(const sockaddr* s1, const sockaddr* s2) {
-  const rak::socket_address* sa1 = rak::socket_address::cast_from(s1);
-  const rak::socket_address* sa2 = rak::socket_address::cast_from(s2);
+  const utils::socket_address* sa1 = utils::socket_address::cast_from(s1);
+  const utils::socket_address* sa2 = utils::socket_address::cast_from(s2);
 
   if (sa1->family() != sa2->family()) {
     return sa1->family() < sa2->family();
 
-  } else if (sa1->family() == rak::socket_address::af_inet) {
+  } else if (sa1->family() == utils::socket_address::af_inet) {
     // Sort by hardware byte order to ensure proper ordering for
     // humans.
     return sa1->sa_inet()->address_h() < sa2->sa_inet()->address_h();
 
-  } else if (sa1->family() == rak::socket_address::af_inet6) {
+  } else if (sa1->family() == utils::socket_address::af_inet6) {
     const in6_addr addr1 = sa1->sa_inet6()->address();
     const in6_addr addr2 = sa2->sa_inet6()->address();
 
@@ -57,8 +57,8 @@ socket_address_less(const sockaddr* s1, const sockaddr* s2) {
 struct peer_list_equal_port
   : public std::binary_function<PeerList::reference, uint16_t, bool> {
   bool operator()(PeerList::reference p, uint16_t port) {
-    return rak::socket_address::cast_from(p.second->socket_address())->port() ==
-           port;
+    return utils::socket_address::cast_from(p.second->socket_address())
+             ->port() == port;
   }
 };
 
@@ -74,10 +74,10 @@ PeerList::~PeerList() {
                 size(),
                 m_available_list->size());
 
-  std::for_each(
-    begin(),
-    end(),
-    rak::on(rak::mem_ref(&value_type::second), rak::call_delete<PeerInfo>()));
+  std::for_each(begin(),
+                end(),
+                utils::on(utils::mem_ref(&value_type::second),
+                          utils::call_delete<PeerInfo>()));
   base_type::clear();
 
   m_info = NULL;
@@ -100,7 +100,7 @@ PeerList::insert_address(const sockaddr* sa, int flags) {
     return NULL;
   }
 
-  const rak::socket_address* address = rak::socket_address::cast_from(sa);
+  const utils::socket_address* address = utils::socket_address::cast_from(sa);
 
   range_type range = base_type::equal_range(sock_key);
 
@@ -145,8 +145,8 @@ PeerList::insert_address(const sockaddr* sa, int flags) {
 }
 
 inline bool
-socket_address_less_rak(const rak::socket_address& s1,
-                        const rak::socket_address& s2) {
+socket_address_less_rak(const utils::socket_address& s1,
+                        const utils::socket_address& s2) {
   return socket_address_less(s1.c_sockaddr(), s2.c_sockaddr());
 }
 
@@ -182,10 +182,10 @@ PeerList::insert_available(const void* al) {
       continue;
     }
 
-    availItr =
-      std::find_if(availItr,
-                   availLast,
-                   rak::bind2nd(std::ptr_fun(&socket_address_less_rak), *itr));
+    availItr = std::find_if(
+      availItr,
+      availLast,
+      utils::bind2nd(std::ptr_fun(&socket_address_less_rak), *itr));
 
     if (availItr != availLast &&
         !socket_address_less(availItr->c_sockaddr(), itr->c_sockaddr())) {
@@ -256,8 +256,8 @@ PeerList::available_list_size() const {
 
 PeerInfo*
 PeerList::connected(const sockaddr* sa, int flags) {
-  const rak::socket_address* address  = rak::socket_address::cast_from(sa);
-  socket_address_key         sock_key = socket_address_key::from_sockaddr(sa);
+  const utils::socket_address* address  = utils::socket_address::cast_from(sa);
+  socket_address_key           sock_key = socket_address_key::from_sockaddr(sa);
 
   if (!sock_key.is_valid() || !socket_address_key::is_comparable_sockaddr(sa))
     return NULL;
@@ -308,7 +308,7 @@ PeerList::connected(const sockaddr* sa, int flags) {
     // host as the tracker.
     if (flags & connect_keep_handshakes &&
         range.first->second->is_handshake() &&
-        rak::socket_address::cast_from(range.first->second->socket_address())
+        utils::socket_address::cast_from(range.first->second->socket_address())
             ->port() != address->port())
       m_available_list->buffer()->push_back(*address);
 
@@ -342,14 +342,15 @@ PeerList::disconnected(PeerInfo* p, int flags) {
 
   range_type range = base_type::equal_range(sock_key);
 
-  iterator itr = std::find_if(range.first,
-                              range.second,
-                              rak::equal(p, rak::mem_ref(&value_type::second)));
+  iterator itr =
+    std::find_if(range.first,
+                 range.second,
+                 utils::equal(p, utils::mem_ref(&value_type::second)));
 
   if (itr == range.second) {
     if (std::find_if(base_type::begin(),
                      base_type::end(),
-                     rak::equal(p, rak::mem_ref(&value_type::second))) ==
+                     utils::equal(p, utils::mem_ref(&value_type::second))) ==
         base_type::end())
       throw internal_error(
         "PeerList::disconnected(...) itr == range.second, doesn't exist.");
@@ -389,7 +390,7 @@ PeerList::disconnected(iterator itr, int flags) {
 
   if (flags & disconnect_available && itr->second->listen_port() != 0)
     m_available_list->push_back(
-      rak::socket_address::cast_from(itr->second->socket_address()));
+      utils::socket_address::cast_from(itr->second->socket_address()));
 
   // Do magic to get rid of unneeded entries.
   return ++itr;

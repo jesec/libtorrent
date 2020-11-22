@@ -6,15 +6,15 @@ file(APPEND ${BUILDINFO_H} "#ifndef LIBTORRENT_BUILDINFO_H\n")
 file(APPEND ${BUILDINFO_H} "#define LIBTORRENT_BUILDINFO_H\n\n")
 
 file(APPEND ${BUILDINFO_H} "/* Version number of package */\n")
-file(APPEND ${BUILDINFO_H} "#define VERSION \"${PROJECT_VERSION}\"\n\n")
+file(APPEND ${BUILDINFO_H} "#define LT_VERSION \"${PROJECT_VERSION}\"\n\n")
 
 file(APPEND ${BUILDINFO_H}
      "/* Identifier that is part of the default peer id */\n")
-file(APPEND ${BUILDINFO_H} "#define PEER_NAME \"-lt0D80-\"\n\n")
+file(APPEND ${BUILDINFO_H} "#define LT_PEER_NAME \"-lt0D80-\"\n\n")
 
 file(APPEND ${BUILDINFO_H}
      "/* 4 byte client and version identifier for DHT */\n")
-file(APPEND ${BUILDINFO_H} "#define PEER_VERSION \"lt\\x0D\\x80\"\n\n")
+file(APPEND ${BUILDINFO_H} "#define LT_PEER_VERSION \"lt\\x0D\\x80\"\n\n")
 
 if(LT_INSTRUMENTATION)
   file(APPEND ${BUILDINFO_H} "/* Enable instrumentation */\n")
@@ -23,19 +23,19 @@ endif()
 
 if(USE_ALIGNED)
   file(APPEND ${BUILDINFO_H} "/* Require byte alignment */\n")
-  file(APPEND ${BUILDINFO_H} "#define USE_ALIGNED 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_USE_ALIGNED 1\n\n")
 endif()
 
 if(USE_EXTRA_DEBUG)
   file(APPEND ${BUILDINFO_H} "/* Enable extra debugging checks */\n")
-  file(APPEND ${BUILDINFO_H} "#define USE_EXTRA_DEBUG 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_USE_EXTRA_DEBUG 1\n\n")
 endif()
 
 find_package(Execinfo)
 if(EXECINFO_LIBC_HAS_BACKTRACE)
   file(APPEND ${BUILDINFO_H}
        "/* Defined if backtrace() could be fully identified */\n")
-  file(APPEND ${BUILDINFO_H} "#define HAVE_BACKTRACE 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_HAVE_BACKTRACE 1\n\n")
 endif()
 
 check_cxx_source_runs(
@@ -51,7 +51,7 @@ check_cxx_source_runs(
 
 if(HAVE_FALLOCATE)
   file(APPEND ${BUILDINFO_H} "/* Linux's fallocate supported */\n")
-  file(APPEND ${BUILDINFO_H} "#define HAVE_FALLOCATE 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_HAVE_FALLOCATE 1\n\n")
 else()
   check_cxx_source_compiles(
     "
@@ -63,7 +63,7 @@ else()
     USE_POSIX_FALLOCATE)
   if(USE_POSIX_FALLOCATE)
     file(APPEND ${BUILDINFO_H} "/* posix_fallocate supported */\n")
-    file(APPEND ${BUILDINFO_H} "#define USE_POSIX_FALLOCATE 1\n\n")
+    file(APPEND ${BUILDINFO_H} "#define LT_USE_POSIX_FALLOCATE 1\n\n")
   endif()
 endif()
 
@@ -76,7 +76,7 @@ check_cxx_source_runs(
 
 if(HAVE_INOTIFY)
   file(APPEND ${BUILDINFO_H} "/* sys/inotify.h exists and works correctly */\n")
-  file(APPEND ${BUILDINFO_H} "#define HAVE_INOTIFY 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_HAVE_INOTIFY 1\n\n")
 endif()
 
 check_include_file_cxx("sys/mount.h" HAVE_SYS_MOUNT_H)
@@ -89,21 +89,21 @@ if(HAVE_SYS_VFS_H
    AND HAVE_SYS_STATVFS_H
    AND HAVE_SYS_STATFS_H)
   file(APPEND ${BUILDINFO_H} "/* Defined if statvfs could be found */\n")
-  file(APPEND ${BUILDINFO_H} "#define HAVE_STATVFS 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_HAVE_STATVFS 1\n\n")
 elseif(
   HAVE_SYS_MOUNT_H
   AND HAVE_SYS_PARAM_H
   AND HAVE_SYS_STATFS_H)
   file(APPEND ${BUILDINFO_H} "/* Defined if statfs could be found */\n")
-  file(APPEND ${BUILDINFO_H} "#define HAVE_STATFS 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_HAVE_STATFS 1\n\n")
 endif()
 
 file(APPEND ${BUILDINFO_H} "/* Default address space size */\n")
 check_type_size("long" LONG_SIZE)
 if(LONG_SIZE GREATER_EQUAL 8)
-  file(APPEND ${BUILDINFO_H} "#define DEFAULT_ADDRESS_SPACE_SIZE 4096\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_DEFAULT_ADDRESS_SPACE_SIZE 4096\n\n")
 else()
-  file(APPEND ${BUILDINFO_H} "#define DEFAULT_ADDRESS_SPACE_SIZE 1024\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_DEFAULT_ADDRESS_SPACE_SIZE 1024\n\n")
 endif()
 
 check_cxx_source_runs(
@@ -118,7 +118,7 @@ check_cxx_source_runs(
 
 if(USE_EPOLL)
   file(APPEND ${BUILDINFO_H} "/* Use epoll */\n")
-  file(APPEND ${BUILDINFO_H} "#define USE_EPOLL 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_USE_EPOLL 1\n\n")
 else()
   check_cxx_source_runs(
     "
@@ -132,7 +132,7 @@ else()
     USE_KQUEUE)
   if(USE_KQUEUE)
     file(APPEND ${BUILDINFO_H} "/* Use kqueue */\n")
-    file(APPEND ${BUILDINFO_H} "#define USE_KQUEUE 1\n\n")
+    file(APPEND ${BUILDINFO_H} "#define LT_USE_KQUEUE 1\n\n")
     check_cxx_source_runs(
       "
       #include <fcntl.h>
@@ -164,7 +164,7 @@ else()
       KQUEUE_SUPPORT_PIPE)
     if(NOT KQUEUE_SUPPORT_PIPE)
       file(APPEND ${BUILDINFO_H} "/* kqueue only supports sockets */\n")
-      file(APPEND ${BUILDINFO_H} "#define KQUEUE_SOCKET_ONLY 1\n\n")
+      file(APPEND ${BUILDINFO_H} "#define LT_KQUEUE_SOCKET_ONLY 1\n\n")
     endif()
   endif()
 endif()
@@ -207,7 +207,7 @@ check_cxx_source_compiles(
 
 if(USE_BUILTIN_POPCOUNT)
   file(APPEND ${BUILDINFO_H} "/* Use __builtin_popcount */\n")
-  file(APPEND ${BUILDINFO_H} "#define USE_BUILTIN_POPCOUNT 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_USE_BUILTIN_POPCOUNT 1\n\n")
 endif()
 
 check_cxx_source_compiles(
@@ -223,7 +223,7 @@ check_cxx_source_compiles(
 
 if(USE_MADVISE)
   file(APPEND ${BUILDINFO_H} "/* Use madvise */\n")
-  file(APPEND ${BUILDINFO_H} "#define USE_MADVISE 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_USE_MADVISE 1\n\n")
 endif()
 
 check_cxx_source_compiles(
@@ -239,9 +239,9 @@ check_cxx_source_compiles(
 
 if(USE_MINCORE_UNSIGNED)
   file(APPEND ${BUILDINFO_H} "/* Use mincore */\n")
-  file(APPEND ${BUILDINFO_H} "#define USE_MINCORE 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_USE_MINCORE 1\n\n")
   file(APPEND ${BUILDINFO_H} "/* use unsigned char* in mincore */\n")
-  file(APPEND ${BUILDINFO_H} "#define USE_MINCORE_UNSIGNED 1\n\n")
+  file(APPEND ${BUILDINFO_H} "#define LT_USE_MINCORE_UNSIGNED 1\n\n")
 else()
   check_cxx_source_compiles(
     "
@@ -255,9 +255,9 @@ else()
     USE_MINCORE_SIGNED)
   if(USE_MINCORE_SIGNED)
     file(APPEND ${BUILDINFO_H} "/* Use mincore */\n")
-    file(APPEND ${BUILDINFO_H} "#define USE_MINCORE 1\n\n")
+    file(APPEND ${BUILDINFO_H} "#define LT_USE_MINCORE 1\n\n")
     file(APPEND ${BUILDINFO_H} "/* use unsigned char* in mincore */\n")
-    file(APPEND ${BUILDINFO_H} "#define USE_MINCORE_UNSIGNED 0\n\n")
+    file(APPEND ${BUILDINFO_H} "#define LT_USE_MINCORE_UNSIGNED 0\n\n")
   endif()
 endif()
 

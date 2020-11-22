@@ -6,6 +6,8 @@
 #ifndef LIBTORRENT_DHT_MANAGER_H
 #define LIBTORRENT_DHT_MANAGER_H
 
+#include <string>
+
 #include <torrent/common.h>
 #include <torrent/connection_manager.h>
 

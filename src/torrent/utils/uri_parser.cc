@@ -3,7 +3,7 @@
 
 #include <cctype>
 
-#include "rak/string_manip.h"
+#include "torrent/utils/string_manip.h"
 #include "torrent/utils/uri_parser.h"
 
 namespace torrent {
@@ -59,8 +59,8 @@ uri_string_copy_until(std::string::const_iterator first,
 void
 uri_parse_throw_error(const char* error_msg, char invalid_char) {
   std::string error_str = std::string(error_msg);
-  error_str += rak::value_to_hexchar<1>(invalid_char);
-  error_str += rak::value_to_hexchar<0>(invalid_char);
+  error_str += utils::value_to_hexchar<1>(invalid_char);
+  error_str += utils::value_to_hexchar<0>(invalid_char);
 
   throw uri_error(error_str);
 }
@@ -144,8 +144,8 @@ uri_parse_query_str(std::string query, uri_query_state& state) {
 
     if (first != last && *first++ != '&') {
       std::string invalid_hex;
-      invalid_hex += rak::value_to_hexchar<1>(*--first);
-      invalid_hex += rak::value_to_hexchar<0>(*first);
+      invalid_hex += utils::value_to_hexchar<1>(*--first);
+      invalid_hex += utils::value_to_hexchar<0>(*first);
 
       throw uri_error("query element contains invalid character 0x" +
                       invalid_hex);

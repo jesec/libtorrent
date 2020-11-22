@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#ifndef RAK_FS_STAT_H
-#define RAK_FS_STAT_H
-
-#include "torrent/buildinfo.h"
+#ifndef LIBTORRENT_UTILS_FS_STAT_H
+#define LIBTORRENT_UTILS_FS_STAT_H
 
 #include <cinttypes>
 #include <string>
 
-#include <rak/error_number.h>
+#include <torrent/buildinfo.h>
+#include <torrent/utils/error_number.h>
 
-#if HAVE_STATVFS
+#if LT_HAVE_STATVFS
 
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
@@ -24,7 +23,7 @@
 #define FS_STAT_COUNT_TYPE fsblkcnt_t
 #define FS_STAT_BLOCK_SIZE (m_stat.f_frsize)
 
-#elif HAVE_STATFS
+#elif LT_HAVE_STATFS
 
 #include <sys/mount.h>
 #include <sys/param.h>
@@ -52,7 +51,8 @@
 
 #endif
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 class fs_stat {
 public:
@@ -84,6 +84,7 @@ private:
   fs_stat_type m_stat;
 };
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

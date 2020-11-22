@@ -80,7 +80,7 @@ ChunkManager::estimate_max_memory_usage() {
 #endif
     return rlp.rlim_cur;
 
-  return (uint64_t)DEFAULT_ADDRESS_SPACE_SIZE << 20;
+  return (uint64_t)LT_DEFAULT_ADDRESS_SPACE_SIZE << 20;
 }
 
 uint64_t

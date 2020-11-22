@@ -8,7 +8,7 @@
 
 // TODO: Add include files...
 
-#include <rak/socket_address.h>
+#include <torrent/utils/socket_address.h>
 
 namespace torrent {
 
@@ -17,12 +17,12 @@ struct socket_address_compact {
   socket_address_compact(uint32_t a, uint16_t p)
     : addr(a)
     , port(p) {}
-  socket_address_compact(const rak::socket_address_inet* sa)
+  socket_address_compact(const utils::socket_address_inet* sa)
     : addr(sa->address_n())
     , port(sa->port_n()) {}
 
-  operator rak::socket_address() const {
-    rak::socket_address sa;
+  operator utils::socket_address() const {
+    utils::socket_address sa;
     sa.sa_inet()->clear();
     sa.sa_inet()->set_port_n(port);
     sa.sa_inet()->set_address_n(addr);
@@ -44,12 +44,12 @@ struct socket_address_compact6 {
   socket_address_compact6(in6_addr a, uint16_t p)
     : addr(a)
     , port(p) {}
-  socket_address_compact6(const rak::socket_address_inet6* sa)
+  socket_address_compact6(const utils::socket_address_inet6* sa)
     : addr(sa->address())
     , port(sa->port_n()) {}
 
-  operator rak::socket_address() const {
-    rak::socket_address sa;
+  operator utils::socket_address() const {
+    utils::socket_address sa;
     sa.sa_inet6()->clear();
     sa.sa_inet6()->set_port_n(port);
     sa.sa_inet6()->set_address(addr);

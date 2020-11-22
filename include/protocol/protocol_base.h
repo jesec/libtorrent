@@ -4,9 +4,8 @@
 #ifndef LIBTORRENT_NET_PROTOCOL_BASE_H
 #define LIBTORRENT_NET_PROTOCOL_BASE_H
 
-#include <rak/timer.h>
-
 #include "net/protocol_buffer.h"
+#include "torrent/utils/timer.h"
 
 namespace torrent {
 

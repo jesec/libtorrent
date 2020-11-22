@@ -41,7 +41,7 @@ DhtSearch::~DhtSearch() noexcept(false) {
 }
 
 bool
-DhtSearch::add_contact(const HashString& id, const rak::socket_address* sa) {
+DhtSearch::add_contact(const HashString& id, const utils::socket_address* sa) {
   DhtNode* n     = new DhtNode(id, sa);
   bool     added = insert(std::make_pair(n, this)).second;
 
@@ -242,10 +242,10 @@ DhtTransactionPacket::build_buffer(const DhtMessage& msg) {
   memcpy(m_data, buffer, m_length);
 }
 
-DhtTransaction::DhtTransaction(int                        quick_timeout,
-                               int                        timeout,
-                               const HashString&          id,
-                               const rak::socket_address* sa)
+DhtTransaction::DhtTransaction(int                          quick_timeout,
+                               int                          timeout,
+                               const HashString&            id,
+                               const utils::socket_address* sa)
   : m_id(id)
   , m_hasQuickTimeout(quick_timeout > 0)
   , m_sa(*sa)

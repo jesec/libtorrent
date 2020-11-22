@@ -5,11 +5,9 @@
 #define LIBTORRENT_DHT_NODE_H
 
 #include "globals.h"
-
-#include <rak/socket_address.h>
-
 #include "torrent/hash_string.h"
 #include "torrent/object_raw_bencode.h"
+#include "torrent/utils/socket_address.h"
 
 #include "dht_bucket.h"
 
@@ -24,7 +22,7 @@ public:
   // A node is considered bad if it failed to reply to this many queries.
   static const unsigned int max_failed_replies = 5;
 
-  DhtNode(const HashString& id, const rak::socket_address* sa);
+  DhtNode(const HashString& id, const utils::socket_address* sa);
   DhtNode(const std::string& id, const Object& cache);
 
   const HashString& id() const {
@@ -33,10 +31,10 @@ public:
   raw_string id_raw_string() const {
     return raw_string(data(), size_data);
   }
-  const rak::socket_address* address() const {
+  const utils::socket_address* address() const {
     return &m_socketAddress;
   }
-  void set_address(const rak::socket_address* sa) {
+  void set_address(const utils::socket_address* sa) {
     m_socketAddress = *sa;
   }
 
@@ -100,11 +98,11 @@ private:
   void set_good();
   void set_bad();
 
-  rak::socket_address m_socketAddress;
-  unsigned int        m_lastSeen;
-  bool                m_recentlyActive;
-  unsigned int        m_recentlyInactive;
-  DhtBucket*          m_bucket;
+  utils::socket_address m_socketAddress;
+  unsigned int          m_lastSeen;
+  bool                  m_recentlyActive;
+  unsigned int          m_recentlyInactive;
+  DhtBucket*            m_bucket;
 };
 
 inline void

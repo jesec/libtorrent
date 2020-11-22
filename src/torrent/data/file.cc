@@ -5,10 +5,10 @@
 #include "data/socket_file.h"
 #include "globals.h"
 #include "manager.h"
-#include "rak/error_number.h"
-#include "rak/file_stat.h"
 #include "torrent/data/file_manager.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/error_number.h"
+#include "torrent/utils/file_stat.h"
 
 #include "torrent/data/file.h"
 
@@ -48,7 +48,7 @@ File::~File() noexcept(false) {
 
 bool
 File::is_created() const {
-  rak::file_stat fs;
+  utils::file_stat fs;
 
   // If we can't even get permission to do fstat, we might as well
   // consider the file as not created. This function is to be used by
@@ -56,7 +56,8 @@ File::is_created() const {
   // rather than as a way to find out if it is starting on a blank
   // slate.
   if (!fs.update(frozen_path()))
-    //     return rak::error_number::current() == rak::error_number::e_access;
+    //     return utils::error_number::current() ==
+    //     utils::error_number::e_access;
     return false;
 
   return fs.is_regular();
@@ -64,7 +65,7 @@ File::is_created() const {
 
 bool
 File::is_correct_size() const {
-  rak::file_stat fs;
+  utils::file_stat fs;
 
   if (!fs.update(frozen_path()))
     return false;

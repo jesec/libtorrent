@@ -4,11 +4,11 @@
 #ifndef LIBTORRENT_DATA_CHUNK_LIST_NODE_H
 #define LIBTORRENT_DATA_CHUNK_LIST_NODE_H
 
-#include "torrent/buildinfo.h"
-
 #include <cinttypes>
 #include <cstdlib>
-#include <rak/timer.h>
+
+#include "torrent/buildinfo.h"
+#include "torrent/utils/timer.h"
 
 namespace torrent {
 
@@ -51,17 +51,17 @@ public:
     m_chunk = c;
   }
 
-  const rak::timer& time_modified() const {
+  const utils::timer& time_modified() const {
     return m_timeModified;
   }
-  void set_time_modified(rak::timer t) {
+  void set_time_modified(utils::timer t) {
     m_timeModified = t;
   }
 
-  const rak::timer& time_preloaded() const {
+  const utils::timer& time_preloaded() const {
     return m_timePreloaded;
   }
-  void set_time_preloaded(rak::timer t) {
+  void set_time_preloaded(utils::timer t) {
     m_timePreloaded = t;
   }
 
@@ -121,8 +121,8 @@ private:
 
   bool m_asyncTriggered;
 
-  rak::timer m_timeModified;
-  rak::timer m_timePreloaded;
+  utils::timer m_timeModified;
+  utils::timer m_timePreloaded;
 };
 
 } // namespace torrent

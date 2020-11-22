@@ -1,8 +1,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "rak/timer.h"
 #include "torrent/tracker.h"
 #include "torrent/tracker_list.h"
+#include "torrent/utils/timer.h"
 
 class tracker_list_test : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(tracker_list_test);

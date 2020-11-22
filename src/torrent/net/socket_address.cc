@@ -2,9 +2,9 @@
 #include <cstring>
 #include <sys/un.h>
 
-#include "rak/socket_address.h" // TODO: Deprecate.
 #include "torrent/exceptions.h"
 #include "torrent/net/socket_address.h"
+#include "torrent/utils/socket_address.h" // TODO: Deprecate.
 
 namespace torrent {
 

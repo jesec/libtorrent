@@ -5,14 +5,13 @@
 #define LIBTORRENT_TRACKER_TRACKER_UDP_H
 
 #include <array>
-#include <rak/socket_address.h>
 
+#include "globals.h"
 #include "net/protocol_buffer.h"
 #include "net/socket_datagram.h"
 #include "torrent/connection_manager.h"
 #include "torrent/tracker.h"
-
-#include "globals.h"
+#include "torrent/utils/socket_address.h"
 
 namespace torrent {
 
@@ -69,8 +68,8 @@ private:
                                int&               port) const;
   resolver_type* make_resolver_slot(const hostname_type& hostname);
 
-  rak::socket_address m_connectAddress;
-  int                 m_port;
+  utils::socket_address m_connectAddress;
+  int                   m_port;
 
   int m_sendState;
 
@@ -85,7 +84,7 @@ private:
 
   uint32_t m_tries;
 
-  rak::priority_item m_taskTimeout;
+  utils::priority_item m_taskTimeout;
 };
 
 } // namespace torrent

@@ -11,11 +11,11 @@
 #include "download/available_list.h"
 #include "globals.h"
 #include "net/data_buffer.h"
-#include "rak/functional.h"
 #include "torrent/data/file_list.h"
 #include "torrent/download/group_entry.h"
 #include "torrent/download_info.h"
 #include "torrent/peer/peer_list.h"
+#include "torrent/utils/functional.h"
 
 namespace torrent {
 
@@ -35,8 +35,8 @@ class InitialSeeding;
 
 class DownloadMain {
 public:
-  typedef std::deque<std::pair<rak::timer, uint32_t>> have_queue_type;
-  typedef std::vector<SocketAddressCompact>           pex_list;
+  typedef std::deque<std::pair<utils::timer, uint32_t>> have_queue_type;
+  typedef std::vector<SocketAddressCompact>             pex_list;
 
   DownloadMain();
   ~DownloadMain();
@@ -140,14 +140,16 @@ public:
   void setup_delegator();
   void setup_tracker();
 
-  typedef rak::const_mem_fun1<HandshakeManager, uint32_t, DownloadMain*>
-                                                            SlotCountHandshakes;
-  typedef rak::mem_fun1<DownloadWrapper, void, ChunkHandle> SlotHashCheckAdd;
+  typedef utils::const_mem_fun1<HandshakeManager, uint32_t, DownloadMain*>
+    SlotCountHandshakes;
+  typedef utils::mem_fun1<DownloadWrapper, void, ChunkHandle> SlotHashCheckAdd;
 
-  typedef rak::
-    mem_fun2<HandshakeManager, void, const rak::socket_address&, DownloadMain*>
-      slot_start_handshake_type;
-  typedef rak::mem_fun1<HandshakeManager, void, DownloadMain*>
+  typedef utils::mem_fun2<HandshakeManager,
+                          void,
+                          const utils::socket_address&,
+                          DownloadMain*>
+    slot_start_handshake_type;
+  typedef utils::mem_fun1<HandshakeManager, void, DownloadMain*>
     slot_stop_handshakes_type;
 
   void slot_start_handshake(slot_start_handshake_type s) {
@@ -163,7 +165,7 @@ public:
     m_slotHashCheckAdd = s;
   }
 
-  void add_peer(const rak::socket_address& sa);
+  void add_peer(const utils::socket_address& sa);
 
   void receive_connect_peers();
   void receive_chunk_done(unsigned int index);
@@ -178,17 +180,17 @@ public:
 
   void update_endgame();
 
-  rak::priority_item& delay_download_done() {
+  utils::priority_item& delay_download_done() {
     return m_delay_download_done;
   }
-  rak::priority_item& delay_partially_done() {
+  utils::priority_item& delay_partially_done() {
     return m_delay_partially_done;
   }
-  rak::priority_item& delay_partially_restarted() {
+  utils::priority_item& delay_partially_restarted() {
     return m_delay_partially_restarted;
   }
 
-  rak::priority_item& delay_disconnect_peers() {
+  utils::priority_item& delay_disconnect_peers() {
     return m_delayDisconnectPeers;
   }
 
@@ -235,12 +237,12 @@ private:
   SlotCountHandshakes m_slotCountHandshakes;
   SlotHashCheckAdd    m_slotHashCheckAdd;
 
-  rak::priority_item m_delay_download_done;
-  rak::priority_item m_delay_partially_done;
-  rak::priority_item m_delay_partially_restarted;
+  utils::priority_item m_delay_download_done;
+  utils::priority_item m_delay_partially_done;
+  utils::priority_item m_delay_partially_restarted;
 
-  rak::priority_item m_delayDisconnectPeers;
-  rak::priority_item m_taskTrackerRequest;
+  utils::priority_item m_delayDisconnectPeers;
+  utils::priority_item m_taskTrackerRequest;
 };
 
 } // namespace torrent

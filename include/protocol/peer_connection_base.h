@@ -41,7 +41,7 @@ public:
   typedef ProtocolBase ProtocolRead;
   typedef ProtocolBase ProtocolWrite;
 
-#if USE_EXTRA_DEBUG == 666
+#if LT_USE_EXTRA_DEBUG == 666
   // For testing, use a really small buffer.
   typedef ProtocolBuffer<256> EncryptBuffer;
 #else
@@ -252,7 +252,7 @@ protected:
 
   int m_sendPEXMask;
 
-  rak::timer m_timeLastRead;
+  utils::timer m_timeLastRead;
 
   DataBuffer m_extensionMessage;
   uint32_t   m_extensionOffset;

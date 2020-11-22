@@ -2,12 +2,12 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include "globals.h"
-#include "rak/priority_queue_default.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
 #include "torrent/tracker.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/priority_queue_default.h"
 
 #include "torrent/tracker_controller.h"
 
@@ -21,8 +21,8 @@
 namespace torrent {
 
 struct tracker_controller_private {
-  rak::priority_item task_timeout;
-  rak::priority_item task_scrape;
+  utils::priority_item task_timeout;
+  utils::priority_item task_scrape;
 };
 
 // End temp hacks...
@@ -32,11 +32,11 @@ TrackerController::update_timeout(uint32_t seconds_to_next) {
   if (!(m_flags & flag_active))
     throw internal_error("TrackerController cannot set timeout when inactive.");
 
-  rak::timer next_timeout = cachedTime;
+  utils::timer next_timeout = cachedTime;
 
   if (seconds_to_next != 0)
-    next_timeout =
-      (cachedTime + rak::timer::from_seconds(seconds_to_next)).round_seconds();
+    next_timeout = (cachedTime + utils::timer::from_seconds(seconds_to_next))
+                     .round_seconds();
 
   priority_queue_erase(&taskScheduler, &m_private->task_timeout);
   priority_queue_insert(&taskScheduler, &m_private->task_timeout, next_timeout);
@@ -74,12 +74,12 @@ TrackerController::~TrackerController() {
   delete m_private;
 }
 
-rak::priority_item*
+utils::priority_item*
 TrackerController::task_timeout() {
   return &m_private->task_timeout;
 }
 
-rak::priority_item*
+utils::priority_item*
 TrackerController::task_scrape() {
   return &m_private->task_scrape;
 }
@@ -96,13 +96,13 @@ TrackerController::next_scrape() const {
 
 uint32_t
 TrackerController::seconds_to_next_timeout() const {
-  return std::max(m_private->task_timeout.time() - cachedTime, rak::timer())
+  return std::max(m_private->task_timeout.time() - cachedTime, utils::timer())
     .seconds_ceiling();
 }
 
 uint32_t
 TrackerController::seconds_to_next_scrape() const {
-  return std::max(m_private->task_scrape.time() - cachedTime, rak::timer())
+  return std::max(m_private->task_scrape.time() - cachedTime, utils::timer())
     .seconds_ceiling();
 }
 
@@ -117,10 +117,10 @@ TrackerController::manual_request(bool) {
 
 void
 TrackerController::scrape_request(uint32_t seconds_to_request) {
-  rak::timer next_timeout = cachedTime;
+  utils::timer next_timeout = cachedTime;
 
   if (seconds_to_request != 0)
-    next_timeout = (cachedTime + rak::timer::from_seconds(seconds_to_request))
+    next_timeout = (cachedTime + utils::timer::from_seconds(seconds_to_request))
                      .round_seconds();
 
   priority_queue_erase(&taskScheduler, &m_private->task_scrape);

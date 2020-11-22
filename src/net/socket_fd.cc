@@ -12,8 +12,8 @@
 #include <sys/types.h>
 
 #include "net/socket_fd.h"
-#include "rak/socket_address.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/socket_address.h"
 
 namespace torrent {
 
@@ -91,12 +91,12 @@ SocketFd::get_error() const {
 
 bool
 SocketFd::open_stream() {
-  m_fd = socket(rak::socket_address::pf_inet6, SOCK_STREAM, IPPROTO_TCP);
+  m_fd = socket(utils::socket_address::pf_inet6, SOCK_STREAM, IPPROTO_TCP);
 
   if (m_fd == -1) {
     m_ipv6_socket = false;
     return (m_fd = socket(
-              rak::socket_address::pf_inet, SOCK_STREAM, IPPROTO_TCP)) != -1;
+              utils::socket_address::pf_inet, SOCK_STREAM, IPPROTO_TCP)) != -1;
   }
 
   m_ipv6_socket = true;
@@ -111,11 +111,11 @@ SocketFd::open_stream() {
 
 bool
 SocketFd::open_datagram() {
-  m_fd = socket(rak::socket_address::pf_inet6, SOCK_DGRAM, 0);
+  m_fd = socket(utils::socket_address::pf_inet6, SOCK_DGRAM, 0);
 
   if (m_fd == -1) {
     m_ipv6_socket = false;
-    return (m_fd = socket(rak::socket_address::pf_inet, SOCK_DGRAM, 0)) != -1;
+    return (m_fd = socket(utils::socket_address::pf_inet, SOCK_DGRAM, 0)) != -1;
   }
 
   m_ipv6_socket = true;
@@ -130,14 +130,14 @@ SocketFd::open_datagram() {
 
 bool
 SocketFd::open_local() {
-  return (m_fd = socket(rak::socket_address::pf_local, SOCK_STREAM, 0)) != -1;
+  return (m_fd = socket(utils::socket_address::pf_local, SOCK_STREAM, 0)) != -1;
 }
 
 bool
 SocketFd::open_socket_pair(int& fd1, int& fd2) {
   int result[2];
 
-  if (socketpair(rak::socket_address::pf_local, SOCK_STREAM, 0, result) == -1)
+  if (socketpair(utils::socket_address::pf_local, SOCK_STREAM, 0, result) == -1)
     return false;
 
   fd1 = result[0];
@@ -154,11 +154,11 @@ SocketFd::close() {
 }
 
 bool
-SocketFd::bind(const rak::socket_address& sa) {
+SocketFd::bind(const utils::socket_address& sa) {
   check_valid();
 
-  if (m_ipv6_socket && sa.family() == rak::socket_address::pf_inet) {
-    rak::socket_address_inet6 sa_mapped = sa.sa_inet()->to_mapped_address();
+  if (m_ipv6_socket && sa.family() == utils::socket_address::pf_inet) {
+    utils::socket_address_inet6 sa_mapped = sa.sa_inet()->to_mapped_address();
     return !::bind(m_fd, sa_mapped.c_sockaddr(), sizeof(sa_mapped));
   }
 
@@ -166,11 +166,11 @@ SocketFd::bind(const rak::socket_address& sa) {
 }
 
 bool
-SocketFd::bind(const rak::socket_address& sa, unsigned int length) {
+SocketFd::bind(const utils::socket_address& sa, unsigned int length) {
   check_valid();
 
-  if (m_ipv6_socket && sa.family() == rak::socket_address::pf_inet) {
-    rak::socket_address_inet6 sa_mapped = sa.sa_inet()->to_mapped_address();
+  if (m_ipv6_socket && sa.family() == utils::socket_address::pf_inet) {
+    utils::socket_address_inet6 sa_mapped = sa.sa_inet()->to_mapped_address();
     return !::bind(m_fd, sa_mapped.c_sockaddr(), sizeof(sa_mapped));
   }
 
@@ -179,15 +179,15 @@ SocketFd::bind(const rak::socket_address& sa, unsigned int length) {
 
 bool
 SocketFd::bind_sa(const sockaddr* sa) {
-  return bind(*rak::socket_address::cast_from(sa));
+  return bind(*utils::socket_address::cast_from(sa));
 }
 
 bool
-SocketFd::connect(const rak::socket_address& sa) {
+SocketFd::connect(const utils::socket_address& sa) {
   check_valid();
 
-  if (m_ipv6_socket && sa.family() == rak::socket_address::pf_inet) {
-    rak::socket_address_inet6 sa_mapped = sa.sa_inet()->to_mapped_address();
+  if (m_ipv6_socket && sa.family() == utils::socket_address::pf_inet) {
+    utils::socket_address_inet6 sa_mapped = sa.sa_inet()->to_mapped_address();
     return !::connect(m_fd, sa_mapped.c_sockaddr(), sizeof(sa_mapped)) ||
            errno == EINPROGRESS;
   }
@@ -197,19 +197,19 @@ SocketFd::connect(const rak::socket_address& sa) {
 
 bool
 SocketFd::connect_sa(const sockaddr* sa) {
-  return connect(*rak::socket_address::cast_from(sa));
+  return connect(*utils::socket_address::cast_from(sa));
 }
 
 bool
-SocketFd::getsockname(rak::socket_address* sa) {
+SocketFd::getsockname(utils::socket_address* sa) {
   check_valid();
 
-  socklen_t len = sizeof(rak::socket_address);
+  socklen_t len = sizeof(utils::socket_address);
   if (::getsockname(m_fd, sa->c_sockaddr(), &len)) {
     return false;
   }
 
-  if (m_ipv6_socket && sa->family() == rak::socket_address::af_inet6) {
+  if (m_ipv6_socket && sa->family() == utils::socket_address::af_inet6) {
     *sa = sa->sa_inet6()->normalize_address();
   }
 
@@ -224,9 +224,9 @@ SocketFd::listen(int size) {
 }
 
 SocketFd
-SocketFd::accept(rak::socket_address* sa) {
+SocketFd::accept(utils::socket_address* sa) {
   check_valid();
-  socklen_t len = sizeof(rak::socket_address);
+  socklen_t len = sizeof(utils::socket_address);
 
   if (sa == NULL) {
     return SocketFd(::accept(m_fd, NULL, &len), m_ipv6_socket);
@@ -235,7 +235,7 @@ SocketFd::accept(rak::socket_address* sa) {
   int fd = ::accept(m_fd, sa->c_sockaddr(), &len);
 
   if (fd != -1 && m_ipv6_socket &&
-      sa->family() == rak::socket_address::af_inet6) {
+      sa->family() == utils::socket_address::af_inet6) {
     *sa = sa->sa_inet6()->normalize_address();
   }
 

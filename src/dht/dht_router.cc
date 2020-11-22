@@ -11,10 +11,10 @@
 #include "dht/dht_transaction.h"
 #include "globals.h"
 #include "manager.h"
-#include "rak/functional.h"
 #include "torrent/dht_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "utils/sha1.h"
 
@@ -26,7 +26,7 @@ namespace torrent {
 
 HashString DhtRouter::zero_id;
 
-DhtRouter::DhtRouter(const Object& cache, const rak::socket_address* sa)
+DhtRouter::DhtRouter(const Object& cache, const utils::socket_address* sa)
   : DhtNode(zero_id, sa)
   , // actual ID is set later
   m_server(this)
@@ -133,7 +133,7 @@ DhtRouter::start(int port) {
   priority_queue_insert(
     &taskScheduler,
     &m_taskTimeout,
-    (cachedTime + rak::timer::from_seconds(1)).round_seconds());
+    (cachedTime + utils::timer::from_seconds(1)).round_seconds());
 }
 
 void
@@ -206,7 +206,7 @@ DhtRouter::DhtBucketList::iterator
 DhtRouter::find_bucket(const HashString& id) {
   DhtBucketList::iterator itr = m_routingTable.lower_bound(id);
 
-#ifdef USE_EXTRA_DEBUG
+#ifdef LT_USE_EXTRA_DEBUG
   if (itr == m_routingTable.end())
     throw internal_error("DHT Buckets not covering entire ID space.");
 
@@ -231,9 +231,9 @@ DhtRouter::add_contact(const std::string& host, int port) {
 }
 
 void
-DhtRouter::contact(const rak::socket_address* sa, int port) {
+DhtRouter::contact(const utils::socket_address* sa, int port) {
   if (is_active()) {
-    rak::socket_address sa_port = *sa;
+    utils::socket_address sa_port = *sa;
     sa_port.set_port(port);
     m_server.ping(zero_id, &sa_port);
   }
@@ -243,7 +243,7 @@ DhtRouter::contact(const rak::socket_address* sa, int port) {
 // to one of our queries, consider it alive and update the bucket mtime,
 // otherwise if we could use it in a bucket, try contacting it.
 DhtNode*
-DhtRouter::node_queried(const HashString& id, const rak::socket_address* sa) {
+DhtRouter::node_queried(const HashString& id, const utils::socket_address* sa) {
   DhtNode* node = get_node(id);
 
   if (node == NULL) {
@@ -270,7 +270,7 @@ DhtRouter::node_queried(const HashString& id, const rak::socket_address* sa) {
 // Check that it matches the information we have, set that it has replied
 // and update the bucket mtime.
 DhtNode*
-DhtRouter::node_replied(const HashString& id, const rak::socket_address* sa) {
+DhtRouter::node_replied(const HashString& id, const utils::socket_address* sa) {
   DhtNode* node = get_node(id);
 
   if (node == NULL) {
@@ -296,7 +296,8 @@ DhtRouter::node_replied(const HashString& id, const rak::socket_address* sa) {
 
 // A node has not replied to one of our queries.
 DhtNode*
-DhtRouter::node_inactive(const HashString& id, const rak::socket_address* sa) {
+DhtRouter::node_inactive(const HashString&            id,
+                         const utils::socket_address* sa) {
   DhtNodeList::accessor itr = m_nodes.find(&id);
 
   // If not found add it to some blacklist so we won't try contacting it again
@@ -422,7 +423,7 @@ DhtRouter::receive_timeout_bootstrap() {
     priority_queue_insert(
       &taskScheduler,
       &m_taskTimeout,
-      (cachedTime + rak::timer::from_seconds(timeout_bootstrap_retry))
+      (cachedTime + utils::timer::from_seconds(timeout_bootstrap_retry))
         .round_seconds());
     m_numRefresh = 1; // still bootstrapping
 
@@ -442,7 +443,7 @@ DhtRouter::receive_timeout_bootstrap() {
       priority_queue_insert(
         &taskScheduler,
         &m_taskTimeout,
-        (cachedTime + rak::timer::from_seconds(timeout_update))
+        (cachedTime + utils::timer::from_seconds(timeout_update))
           .round_seconds());
     }
 
@@ -455,7 +456,7 @@ DhtRouter::receive_timeout() {
   priority_queue_insert(
     &taskScheduler,
     &m_taskTimeout,
-    (cachedTime + rak::timer::from_seconds(timeout_update)).round_seconds());
+    (cachedTime + utils::timer::from_seconds(timeout_update)).round_seconds());
 
   m_prevToken = m_curToken;
   m_curToken  = random();
@@ -513,9 +514,9 @@ DhtRouter::receive_timeout() {
 }
 
 char*
-DhtRouter::generate_token(const rak::socket_address* sa,
-                          int                        token,
-                          char                       buffer[20]) {
+DhtRouter::generate_token(const utils::socket_address* sa,
+                          int                          token,
+                          char                         buffer[20]) {
   Sha1     sha;
   uint32_t key = sa->sa_inet()->address_n();
 
@@ -528,7 +529,7 @@ DhtRouter::generate_token(const rak::socket_address* sa,
 }
 
 bool
-DhtRouter::token_valid(raw_string token, const rak::socket_address* sa) {
+DhtRouter::token_valid(raw_string token, const utils::socket_address* sa) {
   if (token.size() != size_token)
     return false;
 
@@ -546,7 +547,7 @@ DhtRouter::token_valid(raw_string token, const rak::socket_address* sa) {
 }
 
 DhtNode*
-DhtRouter::find_node(const rak::socket_address* sa) {
+DhtRouter::find_node(const utils::socket_address* sa) {
   for (DhtNodeList::accessor itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
     if (itr.node()->address()->sa_inet()->address_n() ==
         sa->sa_inet()->address_n())
@@ -639,7 +640,7 @@ struct contact_node_t {
 
   void operator()(const sockaddr* sa, int) {
     if (sa != NULL)
-      m_router->contact(rak::socket_address::cast_from(sa), m_port);
+      m_router->contact(utils::socket_address::cast_from(sa), m_port);
   }
 
   DhtRouter* m_router;
@@ -652,7 +653,7 @@ DhtRouter::bootstrap() {
   for (int count = 0; count < 8 && !m_contacts->empty(); count++) {
     manager->connection_manager()->resolver()(
       m_contacts->back().first.c_str(),
-      (int)rak::socket_address::pf_inet,
+      (int)utils::socket_address::pf_inet,
       SOCK_DGRAM,
       contact_node_t(this, m_contacts->back().second));
     m_contacts->pop_back();

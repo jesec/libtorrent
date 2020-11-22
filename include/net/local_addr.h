@@ -14,19 +14,17 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-namespace rak {
-class socket_address;
-}
+#include "torrent/utils/socket_address.h"
 
 namespace torrent {
 
-// Note: family must currently be rak::af_inet or rak::af_inet6
-// (rak::af_unspec won't do); anything else will throw an exception.
+// Note: family must currently be utils::af_inet or utils::af_inet6
+// (utils::af_unspec won't do); anything else will throw an exception.
 // Returns false if no address of the given family could be found,
 // either because there are none, or because something went wrong in
 // the process (e.g., no free file descriptors).
 bool
-get_local_address(sa_family_t family, rak::socket_address* address);
+get_local_address(sa_family_t family, utils::socket_address* address);
 
 } // namespace torrent
 

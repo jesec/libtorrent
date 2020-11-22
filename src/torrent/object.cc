@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <cstring>
 
-#include "rak/functional.h"
 #include "torrent/object.h"
 #include "torrent/object_stream.h"
+#include "torrent/utils/functional.h"
 
 namespace torrent {
 
@@ -121,8 +121,8 @@ Object::merge_copy(const Object& object,
       destItr = std::find_if(
         destItr,
         dest.end(),
-        rak::less_equal(srcItr->first,
-                        rak::mem_ref(&map_type::value_type::first)));
+        utils::less_equal(srcItr->first,
+                          utils::mem_ref(&map_type::value_type::first)));
 
       if (srcItr->first < destItr->first)
         // destItr remains valid and pointing to the next possible

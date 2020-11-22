@@ -96,7 +96,7 @@ Handshake::~Handshake() {
 }
 
 void
-Handshake::initialize_incoming(const rak::socket_address& sa) {
+Handshake::initialize_incoming(const utils::socket_address& sa) {
   m_incoming = true;
   m_address  = sa;
 
@@ -114,13 +114,13 @@ Handshake::initialize_incoming(const rak::socket_address& sa) {
   priority_queue_insert(
     &taskScheduler,
     &m_taskTimeout,
-    (cachedTime + rak::timer::from_seconds(60)).round_seconds());
+    (cachedTime + utils::timer::from_seconds(60)).round_seconds());
 }
 
 void
-Handshake::initialize_outgoing(const rak::socket_address& sa,
-                               DownloadMain*              d,
-                               PeerInfo*                  peerInfo) {
+Handshake::initialize_outgoing(const utils::socket_address& sa,
+                               DownloadMain*                d,
+                               PeerInfo*                    peerInfo) {
   m_download = d;
 
   m_peerInfo = peerInfo;
@@ -141,7 +141,7 @@ Handshake::initialize_outgoing(const rak::socket_address& sa,
   priority_queue_insert(
     &taskScheduler,
     &m_taskTimeout,
-    (cachedTime + rak::timer::from_seconds(60)).round_seconds());
+    (cachedTime + utils::timer::from_seconds(60)).round_seconds());
 }
 
 void
@@ -602,7 +602,7 @@ Handshake::read_peer() {
   priority_queue_insert(
     &taskScheduler,
     &m_taskTimeout,
-    (cachedTime + rak::timer::from_seconds(120)).round_seconds());
+    (cachedTime + utils::timer::from_seconds(120)).round_seconds());
 
   return true;
 }

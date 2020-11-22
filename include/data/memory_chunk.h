@@ -24,7 +24,7 @@ public:
   static const int prot_none  = PROT_NONE;
   static const int map_shared = MAP_SHARED;
 
-#ifdef USE_MADVISE
+#ifdef LT_USE_MADVISE
   static const int advice_normal     = MADV_NORMAL;
   static const int advice_random     = MADV_RANDOM;
   static const int advice_sequential = MADV_SEQUENTIAL;

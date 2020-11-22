@@ -7,27 +7,27 @@
 
 #include "manager.h"
 #include "net/listen.h"
-#include "rak/socket_address.h"
 #include "torrent/connection_manager.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/socket_address.h"
 
 namespace torrent {
 
 bool
-Listen::open(uint16_t                   first,
-             uint16_t                   last,
-             int                        backlog,
-             const rak::socket_address* bindAddress) {
+Listen::open(uint16_t                     first,
+             uint16_t                     last,
+             int                          backlog,
+             const utils::socket_address* bindAddress) {
   close();
 
   if (first == 0 || first > last)
     throw input_error("Tried to open listening port with an invalid range.");
 
   if (bindAddress->family() != 0 &&
-      bindAddress->family() != rak::socket_address::af_inet &&
-      bindAddress->family() != rak::socket_address::af_inet6)
+      bindAddress->family() != utils::socket_address::af_inet &&
+      bindAddress->family() != utils::socket_address::af_inet6)
     throw input_error(
       "Listening socket must be bound to an inet or inet6 address.");
 
@@ -35,7 +35,7 @@ Listen::open(uint16_t                   first,
       !get_fd().set_reuse_address(true))
     throw resource_error("Could not allocate socket for listening.");
 
-  rak::socket_address sa;
+  utils::socket_address sa;
 
   // TODO: Temporary until we refactor:
   if (bindAddress->family() == 0) {
@@ -96,8 +96,8 @@ Listen::close() {
 
 void
 Listen::event_read() {
-  rak::socket_address sa;
-  SocketFd            fd;
+  utils::socket_address sa;
+  SocketFd              fd;
 
   while ((fd = get_fd().accept(&sa)).is_valid())
     m_slot_accepted(fd, sa);

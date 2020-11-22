@@ -4,14 +4,15 @@
 // priority_queue is a priority queue implemented using a binary
 // heap. It can contain multiple instances of a value.
 
-#ifndef RAK_PRIORITY_QUEUE_H
-#define RAK_PRIORITY_QUEUE_H
+#ifndef LIBTORRENT_UTILS_PRIORITY_QUEUE_H
+#define LIBTORRENT_UTILS_PRIORITY_QUEUE_H
 
 #include <algorithm>
 #include <functional>
 #include <vector>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 template<typename Value,
          typename Compare,
@@ -126,6 +127,7 @@ queue_popper(Queue& queue, Compare comp) {
   return queue_pop_iterator<Queue, Compare>(&queue, comp);
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

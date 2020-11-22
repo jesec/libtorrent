@@ -3,13 +3,13 @@
 
 #include <functional>
 #include <inttypes.h>
-#include <rak/functional.h>
-#include <rak/socket_address.h>
-#include <rak/unordered_vector.h>
 #include <string>
-#include <torrent/connection_manager.h>
 
 #include "net/socket_fd.h"
+#include "torrent/connection_manager.h"
+#include "torrent/utils/functional.h"
+#include "torrent/utils/socket_address.h"
+#include "torrent/utils/unordered_vector.h"
 
 namespace torrent {
 
@@ -18,10 +18,10 @@ class DownloadManager;
 class DownloadMain;
 class PeerConnectionBase;
 
-class HandshakeManager : private rak::unordered_vector<Handshake*> {
+class HandshakeManager : private utils::unordered_vector<Handshake*> {
 public:
-  typedef rak::unordered_vector<Handshake*> base_type;
-  typedef uint32_t                          size_type;
+  typedef utils::unordered_vector<Handshake*> base_type;
+  typedef uint32_t                            size_type;
 
   typedef std::function<DownloadMain*(const char*)> slot_download;
 
@@ -42,13 +42,13 @@ public:
 
   void clear();
 
-  bool find(const rak::socket_address& sa);
+  bool find(const utils::socket_address& sa);
 
   void erase_download(DownloadMain* info);
 
   // Cleanup.
-  void add_incoming(SocketFd fd, const rak::socket_address& sa);
-  void add_outgoing(const rak::socket_address& sa, DownloadMain* info);
+  void add_incoming(SocketFd fd, const utils::socket_address& sa);
+  void add_outgoing(const utils::socket_address& sa, DownloadMain* info);
 
   slot_download& slot_download_id() {
     return m_slot_download_id;
@@ -74,9 +74,9 @@ public:
   }
 
 private:
-  void create_outgoing(const rak::socket_address& sa,
-                       DownloadMain*              info,
-                       int                        encryptionOptions);
+  void create_outgoing(const utils::socket_address& sa,
+                       DownloadMain*                info,
+                       int                          encryptionOptions);
   void erase(Handshake* handshake);
 
   bool setup_socket(SocketFd fd);

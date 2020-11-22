@@ -5,13 +5,13 @@
 #define LIBTORRENT_PROTOCOL_PEER_CHUNKS_H
 
 #include <list>
-#include <rak/partial_queue.h>
-#include <rak/timer.h>
 
 #include "net/throttle_node.h"
 #include "torrent/bitfield.h"
 #include "torrent/data/piece.h"
 #include "torrent/rate.h"
+#include "torrent/utils/partial_queue.h"
+#include "torrent/utils/timer.h"
 
 namespace torrent {
 
@@ -51,7 +51,7 @@ public:
     return &m_bitfield;
   }
 
-  rak::partial_queue* download_cache() {
+  utils::partial_queue* download_cache() {
     return &m_downloadCache;
   }
 
@@ -67,10 +67,10 @@ public:
 
   // Timer used to figure out what HAVE_PIECE messages have not been
   // sent.
-  rak::timer have_timer() const {
+  utils::timer have_timer() const {
     return m_haveTimer;
   }
-  void set_have_timer(rak::timer t) {
+  void set_have_timer(utils::timer t) {
     m_haveTimer = t;
   }
 
@@ -101,12 +101,12 @@ private:
 
   Bitfield m_bitfield;
 
-  rak::partial_queue m_downloadCache;
+  utils::partial_queue m_downloadCache;
 
   piece_list_type m_uploadQueue;
   piece_list_type m_cancelQueue;
 
-  rak::timer m_haveTimer;
+  utils::timer m_haveTimer;
 
   Rate m_peerRate;
 

@@ -56,7 +56,7 @@ HashTorrent::clear() {
   m_errno       = 0;
 
   // Correct?
-  rak::priority_queue_erase(&taskScheduler, &m_delayChecked);
+  utils::priority_queue_erase(&taskScheduler, &m_delayChecked);
 }
 
 bool
@@ -166,7 +166,7 @@ HashTorrent::queue(bool quick) {
       }
 
       if (handle.error_number().is_valid() &&
-          handle.error_number().value() != rak::error_number::e_noent) {
+          handle.error_number().value() != utils::error_number::e_noent) {
         LT_LOG_THIS(
           DEBUG, "Return on handle errno == E_NOENT: position:%u.", m_position);
         return;
@@ -180,7 +180,7 @@ HashTorrent::queue(bool quick) {
     // file that hasn't be created/resized. Which means we ignore it
     // when doing initial hashing.
     if (handle.error_number().is_valid() &&
-        handle.error_number().value() != rak::error_number::e_noent) {
+        handle.error_number().value() != utils::error_number::e_noent) {
       if (handle.is_valid())
         throw internal_error(
           "HashTorrent::queue() error, but handle.is_valid().");
@@ -204,8 +204,8 @@ HashTorrent::queue(bool quick) {
         quick,
         m_errno,
         handle.error_number().c_str());
-      rak::priority_queue_erase(&taskScheduler, &m_delayChecked);
-      rak::priority_queue_insert(&taskScheduler, &m_delayChecked, cachedTime);
+      utils::priority_queue_erase(&taskScheduler, &m_delayChecked);
+      utils::priority_queue_insert(&taskScheduler, &m_delayChecked, cachedTime);
       return;
     }
 
@@ -230,8 +230,8 @@ HashTorrent::queue(bool quick) {
 
     // Erase the scheduled item just to make sure that if hashing is
     // started again during the delay it won't cause an exception.
-    rak::priority_queue_erase(&taskScheduler, &m_delayChecked);
-    rak::priority_queue_insert(&taskScheduler, &m_delayChecked, cachedTime);
+    utils::priority_queue_erase(&taskScheduler, &m_delayChecked);
+    utils::priority_queue_insert(&taskScheduler, &m_delayChecked, cachedTime);
   }
 }
 

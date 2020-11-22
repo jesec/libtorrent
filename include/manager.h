@@ -2,12 +2,12 @@
 #define LIBTORRENT_MANAGER_H
 
 #include <list>
-#include <rak/priority_queue_default.h>
 #include <string>
 
 #include "net/socket_fd.h"
 #include "thread_disk.h"
 #include "thread_main.h"
+#include "torrent/utils/priority_queue_default.h"
 
 namespace torrent {
 
@@ -109,8 +109,8 @@ private:
   Throttle* m_uploadThrottle;
   Throttle* m_downloadThrottle;
 
-  unsigned int       m_ticks;
-  rak::priority_item m_taskTick;
+  unsigned int         m_ticks;
+  utils::priority_item m_taskTick;
 };
 
 extern Manager* manager;

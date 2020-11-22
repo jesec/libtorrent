@@ -5,10 +5,10 @@
 #include "download/delegator.h"
 #include "protocol/peer_chunks.h"
 #include "protocol/request_list.h"
-#include "rak/functional.h"
 #include "torrent/data/block.h"
 #include "torrent/data/block_list.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/functional.h"
 #include "utils/instrumentation.h"
 
 namespace torrent {
@@ -148,7 +148,7 @@ RequestList::choked() {
     priority_queue_insert(
       &taskScheduler,
       &m_delay_remove_choked,
-      (cachedTime + rak::timer::from_seconds(timeout_remove_choked))
+      (cachedTime + utils::timer::from_seconds(timeout_remove_choked))
         .round_seconds());
 }
 
@@ -167,7 +167,7 @@ RequestList::unchoked() {
     priority_queue_insert(
       &taskScheduler,
       &m_delay_remove_choked,
-      (cachedTime + rak::timer::from_seconds(timeout_remove_choked))
+      (cachedTime + utils::timer::from_seconds(timeout_remove_choked))
         .round_seconds());
   }
 }
@@ -188,7 +188,7 @@ RequestList::prepare_process_unordered(queues_type::iterator itr) {
   priority_queue_insert(
     &taskScheduler,
     &m_delay_process_unordered,
-    (cachedTime + rak::timer::from_seconds(timeout_process_unordered))
+    (cachedTime + utils::timer::from_seconds(timeout_process_unordered))
       .round_seconds());
 
   m_last_unordered_position = unordered_size();
@@ -213,7 +213,7 @@ RequestList::delay_process_unordered() {
     priority_queue_insert(
       &taskScheduler,
       &m_delay_process_unordered,
-      (cachedTime + rak::timer::from_seconds(timeout_process_unordered / 2))
+      (cachedTime + utils::timer::from_seconds(timeout_process_unordered / 2))
         .round_seconds());
 }
 
@@ -272,7 +272,7 @@ RequestList::downloading(const Piece& piece) {
       priority_queue_insert(
         &taskScheduler,
         &m_delay_remove_choked,
-        (cachedTime + rak::timer::from_seconds(timeout_choked_received))
+        (cachedTime + utils::timer::from_seconds(timeout_choked_received))
           .round_seconds());
       break;
     default:

@@ -1,12 +1,13 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
-#include <rak/partial_queue.h>
-#include <rak/timer.h>
+
+#include "torrent/utils/partial_queue.h"
+#include "torrent/utils/timer.h"
 
 void
 test_fill() {
-  rak::partial_queue queue;
+  torrent::utils::partial_queue queue;
   queue.enable(8);
   queue.clear();
 
@@ -38,7 +39,7 @@ test_fill() {
 
 void
 test_random() {
-  rak::partial_queue queue;
+  torrent::utils::partial_queue queue;
   queue.enable(8);
   queue.clear();
 
@@ -74,10 +75,10 @@ test_random() {
 
 int
 main(int argc, char** argv) {
-  srand(rak::timer::current().usec());
+  srand(torrent::utils::timer::current().usec());
 
-  std::cout << "sizeof(rak::partial_queue): " << sizeof(rak::partial_queue)
-            << std::endl;
+  std::cout << "sizeof(torrent::utils::partial_queue): "
+            << sizeof(torrent::utils::partial_queue) << std::endl;
 
   test_fill();
   test_random();

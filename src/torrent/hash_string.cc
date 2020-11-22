@@ -3,8 +3,8 @@
 
 #include <cctype>
 
-#include "rak/string_manip.h"
 #include "torrent/hash_string.h"
+#include "torrent/utils/string_manip.h"
 
 namespace torrent {
 
@@ -18,8 +18,8 @@ hash_string_from_hex_c_str(const char* first, HashString& hash) {
     if (!std::isxdigit(*first) || !std::isxdigit(*(first + 1)))
       return hash_first;
 
-    *itr++ = (rak::hexchar_to_value(*first) << 4) +
-             rak::hexchar_to_value(*(first + 1));
+    *itr++ = (utils::hexchar_to_value(*first) << 4) +
+             utils::hexchar_to_value(*(first + 1));
     first += 2;
   }
 
@@ -28,13 +28,13 @@ hash_string_from_hex_c_str(const char* first, HashString& hash) {
 
 char*
 hash_string_to_hex(const HashString& hash, char* first) {
-  return rak::transform_hex(hash.begin(), hash.end(), first);
+  return utils::transform_hex(hash.begin(), hash.end(), first);
 }
 
 std::string
 hash_string_to_hex_str(const HashString& hash) {
   std::string str(HashString::size_data * 2, '\0');
-  rak::transform_hex(hash.begin(), hash.end(), str.begin());
+  utils::transform_hex(hash.begin(), hash.end(), str.begin());
 
   return str;
 }

@@ -28,7 +28,7 @@ static const unsigned int hashstring_hash_ofs = 8;
 struct hashstring_ptr_hash
   : public std::unary_function<const HashString*, size_t> {
   size_t operator()(const HashString* n) const {
-#if USE_ALIGNED
+#if LT_USE_ALIGNED
     size_t      result = 0;
     const char* first  = n->data() + hashstring_hash_ofs;
     const char* last   = first + sizeof(size_t);
@@ -45,7 +45,7 @@ struct hashstring_ptr_hash
 
 struct hashstring_hash : public std::unary_function<HashString, size_t> {
   size_t operator()(const HashString& n) const {
-#if USE_ALIGNED
+#if LT_USE_ALIGNED
     size_t      result = 0;
     const char* first  = n.data() + hashstring_hash_ofs;
     const char* last   = first + sizeof(size_t);

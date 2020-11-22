@@ -7,11 +7,11 @@
 #include <numeric>
 
 #include "protocol/peer_connection_base.h"
-#include "rak/functional.h"
 #include "torrent/download/choke_queue.h"
 #include "torrent/download/group_entry.h"
 #include "torrent/peer/choke_status.h"
 #include "torrent/peer/connection_list.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 
 namespace torrent {
@@ -370,7 +370,7 @@ choke_queue::set_queued(PeerConnectionBase* pc, choke_status* base) {
   if (!is_full() &&
       (m_flags & flag_unchoke_all_new || m_slotCanUnchoke() > 0) &&
       should_connection_unchoke(this, pc) &&
-      rak::timer(base->time_last_choke()) + rak::timer::from_seconds(10) <
+      utils::timer(base->time_last_choke()) + utils::timer::from_seconds(10) <
         cachedTime) {
     m_slotConnection(pc, false);
     m_slotUnchoke(1);
@@ -436,7 +436,7 @@ choke_queue::set_not_snubbed(PeerConnectionBase* pc, choke_status* base) {
   if (!is_full() &&
       (m_flags & flag_unchoke_all_new || m_slotCanUnchoke() > 0) &&
       should_connection_unchoke(this, pc) &&
-      rak::timer(base->time_last_choke()) + rak::timer::from_seconds(10) <
+      utils::timer(base->time_last_choke()) + utils::timer::from_seconds(10) <
         cachedTime) {
     m_slotConnection(pc, false);
 
@@ -522,8 +522,8 @@ choke_manager_allocate_slots(choke_queue::iterator     first,
     target[i + 1].second = std::find_if(
       target[i].second,
       last,
-      rak::less(i * choke_queue::order_base + (choke_queue::order_base - 1),
-                rak::mem_ref(&choke_queue::value_type::weight)));
+      utils::less(i * choke_queue::order_base + (choke_queue::order_base - 1),
+                  utils::mem_ref(&choke_queue::value_type::weight)));
 
     if (std::distance(target[i].second, target[i + 1].second) != 0)
       weightTotal += weights[i];
@@ -785,8 +785,8 @@ calculate_choke_upload_leech_experimental(choke_queue::iterator first,
                                           choke_queue::iterator last) {
   while (first != last) {
     // Don't choke a peer that hasn't had time to unchoke us.
-    if (rak::timer(first->connection->up_choke()->time_last_choke()) +
-          rak::timer::from_seconds(50) >
+    if (utils::timer(first->connection->up_choke()->time_last_choke()) +
+          utils::timer::from_seconds(50) >
         cachedTime) {
       first->weight = 1 * choke_queue::order_base;
       first++;

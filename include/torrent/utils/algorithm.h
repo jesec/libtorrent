@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#ifndef RAK_ALGORITHM_H
-#define RAK_ALGORITHM_H
-
-#include "torrent/buildinfo.h"
+#ifndef LIBTORRENT_UTILS_ALGORITHM_H
+#define LIBTORRENT_UTILS_ALGORITHM_H
 
 #include <algorithm>
 #include <functional>
 #include <limits>
 
-namespace rak {
+#include <torrent/buildinfo.h>
+
+namespace torrent {
+namespace utils {
 
 template<typename _InputIter, typename _Function>
 _Function
@@ -138,7 +139,7 @@ make_base(_InputIter __first, _InputIter __last, _Ftor __ftor) {
 template<typename T>
 inline int
 popcount_wrapper(T t) {
-#if USE_BUILTIN_POPCOUNT
+#if LT_USE_BUILTIN_POPCOUNT
   if (std::numeric_limits<T>::digits <=
       std::numeric_limits<unsigned int>::digits)
     return __builtin_popcount(t);
@@ -157,6 +158,28 @@ popcount_wrapper(T t) {
 #endif
 }
 
-} // namespace rak
+// Get the median of an unordered set of numbers of arbitrary
+// type by modifing the underlying dataset
+template<typename T = double, typename _InputIter>
+T
+median(_InputIter __first, _InputIter __last) {
+  T __med;
+
+  unsigned int __size    = __last - __first;
+  unsigned int __middle  = __size / 2;
+  _InputIter   __target1 = __first + __middle;
+  std::nth_element(__first, __target1, __last);
+  __med = *__target1;
+
+  if (__size % 2 == 0) {
+    _InputIter __target2 = std::max_element(__first, __target1);
+    __med                = (__med + *__target2) / 2.0;
+  }
+
+  return __med;
+}
+
+} // namespace utils
+} // namespace torrent
 
 #endif

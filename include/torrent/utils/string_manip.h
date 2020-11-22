@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#ifndef RAK_STRING_MANIP_H
-#define RAK_STRING_MANIP_H
+#ifndef LIBTORRENT_UTILS_STRING_MANIP_H
+#define LIBTORRENT_UTILS_STRING_MANIP_H
 
 #include <algorithm>
 #include <cctype>
@@ -13,7 +13,8 @@
 #include <locale>
 #include <random>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 // Use these trim functions until n1872 is widely supported.
 
@@ -425,6 +426,7 @@ striptags(const Sequence& src) {
   return striptags(src.begin(), src.end());
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

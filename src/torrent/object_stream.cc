@@ -7,11 +7,11 @@
 #include <limits>
 #include <stdexcept>
 
-#include "rak/algorithm.h"
-#include "rak/string_manip.h"
 #include "torrent/object.h"
 #include "torrent/object_static_map.h"
 #include "torrent/object_stream.h"
+#include "torrent/utils/algorithm.h"
+#include "torrent/utils/string_manip.h"
 #include "utils/sha1.h"
 
 namespace torrent {
@@ -666,7 +666,7 @@ static_map_read_bencode_c(const char*                    first,
   //   {
   //     torrent::Object obj;
   //     if (object_read_bencode_c(first, last, &obj) != last) {
-  //       std::string escaped = rak::copy_escape_html(first, last);
+  //       std::string escaped = utils::copy_escape_html(first, last);
 
   //       char buffer[1024];
   //       sprintf(buffer, "Verified wrong, %u, '%u', '%s'.",
@@ -843,10 +843,10 @@ static_map_write_bencode_c_values(object_write_data_t*           output,
     // Compare the keys to see if they are part of the same
     // dictionaries/lists.
     unsigned int base_size =
-      rak::count_base(first_key->key,
-                      first_key->key + stack_itr->next_key,
-                      prev_key,
-                      prev_key + stack_itr->next_key);
+      utils::count_base(first_key->key,
+                        first_key->key + stack_itr->next_key,
+                        prev_key,
+                        prev_key + stack_itr->next_key);
 
     while (base_size < stack_itr->next_key) {
       object_write_bencode_c_char(output, 'e');
@@ -926,7 +926,7 @@ static_map_write_bencode_c_wrap(object_write_t                 writeFunc,
   //     torrent::Object obj;
   //     if (object_read_bencode_c(output.buffer.first, output.pos, &obj) !=
   //     output.pos) {
-  //       std::string escaped = rak::copy_escape_html(output.buffer.first,
+  //       std::string escaped = utils::copy_escape_html(output.buffer.first,
   //       output.pos);
 
   //       //char buffer[1024];

@@ -22,7 +22,7 @@ DhtManager::~DhtManager() {
 
 void
 DhtManager::initialize(const Object& dhtCache) {
-  auto bind_address = rak::socket_address::cast_from(
+  auto bind_address = utils::socket_address::cast_from(
     manager->connection_manager()->bind_address());
 
   LT_LOG_THIS("initializing (bind_address:%s)",
@@ -76,7 +76,7 @@ DhtManager::is_active() const {
 void
 DhtManager::add_node(const sockaddr* addr, int port) {
   if (m_router != NULL)
-    m_router->contact(rak::socket_address::cast_from(addr), port);
+    m_router->contact(utils::socket_address::cast_from(addr), port);
 }
 
 void

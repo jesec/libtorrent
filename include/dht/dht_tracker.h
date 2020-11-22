@@ -4,13 +4,12 @@
 #ifndef LIBTORRENT_DHT_TRACKER_H
 #define LIBTORRENT_DHT_TRACKER_H
 
-#include "globals.h"
-
-#include <rak/socket_address.h>
 #include <vector>
 
+#include "globals.h"
 #include "net/address_list.h" // For SA.
 #include "torrent/object_raw_bencode.h"
+#include "torrent/utils/socket_address.h"
 
 namespace torrent {
 

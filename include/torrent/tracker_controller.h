@@ -10,12 +10,12 @@
 #include <torrent/common.h>
 #include <torrent/tracker.h>
 
+namespace torrent {
+
 // Refactor:
-namespace rak {
+namespace utils {
 class priority_item;
 }
-
-namespace torrent {
 
 class AddressList;
 class TrackerList;
@@ -122,8 +122,8 @@ public:
   }
 
   // TEMP:
-  rak::priority_item* task_timeout();
-  rak::priority_item* task_scrape();
+  torrent::utils::priority_item* task_timeout();
+  torrent::utils::priority_item* task_scrape();
 
 private:
   void do_timeout();

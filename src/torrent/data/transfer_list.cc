@@ -6,8 +6,6 @@
 #include <set>
 
 #include "data/chunk.h"
-#include "rak/functional.h"
-#include "rak/timer.h"
 #include "torrent/data/block_failed.h"
 #include "torrent/data/block_list.h"
 #include "torrent/data/block_transfer.h"
@@ -15,6 +13,8 @@
 #include "torrent/data/transfer_list.h"
 #include "torrent/exceptions.h"
 #include "torrent/peer/peer_info.h"
+#include "torrent/utils/functional.h"
+#include "torrent/utils/timer.h"
 
 namespace torrent {
 
@@ -33,13 +33,13 @@ TransferList::~TransferList() noexcept(false) {
 TransferList::iterator
 TransferList::find(uint32_t index) {
   return std::find_if(
-    begin(), end(), rak::equal(index, std::mem_fun(&BlockList::index)));
+    begin(), end(), utils::equal(index, std::mem_fun(&BlockList::index)));
 }
 
 TransferList::const_iterator
 TransferList::find(uint32_t index) const {
   return std::find_if(
-    begin(), end(), rak::equal(index, std::mem_fun(&BlockList::index)));
+    begin(), end(), utils::equal(index, std::mem_fun(&BlockList::index)));
 }
 
 void
@@ -48,7 +48,7 @@ TransferList::clear() {
                 end(),
                 std::bind(m_slot_canceled,
                           std::bind(&BlockList::index, std::placeholders::_1)));
-  std::for_each(begin(), end(), rak::call_delete<BlockList>());
+  std::for_each(begin(), end(), utils::call_delete<BlockList>());
 
   base_type::clear();
 }
@@ -119,15 +119,17 @@ TransferList::hash_succeeded(uint32_t index, Chunk* chunk) {
   // every 30 minutes is guaranteed to get them all as long as it is
   // ordered properly.
   m_completedList.push_back(
-    std::make_pair(rak::timer::current().usec(), index));
+    std::make_pair(utils::timer::current().usec(), index));
 
-  if (rak::timer(m_completedList.front().first) + rak::timer::from_minutes(60) <
-      rak::timer::current()) {
-    completed_list_type::iterator itr = std::find_if(
-      m_completedList.begin(),
-      m_completedList.end(),
-      rak::less_equal(rak::timer::current() - rak::timer::from_minutes(30),
-                      rak::mem_ref(&completed_list_type::value_type::first)));
+  if (utils::timer(m_completedList.front().first) +
+        utils::timer::from_minutes(60) <
+      utils::timer::current()) {
+    completed_list_type::iterator itr =
+      std::find_if(m_completedList.begin(),
+                   m_completedList.end(),
+                   utils::less_equal(
+                     utils::timer::current() - utils::timer::from_minutes(30),
+                     utils::mem_ref(&completed_list_type::value_type::first)));
     m_completedList.erase(m_completedList.begin(), itr);
   }
 

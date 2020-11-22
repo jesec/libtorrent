@@ -13,9 +13,6 @@
 #include "net/socket_base.h"
 #include "protocol/extensions.h"
 #include "protocol/peer_connection_base.h"
-#include "rak/error_number.h"
-#include "rak/functional.h"
-#include "rak/string_manip.h"
 #include "torrent/chunk_manager.h"
 #include "torrent/connection_manager.h"
 #include "torrent/data/block.h"
@@ -26,7 +23,10 @@
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer_info.h"
 #include "torrent/throttle.h"
+#include "torrent/utils/error_number.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/string_manip.h"
 #include "utils/instrumentation.h"
 
 #define LT_LOG_PIECE_EVENTS(log_fmt, ...)                                      \
@@ -404,7 +404,7 @@ PeerConnectionBase::load_up_chunk() {
 
   if (cm->preload_type() == 0 ||
       m_upChunk.object()->time_preloaded() >=
-        cachedTime - rak::timer::from_seconds(60) ||
+        cachedTime - utils::timer::from_seconds(60) ||
 
       preloadSize < cm->preload_min_size() ||
       m_peerChunks.upload_throttle()->rate()->rate() <

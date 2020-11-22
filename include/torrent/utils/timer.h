@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#ifndef RAK_TIMER_H
-#define RAK_TIMER_H
+#ifndef LIBTORRENT_UTILS_TIMER_H
+#define LIBTORRENT_UTILS_TIMER_H
 
 #include <cinttypes>
 #include <limits>
 #include <sys/time.h>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 // Don't convert negative Timer to timeval and then back to Timer, that will
 // bork.
@@ -59,13 +60,13 @@ public:
     return current().usec();
   }
   static timer from_minutes(uint32_t minutes) {
-    return rak::timer((uint64_t)minutes * 60 * 1000000);
+    return timer((uint64_t)minutes * 60 * 1000000);
   }
   static timer from_seconds(uint32_t seconds) {
-    return rak::timer((uint64_t)seconds * 1000000);
+    return timer((uint64_t)seconds * 1000000);
   }
   static timer from_milliseconds(uint32_t msec) {
-    return rak::timer((uint64_t)msec * 1000);
+    return timer((uint64_t)msec * 1000);
   }
 
   static timer max() {
@@ -134,6 +135,7 @@ timer::current() {
   return timer(t);
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

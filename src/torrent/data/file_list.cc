@@ -12,16 +12,16 @@
 #include "data/memory_chunk.h"
 #include "data/socket_file.h"
 #include "manager.h"
-#include "rak/error_number.h"
-#include "rak/file_stat.h"
-#include "rak/fs_stat.h"
-#include "rak/functional.h"
 #include "torrent/data/file.h"
 #include "torrent/data/file_list.h"
 #include "torrent/data/file_manager.h"
 #include "torrent/data/piece.h"
 #include "torrent/exceptions.h"
 #include "torrent/path.h"
+#include "torrent/utils/error_number.h"
+#include "torrent/utils/file_stat.h"
+#include "torrent/utils/fs_stat.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 
 #define LT_LOG_FL(log_level, log_fmt, ...)                                     \
@@ -59,7 +59,7 @@ FileList::~FileList() {
   // Can we skip close()?
   close();
 
-  std::for_each(begin(), end(), rak::call_delete<File>());
+  std::for_each(begin(), end(), utils::call_delete<File>());
 
   base_type::clear();
   m_torrentSize = 0;
@@ -76,10 +76,11 @@ FileList::is_valid_piece(const Piece& piece) const {
 
 bool
 FileList::is_root_dir_created() const {
-  rak::file_stat fs;
+  utils::file_stat fs;
 
   if (!fs.update(m_rootDir))
-    //     return rak::error_number::current() == rak::error_number::e_access;
+    //     return utils::error_number::current() ==
+    //     utils::error_number::e_access;
     return false;
 
   return fs.is_directory();
@@ -171,7 +172,7 @@ FileList::free_diskspace() const {
                                  last = m_indirectLinks.end();
        itr != last;
        ++itr) {
-    rak::fs_stat stat;
+    utils::fs_stat stat;
 
     if (!stat.update(*itr))
       continue;
@@ -330,7 +331,7 @@ FileList::make_all_paths() {
       firstMismatch++;
     }
 
-    rak::error_number::clear_global();
+    utils::error_number::clear_global();
 
     make_directory(entry->path()->begin(), entry->path()->end(), firstMismatch);
 
@@ -438,7 +439,7 @@ FileList::open(int flags) {
           // Also check if open_require_all_open is set.
           throw storage_error(
             "Could not open file: " +
-            std::string(rak::error_number::current().c_str()));
+            std::string(utils::error_number::current().c_str()));
 
         // Don't set the lastPath as we haven't created the directory.
         continue;
@@ -478,7 +479,7 @@ FileList::open(int flags) {
   //
   // DEBUG: Make this depend on a flag...
   if (size_bytes() < 2) {
-    rak::file_stat stat;
+    utils::file_stat stat;
 
     // This probably recurses into open() once, but that is harmless.
     if (stat.update((*begin())->frozen_path()) && stat.size() > 1)
@@ -518,7 +519,7 @@ FileList::make_directory(Path::const_iterator pathBegin,
 
     startItr++;
 
-    rak::file_stat fileStat;
+    utils::file_stat fileStat;
 
     if (fileStat.update_link(path) && fileStat.is_link() &&
         std::find(m_indirectLinks.begin(), m_indirectLinks.end(), path) ==
@@ -536,7 +537,7 @@ FileList::make_directory(Path::const_iterator pathBegin,
 
 bool
 FileList::open_file(File* node, const Path& lastPath, int flags) {
-  rak::error_number::clear_global();
+  utils::error_number::clear_global();
 
   if (!(flags & open_no_create)) {
     const Path* path = node->path();
@@ -559,13 +560,13 @@ FileList::open_file(File* node, const Path& lastPath, int flags) {
   if (node->path()->back().empty())
     return node->size_bytes() == 0;
 
-  rak::file_stat fileStat;
+  utils::file_stat fileStat;
 
   if (fileStat.update(node->frozen_path()) && !fileStat.is_regular() &&
       !fileStat.is_link()) {
     // Might also bork on other kinds of file types, but there's no
     // suitable errno for all cases.
-    rak::error_number::set_global(rak::error_number::e_isdir);
+    utils::error_number::set_global(utils::error_number::e_isdir);
     return false;
   }
 
@@ -693,9 +694,9 @@ FileList::mark_completed(uint32_t index) {
 FileList::iterator
 FileList::inc_completed(iterator firstItr, uint32_t index) {
   firstItr = std::find_if(
-    firstItr, end(), rak::less(index, std::mem_fun(&File::range_second)));
+    firstItr, end(), utils::less(index, std::mem_fun(&File::range_second)));
   iterator lastItr = std::find_if(
-    firstItr, end(), rak::less(index + 1, std::mem_fun(&File::range_second)));
+    firstItr, end(), utils::less(index + 1, std::mem_fun(&File::range_second)));
 
   if (firstItr == end())
     throw internal_error(

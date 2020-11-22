@@ -2,7 +2,6 @@
 #include "manager.h"
 #include "protocol/handshake.h"
 #include "protocol/peer_connection_base.h"
-#include "rak/socket_address.h"
 #include "torrent/connection_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/error.h"
@@ -11,6 +10,7 @@
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer_info.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/socket_address.h"
 
 #include "protocol/handshake_manager.h"
 
@@ -23,7 +23,7 @@
   lt_log_print(                                                                \
     LOG_CONNECTION_HANDSHAKE,                                                  \
     "handshake_manager->%s: " log_fmt,                                         \
-    reinterpret_cast<const rak::socket_address*>(sa)->address_str().c_str(),   \
+    reinterpret_cast<const utils::socket_address*>(sa)->address_str().c_str(), \
     __VA_ARGS__);
 
 namespace torrent {
@@ -43,7 +43,7 @@ HandshakeManager::size_type
 HandshakeManager::size_info(DownloadMain* info) const {
   return std::count_if(base_type::begin(),
                        base_type::end(),
-                       rak::equal(info, std::mem_fun(&Handshake::download)));
+                       utils::equal(info, std::mem_fun(&Handshake::download)));
 }
 
 void
@@ -66,16 +66,16 @@ HandshakeManager::erase(Handshake* handshake) {
 }
 
 struct handshake_manager_equal
-  : std::binary_function<const rak::socket_address*, const Handshake*, bool> {
-  bool operator()(const rak::socket_address* sa1, const Handshake* p2) const {
+  : std::binary_function<const utils::socket_address*, const Handshake*, bool> {
+  bool operator()(const utils::socket_address* sa1, const Handshake* p2) const {
     return p2->peer_info() != NULL &&
-           *sa1 ==
-             *rak::socket_address::cast_from(p2->peer_info()->socket_address());
+           *sa1 == *utils::socket_address::cast_from(
+                     p2->peer_info()->socket_address());
   }
 };
 
 bool
-HandshakeManager::find(const rak::socket_address& sa) {
+HandshakeManager::find(const utils::socket_address& sa) {
   return std::find_if(base_type::begin(),
                       base_type::end(),
                       std::bind1st(handshake_manager_equal(), &sa)) !=
@@ -87,7 +87,7 @@ HandshakeManager::erase_download(DownloadMain* info) {
   iterator split =
     std::partition(base_type::begin(),
                    base_type::end(),
-                   rak::not_equal(info, std::mem_fun(&Handshake::download)));
+                   utils::not_equal(info, std::mem_fun(&Handshake::download)));
 
   std::for_each(
     split, base_type::end(), std::ptr_fun(&handshake_manager_delete_handshake));
@@ -95,7 +95,7 @@ HandshakeManager::erase_download(DownloadMain* info) {
 }
 
 void
-HandshakeManager::add_incoming(SocketFd fd, const rak::socket_address& sa) {
+HandshakeManager::add_incoming(SocketFd fd, const utils::socket_address& sa) {
   if (!manager->connection_manager()->can_connect() ||
       !manager->connection_manager()->filter(sa.c_sockaddr()) ||
       !setup_socket(fd)) {
@@ -115,8 +115,8 @@ HandshakeManager::add_incoming(SocketFd fd, const rak::socket_address& sa) {
 }
 
 void
-HandshakeManager::add_outgoing(const rak::socket_address& sa,
-                               DownloadMain*              download) {
+HandshakeManager::add_outgoing(const utils::socket_address& sa,
+                               DownloadMain*                download) {
   if (!manager->connection_manager()->can_connect() ||
       !manager->connection_manager()->filter(sa.c_sockaddr()))
     return;
@@ -126,8 +126,8 @@ HandshakeManager::add_outgoing(const rak::socket_address& sa,
 }
 
 void
-HandshakeManager::create_outgoing(const rak::socket_address& sa,
-                                  DownloadMain*              download,
+HandshakeManager::create_outgoing(const utils::socket_address& sa,
+                                  DownloadMain*                download,
                                   int encryptionOptions) {
   int connection_options = PeerList::connect_keep_handshakes;
 
@@ -140,15 +140,15 @@ HandshakeManager::create_outgoing(const rak::socket_address& sa,
   if (peerInfo == NULL || peerInfo->failed_counter() > max_failed)
     return;
 
-  SocketFd                   fd;
-  const rak::socket_address* bindAddress = rak::socket_address::cast_from(
+  SocketFd                     fd;
+  const utils::socket_address* bindAddress = utils::socket_address::cast_from(
     manager->connection_manager()->bind_address());
-  const rak::socket_address* connectAddress = &sa;
+  const utils::socket_address* connectAddress = &sa;
 
-  if (rak::socket_address::cast_from(
+  if (utils::socket_address::cast_from(
         manager->connection_manager()->proxy_address())
         ->is_valid()) {
-    connectAddress = rak::socket_address::cast_from(
+    connectAddress = utils::socket_address::cast_from(
       manager->connection_manager()->proxy_address());
     encryptionOptions |= ConnectionManager::encryption_use_proxy;
   }
@@ -255,7 +255,7 @@ HandshakeManager::receive_failed(Handshake* handshake, int message, int error) {
     throw internal_error("HandshakeManager::receive_failed(...) called on an "
                          "inactive handshake.");
 
-  const rak::socket_address* sa = handshake->socket_address();
+  const utils::socket_address* sa = handshake->socket_address();
 
   erase(handshake);
   handshake->deactivate_connection();

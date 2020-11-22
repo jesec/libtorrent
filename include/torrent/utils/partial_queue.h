@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#ifndef RAK_PARTIAL_QUEUE_H
-#define RAK_PARTIAL_QUEUE_H
+#ifndef LIBTORRENT_UTILS_PARTIAL_QUEUE_H
+#define LIBTORRENT_UTILS_PARTIAL_QUEUE_H
 
 #include <cinttypes>
 #include <cstring>
 #include <stdexcept>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 // First step, don't allow overflowing to the next layer. Only disable
 // the above layers for now.
@@ -177,6 +178,7 @@ partial_queue::pop() {
   return m_data[m_index * m_maxLayerSize + m_layers[m_index].first++];
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

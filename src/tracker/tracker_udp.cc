@@ -9,12 +9,12 @@
 
 #include "manager.h"
 #include "net/address_list.h"
-#include "rak/error_number.h"
 #include "torrent/connection_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/tracker_list.h"
+#include "torrent/utils/error_number.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/option_strings.h"
 #include "torrent/utils/uri_parser.h"
@@ -132,7 +132,7 @@ TrackerUdp::start_announce(const sockaddr* sa, int) {
   if (sa == NULL)
     return receive_failed("could not resolve hostname");
 
-  m_connectAddress = *rak::socket_address::cast_from(sa);
+  m_connectAddress = *utils::socket_address::cast_from(sa);
   m_connectAddress.set_port(m_port);
 
   LT_LOG_TRACKER(DEBUG,
@@ -147,14 +147,14 @@ TrackerUdp::start_announce(const sockaddr* sa, int) {
   if (!get_fd().open_datagram() || !get_fd().set_nonblock())
     return receive_failed("could not open UDP socket");
 
-  auto bind_address = rak::socket_address::cast_from(
+  auto bind_address = utils::socket_address::cast_from(
     manager->connection_manager()->bind_address());
 
   if (bind_address->is_bindable() && !get_fd().bind(*bind_address))
     return receive_failed("failed to bind socket to udp address '" +
                           bind_address->pretty_address_str() +
                           "' with error '" +
-                          rak::error_number::current().c_str() + "'");
+                          utils::error_number::current().c_str() + "'");
 
   m_readBuffer  = new ReadBuffer;
   m_writeBuffer = new WriteBuffer;
@@ -170,7 +170,7 @@ TrackerUdp::start_announce(const sockaddr* sa, int) {
   priority_queue_insert(
     &taskScheduler,
     &m_taskTimeout,
-    (cachedTime + rak::timer::from_seconds(m_parent->info()->udp_timeout()))
+    (cachedTime + utils::timer::from_seconds(m_parent->info()->udp_timeout()))
       .round_seconds());
 }
 
@@ -245,7 +245,7 @@ TrackerUdp::receive_timeout() {
     priority_queue_insert(
       &taskScheduler,
       &m_taskTimeout,
-      (cachedTime + rak::timer::from_seconds(m_parent->info()->udp_timeout()))
+      (cachedTime + utils::timer::from_seconds(m_parent->info()->udp_timeout()))
         .round_seconds());
 
     manager->poll()->insert_write(this);
@@ -254,7 +254,7 @@ TrackerUdp::receive_timeout() {
 
 void
 TrackerUdp::event_read() {
-  rak::socket_address sa;
+  utils::socket_address sa;
 
   int s = read_datagram(m_readBuffer->begin(), m_readBuffer->reserved(), &sa);
 
@@ -281,11 +281,11 @@ TrackerUdp::event_read() {
       prepare_announce_input();
 
       priority_queue_erase(&taskScheduler, &m_taskTimeout);
-      priority_queue_insert(
-        &taskScheduler,
-        &m_taskTimeout,
-        (cachedTime + rak::timer::from_seconds(m_parent->info()->udp_timeout()))
-          .round_seconds());
+      priority_queue_insert(&taskScheduler,
+                            &m_taskTimeout,
+                            (cachedTime + utils::timer::from_seconds(
+                                            m_parent->info()->udp_timeout()))
+                              .round_seconds());
 
       m_tries = m_parent->info()->udp_tries();
       manager->poll()->insert_write(this);
@@ -359,12 +359,12 @@ TrackerUdp::prepare_announce_input() {
   m_writeBuffer->write_64(uploaded_adjusted);
   m_writeBuffer->write_32(m_sendState);
 
-  const rak::socket_address* localAddress = rak::socket_address::cast_from(
+  const utils::socket_address* localAddress = utils::socket_address::cast_from(
     manager->connection_manager()->local_address());
 
   uint32_t local_addr = 0;
 
-  if (localAddress->family() == rak::socket_address::af_inet)
+  if (localAddress->family() == utils::socket_address::af_inet)
     local_addr = localAddress->sa_inet()->address_n();
 
   m_writeBuffer->write_32_n(local_addr);
@@ -410,7 +410,7 @@ TrackerUdp::process_announce_output() {
 
   m_scrape_incomplete = m_readBuffer->read_32(); // leechers
   m_scrape_complete   = m_readBuffer->read_32(); // seeders
-  m_scrape_time_last  = rak::timer::current().seconds();
+  m_scrape_time_last  = utils::timer::current().seconds();
 
   AddressList l;
 

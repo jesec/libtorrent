@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include "rak/algorithm.h"
+#include "torrent/utils/algorithm.h"
 
 #include "torrent/object_static_map.h"
 
@@ -16,7 +16,7 @@ find_key_match(const static_map_mapping_type* first,
   const static_map_mapping_type* itr = first;
 
   while (itr != last) {
-    unsigned int base = rak::count_base(
+    unsigned int base = utils::count_base(
       key_first, key_last, itr->key, itr->key + itr->max_key_size);
 
     if (key_first[base] != '\0') {

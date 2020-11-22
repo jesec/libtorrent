@@ -5,9 +5,9 @@
 
 #include "protocol/extensions.h"
 #include "protocol/peer_connection_base.h"
-#include "rak/socket_address.h"
 #include "torrent/exceptions.h"
 #include "torrent/peer/peer_info.h"
+#include "torrent/utils/socket_address.h"
 #include "utils/instrumentation.h"
 
 namespace torrent {
@@ -27,8 +27,8 @@ PeerInfo::PeerInfo(const sockaddr* address)
   ,
 
   m_connection(NULL) {
-  rak::socket_address* sa = new rak::socket_address();
-  *sa                     = *rak::socket_address::cast_from(address);
+  utils::socket_address* sa = new utils::socket_address();
+  *sa                       = *utils::socket_address::cast_from(address);
 
   m_address = sa->c_sockaddr();
 }
@@ -43,12 +43,12 @@ PeerInfo::~PeerInfo() noexcept(false) {
   if (is_blocked())
     throw internal_error("PeerInfo::~PeerInfo() peer is blocked.");
 
-  delete rak::socket_address::cast_from(m_address);
+  delete utils::socket_address::cast_from(m_address);
 }
 
 void
 PeerInfo::set_port(uint16_t port) {
-  rak::socket_address::cast_from(m_address)->set_port(port);
+  utils::socket_address::cast_from(m_address)->set_port(port);
 }
 
 } // namespace torrent

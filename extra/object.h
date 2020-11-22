@@ -8,8 +8,9 @@
 #include <list>
 #include <map>
 #include <string>
-#include <torrent/common.h>
-#include <torrent/exceptions.h>
+
+#include "torrent/common.h"
+#include "torrent/exceptions.h"
 
 namespace torrent {
 

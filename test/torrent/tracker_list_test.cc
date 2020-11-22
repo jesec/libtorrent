@@ -28,7 +28,7 @@ TrackerTest::trigger_success(uint32_t new_peers, uint32_t sum_peers) {
   torrent::TrackerList::address_list address_list;
 
   for (unsigned int i = 0; i != sum_peers; i++) {
-    rak::socket_address sa;
+    torrent::utils::socket_address sa;
     sa.sa_inet()->clear();
     sa.sa_inet()->set_port(0x100 + i);
     address_list.push_back(sa);

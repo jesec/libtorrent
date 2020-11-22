@@ -114,7 +114,7 @@ DhtBucket::get_random_id(HashString* rand_id) const {
   for (unsigned int i = 0; i < (*rand_id).size(); i++)
     (*rand_id)[i] = m_begin[i] + (random() & (m_end[i] - m_begin[i]));
 
-#ifdef USE_EXTRA_DEBUG
+#ifdef LT_USE_EXTRA_DEBUG
   if (!is_in_range(*rand_id))
     throw internal_error(
       "DhtBucket::get_random_id generated an out-of-range ID.");

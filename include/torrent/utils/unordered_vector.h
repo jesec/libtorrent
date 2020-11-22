@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2007, Jari Sundell <jaris@ifi.uio.no>
 
-#ifndef RAK_UNORDERED_VECTOR_H
-#define RAK_UNORDERED_VECTOR_H
+#ifndef LIBTORRENT_UTILS_UNORDERED_VECTOR_H
+#define LIBTORRENT_UTILS_UNORDERED_VECTOR_H
 
 #include <vector>
 
-namespace rak {
+namespace torrent {
+namespace utils {
 
 template<typename _Tp>
 class unordered_vector : private std::vector<_Tp> {
@@ -71,6 +72,7 @@ unordered_vector<_Tp>::erase(iterator position) {
   return position;
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

@@ -6,15 +6,15 @@
 #include <sys/types.h>
 
 #include "net/socket_datagram.h"
-#include "rak/socket_address.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/socket_address.h"
 
 namespace torrent {
 
 int
-SocketDatagram::read_datagram(void*                buffer,
-                              unsigned int         length,
-                              rak::socket_address* sa) {
+SocketDatagram::read_datagram(void*                  buffer,
+                              unsigned int           length,
+                              utils::socket_address* sa) {
   if (length == 0)
     throw internal_error("Tried to receive buffer length 0");
 
@@ -22,7 +22,7 @@ SocketDatagram::read_datagram(void*                buffer,
   socklen_t fromlen;
 
   if (sa != NULL) {
-    fromlen = sizeof(rak::socket_address);
+    fromlen = sizeof(utils::socket_address);
     r = ::recvfrom(m_fileDesc, buffer, length, 0, sa->c_sockaddr(), &fromlen);
   } else {
     r = ::recv(m_fileDesc, buffer, length, 0);
@@ -32,23 +32,24 @@ SocketDatagram::read_datagram(void*                buffer,
 }
 
 int
-SocketDatagram::write_datagram(const void*          buffer,
-                               unsigned int         length,
-                               rak::socket_address* sa) {
+SocketDatagram::write_datagram(const void*            buffer,
+                               unsigned int           length,
+                               utils::socket_address* sa) {
   if (length == 0)
     throw internal_error("Tried to send buffer length 0");
 
   int r;
 
   if (sa != NULL) {
-    if (m_ipv6_socket && sa->family() == rak::socket_address::pf_inet) {
-      rak::socket_address_inet6 sa_mapped = sa->sa_inet()->to_mapped_address();
-      r                                   = ::sendto(m_fileDesc,
+    if (m_ipv6_socket && sa->family() == utils::socket_address::pf_inet) {
+      utils::socket_address_inet6 sa_mapped =
+        sa->sa_inet()->to_mapped_address();
+      r = ::sendto(m_fileDesc,
                    buffer,
                    length,
                    0,
                    sa_mapped.c_sockaddr(),
-                   sizeof(rak::socket_address_inet6));
+                   sizeof(utils::socket_address_inet6));
     } else {
       r =
         ::sendto(m_fileDesc, buffer, length, 0, sa->c_sockaddr(), sa->length());

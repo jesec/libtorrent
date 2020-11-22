@@ -9,7 +9,7 @@
 #include <sstream>
 #include <unistd.h>
 
-#ifdef HAVE_BACKTRACE
+#ifdef LT_HAVE_BACKTRACE
 #include <execinfo.h>
 #endif
 
@@ -54,7 +54,7 @@ internal_error::initialize(const std::string& msg) {
 
   std::stringstream output;
 
-#ifdef HAVE_BACKTRACE
+#ifdef LT_HAVE_BACKTRACE
   void* stackPtrs[20];
 
   // Print the stack and exit.

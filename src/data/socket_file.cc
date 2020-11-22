@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef HAVE_FALLOCATE
+#ifdef LT_HAVE_FALLOCATE
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -17,9 +17,9 @@
 #endif
 
 #include "data/socket_file.h"
-#include "rak/error_number.h"
-#include "rak/file_stat.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/error_number.h"
+#include "torrent/utils/file_stat.h"
 
 namespace torrent {
 
@@ -65,7 +65,7 @@ SocketFile::size() const {
   if (!is_open())
     throw internal_error("SocketFile::size() called on a closed file");
 
-  rak::file_stat fs;
+  utils::file_stat fs;
 
   return fs.update(m_fd) ? fs.size() : 0;
 }
@@ -75,12 +75,12 @@ SocketFile::set_size(uint64_t size, int flags) const {
   if (!is_open())
     throw internal_error("SocketFile::set_size() called on a closed file");
 
-#ifdef HAVE_FALLOCATE
+#ifdef LT_HAVE_FALLOCATE
   if (flags & flag_fallocate && fallocate(m_fd, 0, 0, size) == 0)
     return true;
 #endif
 
-#ifdef USE_POSIX_FALLOCATE
+#ifdef LT_USE_POSIX_FALLOCATE
   if (flags & flag_fallocate && flags & flag_fallocate_blocking &&
       posix_fallocate(m_fd, 0, size) == 0)
     return true;

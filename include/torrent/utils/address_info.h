@@ -7,13 +7,15 @@
 // Do use the wrapper on a pre-existing struct addrinfo, cast the
 // pointer rather than the base type.
 
-#ifndef RAK_ADDRESS_INFO_H
-#define RAK_ADDRESS_INFO_H
+#ifndef LIBTORRENT_UTILS_ADDRESS_INFO_H
+#define LIBTORRENT_UTILS_ADDRESS_INFO_H
 
 #include <netdb.h>
-#include <rak/socket_address.h>
 
-namespace rak {
+#include <torrent/utils/socket_address.h>
+
+namespace torrent {
+namespace utils {
 
 class address_info {
 public:
@@ -99,6 +101,7 @@ address_info::get_address_info(const char*    node,
     node, NULL, hints.c_addrinfo(), reinterpret_cast<addrinfo**>(ai));
 }
 
-} // namespace rak
+} // namespace utils
+} // namespace torrent
 
 #endif

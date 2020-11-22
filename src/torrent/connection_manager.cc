@@ -5,11 +5,11 @@
 
 #include "manager.h"
 #include "net/listen.h"
-#include "rak/address_info.h"
-#include "rak/socket_address.h"
 #include "torrent/connection_manager.h"
 #include "torrent/error.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/address_info.h"
+#include "torrent/utils/socket_address.h"
 
 namespace torrent {
 
@@ -22,10 +22,10 @@ resolve_host(const char*                                  host,
   if (manager->main_thread_main()->is_current())
     thread_base::release_global_lock();
 
-  rak::address_info* ai;
-  int                err;
+  utils::address_info* ai;
+  int                  err;
 
-  if ((err = rak::address_info::get_address_info(
+  if ((err = utils::address_info::get_address_info(
          host, family, socktype, &ai)) != 0) {
     if (manager->main_thread_main()->is_current())
       thread_base::acquire_global_lock();
@@ -34,9 +34,9 @@ resolve_host(const char*                                  host,
     return NULL;
   }
 
-  rak::socket_address sa;
+  utils::socket_address sa;
   sa.copy(*ai->address(), ai->length());
-  rak::address_info::free_address_info(ai);
+  utils::address_info::free_address_info(ai);
 
   if (manager->main_thread_main()->is_current())
     thread_base::acquire_global_lock();
@@ -60,13 +60,13 @@ ConnectionManager::ConnectionManager()
   , m_listen_port(0)
   , m_listen_backlog(SOMAXCONN) {
 
-  m_bindAddress  = (new rak::socket_address())->c_sockaddr();
-  m_localAddress = (new rak::socket_address())->c_sockaddr();
-  m_proxyAddress = (new rak::socket_address())->c_sockaddr();
+  m_bindAddress  = (new utils::socket_address())->c_sockaddr();
+  m_localAddress = (new utils::socket_address())->c_sockaddr();
+  m_proxyAddress = (new utils::socket_address())->c_sockaddr();
 
-  rak::socket_address::cast_from(m_bindAddress)->clear();
-  rak::socket_address::cast_from(m_localAddress)->clear();
-  rak::socket_address::cast_from(m_proxyAddress)->clear();
+  utils::socket_address::cast_from(m_bindAddress)->clear();
+  utils::socket_address::cast_from(m_localAddress)->clear();
+  utils::socket_address::cast_from(m_proxyAddress)->clear();
 
   m_slot_resolver = std::bind(&resolve_host,
                               std::placeholders::_1,
@@ -105,35 +105,35 @@ ConnectionManager::set_encryption_options(uint32_t options) {
 
 void
 ConnectionManager::set_bind_address(const sockaddr* sa) {
-  const rak::socket_address* rsa = rak::socket_address::cast_from(sa);
+  const utils::socket_address* rsa = utils::socket_address::cast_from(sa);
 
-  if (rsa->family() != rak::socket_address::af_inet)
+  if (rsa->family() != utils::socket_address::af_inet)
     throw input_error(
       "Tried to set a bind address that is not an af_inet address.");
 
-  rak::socket_address::cast_from(m_bindAddress)->copy(*rsa, rsa->length());
+  utils::socket_address::cast_from(m_bindAddress)->copy(*rsa, rsa->length());
 }
 
 void
 ConnectionManager::set_local_address(const sockaddr* sa) {
-  const rak::socket_address* rsa = rak::socket_address::cast_from(sa);
+  const utils::socket_address* rsa = utils::socket_address::cast_from(sa);
 
-  if (rsa->family() != rak::socket_address::af_inet)
+  if (rsa->family() != utils::socket_address::af_inet)
     throw input_error(
       "Tried to set a local address that is not an af_inet address.");
 
-  rak::socket_address::cast_from(m_localAddress)->copy(*rsa, rsa->length());
+  utils::socket_address::cast_from(m_localAddress)->copy(*rsa, rsa->length());
 }
 
 void
 ConnectionManager::set_proxy_address(const sockaddr* sa) {
-  const rak::socket_address* rsa = rak::socket_address::cast_from(sa);
+  const utils::socket_address* rsa = utils::socket_address::cast_from(sa);
 
-  if (rsa->family() != rak::socket_address::af_inet)
+  if (rsa->family() != utils::socket_address::af_inet)
     throw input_error(
       "Tried to set a proxy address that is not an af_inet address.");
 
-  rak::socket_address::cast_from(m_proxyAddress)->copy(*rsa, rsa->length());
+  utils::socket_address::cast_from(m_proxyAddress)->copy(*rsa, rsa->length());
 }
 
 uint32_t
@@ -149,7 +149,7 @@ ConnectionManager::listen_open(port_type begin, port_type end) {
   if (!m_listen->open(begin,
                       end,
                       m_listen_backlog,
-                      rak::socket_address::cast_from(m_bindAddress)))
+                      utils::socket_address::cast_from(m_bindAddress)))
     return false;
 
   m_listen_port = m_listen->port();

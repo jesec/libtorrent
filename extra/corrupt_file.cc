@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../rak/file_stat.h"
+#include "torrent/utils/file_stat.h"
 
 void
 corrupt_region(int fd, int pos, int length) {
@@ -37,7 +37,7 @@ main(int argc, char** argv) {
   if (fd == -1)
     throw std::runtime_error("Could not open file.");
 
-  rak::file_stat fileStat;
+  torrent::utils::file_stat fileStat;
 
   if (!fileStat.update(fd))
     throw std::runtime_error("Could not read fs stat.");

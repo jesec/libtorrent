@@ -4,9 +4,8 @@
 #ifndef LIBTORRENT_DATA_CHUNK_HANDLE_H
 #define LIBTORRENT_DATA_CHUNK_HANDLE_H
 
-#include <rak/error_number.h>
-
 #include "chunk_list_node.h"
+#include "torrent/utils/error_number.h"
 
 namespace torrent {
 
@@ -38,10 +37,10 @@ public:
     m_blocking = false;
   }
 
-  rak::error_number error_number() const {
+  utils::error_number error_number() const {
     return m_errorNumber;
   }
-  void set_error_number(rak::error_number e) {
+  void set_error_number(utils::error_number e) {
     m_errorNumber = e;
   }
 
@@ -56,7 +55,7 @@ public:
     return m_node->index();
   }
 
-  static ChunkHandle from_error(rak::error_number e) {
+  static ChunkHandle from_error(utils::error_number e) {
     ChunkHandle h;
     h.set_error_number(e);
     return h;
@@ -67,7 +66,7 @@ private:
   bool           m_writable;
   bool           m_blocking;
 
-  rak::error_number m_errorNumber;
+  utils::error_number m_errorNumber;
 };
 
 } // namespace torrent

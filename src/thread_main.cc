@@ -2,10 +2,10 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include "globals.h"
-#include "rak/timer.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/timer.h"
 #include "utils/instrumentation.h"
 
 #include "thread_main.h"
@@ -33,15 +33,15 @@ thread_main::init_thread() {
 
 void
 thread_main::call_events() {
-  cachedTime = rak::timer::current();
+  cachedTime = utils::timer::current();
 
-  // Ensure we don't call rak::timer::current() twice if there was no
+  // Ensure we don't call utils::timer::current() twice if there was no
   // scheduled tasks called.
   if (taskScheduler.empty() || taskScheduler.top()->time() > cachedTime)
     return;
 
   while (!taskScheduler.empty() && taskScheduler.top()->time() <= cachedTime) {
-    rak::priority_item* v = taskScheduler.top();
+    utils::priority_item* v = taskScheduler.top();
     taskScheduler.pop();
 
     v->clear_time();
@@ -50,18 +50,18 @@ thread_main::call_events() {
 
   // Update the timer again to ensure we get accurate triggering of
   // msec timers.
-  cachedTime = rak::timer::current();
+  cachedTime = utils::timer::current();
 }
 
 int64_t
 thread_main::next_timeout_usec() {
-  cachedTime = rak::timer::current();
+  cachedTime = utils::timer::current();
 
   if (!taskScheduler.empty())
-    return std::max(taskScheduler.top()->time() - cachedTime, rak::timer())
+    return std::max(taskScheduler.top()->time() - cachedTime, utils::timer())
       .usec();
   else
-    return rak::timer::from_seconds(60).usec();
+    return utils::timer::from_seconds(60).usec();
 }
 
 } // namespace torrent

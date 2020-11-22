@@ -1,10 +1,11 @@
-#include "../rak/ranges.h"
 #include <cassert>
 #include <iostream>
 
+#include "torrent/utils/ranges.h"
+
 void
-print_ranges(rak::ranges<uint32_t>& r) {
-  rak::ranges<uint32_t>::iterator itr = r.begin();
+print_ranges(torrent::utils::ranges<uint32_t>& r) {
+  torrent::utils::ranges<uint32_t>::iterator itr = r.begin();
 
   std::cout << std::endl;
 
@@ -17,7 +18,7 @@ print_ranges(rak::ranges<uint32_t>& r) {
 
 int
 main() {
-  rak::ranges<uint32_t> r;
+  torrent::utils::ranges<uint32_t> r;
 
   r.insert(10, 20);
   r.insert(30, 40);

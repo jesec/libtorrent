@@ -3,8 +3,6 @@
 
 #include "globals.h"
 #include "net/address_list.h"
-#include "rak/file_stat.h"
-#include "rak/socket_address.h"
 #include "torrent/bitfield.h"
 #include "torrent/common.h"
 #include "torrent/data/file.h"
@@ -17,7 +15,9 @@
 #include "torrent/peer/peer_list.h"
 #include "torrent/tracker.h"
 #include "torrent/tracker_list.h"
+#include "torrent/utils/file_stat.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/socket_address.h"
 
 #include "torrent/utils/resume.h"
 
@@ -79,7 +79,7 @@ resume_load_progress(Download download, const Object& object) {
     std::string  file_path  = (*listItr)->path()->as_string();
     unsigned int file_index = std::distance(fileList->begin(), listItr);
 
-    rak::file_stat fs;
+    utils::file_stat fs;
 
     if (!filesItr->has_key_value("mtime")) {
       LT_LOG_LOAD_FILE("no mtime found, file:create|resize range:clear|recheck",
@@ -239,8 +239,8 @@ resume_save_progress(Download download, Object& object) {
 
     filesItr->insert_key("completed", (int64_t)(*listItr)->completed_chunks());
 
-    rak::file_stat fs;
-    bool           fileExists =
+    utils::file_stat fs;
+    bool             fileExists =
       fs.update(fileList->root_dir() + (*listItr)->path()->as_string());
 
     if (!fileExists) {
@@ -382,16 +382,16 @@ resume_save_uncertain_pieces(Download download, Object& object) {
   // written to disk.
   object.erase_key("uncertain_pieces");
   object.insert_key("uncertain_pieces.timestamp",
-                    rak::timer::current_seconds());
+                    utils::timer::current_seconds());
 
   const TransferList::completed_list_type& completedList =
     download.transfer_list()->completed_list();
   TransferList::completed_list_type::const_iterator itr = std::find_if(
     completedList.begin(),
     completedList.end(),
-    rak::less_equal(
-      (rak::timer::current() - rak::timer::from_minutes(15)).usec(),
-      rak::const_mem_ref(
+    utils::less_equal(
+      (utils::timer::current() - utils::timer::from_minutes(15)).usec(),
+      utils::const_mem_ref(
         &TransferList::completed_list_type::value_type::first)));
 
   if (itr == completedList.end())
@@ -526,8 +526,8 @@ resume_load_addresses(Download download, const Object& object) {
         itr->get_key_value("last") > cachedTime.seconds())
       continue;
 
-    int                 flags = 0;
-    rak::socket_address socketAddress =
+    int                   flags = 0;
+    utils::socket_address socketAddress =
       *reinterpret_cast<const SocketAddressCompact*>(
         itr->get_key_string("inet").c_str());
 
@@ -564,10 +564,10 @@ resume_save_addresses(Download download, Object& object) {
 
     Object& peer = dest.insert_back(Object::create_map());
 
-    const rak::socket_address* sa =
-      rak::socket_address::cast_from(itr->second->socket_address());
+    const utils::socket_address* sa =
+      utils::socket_address::cast_from(itr->second->socket_address());
 
-    if (sa->family() == rak::socket_address::af_inet)
+    if (sa->family() == utils::socket_address::af_inet)
       peer.insert_key(
         "inet",
         std::string(SocketAddressCompact(sa->sa_inet()->address_n(),
