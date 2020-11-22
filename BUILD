@@ -27,7 +27,7 @@ genrule(
         "**/*.in",
     ]),
     outs = ["include/torrent/buildinfo.h"],
-    cmd = "cmake -S . -B $(RULEDIR) -DBUILDINFO_ONLY=ON",
+    cmd = "cmake -S $$(dirname $(location CMakeLists.txt)) -B $(RULEDIR) -DBUILDINFO_ONLY=ON",
 )
 
 filegroup(
