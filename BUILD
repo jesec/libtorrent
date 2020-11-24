@@ -1,7 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
-package(default_visibility = ["//visibility:public"])
-
 COPTS = [
     "-std=c++11",
     "-Ofast",
@@ -51,6 +49,7 @@ cc_library(
         "-lpthread",
         "-lz",
     ],
+    visibility = ["//visibility:public"],
 )
 
 cc_test(
