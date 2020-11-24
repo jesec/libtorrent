@@ -1,4 +1,6 @@
 # Copied from https://github.com/protocolbuffers/protobuf/blob/master/third_party/zlib.BUILD
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
 package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # BSD/MIT-like license (for zlib)
