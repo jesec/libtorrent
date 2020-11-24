@@ -84,6 +84,8 @@ if(NOT BUILDINFO_ONLY)
   # libtorrent
   file(GLOB_RECURSE LIBTORRENT_SRCS "${PROJECT_SOURCE_DIR}/src/*.cc")
   add_library(torrent ${LIBTORRENT_SRCS})
+  target_link_libraries(torrent ${CMAKE_THREAD_LIBS_INIT}
+                        ${OPENSSL_CRYPTO_LIBRARY} ${ZLIB_LIBRARIES})
   target_compile_definitions(torrent PRIVATE EXPORT_LIBTORRENT_SYMBOLS=1)
   set_target_properties(torrent PROPERTIES VERSION ${INTERFACE_VERSION}
                                            SOVERSION ${INTERFACE_CURRENT})
@@ -98,14 +100,7 @@ if(NOT BUILDINFO_ONLY)
     enable_testing()
     file(GLOB_RECURSE LIBTORRENT_TEST_SRCS "${PROJECT_SOURCE_DIR}/test/*.cc")
     add_executable(libtorrent_test ${LIBTORRENT_TEST_SRCS})
-    target_link_libraries(
-      libtorrent_test
-      cppunit
-      dl
-      OpenSSL::Crypto
-      pthread
-      torrent
-      z)
+    target_link_libraries(libtorrent_test torrent ${CPPUNIT_LIBRARY})
     add_test(NAME test COMMAND libtorrent_test)
   endif()
 endif()

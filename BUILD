@@ -31,29 +31,35 @@ genrule(
 )
 
 filegroup(
+    name = "included_headers",
+    srcs = ["include/torrent/buildinfo.h"] + glob(["include/**/*.h"]),
+)
+
+filegroup(
     name = "exported_headers",
     srcs = ["include/torrent/buildinfo.h"] + glob(["include/torrent/**/*.h"]),
 )
 
 cc_library(
-    name = "libtorrent",
-    srcs = glob(["src/**/*.cc"]) + ["include/torrent/buildinfo.h"] + glob(["include/**/*.h"]),
+    name = "torrent",
+    srcs = glob(["src/**/*.cc"]) + ["//:included_headers"],
     hdrs = ["//:exported_headers"],
     copts = COPTS + ["-DEXPORT_LIBTORRENT_SYMBOLS=1"],
     includes = ["include"],
-    linkopts = LINKOPTS,
-)
-
-cc_test(
-    name = "libtorrent_test",
-    srcs = glob(["test/**/*.cc"]) + ["include/torrent/buildinfo.h"] + glob(["include/**/*.h"]),
-    copts = COPTS,
-    includes = ["include"],
     linkopts = LINKOPTS + [
-        "-lcppunit",
         "-lcrypto",
         "-lpthread",
         "-lz",
     ],
-    deps = ["//:libtorrent"],
+)
+
+cc_test(
+    name = "libtorrent_test",
+    srcs = glob(["test/**/*.cc"]) + ["//:included_headers"],
+    copts = COPTS,
+    includes = ["include"],
+    linkopts = LINKOPTS + [
+        "-lcppunit",
+    ],
+    deps = ["//:torrent"],
 )

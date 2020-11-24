@@ -1,4 +1,4 @@
-build libtorrent
-build:clang --action_env=CC=clang --action_env=CXX=clang++ libtorrent
-build:gcc --action_env=CC=gcc --action_env=CXX=g++ libtorrent
+build torrent
+build:clang --action_env=CC=clang --action_env=CXX=clang++ torrent
+build:gcc --action_env=CC=gcc --action_env=CXX=g++ torrent
 test libtorrent_test
