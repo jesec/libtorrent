@@ -84,7 +84,11 @@ DiffieHellman::store_pub_key(unsigned char* dest, unsigned int length) {
 
   const BIGNUM* pub_key = dh_get_pub_key(m_dh);
 
+#ifdef OPENSSL_IS_BORINGSSL
+  if (length >= BN_num_bytes(pub_key))
+#else
   if ((int)length >= BN_num_bytes(pub_key))
+#endif
     BN_bn2bin(pub_key, dest + length - BN_num_bytes(pub_key));
 }
 

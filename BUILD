@@ -45,11 +45,11 @@ cc_library(
     copts = COPTS + ["-DEXPORT_LIBTORRENT_SYMBOLS=1"],
     includes = ["include"],
     linkopts = LINKOPTS + [
-        "-lcrypto",
         "-lpthread",
         "-lz",
     ],
     visibility = ["//visibility:public"],
+    deps = ["@boringssl//:crypto"],
 )
 
 cc_test(
