@@ -46,10 +46,12 @@ cc_library(
     includes = ["include"],
     linkopts = LINKOPTS + [
         "-lpthread",
-        "-lz",
     ],
     visibility = ["//visibility:public"],
-    deps = ["@boringssl//:crypto"],
+    deps = [
+        "@boringssl//:crypto",
+        "@zlib",
+    ],
 )
 
 cc_test(
