@@ -23,10 +23,6 @@ option(USE_EXTRA_DEBUG "Enable extra debugging checks" OFF)
 
 # Include CMake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(CheckCXXSourceCompiles)
-include(CheckCXXSourceRuns)
-include(CheckIncludeFileCXX)
-include(CheckTypeSize)
 
 # Compiler options - Common
 set(CMAKE_CXX_STANDARD 11)

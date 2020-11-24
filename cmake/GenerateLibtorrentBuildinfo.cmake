@@ -1,3 +1,9 @@
+include(CheckCXXSourceCompiles)
+include(CheckCXXSourceRuns)
+include(CheckFunctionExists)
+include(CheckIncludeFileCXX)
+include(CheckTypeSize)
+
 set(BUILDINFO_H ${CMAKE_BINARY_DIR}/include/torrent/buildinfo.h)
 string(TIMESTAMP CURRENT_TIMESTAMP)
 file(WRITE ${BUILDINFO_H}
@@ -31,7 +37,7 @@ if(USE_EXTRA_DEBUG)
   file(APPEND ${BUILDINFO_H} "#define LT_USE_EXTRA_DEBUG 1\n\n")
 endif()
 
-find_package(Execinfo)
+check_function_exists(backtrace EXECINFO_LIBC_HAS_BACKTRACE)
 if(EXECINFO_LIBC_HAS_BACKTRACE)
   file(APPEND ${BUILDINFO_H}
        "/* Defined if backtrace() could be fully identified */\n")
