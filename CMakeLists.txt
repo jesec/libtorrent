@@ -53,14 +53,6 @@ else()
   add_link_options("-flto" "-s")
 endif()
 
-# Required packages
-set(CMAKE_THREAD_PREFER_PTHREAD ON)
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-
-find_package(OpenSSL REQUIRED)
-find_package(Threads REQUIRED)
-find_package(ZLIB REQUIRED)
-
 # Use GNU install destinations
 include(GNUInstallDirs)
 
@@ -78,6 +70,14 @@ install(FILES ${CMAKE_BINARY_DIR}/include/torrent/buildinfo.h
 include_directories(${PROJECT_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
 
 if(NOT BUILDINFO_ONLY)
+  # Required packages
+  set(CMAKE_THREAD_PREFER_PTHREAD ON)
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+
+  find_package(OpenSSL REQUIRED)
+  find_package(Threads REQUIRED)
+  find_package(ZLIB REQUIRED)
+
   # headers
   install(DIRECTORY include/torrent DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
