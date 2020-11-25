@@ -5,6 +5,7 @@ COPTS = [
     "-Ofast",
     "-Wall",
     "-Wextra",
+    "-Wdeprecated",
     "-Werror",
     "-faligned-new",
     "-flto",
