@@ -431,11 +431,10 @@ ChunkList::partition_optimize(Queue::iterator first,
   for (Queue::iterator itr = first; itr != last;) {
     Queue::iterator range = seek_range(itr, last);
 
-    bool required =
-      std::find_if(
-        itr, range, std::bind1st(std::mem_fun(&ChunkList::check_node), this)) !=
-      range;
-    dontSkip = dontSkip || required;
+    bool required = std::find_if(itr, range, [this](ChunkListNode* node) {
+                      return check_node(node);
+                    }) != range;
+    dontSkip      = dontSkip || required;
 
     if (!required && std::distance(itr, range) < maxDistance) {
       // Don't sync this range.

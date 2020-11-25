@@ -76,10 +76,9 @@ struct handshake_manager_equal
 
 bool
 HandshakeManager::find(const utils::socket_address& sa) {
-  return std::find_if(base_type::begin(),
-                      base_type::end(),
-                      std::bind1st(handshake_manager_equal(), &sa)) !=
-         base_type::end();
+  return std::find_if(base_type::begin(), base_type::end(), [sa](Handshake* h) {
+           return handshake_manager_equal()(&sa, h);
+         }) != base_type::end();
 }
 
 void

@@ -31,14 +31,16 @@ Block::~Block() noexcept(false) {
   m_leader = NULL;
   m_state  = STATE_INVALID;
 
-  std::for_each(m_queued.begin(),
-                m_queued.end(),
-                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(
+    m_queued.begin(), m_queued.end(), [this](BlockTransfer* transfer) {
+      return invalidate_transfer(transfer);
+    });
   m_queued.clear();
 
-  std::for_each(m_transfers.begin(),
-                m_transfers.end(),
-                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(
+    m_transfers.begin(), m_transfers.end(), [this](BlockTransfer* transfer) {
+      return invalidate_transfer(transfer);
+    });
   m_transfers.clear();
 
   if (m_notStalled != 0)
@@ -218,9 +220,10 @@ Block::completed(BlockTransfer* transfer) {
   // Block::transfering(...). But that would propably not be correct
   // as we want to trigger cancel messages from here, as hash fail is
   // a rare occurrence.
-  std::for_each(m_queued.begin(),
-                m_queued.end(),
-                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(
+    m_queued.begin(), m_queued.end(), [this](BlockTransfer* transfer) {
+      return invalidate_transfer(transfer);
+    });
   m_queued.clear();
 
   // We need to invalidate those unfinished and keep the one that
@@ -363,9 +366,9 @@ Block::remove_erased_transfers() {
                           m_transfers.end(),
                           std::not1(std::mem_fun(&BlockTransfer::is_erased)));
 
-  std::for_each(split,
-                m_transfers.end(),
-                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(split, m_transfers.end(), [this](BlockTransfer* transfer) {
+    return invalidate_transfer(transfer);
+  });
   m_transfers.erase(split, m_transfers.end());
 }
 
@@ -376,9 +379,9 @@ Block::remove_non_leader_transfers() {
                           m_transfers.end(),
                           std::mem_fun(&BlockTransfer::is_leader));
 
-  std::for_each(split,
-                m_transfers.end(),
-                std::bind1st(std::mem_fun(&Block::invalidate_transfer), this));
+  std::for_each(split, m_transfers.end(), [this](BlockTransfer* transfer) {
+    return invalidate_transfer(transfer);
+  });
   m_transfers.erase(split, m_transfers.end());
 }
 
