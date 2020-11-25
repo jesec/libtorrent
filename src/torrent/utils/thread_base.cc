@@ -85,7 +85,11 @@ void*
 thread_base::event_loop(thread_base* thread) {
   __sync_lock_test_and_set(&thread->m_state, STATE_ACTIVE);
 
+#ifdef __APPLE__
+  pthread_setname_np(thread->name());
+#else
   pthread_setname_np(thread->m_thread, thread->name());
+#endif
 
   lt_log_print(
     torrent::LOG_THREAD_NOTICE, "%s: Starting thread.", thread->name());
