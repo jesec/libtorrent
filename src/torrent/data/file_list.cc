@@ -605,7 +605,7 @@ FileList::create_chunk(uint64_t offset, uint32_t length, int prot) {
   for (iterator itr = std::find_if(
          begin(),
          end(),
-         std::bind2nd(std::mem_fun(&File::is_valid_position), offset));
+         [offset](File* f) { return f->is_valid_position(offset); });
        length != 0;
        ++itr) {
 

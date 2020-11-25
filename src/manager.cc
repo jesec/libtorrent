@@ -148,14 +148,13 @@ Manager::receive_tick() {
     DownloadManager::iterator split =
       m_downloadManager->end() - m_ticks % m_downloadManager->size() - 1;
 
+    std::for_each(split, m_downloadManager->end(), [this](DownloadWrapper* p) {
+      return p->receive_tick(m_ticks);
+    });
     std::for_each(
-      split,
-      m_downloadManager->end(),
-      std::bind2nd(std::mem_fun(&DownloadWrapper::receive_tick), m_ticks));
-    std::for_each(
-      m_downloadManager->begin(),
-      split,
-      std::bind2nd(std::mem_fun(&DownloadWrapper::receive_tick), m_ticks));
+      m_downloadManager->begin(), split, [this](DownloadWrapper* p) {
+        return p->receive_tick(m_ticks);
+      });
   }
 
   // If you change the interval, make sure the keepalives gets

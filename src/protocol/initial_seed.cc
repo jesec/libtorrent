@@ -143,9 +143,9 @@ InitialSeeding::chunk_offer(PeerConnectionBase* pcb, uint32_t chunkDone) {
     PeerInfo** peerChunksEnd =
       m_peerChunks + m_download->file_list()->size_chunks();
     PeerInfo** itr =
-      std::find_if(m_peerChunks,
-                   peerChunksEnd,
-                   std::bind2nd(std::equal_to<PeerInfo*>(), peer));
+      std::find_if(m_peerChunks, peerChunksEnd, [peer](PeerInfo* p) {
+        return std::equal_to<PeerInfo*>()(p, peer);
+      });
     if (itr != peerChunksEnd)
       return itr - m_peerChunks;
 

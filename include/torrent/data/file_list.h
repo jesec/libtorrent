@@ -211,10 +211,9 @@ private:
 
 inline FileList::iterator
 file_list_contains_position(FileList* file_list, uint64_t pos) {
-  return std::find_if(
-    file_list->begin(),
-    file_list->end(),
-    std::bind2nd(std::mem_fun(&File::is_valid_position), pos));
+  return std::find_if(file_list->begin(), file_list->end(), [pos](File* f) {
+    return f->is_valid_position(pos);
+  });
 }
 
 } // namespace torrent

@@ -79,7 +79,9 @@ DhtTracker::prune(uint32_t maxAge) {
                 m_peers.end());
   m_lastSeen.erase(std::remove_if(m_lastSeen.begin(),
                                   m_lastSeen.end(),
-                                  std::bind2nd(std::less<uint32_t>(), minSeen)),
+                                  [minSeen](uint32_t seen) {
+                                    return std::less<uint32_t>()(seen, minSeen);
+                                  }),
                    m_lastSeen.end());
 
   if (m_peers.size() != m_lastSeen.size())
