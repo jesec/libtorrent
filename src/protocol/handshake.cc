@@ -35,13 +35,13 @@ public:
     : m_type(type)
     , m_error(error) {}
 
-  virtual const char* what() const throw() {
+  virtual const char* what() const noexcept {
     return "Handshake error";
   }
-  virtual int type() const throw() {
+  virtual int type() const noexcept {
     return m_type;
   }
-  virtual int error() const throw() {
+  virtual int error() const noexcept {
     return m_error;
   }
 

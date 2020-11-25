@@ -72,10 +72,10 @@ public:
     : m_message(message)
     , m_code(code) {}
 
-  virtual int code() const throw() {
+  virtual int code() const noexcept {
     return m_code;
   }
-  virtual const char* what() const throw() {
+  virtual const char* what() const noexcept {
     return m_message;
   }
 

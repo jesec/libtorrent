@@ -28,11 +28,11 @@ public:
   typedef const T&    const_reference;
   typedef T           value_type;
 
-  cacheline_allocator() throw() {}
-  cacheline_allocator(const cacheline_allocator&) throw() {}
+  cacheline_allocator() noexcept {}
+  cacheline_allocator(const cacheline_allocator&) noexcept {}
   template<class U>
-  cacheline_allocator(const cacheline_allocator<U>&) throw() {}
-  ~cacheline_allocator() throw() {}
+  cacheline_allocator(const cacheline_allocator<U>&) noexcept {}
+  ~cacheline_allocator() noexcept {}
 
   template<class U>
   struct rebind {
@@ -47,7 +47,7 @@ public:
     return &value;
   }
 
-  size_type max_size() const throw() {
+  size_type max_size() const noexcept {
     return std::numeric_limits<size_t>::max() / sizeof(T);
   }
 
@@ -78,14 +78,14 @@ public:
 template<class T1, class T2>
 bool
 operator==(const cacheline_allocator<T1>&,
-           const cacheline_allocator<T2>&) throw() {
+           const cacheline_allocator<T2>&) noexcept {
   return true;
 }
 
 template<class T1, class T2>
 bool
 operator!=(const cacheline_allocator<T1>&,
-           const cacheline_allocator<T2>&) throw() {
+           const cacheline_allocator<T2>&) noexcept {
   return false;
 }
 

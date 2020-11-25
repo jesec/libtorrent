@@ -21,7 +21,7 @@ namespace torrent {
 // everything libtorrent related at the root easier.
 class LIBTORRENT_EXPORT base_error : public std::exception {
 public:
-  virtual ~base_error() throw() {}
+  virtual ~base_error() noexcept {}
 };
 
 // The library or application did some borking it shouldn't have, bug
@@ -40,12 +40,12 @@ public:
   internal_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~internal_error() throw() {}
+  virtual ~internal_error() noexcept {}
 
-  virtual const char* what() const throw() {
+  virtual const char* what() const noexcept {
     return m_msg.c_str();
   }
-  const std::string& backtrace() const throw() {
+  const std::string& backtrace() const noexcept {
     return m_backtrace;
   }
 
@@ -61,7 +61,7 @@ private:
 // library bug, connection problem or bad input.
 class LIBTORRENT_EXPORT network_error : public base_error {
 public:
-  virtual ~network_error() throw() {}
+  virtual ~network_error() noexcept {}
 };
 
 class LIBTORRENT_EXPORT communication_error : public network_error {
@@ -72,9 +72,9 @@ public:
   communication_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~communication_error() throw() {}
+  virtual ~communication_error() noexcept {}
 
-  virtual const char* what() const throw() {
+  virtual const char* what() const noexcept {
     return m_msg.c_str();
   }
 
@@ -89,7 +89,7 @@ class LIBTORRENT_EXPORT connection_error : public network_error {
 public:
   connection_error(int err)
     : m_errno(err) {}
-  virtual ~connection_error() throw() {}
+  virtual ~connection_error() noexcept {}
 
   virtual const char* what() const throw();
 
@@ -105,7 +105,7 @@ class LIBTORRENT_EXPORT address_info_error : public network_error {
 public:
   address_info_error(int err)
     : m_errno(err) {}
-  virtual ~address_info_error() throw() {}
+  virtual ~address_info_error() noexcept {}
 
   virtual const char* what() const throw();
 
@@ -119,18 +119,18 @@ private:
 
 class LIBTORRENT_EXPORT close_connection : public network_error {
 public:
-  virtual ~close_connection() throw() {}
+  virtual ~close_connection() noexcept {}
 };
 
 class LIBTORRENT_EXPORT blocked_connection : public network_error {
 public:
-  virtual ~blocked_connection() throw() {}
+  virtual ~blocked_connection() noexcept {}
 };
 
 // Stuff like bad torrent file, disk space and permissions.
 class LIBTORRENT_EXPORT local_error : public base_error {
 public:
-  virtual ~local_error() throw() {}
+  virtual ~local_error() noexcept {}
 };
 
 class LIBTORRENT_EXPORT storage_error : public local_error {
@@ -141,9 +141,9 @@ public:
   storage_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~storage_error() throw() {}
+  virtual ~storage_error() noexcept {}
 
-  virtual const char* what() const throw() {
+  virtual const char* what() const noexcept {
     return m_msg.c_str();
   }
 
@@ -162,9 +162,9 @@ public:
   resource_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~resource_error() throw() {}
+  virtual ~resource_error() noexcept {}
 
-  virtual const char* what() const throw() {
+  virtual const char* what() const noexcept {
     return m_msg.c_str();
   }
 
@@ -183,9 +183,9 @@ public:
   input_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~input_error() throw() {}
+  virtual ~input_error() noexcept {}
 
-  virtual const char* what() const throw() {
+  virtual const char* what() const noexcept {
     return m_msg.c_str();
   }
 
@@ -203,12 +203,12 @@ public:
   bencode_error(const std::string& msg)
     : input_error(msg) {}
 
-  virtual ~bencode_error() throw() {}
+  virtual ~bencode_error() noexcept {}
 };
 
 class LIBTORRENT_EXPORT shutdown_exception : public base_error {
 public:
-  virtual ~shutdown_exception() throw() {}
+  virtual ~shutdown_exception() noexcept {}
 };
 
 } // namespace torrent
