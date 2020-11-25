@@ -382,11 +382,10 @@ DownloadWrapper::receive_update_priorities() {
 
   m_main->chunk_selector()->update_priorities();
 
-  std::for_each(
-    m_main->connection_list()->begin(),
-    m_main->connection_list()->end(),
-    utils::on(std::mem_fun(&Peer::m_ptr),
-              std::mem_fun(&PeerConnectionBase::update_interested)));
+  std::for_each(m_main->connection_list()->begin(),
+                m_main->connection_list()->end(),
+                utils::on(std::mem_fn(&Peer::m_ptr),
+                          std::mem_fn(&PeerConnectionBase::update_interested)));
 
   // The 'partially_done/restarted' signal only gets triggered when a
   // download is active and not completed.

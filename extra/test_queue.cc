@@ -55,10 +55,10 @@ main() {
     //     std::vector<torrent::utils::priority_item*> due;
 
     //     std::copy(torrent::utils::queue_popper(queue,
-    //     torrent::utils::bind2nd(std::mem_fun(&torrent::utils::priority_item::compare),
+    //     torrent::utils::bind2nd(std::mem_fn(&torrent::utils::priority_item::compare),
     //     20)),
     // 	      torrent::utils::queue_popper(queue,
-    // torrent::utils::bind2nd(std::mem_fun(&torrent::utils::priority_item::compare),
+    // torrent::utils::bind2nd(std::mem_fn(&torrent::utils::priority_item::compare),
     // torrent::utils::timer())), 	      std::back_inserter(due));
     //     std::for_each(due.begin(), due.end(), std::ptr_fun(&print_item));
 

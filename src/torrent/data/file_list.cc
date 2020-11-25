@@ -694,9 +694,9 @@ FileList::mark_completed(uint32_t index) {
 FileList::iterator
 FileList::inc_completed(iterator firstItr, uint32_t index) {
   firstItr = std::find_if(
-    firstItr, end(), utils::less(index, std::mem_fun(&File::range_second)));
+    firstItr, end(), utils::less(index, std::mem_fn(&File::range_second)));
   iterator lastItr = std::find_if(
-    firstItr, end(), utils::less(index + 1, std::mem_fun(&File::range_second)));
+    firstItr, end(), utils::less(index + 1, std::mem_fn(&File::range_second)));
 
   if (firstItr == end())
     throw internal_error(
@@ -705,7 +705,7 @@ FileList::inc_completed(iterator firstItr, uint32_t index) {
   // TODO: Check if this works right for zero-length files.
   std::for_each(firstItr,
                 lastItr == end() ? end() : (lastItr + 1),
-                std::mem_fun(&File::inc_completed_protected));
+                std::mem_fn(&File::inc_completed_protected));
 
   return lastItr;
 }

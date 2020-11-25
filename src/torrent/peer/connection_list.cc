@@ -38,7 +38,7 @@ void
 ConnectionList::clear() {
   std::for_each(begin(),
                 end(),
-                utils::on(std::mem_fun(&Peer::m_ptr),
+                utils::on(std::mem_fn(&Peer::m_ptr),
                           utils::call_delete<PeerConnectionBase>()));
   base_type::clear();
 
@@ -163,8 +163,8 @@ ConnectionList::erase_seeders() {
   erase_remaining(
     std::partition(begin(),
                    end(),
-                   utils::on(std::mem_fun(&Peer::c_ptr),
-                             std::mem_fun(&PeerConnectionBase::is_not_seeder))),
+                   utils::on(std::mem_fn(&Peer::c_ptr),
+                             std::mem_fn(&PeerConnectionBase::is_not_seeder))),
     disconnect_unwanted);
 }
 
@@ -208,9 +208,9 @@ ConnectionList::find(const char* id) {
     end(),
     utils::equal(
       *HashString::cast_from(id),
-      utils::on(std::mem_fun(&Peer::m_ptr),
-                utils::on(std::mem_fun(&PeerConnectionBase::peer_info),
-                          std::mem_fun(&PeerInfo::id)))));
+      utils::on(std::mem_fn(&Peer::m_ptr),
+                utils::on(std::mem_fn(&PeerConnectionBase::peer_info),
+                          std::mem_fn(&PeerInfo::id)))));
 }
 
 ConnectionList::iterator
@@ -220,9 +220,9 @@ ConnectionList::find(const sockaddr* sa) {
     end(),
     utils::equal_ptr(
       utils::socket_address::cast_from(sa),
-      utils::on(std::mem_fun(&Peer::m_ptr),
-                utils::on(std::mem_fun(&PeerConnectionBase::peer_info),
-                          std::mem_fun(&PeerInfo::socket_address)))));
+      utils::on(std::mem_fn(&Peer::m_ptr),
+                utils::on(std::mem_fn(&PeerConnectionBase::peer_info),
+                          std::mem_fn(&PeerInfo::socket_address)))));
 }
 
 void

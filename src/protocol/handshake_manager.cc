@@ -43,7 +43,7 @@ HandshakeManager::size_type
 HandshakeManager::size_info(DownloadMain* info) const {
   return std::count_if(base_type::begin(),
                        base_type::end(),
-                       utils::equal(info, std::mem_fun(&Handshake::download)));
+                       utils::equal(info, std::mem_fn(&Handshake::download)));
 }
 
 void
@@ -86,7 +86,7 @@ HandshakeManager::erase_download(DownloadMain* info) {
   iterator split =
     std::partition(base_type::begin(),
                    base_type::end(),
-                   utils::not_equal(info, std::mem_fun(&Handshake::download)));
+                   utils::not_equal(info, std::mem_fn(&Handshake::download)));
 
   std::for_each(
     split, base_type::end(), std::ptr_fun(&handshake_manager_delete_handshake));

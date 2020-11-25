@@ -295,7 +295,7 @@ ChunkList::sync_chunks(int flags) {
     split = std::stable_partition(
       m_queue.begin(),
       m_queue.end(),
-      utils::not_equal(1, std::mem_fun(&ChunkListNode::writable)));
+      utils::not_equal(1, std::mem_fn(&ChunkListNode::writable)));
 
   // Allow a flag that does more culling, so that we only get large
   // continous sections.
@@ -354,7 +354,7 @@ ChunkList::sync_chunks(int flags) {
     instrumentation_update(
       INSTRUMENTATION_MINCORE_SYNC_NOT_DEALLOCATED,
       std::count_if(
-        split, m_queue.end(), std::mem_fun(&ChunkListNode::is_valid)));
+        split, m_queue.end(), std::mem_fn(&ChunkListNode::is_valid)));
   }
 
   m_queue.erase(split, m_queue.end());

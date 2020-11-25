@@ -33,13 +33,13 @@ TransferList::~TransferList() noexcept(false) {
 TransferList::iterator
 TransferList::find(uint32_t index) {
   return std::find_if(
-    begin(), end(), utils::equal(index, std::mem_fun(&BlockList::index)));
+    begin(), end(), utils::equal(index, std::mem_fn(&BlockList::index)));
 }
 
 TransferList::const_iterator
 TransferList::find(uint32_t index) const {
   return std::find_if(
-    begin(), end(), utils::equal(index, std::mem_fun(&BlockList::index)));
+    begin(), end(), utils::equal(index, std::mem_fn(&BlockList::index)));
 }
 
 void

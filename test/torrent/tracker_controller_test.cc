@@ -525,7 +525,7 @@ tracker_controller_test::test_timeout_lacking_usable() {
 
   std::for_each(tracker_list.begin(),
                 tracker_list.end(),
-                std::mem_fun(&torrent::Tracker::disable));
+                std::mem_fn(&torrent::Tracker::disable));
   CPPUNIT_ASSERT(tracker_controller.task_timeout()->is_queued());
 
   CPPUNIT_ASSERT(test_goto_next_timeout(&tracker_controller, 0));

@@ -66,7 +66,7 @@ ResourceManager::insert(const resource_manager_entry& entry) {
 
     std::for_each(++group_itr,
                   choke_base_type::end(),
-                  std::mem_fun(&choke_group::inc_iterators));
+                  std::mem_fn(&choke_group::inc_iterators));
   }
 
   choke_queue::move_connections(NULL,
@@ -139,7 +139,7 @@ ResourceManager::erase(DownloadMain* d) noexcept(false) {
 
   std::for_each(++group_itr,
                 choke_base_type::end(),
-                std::mem_fun(&choke_group::dec_iterators));
+                std::mem_fn(&choke_group::dec_iterators));
 
   base_type::erase(itr);
 }
@@ -149,7 +149,7 @@ ResourceManager::push_group(const std::string& name) {
   if (name.empty() ||
       std::find_if(choke_base_type::begin(),
                    choke_base_type::end(),
-                   utils::equal(name, std::mem_fun(&choke_group::name))) !=
+                   utils::equal(name, std::mem_fn(&choke_group::name))) !=
         choke_base_type::end())
     throw input_error("Duplicate name for choke group.");
 
@@ -218,7 +218,7 @@ ResourceManager::group_at_name(const std::string& name) {
   choke_base_type::iterator itr =
     std::find_if(choke_base_type::begin(),
                  choke_base_type::end(),
-                 utils::equal(name, std::mem_fun(&choke_group::name)));
+                 utils::equal(name, std::mem_fn(&choke_group::name)));
 
   if (itr == choke_base_type::end())
     throw input_error("Choke group not found.");
@@ -231,7 +231,7 @@ ResourceManager::group_index_of(const std::string& name) {
   choke_base_type::iterator itr =
     std::find_if(choke_base_type::begin(),
                  choke_base_type::end(),
-                 utils::equal(name, std::mem_fun(&choke_group::name)));
+                 utils::equal(name, std::mem_fn(&choke_group::name)));
 
   if (itr == choke_base_type::end())
     throw input_error("Choke group not found.");
@@ -276,12 +276,12 @@ ResourceManager::set_group(iterator itr, uint16_t grp) {
   if (group_dest < group_src) {
     (*group_dest)->set_last((*group_dest)->last() + 1);
     std::for_each(
-      ++group_dest, group_src, std::mem_fun(&choke_group::inc_iterators));
+      ++group_dest, group_src, std::mem_fn(&choke_group::inc_iterators));
     (*group_src)->set_first((*group_src)->first() + 1);
   } else {
     (*group_src)->set_last((*group_src)->last() - 1);
     std::for_each(
-      ++group_src, group_dest, std::mem_fun(&choke_group::dec_iterators));
+      ++group_src, group_dest, std::mem_fn(&choke_group::dec_iterators));
     (*group_dest)->set_first((*group_dest)->first() - 1);
   }
 }

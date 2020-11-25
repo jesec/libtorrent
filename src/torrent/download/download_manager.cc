@@ -42,8 +42,8 @@ DownloadManager::find(const std::string& hash) {
     begin(),
     end(),
     utils::equal(*HashString::cast_from(hash),
-                 utils::on(std::mem_fun(&DownloadWrapper::info),
-                           std::mem_fun(&DownloadInfo::hash))));
+                 utils::on(std::mem_fn(&DownloadWrapper::info),
+                           std::mem_fn(&DownloadInfo::hash))));
 }
 
 DownloadManager::iterator
@@ -52,14 +52,14 @@ DownloadManager::find(const HashString& hash) {
     begin(),
     end(),
     utils::equal(hash,
-                 utils::on(std::mem_fun(&DownloadWrapper::info),
-                           std::mem_fun(&DownloadInfo::hash))));
+                 utils::on(std::mem_fn(&DownloadWrapper::info),
+                           std::mem_fn(&DownloadInfo::hash))));
 }
 
 DownloadManager::iterator
 DownloadManager::find(DownloadInfo* info) {
   return std::find_if(
-    begin(), end(), utils::equal(info, std::mem_fun(&DownloadWrapper::info)));
+    begin(), end(), utils::equal(info, std::mem_fn(&DownloadWrapper::info)));
 }
 
 DownloadManager::iterator
@@ -67,7 +67,7 @@ DownloadManager::find_chunk_list(ChunkList* cl) {
   return std::find_if(
     begin(),
     end(),
-    utils::equal(cl, std::mem_fun(&DownloadWrapper::chunk_list)));
+    utils::equal(cl, std::mem_fn(&DownloadWrapper::chunk_list)));
 }
 
 DownloadMain*
@@ -76,8 +76,8 @@ DownloadManager::find_main(const char* hash) {
     std::find_if(begin(),
                  end(),
                  utils::equal(*HashString::cast_from(hash),
-                              utils::on(std::mem_fun(&DownloadWrapper::info),
-                                        std::mem_fun(&DownloadInfo::hash))));
+                              utils::on(std::mem_fn(&DownloadWrapper::info),
+                                        std::mem_fn(&DownloadInfo::hash))));
 
   if (itr == end())
     return NULL;
@@ -91,8 +91,8 @@ DownloadManager::find_main_obfuscated(const char* hash) {
     begin(),
     end(),
     utils::equal(*HashString::cast_from(hash),
-                 utils::on(std::mem_fun(&DownloadWrapper::info),
-                           std::mem_fun(&DownloadInfo::hash_obfuscated))));
+                 utils::on(std::mem_fn(&DownloadWrapper::info),
+                           std::mem_fn(&DownloadInfo::hash_obfuscated))));
 
   if (itr == end())
     return NULL;
