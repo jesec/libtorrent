@@ -160,7 +160,7 @@ DownloadConstructor::parse_tracker(const Object& b) {
       !(announce_list = &b.get_key_list("announce-list"))->empty() &&
       std::find_if(announce_list->begin(),
                    announce_list->end(),
-                   std::mem_fun_ref(&Object::is_list)) != announce_list->end())
+                   std::mem_fn(&Object::is_list)) != announce_list->end())
 
     std::for_each(
       announce_list->begin(),
@@ -339,11 +339,10 @@ DownloadConstructor::create_path(const Object::list_type& plist,
   Path p;
   p.set_encoding(enc);
 
-  std::transform(
-    plist.begin(),
-    plist.end(),
-    std::back_inserter(p),
-    std::mem_fun_ref<const Object::string_type&>(&Object::as_string));
+  std::transform(plist.begin(),
+                 plist.end(),
+                 std::back_inserter(p),
+                 [](const Object& elem) { return elem.as_string(); });
 
   return p;
 }

@@ -98,7 +98,7 @@ TransferList::hash_succeeded(uint32_t index, Chunk* chunk) {
 
   if ((Block::size_type)std::count_if((*blockListItr)->begin(),
                                       (*blockListItr)->end(),
-                                      std::mem_fun_ref(&Block::is_finished)) !=
+                                      std::mem_fn(&Block::is_finished)) !=
       (*blockListItr)->size())
     throw internal_error("TransferList::hash_succeeded(...) Finished blocks "
                          "does not match size.");
@@ -161,7 +161,7 @@ TransferList::hash_failed(uint32_t index, Chunk* chunk) {
 
   if ((Block::size_type)std::count_if((*blockListItr)->begin(),
                                       (*blockListItr)->end(),
-                                      std::mem_fun_ref(&Block::is_finished)) !=
+                                      std::mem_fn(&Block::is_finished)) !=
       (*blockListItr)->size())
     throw internal_error(
       "TransferList::hash_failed(...) Finished blocks does not match size.");

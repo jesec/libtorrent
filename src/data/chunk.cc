@@ -40,14 +40,15 @@ intercept_sigbus(struct sigaction* oldact) noexcept(false) {
 bool
 Chunk::is_all_valid() const {
   return !empty() &&
-         std::find_if(
-           begin(), end(), std::not1(std::mem_fun_ref(&ChunkPart::is_valid))) ==
-           end();
+         std::find_if(begin(),
+                      end(),
+                      std::not1<std::function<bool(const ChunkPart&)>>(
+                        std::mem_fn(&ChunkPart::is_valid))) == end();
 }
 
 void
 Chunk::clear() {
-  std::for_each(begin(), end(), std::mem_fun_ref(&ChunkPart::clear));
+  std::for_each(begin(), end(), std::mem_fn(&ChunkPart::clear));
 
   m_chunkSize = 0;
   m_prot      = ~0;
@@ -78,10 +79,8 @@ Chunk::at_position(uint32_t pos) {
     throw internal_error(
       "Chunk::at_position(...) tried to get Chunk position out of range.");
 
-  iterator itr =
-    std::find_if(begin(),
-                 end(),
-                 std::bind2nd(std::mem_fun_ref(&ChunkPart::is_contained), pos));
+  iterator itr = std::find_if(
+    begin(), end(), [pos](ChunkPart& p) { return p.is_contained(pos); });
 
   if (itr == end())
     throw internal_error("Chunk::at_position(...) might be mangled, "

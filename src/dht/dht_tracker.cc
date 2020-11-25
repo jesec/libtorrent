@@ -75,7 +75,7 @@ DhtTracker::prune(uint32_t maxAge) {
 
   m_peers.erase(std::remove_if(m_peers.begin(),
                                m_peers.end(),
-                               std::mem_fun_ref(&BencodeAddress::empty)),
+                               std::mem_fn(&BencodeAddress::empty)),
                 m_peers.end());
   m_lastSeen.erase(std::remove_if(m_lastSeen.begin(),
                                   m_lastSeen.end(),

@@ -103,9 +103,7 @@ Chunk::at_position(uint32_t pos, iterator itr) {
 inline Chunk::iterator
 Chunk::find_address(void* ptr) {
   return std::find_if(
-    begin(),
-    end(),
-    std::bind2nd(std::mem_fun_ref(&ChunkPart::has_address), ptr));
+    begin(), end(), [ptr](ChunkPart& p) { return p.has_address(ptr); });
 }
 
 } // namespace torrent

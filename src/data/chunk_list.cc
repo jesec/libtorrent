@@ -84,23 +84,22 @@ ChunkList::clear() {
 
   m_queue.clear();
 
-  if (std::find_if(begin(), end(), std::mem_fun_ref(&ChunkListNode::chunk)) !=
-      end())
+  if (std::find_if(begin(), end(), std::mem_fn(&ChunkListNode::chunk)) != end())
     throw internal_error(
       "ChunkList::clear() called but a node with a valid chunk was found.");
 
-  if (std::find_if(
-        begin(), end(), std::mem_fun_ref(&ChunkListNode::references)) != end())
+  if (std::find_if(begin(), end(), std::mem_fn(&ChunkListNode::references)) !=
+      end())
     throw internal_error(
       "ChunkList::clear() called but a node with references != 0 was found.");
 
-  if (std::find_if(
-        begin(), end(), std::mem_fun_ref(&ChunkListNode::writable)) != end())
+  if (std::find_if(begin(), end(), std::mem_fn(&ChunkListNode::writable)) !=
+      end())
     throw internal_error(
       "ChunkList::clear() called but a node with writable != 0 was found.");
 
-  if (std::find_if(
-        begin(), end(), std::mem_fun_ref(&ChunkListNode::blocking)) != end())
+  if (std::find_if(begin(), end(), std::mem_fn(&ChunkListNode::blocking)) !=
+      end())
     throw internal_error(
       "ChunkList::clear() called but a node with blocking != 0 was found.");
 

@@ -92,7 +92,7 @@ ResourceManager::update_group_iterators() {
       entry_itr,
       end(),
       utils::less(std::distance(choke_base_type::begin(), group_itr),
-                  std::mem_fun_ref(&value_type::group)));
+                  std::mem_fn(&value_type::group)));
     (*group_itr)->set_last(&*entry_itr);
     group_itr++;
   }
@@ -112,7 +112,7 @@ ResourceManager::validate_group_iterators() noexcept(false) {
       entry_itr,
       end(),
       utils::less(std::distance(choke_base_type::begin(), group_itr),
-                  std::mem_fun_ref(&value_type::group)));
+                  std::mem_fn(&value_type::group)));
     if ((*group_itr)->last() != &*entry_itr)
       throw internal_error(
         "ResourceManager::receive_tick() invalid last iterator.");
@@ -124,7 +124,7 @@ ResourceManager::validate_group_iterators() noexcept(false) {
 void
 ResourceManager::erase(DownloadMain* d) noexcept(false) {
   iterator itr = std::find_if(
-    begin(), end(), utils::equal(d, std::mem_fun_ref(&value_type::download)));
+    begin(), end(), utils::equal(d, std::mem_fn(&value_type::download)));
 
   if (itr == end())
     throw internal_error("ResourceManager::erase() itr == end().");
@@ -185,13 +185,13 @@ ResourceManager::push_group(const std::string& name) {
 ResourceManager::iterator
 ResourceManager::find(DownloadMain* d) {
   return std::find_if(
-    begin(), end(), utils::equal(d, std::mem_fun_ref(&value_type::download)));
+    begin(), end(), utils::equal(d, std::mem_fn(&value_type::download)));
 }
 
 ResourceManager::iterator
 ResourceManager::find_throw(DownloadMain* d) {
   iterator itr = std::find_if(
-    begin(), end(), utils::equal(d, std::mem_fun_ref(&value_type::download)));
+    begin(), end(), utils::equal(d, std::mem_fn(&value_type::download)));
 
   if (itr == end())
     throw input_error("Could not find download in resource manager.");
@@ -202,7 +202,7 @@ ResourceManager::find_throw(DownloadMain* d) {
 ResourceManager::iterator
 ResourceManager::find_group_end(uint16_t group) {
   return std::find_if(
-    begin(), end(), utils::less(group, std::mem_fun_ref(&value_type::group)));
+    begin(), end(), utils::less(group, std::mem_fn(&value_type::group)));
 }
 
 choke_group*
@@ -387,11 +387,10 @@ ResourceManager::receive_tick() {
 unsigned int
 ResourceManager::total_weight() const {
   // TODO: This doesn't take into account inactive downloads.
-  return std::for_each(
-           begin(),
-           end(),
-           utils::accumulate((unsigned int)0,
-                             std::mem_fun_ref(&value_type::priority)))
+  return std::for_each(begin(),
+                       end(),
+                       utils::accumulate((unsigned int)0,
+                                         std::mem_fn(&value_type::priority)))
     .result;
 }
 

@@ -108,15 +108,14 @@ void
 log_rebuild_cache() {
   std::for_each(log_groups.begin(),
                 log_groups.end(),
-                std::mem_fun_ref(&log_group::clear_cached_outputs));
+                std::mem_fn(&log_group::clear_cached_outputs));
 
   for (int i = 0; i < LOG_GROUP_MAX_SIZE; i++)
     log_update_child_cache(i);
 
   // Clear the cache...
-  std::for_each(log_cache.begin(),
-                log_cache.end(),
-                std::mem_fun_ref(&log_cache_entry::clear));
+  std::for_each(
+    log_cache.begin(), log_cache.end(), std::mem_fn(&log_cache_entry::clear));
   log_cache.clear();
 
   for (int idx = 0, last = log_groups.size(); idx != last; idx++) {
@@ -278,9 +277,8 @@ log_cleanup() {
   log_outputs.clear();
   log_children.clear();
 
-  std::for_each(log_cache.begin(),
-                log_cache.end(),
-                std::mem_fun_ref(&log_cache_entry::clear));
+  std::for_each(
+    log_cache.begin(), log_cache.end(), std::mem_fn(&log_cache_entry::clear));
   log_cache.clear();
 
   pthread_mutex_unlock(&log_mutex);
