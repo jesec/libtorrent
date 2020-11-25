@@ -77,8 +77,9 @@ uri_parse_str(std::string uri, uri_state& state) {
   std::string::const_iterator last  = state.uri.end();
 
   // Parse scheme:
-  first = uri_string_copy_until(
-    first, last, state.scheme, std::ptr_fun(&is_not_unreserved_uri_char));
+  first = uri_string_copy_until(first, last, state.scheme, [](char c) {
+    return is_not_unreserved_uri_char(c);
+  });
 
   if (first == last)
     goto uri_parse_success;
@@ -88,8 +89,9 @@ uri_parse_str(std::string uri, uri_state& state) {
                           *--first);
 
   // Parse resource:
-  first = uri_string_copy_until(
-    first, last, state.resource, std::ptr_fun(&is_not_unreserved_uri_char));
+  first = uri_string_copy_until(first, last, state.resource, [](char c) {
+    return is_not_unreserved_uri_char(c);
+  });
 
   if (first == last)
     goto uri_parse_success;
@@ -99,8 +101,9 @@ uri_parse_str(std::string uri, uri_state& state) {
       "could not find '?' after resource, found character 0x", *--first);
 
   // Parse query:
-  first = uri_string_copy_until(
-    first, last, state.query, std::ptr_fun(&is_not_valid_uri_query_char));
+  first = uri_string_copy_until(first, last, state.query, [](char c) {
+    return is_not_valid_uri_query_char(c);
+  });
 
   if (first == last)
     goto uri_parse_success;
@@ -139,8 +142,9 @@ uri_parse_query_str(std::string query, uri_query_state& state) {
 
   while (first != last) {
     std::string element;
-    first = uri_string_copy_until(
-      first, last, element, std::ptr_fun(&is_not_unreserved_uri_query_char));
+    first = uri_string_copy_until(first, last, element, [](char c) {
+      return is_not_unreserved_uri_query_char(c);
+    });
 
     if (first != last && *first++ != '&') {
       std::string invalid_hex;

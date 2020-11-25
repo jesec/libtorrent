@@ -76,19 +76,29 @@ private:
 };
 
 inline BlockFailed::~BlockFailed() {
-  std::for_each(begin(), end(), std::ptr_fun(&BlockFailed::delete_entry));
+  std::for_each(begin(), end(), [](std::pair<char*, uint32_t> p) {
+    return delete_entry(p);
+  });
 }
 
 inline BlockFailed::iterator
 BlockFailed::max_element() {
   return std::max_element(
-    begin(), end(), std::ptr_fun(&BlockFailed::compare_entries));
+    begin(),
+    end(),
+    [](std::pair<char*, uint32_t> p1, std::pair<char*, uint32_t> p2) {
+      return compare_entries(p1, p2);
+    });
 }
 
 inline BlockFailed::reverse_iterator
 BlockFailed::reverse_max_element() {
   return std::max_element(
-    rbegin(), rend(), std::ptr_fun(&BlockFailed::compare_entries));
+    rbegin(),
+    rend(),
+    [](std::pair<char*, uint32_t> p1, std::pair<char*, uint32_t> p2) {
+      return compare_entries(p1, p2);
+    });
 }
 
 } // namespace torrent

@@ -48,9 +48,9 @@ HandshakeManager::size_info(DownloadMain* info) const {
 
 void
 HandshakeManager::clear() {
-  std::for_each(base_type::begin(),
-                base_type::end(),
-                std::ptr_fun(&handshake_manager_delete_handshake));
+  std::for_each(base_type::begin(), base_type::end(), [](Handshake* h) {
+    return handshake_manager_delete_handshake(h);
+  });
   base_type::clear();
 }
 
@@ -88,8 +88,9 @@ HandshakeManager::erase_download(DownloadMain* info) {
                    base_type::end(),
                    utils::not_equal(info, std::mem_fn(&Handshake::download)));
 
-  std::for_each(
-    split, base_type::end(), std::ptr_fun(&handshake_manager_delete_handshake));
+  std::for_each(split, base_type::end(), [](Handshake* h) {
+    return handshake_manager_delete_handshake(h);
+  });
   base_type::erase(split, base_type::end());
 }
 

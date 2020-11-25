@@ -30,10 +30,9 @@ AddressList::parse_address(const Object& b) {
 
 void
 AddressList::parse_address_normal(const Object::list_type& b) {
-  std::for_each(b.begin(),
-                b.end(),
-                utils::on(std::ptr_fun(&AddressList::parse_address),
-                          AddressList::add_address(this)));
+  std::for_each(b.begin(), b.end(), [this](const Object& b) {
+    return AddressList::add_address(this)(parse_address(b));
+  });
 }
 
 void

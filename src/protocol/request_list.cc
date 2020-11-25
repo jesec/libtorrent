@@ -107,10 +107,14 @@ RequestList::delegate() {
 void
 RequestList::stall_initial() {
   queue_bucket_for_all_in_queue(
-    m_queues, bucket_queued, std::ptr_fun(&Block::stalled));
+    m_queues, bucket_queued, [](BlockTransfer* transfer) {
+      return Block::stalled(transfer);
+    });
   m_queues.move_all_to(bucket_queued, bucket_stalled);
   queue_bucket_for_all_in_queue(
-    m_queues, bucket_unordered, std::ptr_fun(&Block::stalled));
+    m_queues, bucket_unordered, [](BlockTransfer* transfer) {
+      return Block::stalled(transfer);
+    });
   m_queues.move_all_to(bucket_unordered, bucket_stalled);
 }
 
@@ -120,10 +124,14 @@ RequestList::stall_prolonged() {
     Block::stalled(m_transfer);
 
   queue_bucket_for_all_in_queue(
-    m_queues, bucket_queued, std::ptr_fun(&Block::stalled));
+    m_queues, bucket_queued, [](BlockTransfer* transfer) {
+      return Block::stalled(transfer);
+    });
   m_queues.move_all_to(bucket_queued, bucket_stalled);
   queue_bucket_for_all_in_queue(
-    m_queues, bucket_unordered, std::ptr_fun(&Block::stalled));
+    m_queues, bucket_unordered, [](BlockTransfer* transfer) {
+      return Block::stalled(transfer);
+    });
   m_queues.move_all_to(bucket_unordered, bucket_stalled);
 
   // Currently leave the the requests until the peer gets disconnected. (?)

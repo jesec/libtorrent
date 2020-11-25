@@ -183,9 +183,9 @@ PeerList::insert_available(const void* al) {
     }
 
     availItr = std::find_if(
-      availItr,
-      availLast,
-      utils::bind2nd(std::ptr_fun(&socket_address_less_rak), *itr));
+      availItr, availLast, [&itr](const utils::socket_address& sa) {
+        return socket_address_less_rak(sa, *itr);
+      });
 
     if (availItr != availLast &&
         !socket_address_less(availItr->c_sockaddr(), itr->c_sockaddr())) {
