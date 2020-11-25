@@ -1,5 +1,11 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
+config_setting(
+    name = "macos",
+    values = {"cpu": "darwin"},
+    visibility = ["//visibility:private"],
+)
+
 COPTS = [
     "-std=c++11",
     "-Ofast",
@@ -60,8 +66,14 @@ cc_test(
     srcs = glob(["test/**/*.cc"]) + ["//:included_headers"],
     copts = COPTS,
     includes = ["include"],
-    linkopts = LINKOPTS + [
-        "-lcppunit",
-    ],
-    deps = ["//:torrent"],
+    linkopts = LINKOPTS + select({
+        "//:macos": [],
+        "//conditions:default": ["-lcppunit"],
+    }),
+    deps = ["//:torrent"] + select({
+        "//:macos": [
+            "@cppunit",
+        ],
+        "//conditions:default": [],
+    }),
 )
