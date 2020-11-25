@@ -75,18 +75,14 @@ SocketFile::set_size(uint64_t size, int flags) const {
   if (!is_open())
     throw internal_error("SocketFile::set_size() called on a closed file");
 
-#ifdef LT_HAVE_FALLOCATE
+#if defined(LT_HAVE_FALLOCATE)
   if (flags & flag_fallocate && fallocate(m_fd, 0, 0, size) == 0)
     return true;
-#endif
-
-#ifdef LT_USE_POSIX_FALLOCATE
+#elif defined(LT_USE_POSIX_FALLOCATE)
   if (flags & flag_fallocate && flags & flag_fallocate_blocking &&
       posix_fallocate(m_fd, 0, size) == 0)
     return true;
-#endif
-
-#ifdef SYS_DARWIN
+#elif defined(__APPLE__)
   if (flags & flag_fallocate) {
     fstore_t fstore;
     fstore.fst_flags      = F_ALLOCATECONTIG;
