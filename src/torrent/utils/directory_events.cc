@@ -60,6 +60,7 @@ directory_events::close() {
   m_wd_list.clear();
 }
 
+#ifdef LT_HAVE_INOTIFY
 void
 directory_events::notify_on(const std::string& path,
                             int                flags,
@@ -67,7 +68,6 @@ directory_events::notify_on(const std::string& path,
   if (path.empty())
     throw input_error("Cannot add notification event for empty paths.");
 
-#ifdef LT_HAVE_INOTIFY
   int in_flags = IN_MASK_ADD;
 
 #ifdef IN_EXCL_UNLINK
@@ -97,11 +97,13 @@ directory_events::notify_on(const std::string& path,
   itr->descriptor       = result;
   itr->path             = path + (*path.rbegin() != '/' ? "/" : "");
   itr->slot             = slot;
-
-#else
-  throw input_error("No support for inotify.");
-#endif
 }
+#else
+void
+directory_events::notify_on(const std::string&, int, const slot_string&) {
+  throw input_error("No support for inotify.");
+}
+#endif
 
 void
 directory_events::event_read() {
