@@ -1,4 +1,4 @@
 build -c opt torrent
 build:clang -c opt --action_env=CC=clang --action_env=CXX=clang++ torrent
 build:gcc -c opt --action_env=CC=gcc --action_env=CXX=g++ torrent
-test -c opt libtorrent_test
+test -c opt --test_output=all libtorrent_test
