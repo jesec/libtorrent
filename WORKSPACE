@@ -10,7 +10,7 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
   name = "cppunit",
-  srcs = ["lib/libcppunit.a"],
+  srcs = ["lib/libcppunit.dylib"],
   hdrs = glob(["include/cppunit/**"]),
   includes = ["include"],
   visibility = ["//visibility:public"],
