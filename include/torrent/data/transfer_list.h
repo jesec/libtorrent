@@ -33,7 +33,7 @@ public:
   using base_type::rend;
 
   TransferList();
-  ~TransferList() noexcept(false);
+  ~TransferList();
 
   iterator       find(uint32_t index);
   const_iterator find(uint32_t index) const;

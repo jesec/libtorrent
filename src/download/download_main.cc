@@ -132,17 +132,20 @@ DownloadMain::DownloadMain()
 }
 
 DownloadMain::~DownloadMain() {
-  if (m_taskTrackerRequest.is_queued())
-    throw internal_error(
+  if (m_taskTrackerRequest.is_queued()) {
+    internal_error(
       "DownloadMain::~DownloadMain(): m_taskTrackerRequest is queued.");
+    return;
+  }
 
   // Check if needed.
   m_connectionList->clear();
   m_tracker_list->clear();
 
-  if (m_info->size_pex() != 0)
-    throw internal_error(
-      "DownloadMain::~DownloadMain(): m_info->size_pex() != 0.");
+  if (m_info->size_pex() != 0) {
+    internal_error("DownloadMain::~DownloadMain(): m_info->size_pex() != 0.");
+    return;
+  }
 
   delete m_tracker_controller;
   delete m_tracker_list;

@@ -20,7 +20,7 @@ public:
 
   Poll()
     : m_flags(0) {}
-  virtual ~Poll() noexcept(false) {}
+  virtual ~Poll() {}
 
   uint32_t flags() const {
     return m_flags;

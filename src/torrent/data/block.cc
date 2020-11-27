@@ -15,15 +15,19 @@
 
 namespace torrent {
 
-Block::~Block() noexcept(false) {
-  if (m_state != STATE_INCOMPLETE && m_state != STATE_COMPLETED)
-    throw internal_error("Block dtor with 'm_state != STATE_INCOMPLETE && "
-                         "m_state != STATE_COMPLETED'");
+Block::~Block() {
+  if (m_state != STATE_INCOMPLETE && m_state != STATE_COMPLETED) {
+    internal_error("Block dtor with 'm_state != STATE_INCOMPLETE && "
+                   "m_state != STATE_COMPLETED'");
+    return;
+  }
 
   if (m_state == STATE_COMPLETED) {
-    if (m_leader == NULL)
-      throw internal_error(
+    if (m_leader == NULL) {
+      internal_error(
         "Block dtor with 'm_state == STATE_COMPLETED && m_leader == NULL'");
+      return;
+    }
 
     m_leader->set_peer_info(NULL);
   }
@@ -43,8 +47,10 @@ Block::~Block() noexcept(false) {
     });
   m_transfers.clear();
 
-  if (m_notStalled != 0)
-    throw internal_error("Block::clear() m_stalled != 0.");
+  if (m_notStalled != 0) {
+    internal_error("Block::clear() m_stalled != 0.");
+    return;
+  }
 
   delete m_failedList;
 }

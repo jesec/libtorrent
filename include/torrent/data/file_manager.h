@@ -26,7 +26,7 @@ public:
   using base_type::rend;
 
   FileManager();
-  ~FileManager() noexcept(false);
+  ~FileManager();
 
   size_type open_files() const {
     return base_type::size();

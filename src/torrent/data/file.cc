@@ -41,9 +41,9 @@ File::File()
   m_matchDepthPrev(0)
   , m_matchDepthNext(0) {}
 
-File::~File() noexcept(false) {
+File::~File() {
   if (is_open())
-    throw internal_error("File::~File() called on an open file.");
+    internal_error("File::~File() called on an open file.");
 }
 
 bool

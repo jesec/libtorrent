@@ -86,11 +86,15 @@ Handshake::Handshake(SocketFd fd, HandshakeManager* m, int encryptionOptions)
 }
 
 Handshake::~Handshake() {
-  if (m_taskTimeout.is_queued())
-    throw internal_error("Handshake m_taskTimeout bork bork bork.");
+  if (m_taskTimeout.is_queued()) {
+    internal_error("Handshake m_taskTimeout bork bork bork.");
+    return;
+  }
 
-  if (get_fd().is_valid())
-    throw internal_error("Handshake dtor called but m_fd is still open.");
+  if (get_fd().is_valid()) {
+    internal_error("Handshake dtor called but m_fd is still open.");
+    return;
+  }
 
   m_encryption.cleanup();
 }

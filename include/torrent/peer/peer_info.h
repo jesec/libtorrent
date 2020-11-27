@@ -30,7 +30,7 @@ public:
   static const int mask_ip_table = flag_unwanted | flag_preferred;
 
   PeerInfo(const sockaddr* address);
-  ~PeerInfo() noexcept(false);
+  ~PeerInfo();
 
   bool is_connected() const {
     return m_flags & flag_connected;

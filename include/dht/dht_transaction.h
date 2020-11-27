@@ -71,7 +71,7 @@ public:
   static const unsigned int max_announce = 3;
 
   DhtSearch(const HashString& target, const DhtBucket& contacts);
-  virtual ~DhtSearch() noexcept(false);
+  virtual ~DhtSearch();
 
   // Wrapper for iterators, allowing more convenient access to the key
   // and element values, which also makes it easier to change the container
@@ -173,7 +173,7 @@ public:
               const DhtBucket&  contacts)
     : DhtSearch(infoHash, contacts)
     , m_tracker(tracker) {}
-  ~DhtAnnounce() noexcept(false);
+  ~DhtAnnounce();
 
   virtual bool is_announce() const {
     return true;

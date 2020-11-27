@@ -128,32 +128,17 @@ PollSelect::create(int maxOpenSockets) {
   return p;
 }
 
-PollSelect::~PollSelect() noexcept(false) {
+PollSelect::~PollSelect() {
   m_readSet->prepare();
   m_writeSet->prepare();
   m_exceptSet->prepare();
 
   // Re-add this check when you've cleaned up the client shutdown procedure.
   if (!m_readSet->empty() || !m_writeSet->empty() || !m_exceptSet->empty()) {
-    throw internal_error(
+    internal_error(
       "PollSelect::~PollSelect() called but the sets are not empty");
-
-    // for (SocketSet::const_iterator itr = m_readSet->begin(); itr !=
-    // m_readSet->end(); itr++)
-    //   std::cout << "R" << (*itr)->file_descriptor() << std::endl;
-
-    // for (SocketSet::const_iterator itr = m_writeSet->begin(); itr !=
-    // m_writeSet->end(); itr++)
-    //   std::cout << "W" << (*itr)->file_descriptor() << std::endl;
-
-    // for (SocketSet::const_iterator itr = m_exceptSet->begin(); itr !=
-    // m_exceptSet->end(); itr++)
-    //   std::cout << "E" << (*itr)->file_descriptor() << std::endl;
+    return;
   }
-
-  //   delete m_readSet;
-  //   delete m_writeSet;
-  //   delete m_exceptSet;
 
   m_readSet = m_writeSet = m_exceptSet = NULL;
 }

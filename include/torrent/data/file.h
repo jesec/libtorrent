@@ -26,7 +26,7 @@ public:
   static const int flag_prioritize_last  = (1 << 6);
 
   File();
-  ~File() noexcept(false);
+  ~File();
 
   bool is_created() const;
   bool is_open() const {

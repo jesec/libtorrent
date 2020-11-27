@@ -24,17 +24,19 @@ DhtSearch::DhtSearch(const HashString& target, const DhtBucket& contacts)
   add_contacts(contacts);
 }
 
-DhtSearch::~DhtSearch() noexcept(false) {
+DhtSearch::~DhtSearch() {
   // Make sure transactions were destructed first. Since it is the destruction
   // of a transaction that triggers this destructor, that should always be the
   // case.
-  if (m_pending)
-    throw internal_error(
-      "DhtSearch::~DhtSearch called with pending transactions.");
+  if (m_pending) {
+    internal_error("DhtSearch::~DhtSearch called with pending transactions.");
+    return;
+  }
 
-  if (m_concurrency != 3)
-    throw internal_error(
-      "DhtSearch::~DhtSearch with invalid concurrency limit.");
+  if (m_concurrency != 3) {
+    internal_error("DhtSearch::~DhtSearch with invalid concurrency limit.");
+    return;
+  }
 
   for (accessor itr = begin(); itr != end(); ++itr)
     delete itr.node();
@@ -180,10 +182,12 @@ DhtSearch::node_status(const_accessor& n, bool success) {
   set_node_active(n, false);
 }
 
-DhtAnnounce::~DhtAnnounce() noexcept(false) {
-  if (!complete())
-    throw internal_error(
+DhtAnnounce::~DhtAnnounce() {
+  if (!complete()) {
+    internal_error(
       "DhtAnnounce::~DhtAnnounce called while announce not complete.");
+    return;
+  }
 
   const char* failure = NULL;
 

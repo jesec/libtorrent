@@ -25,7 +25,7 @@ public:
   typedef enum { STATE_INCOMPLETE, STATE_COMPLETED, STATE_INVALID } state_type;
 
   Block();
-  ~Block() noexcept(false);
+  ~Block();
 
   bool is_stalled() const {
     return m_notStalled == 0;

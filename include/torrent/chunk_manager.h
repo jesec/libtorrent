@@ -29,7 +29,7 @@ public:
   using base_type::size;
 
   ChunkManager();
-  ~ChunkManager() noexcept(false);
+  ~ChunkManager();
 
   uint64_t memory_usage() const {
     return m_memoryUsage;

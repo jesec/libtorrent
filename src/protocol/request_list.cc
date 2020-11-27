@@ -79,11 +79,15 @@ struct request_list_keep_request {
 };
 
 RequestList::~RequestList() {
-  if (m_transfer != NULL)
-    throw internal_error("request dtor m_transfer != NULL");
+  if (m_transfer != NULL) {
+    internal_error("request dtor m_transfer != NULL");
+    return;
+  }
 
-  if (!m_queues.empty())
-    throw internal_error("request dtor m_queues not empty");
+  if (!m_queues.empty()) {
+    internal_error("request dtor m_queues not empty");
+    return;
+  }
 
   priority_queue_erase(&taskScheduler, &m_delay_remove_choked);
   priority_queue_erase(&taskScheduler, &m_delay_process_unordered);

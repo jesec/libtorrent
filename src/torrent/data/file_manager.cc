@@ -17,10 +17,9 @@ FileManager::FileManager()
   , m_filesClosedCounter(0)
   , m_filesFailedCounter(0) {}
 
-FileManager::~FileManager() noexcept(false) {
+FileManager::~FileManager() {
   if (!empty())
-    throw internal_error(
-      "FileManager::~FileManager() called but empty() != true.");
+    internal_error("FileManager::~FileManager() called but empty() != true.");
 }
 
 void

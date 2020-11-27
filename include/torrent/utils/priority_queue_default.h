@@ -19,10 +19,12 @@ public:
   typedef std::function<void(void)> slot_void;
 
   priority_item() {}
-  ~priority_item() noexcept(false) {
-    if (is_queued())
-      throw torrent::internal_error(
+  ~priority_item() {
+    if (is_queued()) {
+      torrent::internal_error(
         "priority_item::~priority_item() called on a queued item.");
+      return;
+    }
 
     m_time = timer();
     m_slot = slot_void();

@@ -32,14 +32,18 @@ ResourceManager::ResourceManager()
   , m_maxUploadUnchoked(0)
   , m_maxDownloadUnchoked(0) {}
 
-ResourceManager::~ResourceManager() noexcept(false) {
-  if (m_currentlyUploadUnchoked != 0)
-    throw internal_error("ResourceManager::~ResourceManager() called but "
-                         "m_currentlyUploadUnchoked != 0.");
+ResourceManager::~ResourceManager() {
+  if (m_currentlyUploadUnchoked != 0) {
+    internal_error("ResourceManager::~ResourceManager() called but "
+                   "m_currentlyUploadUnchoked != 0.");
+    return;
+  }
 
-  if (m_currentlyDownloadUnchoked != 0)
-    throw internal_error("ResourceManager::~ResourceManager() called but "
-                         "m_currentlyDownloadUnchoked != 0.");
+  if (m_currentlyDownloadUnchoked != 0) {
+    internal_error("ResourceManager::~ResourceManager() called but "
+                   "m_currentlyDownloadUnchoked != 0.");
+    return;
+  }
 
   std::for_each(choke_base_type::begin(),
                 choke_base_type::end(),

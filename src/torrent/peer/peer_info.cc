@@ -33,15 +33,14 @@ PeerInfo::PeerInfo(const sockaddr* address)
   m_address = sa->c_sockaddr();
 }
 
-PeerInfo::~PeerInfo() noexcept(false) {
-  // if (m_transferCounter != 0)
-  //   throw internal_error("PeerInfo::~PeerInfo() m_transferCounter != 0.");
-
+PeerInfo::~PeerInfo() {
   instrumentation_update(INSTRUMENTATION_TRANSFER_PEER_INFO_UNACCOUNTED,
                          m_transferCounter);
 
-  if (is_blocked())
-    throw internal_error("PeerInfo::~PeerInfo() peer is blocked.");
+  if (is_blocked()) {
+    internal_error("PeerInfo::~PeerInfo() peer is blocked.");
+    return;
+  }
 
   delete utils::socket_address::cast_from(m_address);
 }
