@@ -41,6 +41,9 @@ public:
   failure_list_type&& move_failures() {
     return std::move(m_failures);
   }
+  const torrent::log_buffer_ptr& logBuffer() {
+    return m_current_log_buffer;
+  }
 
 private:
   progress_listener(const progress_listener& rhs) = delete;

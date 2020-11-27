@@ -25,6 +25,8 @@ CPPUNIT_REGISTRY_ADD_TO_DEFAULT("torrent");
 CPPUNIT_REGISTRY_ADD_TO_DEFAULT("net");
 CPPUNIT_REGISTRY_ADD_TO_DEFAULT("tracker");
 
+static progress_listener progress;
+
 void
 do_test_panic(int signum) {
   signal(signum, SIG_DFL);
@@ -49,6 +51,14 @@ do_test_panic(int signum) {
 #endif
 
   std::cout << std::endl;
+
+  dump_failures(progress.failures());
+  std::for_each(progress.logBuffer()->begin(),
+                progress.logBuffer()->end(),
+                [](const torrent::log_entry& entry) {
+                  std::cout << entry.timestamp << ' ' << entry.message << '\n';
+                });
+
   torrent::log_cleanup();
   std::abort();
 }
@@ -72,7 +82,6 @@ main(int, char**) {
 
   CppUnit::TestResult          controller;
   CppUnit::TestResultCollector result;
-  progress_listener            progress;
 
   controller.addListener(&result);
   controller.addListener(&progress);
