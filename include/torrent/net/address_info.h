@@ -82,7 +82,7 @@ ai_clear(addrinfo* ai) {
 
 inline ai_unique_ptr
 ai_make_hint(int flags, int family, int socktype) {
-  ai_unique_ptr aip(new addrinfo);
+  ai_unique_ptr aip((addrinfo*)malloc(sizeof(addrinfo)));
 
   aip_clear(aip);
   aip->ai_flags    = flags;
