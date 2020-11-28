@@ -52,10 +52,9 @@ void
 internal_error::initialize(const std::string& msg) {
   m_msg = msg;
 
-  std::stringstream output;
-
 #ifdef LT_HAVE_BACKTRACE
-  void* stackPtrs[20];
+  std::stringstream output;
+  void*             stackPtrs[20];
 
   // Print the stack and exit.
   int    stackSize    = ::backtrace(stackPtrs, 20);
@@ -64,11 +63,11 @@ internal_error::initialize(const std::string& msg) {
   for (int i = 0; i < stackSize; ++i)
     output << stackStrings[i] << std::endl;
 
+  m_backtrace = output.str();
+  free(stackStrings);
 #else
   output << "Stack dump not enabled." << std::endl;
 #endif
-
-  m_backtrace = output.str();
 }
 
 } // namespace torrent
