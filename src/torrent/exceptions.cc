@@ -52,10 +52,10 @@ address_info_error::what() const noexcept {
 void
 internal_error::initialize(const std::string& msg, const bool print) {
   m_msg = msg;
+  std::stringstream output;
 
 #ifdef LT_HAVE_BACKTRACE
-  std::stringstream output;
-  void*             stackPtrs[20];
+  void* stackPtrs[20];
 
   // Print the stack and exit.
   int    stackSize    = ::backtrace(stackPtrs, 20);
@@ -68,6 +68,7 @@ internal_error::initialize(const std::string& msg, const bool print) {
   free(stackStrings);
 #else
   output << "Stack dump not enabled." << std::endl;
+  m_backtrace = output.str();
 #endif
 
   if (print) {
