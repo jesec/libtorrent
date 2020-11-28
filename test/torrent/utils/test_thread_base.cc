@@ -40,6 +40,8 @@ test_thread_base::test_basic() {
   CPPUNIT_ASSERT(thread->poll() == NULL);
 
   // Check active...
+
+  delete thread;
 }
 
 void
