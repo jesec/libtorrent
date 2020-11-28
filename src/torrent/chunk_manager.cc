@@ -54,8 +54,11 @@ uint64_t
 ChunkManager::sync_queue_memory_usage() const {
   uint64_t size = 0;
 
-  for (const_iterator itr = begin(), last = end(); itr != last; itr++)
-    size += (*itr)->queue_size() * (*itr)->chunk_size();
+  for (const_iterator itr = begin(), last = end(); itr != last; itr++) {
+    uint64_t chuckListSize = (*itr)->chunk_size();
+    chuckListSize *= (*itr)->queue_size();
+    size += chuckListSize;
+  }
 
   return size;
 }

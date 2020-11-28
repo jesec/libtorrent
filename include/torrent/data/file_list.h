@@ -99,7 +99,9 @@ public:
   }
   uint32_t chunk_index_size(uint32_t index) const;
   uint64_t chunk_index_position(uint32_t index) const {
-    return index * chunk_size();
+    uint64_t result = chunk_size();
+    result *= index;
+    return result;
   }
 
   const download_data* data() const {

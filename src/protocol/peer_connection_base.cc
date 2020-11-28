@@ -401,15 +401,14 @@ PeerConnectionBase::load_up_chunk() {
   // past unmaps.
   ChunkManager* cm     = manager->chunk_manager();
   uint32_t preloadSize = m_upChunk.chunk()->chunk_size() - m_upPiece.offset();
+  uint64_t preloadRequiredRate = cm->preload_required_rate();
 
   if (cm->preload_type() == 0 ||
       m_upChunk.object()->time_preloaded() >=
         cachedTime - utils::timer::from_seconds(60) ||
-
       preloadSize < cm->preload_min_size() ||
       m_peerChunks.upload_throttle()->rate()->rate() <
-        cm->preload_required_rate() *
-          ((preloadSize + (2 << 20) - 1) / (2 << 20))) {
+        preloadRequiredRate * ((preloadSize + (2 << 20) - 1) / (2 << 20))) {
     cm->inc_stats_not_preloaded();
     return;
   }
