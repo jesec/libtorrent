@@ -135,7 +135,7 @@ PollSelect::~PollSelect() {
 
   // Re-add this check when you've cleaned up the client shutdown procedure.
   if (!m_readSet->empty() || !m_writeSet->empty() || !m_exceptSet->empty()) {
-    deconstruct_error(
+    destruct_error(
       "PollSelect::~PollSelect() called but the sets are not empty");
     return;
   }

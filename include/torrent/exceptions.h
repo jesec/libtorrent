@@ -59,12 +59,12 @@ private:
   std::string m_backtrace;
 };
 
-class LIBTORRENT_EXPORT deconstruct_error : public internal_error {
+class LIBTORRENT_EXPORT destruct_error : public internal_error {
 public:
-  deconstruct_error(const char* msg) {
+  destruct_error(const char* msg) {
     initialize(msg, true);
   }
-  deconstruct_error(const std::string& msg) {
+  destruct_error(const std::string& msg) {
     initialize(msg, true);
   }
 };

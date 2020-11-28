@@ -139,12 +139,12 @@ inline BlockTransfer::BlockTransfer()
 
 inline BlockTransfer::~BlockTransfer() {
   if (m_block != NULL) {
-    deconstruct_error("BlockTransfer::~BlockTransfer() block not NULL");
+    destruct_error("BlockTransfer::~BlockTransfer() block not NULL");
     return;
   }
 
   if (m_peer_info != NULL) {
-    deconstruct_error("BlockTransfer::~BlockTransfer() peer_info not NULL");
+    destruct_error("BlockTransfer::~BlockTransfer() peer_info not NULL");
     return;
   }
 }

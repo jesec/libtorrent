@@ -43,7 +43,7 @@ File::File()
 
 File::~File() {
   if (is_open())
-    deconstruct_error("File::~File() called on an open file.");
+    destruct_error("File::~File() called on an open file.");
 }
 
 bool

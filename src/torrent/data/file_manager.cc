@@ -19,7 +19,7 @@ FileManager::FileManager()
 
 FileManager::~FileManager() {
   if (!empty())
-    deconstruct_error("FileManager::~FileManager() called but empty() != true.");
+    destruct_error("FileManager::~FileManager() called but empty() != true.");
 }
 
 void

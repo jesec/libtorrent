@@ -34,13 +34,13 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager() {
   if (m_currentlyUploadUnchoked != 0) {
-    deconstruct_error("ResourceManager::~ResourceManager() called but "
+    destruct_error("ResourceManager::~ResourceManager() called but "
                    "m_currentlyUploadUnchoked != 0.");
     return;
   }
 
   if (m_currentlyDownloadUnchoked != 0) {
-    deconstruct_error("ResourceManager::~ResourceManager() called but "
+    destruct_error("ResourceManager::~ResourceManager() called but "
                    "m_currentlyDownloadUnchoked != 0.");
     return;
   }
