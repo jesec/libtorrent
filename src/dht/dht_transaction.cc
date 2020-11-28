@@ -29,12 +29,12 @@ DhtSearch::~DhtSearch() {
   // of a transaction that triggers this destructor, that should always be the
   // case.
   if (m_pending) {
-    internal_error("DhtSearch::~DhtSearch called with pending transactions.");
+    deconstruct_error("DhtSearch::~DhtSearch called with pending transactions.");
     return;
   }
 
   if (m_concurrency != 3) {
-    internal_error("DhtSearch::~DhtSearch with invalid concurrency limit.");
+    deconstruct_error("DhtSearch::~DhtSearch with invalid concurrency limit.");
     return;
   }
 
@@ -184,7 +184,7 @@ DhtSearch::node_status(const_accessor& n, bool success) {
 
 DhtAnnounce::~DhtAnnounce() {
   if (!complete()) {
-    internal_error(
+    deconstruct_error(
       "DhtAnnounce::~DhtAnnounce called while announce not complete.");
     return;
   }

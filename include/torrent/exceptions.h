@@ -49,15 +49,27 @@ public:
     return m_backtrace;
   }
 
-private:
+protected:
+  internal_error() {}
   // Use this function for breaking on throws.
-  void initialize(const std::string& msg);
+  void initialize(const std::string& msg, const bool print = false);
 
+private:
   std::string m_msg;
   std::string m_backtrace;
 };
 
-// For some reason we couldn't talk with a protocol/tracker, migth be a
+class LIBTORRENT_EXPORT deconstruct_error : public internal_error {
+public:
+  deconstruct_error(const char* msg) {
+    initialize(msg, true);
+  }
+  deconstruct_error(const std::string& msg) {
+    initialize(msg, true);
+  }
+};
+
+// For some reason we couldn't talk with a protocol/tracker, might be a
 // library bug, connection problem or bad input.
 class LIBTORRENT_EXPORT network_error : public base_error {
 public:

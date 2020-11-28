@@ -38,7 +38,7 @@ PeerInfo::~PeerInfo() {
                          m_transferCounter);
 
   if (is_blocked()) {
-    internal_error("PeerInfo::~PeerInfo() peer is blocked.");
+    deconstruct_error("PeerInfo::~PeerInfo() peer is blocked.");
     return;
   }
 

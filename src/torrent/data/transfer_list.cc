@@ -26,7 +26,7 @@ TransferList::TransferList()
 
 TransferList::~TransferList() {
   if (!base_type::empty())
-    internal_error(
+    deconstruct_error(
       "TransferList::~TransferList() called on an non-empty object");
 }
 

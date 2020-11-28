@@ -17,14 +17,14 @@ namespace torrent {
 
 Block::~Block() {
   if (m_state != STATE_INCOMPLETE && m_state != STATE_COMPLETED) {
-    internal_error("Block dtor with 'm_state != STATE_INCOMPLETE && "
+    deconstruct_error("Block dtor with 'm_state != STATE_INCOMPLETE && "
                    "m_state != STATE_COMPLETED'");
     return;
   }
 
   if (m_state == STATE_COMPLETED) {
     if (m_leader == NULL) {
-      internal_error(
+      deconstruct_error(
         "Block dtor with 'm_state == STATE_COMPLETED && m_leader == NULL'");
       return;
     }
@@ -48,7 +48,7 @@ Block::~Block() {
   m_transfers.clear();
 
   if (m_notStalled != 0) {
-    internal_error("Block::clear() m_stalled != 0.");
+    deconstruct_error("Block::clear() m_stalled != 0.");
     return;
   }
 

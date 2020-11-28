@@ -133,7 +133,7 @@ DownloadMain::DownloadMain()
 
 DownloadMain::~DownloadMain() {
   if (m_taskTrackerRequest.is_queued()) {
-    internal_error(
+    deconstruct_error(
       "DownloadMain::~DownloadMain(): m_taskTrackerRequest is queued.");
     return;
   }
@@ -143,7 +143,7 @@ DownloadMain::~DownloadMain() {
   m_tracker_list->clear();
 
   if (m_info->size_pex() != 0) {
-    internal_error("DownloadMain::~DownloadMain(): m_info->size_pex() != 0.");
+    deconstruct_error("DownloadMain::~DownloadMain(): m_info->size_pex() != 0.");
     return;
   }
 

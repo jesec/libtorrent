@@ -44,13 +44,13 @@ log_choke_changes_func_new(void*       address,
 
 choke_queue::~choke_queue() {
   if (m_currently_unchoked != 0) {
-    internal_error(
+    deconstruct_error(
       "choke_queue::~choke_queue() called but m_currentlyUnchoked != 0.");
     return;
   }
 
   if (m_currently_queued != 0) {
-    internal_error(
+    deconstruct_error(
       "choke_queue::~choke_queue() called but m_currentlyQueued != 0.");
     return;
   }

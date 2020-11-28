@@ -5,6 +5,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <iostream>
 #include <netdb.h>
 #include <sstream>
 #include <unistd.h>
@@ -49,7 +50,7 @@ address_info_error::what() const noexcept {
 }
 
 void
-internal_error::initialize(const std::string& msg) {
+internal_error::initialize(const std::string& msg, const bool print) {
   m_msg = msg;
 
 #ifdef LT_HAVE_BACKTRACE
@@ -68,6 +69,11 @@ internal_error::initialize(const std::string& msg) {
 #else
   output << "Stack dump not enabled." << std::endl;
 #endif
+
+  if (print) {
+    std::cout << m_msg << std::endl;
+    std::cout << m_backtrace << std::endl;
+  }
 }
 
 } // namespace torrent

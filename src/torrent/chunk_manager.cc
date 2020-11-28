@@ -45,7 +45,7 @@ ChunkManager::ChunkManager()
 
 ChunkManager::~ChunkManager() {
   if (m_memoryUsage != 0 || m_memoryBlockCount != 0) {
-    internal_error("ChunkManager::~ChunkManager() m_memoryUsage != 0 || "
+    deconstruct_error("ChunkManager::~ChunkManager() m_memoryUsage != 0 || "
                    "m_memoryBlockCount != 0.");
   }
 }

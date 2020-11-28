@@ -80,12 +80,12 @@ struct request_list_keep_request {
 
 RequestList::~RequestList() {
   if (m_transfer != NULL) {
-    internal_error("request dtor m_transfer != NULL");
+    deconstruct_error("request dtor m_transfer != NULL");
     return;
   }
 
   if (!m_queues.empty()) {
-    internal_error("request dtor m_queues not empty");
+    deconstruct_error("request dtor m_queues not empty");
     return;
   }
 
