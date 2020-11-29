@@ -317,7 +317,7 @@ PollKQueue::close(Event* event) {
   m_changedEvents =
     std::remove_if(m_changes,
                    m_changes + m_changedEvents,
-                   [event](kevent& e) { return event == e.udata; }) -
+                   [event](struct kevent& e) { return event == e.udata; }) -
     m_changes;
 }
 
@@ -348,7 +348,7 @@ PollKQueue::closed(Event* event) {
   m_changedEvents =
     std::remove_if(m_changes,
                    m_changes + m_changedEvents,
-                   [event](kevent& e) { return event == e.udata; }) -
+                   [event](struct kevent& e) { return event == e.udata; }) -
     m_changes;
 }
 
