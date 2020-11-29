@@ -9,7 +9,6 @@
 #include "torrent/exceptions.h"
 #include "torrent/tracker.h"
 #include "torrent/tracker_list.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/option_strings.h"
 #include "tracker/tracker_dht.h"
@@ -99,7 +98,7 @@ TrackerList::disown_all_including(int event_bitmap) {
 
 void
 TrackerList::clear() {
-  std::for_each(begin(), end(), utils::call_delete<Tracker>());
+  std::for_each(begin(), end(), [](Tracker* t) { delete t; });
   base_type::clear();
 }
 
@@ -257,13 +256,13 @@ TrackerList::find_next_to_request(iterator itr) {
 TrackerList::iterator
 TrackerList::begin_group(unsigned int group) {
   return std::find_if(
-    begin(), end(), utils::less_equal(group, std::mem_fn(&Tracker::group)));
+    begin(), end(), [group](Tracker* t) { return group <= t->group(); });
 }
 
 TrackerList::const_iterator
 TrackerList::begin_group(unsigned int group) const {
   return std::find_if(
-    begin(), end(), utils::less_equal(group, std::mem_fn(&Tracker::group)));
+    begin(), end(), [group](Tracker* t) { return group <= t->group(); });
 }
 
 TrackerList::size_type

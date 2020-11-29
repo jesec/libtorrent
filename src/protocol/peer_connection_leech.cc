@@ -17,7 +17,6 @@
 #include "torrent/download_info.h"
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer_info.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/string_manip.h"
 
@@ -541,12 +540,12 @@ PeerConnection<type>::fill_write_buffer() {
   if (type == Download::CONNECTION_LEECH && !haveQueue->empty() &&
       m_peerChunks.have_timer() <= haveQueue->front().first &&
       m_up->can_write_have()) {
-    DownloadMain::have_queue_type::iterator last = std::find_if(
-      haveQueue->begin(),
-      haveQueue->end(),
-      utils::greater(
-        m_peerChunks.have_timer(),
-        utils::mem_ref(&DownloadMain::have_queue_type::value_type::first)));
+    DownloadMain::have_queue_type::iterator last =
+      std::find_if(haveQueue->begin(),
+                   haveQueue->end(),
+                   [this](DownloadMain::have_queue_type::value_type v) {
+                     return m_peerChunks.have_timer() > v.first;
+                   });
 
     do {
       m_up->write_have((--last)->second);

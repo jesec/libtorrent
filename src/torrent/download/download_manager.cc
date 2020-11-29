@@ -3,7 +3,6 @@
 
 #include "download/download_wrapper.h"
 #include "torrent/exceptions.h"
-#include "torrent/utils/functional.h"
 
 #include "torrent/download/download_manager.h"
 
@@ -38,46 +37,37 @@ DownloadManager::clear() {
 
 DownloadManager::iterator
 DownloadManager::find(const std::string& hash) {
-  return std::find_if(
-    begin(),
-    end(),
-    utils::equal(*HashString::cast_from(hash),
-                 utils::on(std::mem_fn(&DownloadWrapper::info),
-                           std::mem_fn(&DownloadInfo::hash))));
+  return std::find_if(begin(), end(), [hash](DownloadWrapper* wrapper) {
+    return *HashString::cast_from(hash) == wrapper->info()->hash();
+  });
 }
 
 DownloadManager::iterator
 DownloadManager::find(const HashString& hash) {
-  return std::find_if(
-    begin(),
-    end(),
-    utils::equal(hash,
-                 utils::on(std::mem_fn(&DownloadWrapper::info),
-                           std::mem_fn(&DownloadInfo::hash))));
+  return std::find_if(begin(), end(), [hash](DownloadWrapper* wrapper) {
+    return hash == wrapper->info()->hash();
+  });
 }
 
 DownloadManager::iterator
 DownloadManager::find(DownloadInfo* info) {
-  return std::find_if(
-    begin(), end(), utils::equal(info, std::mem_fn(&DownloadWrapper::info)));
+  return std::find_if(begin(), end(), [info](DownloadWrapper* wrapper) {
+    return info == wrapper->info();
+  });
 }
 
 DownloadManager::iterator
 DownloadManager::find_chunk_list(ChunkList* cl) {
-  return std::find_if(
-    begin(),
-    end(),
-    utils::equal(cl, std::mem_fn(&DownloadWrapper::chunk_list)));
+  return std::find_if(begin(), end(), [cl](DownloadWrapper* wrapper) {
+    return cl == wrapper->chunk_list();
+  });
 }
 
 DownloadMain*
 DownloadManager::find_main(const char* hash) {
-  iterator itr =
-    std::find_if(begin(),
-                 end(),
-                 utils::equal(*HashString::cast_from(hash),
-                              utils::on(std::mem_fn(&DownloadWrapper::info),
-                                        std::mem_fn(&DownloadInfo::hash))));
+  iterator itr = std::find_if(begin(), end(), [hash](DownloadWrapper* wrapper) {
+    return *HashString::cast_from(hash) == wrapper->info()->hash();
+  });
 
   if (itr == end())
     return NULL;
@@ -87,12 +77,9 @@ DownloadManager::find_main(const char* hash) {
 
 DownloadMain*
 DownloadManager::find_main_obfuscated(const char* hash) {
-  iterator itr = std::find_if(
-    begin(),
-    end(),
-    utils::equal(*HashString::cast_from(hash),
-                 utils::on(std::mem_fn(&DownloadWrapper::info),
-                           std::mem_fn(&DownloadInfo::hash_obfuscated))));
+  iterator itr = std::find_if(begin(), end(), [hash](DownloadWrapper* wrapper) {
+    return *HashString::cast_from(hash) == wrapper->info()->hash_obfuscated();
+  });
 
   if (itr == end())
     return NULL;

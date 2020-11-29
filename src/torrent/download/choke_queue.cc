@@ -11,7 +11,6 @@
 #include "torrent/download/group_entry.h"
 #include "torrent/peer/choke_status.h"
 #include "torrent/peer/connection_list.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 
 namespace torrent {
@@ -522,12 +521,12 @@ choke_manager_allocate_slots(choke_queue::iterator     first,
   target[0].second = first;
 
   for (uint32_t i = 0; i < choke_queue::order_max_size; i++) {
-    target[i].first      = 0;
-    target[i + 1].second = std::find_if(
-      target[i].second,
-      last,
-      utils::less(i * choke_queue::order_base + (choke_queue::order_base - 1),
-                  utils::mem_ref(&choke_queue::value_type::weight)));
+    target[i].first = 0;
+    target[i + 1].second =
+      std::find_if(target[i].second, last, [i](choke_queue::value_type& v) {
+        return (i * choke_queue::order_base + (choke_queue::order_base - 1)) <
+               v.weight;
+      });
 
     if (std::distance(target[i].second, target[i + 1].second) != 0)
       weightTotal += weights[i];

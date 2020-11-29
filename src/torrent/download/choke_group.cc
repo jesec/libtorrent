@@ -20,26 +20,24 @@ choke_group::choke_group()
 
 uint64_t
 choke_group::up_rate() const {
-  return std::for_each(m_first,
-                       m_last,
-                       utils::accumulate(
-                         (uint64_t)0,
-                         std::bind(&Rate::rate,
-                                   std::bind(&resource_manager_entry::up_rate,
-                                             std::placeholders::_1))))
-    .result;
+  uint64_t result = 0;
+
+  std::for_each(m_first, m_last, [&result](resource_manager_entry e) {
+    result += e.up_rate()->rate();
+  });
+
+  return result;
 }
 
 uint64_t
 choke_group::down_rate() const {
-  return std::for_each(m_first,
-                       m_last,
-                       utils::accumulate(
-                         (uint64_t)0,
-                         std::bind(&Rate::rate,
-                                   std::bind(&resource_manager_entry::down_rate,
-                                             std::placeholders::_1))))
-    .result;
+  uint64_t result = 0;
+
+  std::for_each(m_first, m_last, [&result](resource_manager_entry e) {
+    result += e.down_rate()->rate();
+  });
+
+  return result;
 }
 
 } // namespace torrent

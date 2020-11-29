@@ -6,7 +6,6 @@
 
 #include "torrent/object.h"
 #include "torrent/object_stream.h"
-#include "torrent/utils/functional.h"
 
 namespace torrent {
 
@@ -119,10 +118,9 @@ Object::merge_copy(const Object& object,
 
     while (srcItr != srcLast) {
       destItr = std::find_if(
-        destItr,
-        dest.end(),
-        utils::less_equal(srcItr->first,
-                          utils::mem_ref(&map_type::value_type::first)));
+        destItr, dest.end(), [srcItr](const map_type::value_type v) {
+          return srcItr->first <= v.first;
+        });
 
       if (srcItr->first < destItr->first)
         // destItr remains valid and pointing to the next possible

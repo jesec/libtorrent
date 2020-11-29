@@ -12,7 +12,6 @@
 #include "thread_disk.h"
 #include "torrent/data/download_data.h"
 #include "torrent/exceptions.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/thread_base.h"
 
@@ -80,9 +79,9 @@ HashQueue::push_back(ChunkHandle            handle,
 
 bool
 HashQueue::has(HashQueueNode::id_type id) {
-  return std::find_if(
-           begin(), end(), utils::equal(id, std::mem_fn(&HashQueueNode::id))) !=
-         end();
+  return std::find_if(begin(), end(), [id](HashQueueNode n) {
+           return id == n.id();
+         }) != end();
 }
 
 bool
@@ -94,9 +93,9 @@ void
 HashQueue::remove(HashQueueNode::id_type id) {
   iterator itr = begin();
 
-  while ((itr = std::find_if(
-            itr, end(), utils::equal(id, std::mem_fn(&HashQueueNode::id)))) !=
-         end()) {
+  while ((itr = std::find_if(itr, end(), [id](HashQueueNode n) {
+            return id == n.id();
+          })) != end()) {
     HashChunk* hash_chunk = itr->get_chunk();
 
     LT_LOG_DATA(id,

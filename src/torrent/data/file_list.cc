@@ -21,7 +21,6 @@
 #include "torrent/utils/error_number.h"
 #include "torrent/utils/file_stat.h"
 #include "torrent/utils/fs_stat.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 
 #define LT_LOG_FL(log_level, log_fmt, ...)                                     \
@@ -59,7 +58,7 @@ FileList::~FileList() {
   // Can we skip close()?
   close();
 
-  std::for_each(begin(), end(), utils::call_delete<File>());
+  std::for_each(begin(), end(), [](File* f) { delete f; });
 
   base_type::clear();
   m_torrentSize = 0;
@@ -694,9 +693,10 @@ FileList::mark_completed(uint32_t index) {
 FileList::iterator
 FileList::inc_completed(iterator firstItr, uint32_t index) {
   firstItr = std::find_if(
-    firstItr, end(), utils::less(index, std::mem_fn(&File::range_second)));
-  iterator lastItr = std::find_if(
-    firstItr, end(), utils::less(index + 1, std::mem_fn(&File::range_second)));
+    firstItr, end(), [index](File* f) { return index < f->range_second(); });
+  iterator lastItr = std::find_if(firstItr, end(), [index](File* f) {
+    return (index + 1) < f->range_second();
+  });
 
   if (firstItr == end())
     throw internal_error(

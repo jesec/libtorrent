@@ -8,7 +8,6 @@
 #include "torrent/data/block.h"
 #include "torrent/data/block_list.h"
 #include "torrent/exceptions.h"
-#include "torrent/utils/functional.h"
 #include "utils/instrumentation.h"
 
 namespace torrent {

@@ -14,7 +14,6 @@
 #include "torrent/dht_manager.h"
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "utils/sha1.h"
 

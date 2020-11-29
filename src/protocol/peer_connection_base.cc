@@ -24,7 +24,6 @@
 #include "torrent/peer/peer_info.h"
 #include "torrent/throttle.h"
 #include "torrent/utils/error_number.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/string_manip.h"
 #include "utils/instrumentation.h"

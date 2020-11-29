@@ -5,7 +5,6 @@
 #include "net/throttle_list.h"
 #include "torrent/exceptions.h"
 #include "torrent/throttle.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/priority_queue_default.h"
 #include "torrent/utils/timer.h"
 
@@ -35,7 +34,7 @@ ThrottleInternal::~ThrottleInternal() {
 
   std::for_each(m_slaveList.begin(),
                 m_slaveList.end(),
-                utils::call_delete<ThrottleInternal>());
+                [](ThrottleInternal* t) { delete t; });
 }
 
 void

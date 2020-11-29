@@ -16,7 +16,6 @@
 #include "torrent/http.h"
 #include "torrent/object_stream.h"
 #include "torrent/tracker_list.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/option_strings.h"
 #include "torrent/utils/string_manip.h"

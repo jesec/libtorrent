@@ -19,7 +19,6 @@
 #include "torrent/object_stream.h"
 #include "torrent/poll.h"
 #include "torrent/throttle.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "tracker/tracker_dht.h"
 
@@ -112,10 +111,10 @@ DhtServer::~DhtServer() {
 
   std::for_each(m_highQueue.begin(),
                 m_highQueue.end(),
-                utils::call_delete<DhtTransactionPacket>());
+                [](DhtTransactionPacket* p) { delete p; });
   std::for_each(m_lowQueue.begin(),
                 m_lowQueue.end(),
-                utils::call_delete<DhtTransactionPacket>());
+                [](DhtTransactionPacket* p) { delete p; });
 
   manager->connection_manager()->dec_socket_count();
 }

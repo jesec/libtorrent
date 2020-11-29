@@ -13,7 +13,6 @@
 #include "torrent/data/transfer_list.h"
 #include "torrent/exceptions.h"
 #include "torrent/peer/peer_info.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/timer.h"
 
 namespace torrent {
@@ -33,13 +32,13 @@ TransferList::~TransferList() {
 TransferList::iterator
 TransferList::find(uint32_t index) {
   return std::find_if(
-    begin(), end(), utils::equal(index, std::mem_fn(&BlockList::index)));
+    begin(), end(), [index](BlockList* b) { return index == b->index(); });
 }
 
 TransferList::const_iterator
 TransferList::find(uint32_t index) const {
   return std::find_if(
-    begin(), end(), utils::equal(index, std::mem_fn(&BlockList::index)));
+    begin(), end(), [index](BlockList* b) { return index == b->index(); });
 }
 
 void
@@ -48,7 +47,7 @@ TransferList::clear() {
                 end(),
                 std::bind(m_slot_canceled,
                           std::bind(&BlockList::index, std::placeholders::_1)));
-  std::for_each(begin(), end(), utils::call_delete<BlockList>());
+  std::for_each(begin(), end(), [](BlockList* l) { delete l; });
 
   base_type::clear();
 }
@@ -127,9 +126,10 @@ TransferList::hash_succeeded(uint32_t index, Chunk* chunk) {
     completed_list_type::iterator itr =
       std::find_if(m_completedList.begin(),
                    m_completedList.end(),
-                   utils::less_equal(
-                     utils::timer::current() - utils::timer::from_minutes(30),
-                     utils::mem_ref(&completed_list_type::value_type::first)));
+                   [](completed_list_type::value_type v) {
+                     return (utils::timer::current() -
+                             utils::timer::from_minutes(30)) <= v.first;
+                   });
     m_completedList.erase(m_completedList.begin(), itr);
   }
 

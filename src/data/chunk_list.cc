@@ -7,7 +7,6 @@
 #include "torrent/data/download_data.h"
 #include "torrent/exceptions.h"
 #include "torrent/utils/error_number.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "utils/instrumentation.h"
 
@@ -293,9 +292,9 @@ ChunkList::sync_chunks(int flags) {
     split = m_queue.begin();
   else
     split = std::stable_partition(
-      m_queue.begin(),
-      m_queue.end(),
-      utils::not_equal(1, std::mem_fn(&ChunkListNode::writable)));
+      m_queue.begin(), m_queue.end(), [](ChunkListNode* n) {
+        return 1 != n->writable();
+      });
 
   // Allow a flag that does more culling, so that we only get large
   // continous sections.

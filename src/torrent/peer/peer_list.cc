@@ -12,7 +12,6 @@
 #include "torrent/peer/client_list.h"
 #include "torrent/peer/peer_info.h"
 #include "torrent/peer/peer_list.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/socket_address.h"
 
@@ -74,10 +73,7 @@ PeerList::~PeerList() {
                 size(),
                 m_available_list->size());
 
-  std::for_each(begin(),
-                end(),
-                utils::on(utils::mem_ref(&value_type::second),
-                          utils::call_delete<PeerInfo>()));
+  std::for_each(begin(), end(), [](const value_type& v) { delete v.second; });
   base_type::clear();
 
   m_info = NULL;
@@ -342,16 +338,13 @@ PeerList::disconnected(PeerInfo* p, int flags) {
 
   range_type range = base_type::equal_range(sock_key);
 
-  iterator itr =
-    std::find_if(range.first,
-                 range.second,
-                 utils::equal(p, utils::mem_ref(&value_type::second)));
+  iterator itr = std::find_if(
+    range.first, range.second, [p](value_type& v) { return p == v.second; });
 
   if (itr == range.second) {
-    if (std::find_if(base_type::begin(),
-                     base_type::end(),
-                     utils::equal(p, utils::mem_ref(&value_type::second))) ==
-        base_type::end())
+    if (std::find_if(base_type::begin(), base_type::end(), [p](value_type& v) {
+          return p == v.second;
+        }) == base_type::end())
       throw internal_error(
         "PeerList::disconnected(...) itr == range.second, doesn't exist.");
     else

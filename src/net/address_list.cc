@@ -4,7 +4,6 @@
 #include <algorithm>
 
 #include "net/address_list.h"
-#include "torrent/utils/functional.h"
 
 namespace torrent {
 

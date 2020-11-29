@@ -15,7 +15,6 @@
 #include "torrent/object.h"
 #include "torrent/tracker_controller.h"
 #include "torrent/tracker_list.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/string_manip.h"
 
 namespace torrent {
@@ -162,10 +161,9 @@ DownloadConstructor::parse_tracker(const Object& b) {
                    announce_list->end(),
                    std::mem_fn(&Object::is_list)) != announce_list->end())
 
-    std::for_each(
-      announce_list->begin(),
-      announce_list->end(),
-      utils::make_mem_fun(this, &DownloadConstructor::add_tracker_group));
+    std::for_each(announce_list->begin(),
+                  announce_list->end(),
+                  [this](const Object& o) { return add_tracker_group(o); });
 
   else if (b.has_key("announce"))
     add_tracker_single(b.get_key("announce"), 0);
@@ -179,10 +177,9 @@ DownloadConstructor::parse_tracker(const Object& b) {
       m_download->main()->tracker_list()->size_group(), "dht://");
 
   if (manager->dht_manager()->is_valid() && b.has_key_list("nodes"))
-    std::for_each(
-      b.get_key_list("nodes").begin(),
-      b.get_key_list("nodes").end(),
-      utils::make_mem_fun(this, &DownloadConstructor::add_dht_node));
+    std::for_each(b.get_key_list("nodes").begin(),
+                  b.get_key_list("nodes").end(),
+                  [this](const Object& o) { return add_dht_node(o); });
 
   m_download->main()->tracker_list()->randomize_group_entries();
 }
@@ -193,11 +190,10 @@ DownloadConstructor::add_tracker_group(const Object& b) {
     throw bencode_error("Tracker group list not a list");
 
   std::for_each(
-    b.as_list().begin(),
-    b.as_list().end(),
-    utils::bind2nd(
-      utils::make_mem_fun(this, &DownloadConstructor::add_tracker_single),
-      m_download->main()->tracker_list()->size_group()));
+    b.as_list().begin(), b.as_list().end(), [this](const Object& o) {
+      return add_tracker_single(
+        o, m_download->main()->tracker_list()->size_group());
+    });
 }
 
 void
@@ -354,10 +350,9 @@ DownloadConstructor::choose_path(std::list<Path>* pathList) {
 
   for (; encodingFirst != encodingLast; ++encodingFirst) {
     std::list<Path>::iterator itr =
-      std::find_if(pathFirst,
-                   pathLast,
-                   utils::bind2nd(download_constructor_encoding_match(),
-                                  encodingFirst->c_str()));
+      std::find_if(pathFirst, pathLast, [encodingFirst](const Path& p) {
+        return download_constructor_encoding_match()(p, encodingFirst->c_str());
+      });
 
     if (itr != pathLast)
       pathList->splice(pathFirst, *pathList, itr);

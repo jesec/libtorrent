@@ -8,7 +8,6 @@
 #include "download/chunk_statistics.h"
 #include "protocol/peer_chunks.h"
 #include "torrent/exceptions.h"
-#include "torrent/utils/functional.h"
 
 namespace torrent {
 
@@ -26,7 +25,7 @@ ChunkSelector::initialize(ChunkStatistics* cs) {
   std::transform(completed->begin(),
                  completed->end(),
                  untouched->begin(),
-                 utils::invert<Bitfield::value_type>());
+                 [](const Bitfield::value_type& v) { return ~v; });
   untouched->update();
 
   m_sharedQueue.enable(32);

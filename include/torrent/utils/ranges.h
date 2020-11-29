@@ -7,8 +7,6 @@
 #include <algorithm>
 #include <vector>
 
-#include <torrent/utils/functional.h>
-
 namespace torrent {
 
 template<typename RangesType>
@@ -65,9 +63,7 @@ ranges<RangesType>::insert(value_type r) {
     return;
 
   iterator first = std::find_if(
-    begin(),
-    end(),
-    utils::less_equal(r.first, utils::const_mem_ref(&value_type::second)));
+    begin(), end(), [r](const value_type v) { return r.first <= v.second; });
 
   if (first == end() || r.second < first->first) {
     // The new range is before the first, after the last or between
@@ -78,10 +74,9 @@ ranges<RangesType>::insert(value_type r) {
     first->first  = std::min(r.first, first->first);
     first->second = std::max(r.second, first->second);
 
-    iterator last = std::find_if(
-      first,
-      end(),
-      utils::less(first->second, utils::const_mem_ref(&value_type::second)));
+    iterator last = std::find_if(first, end(), [first](const value_type v) {
+      return first->second < v.second;
+    });
 
     if (last != end() && first->second >= last->first)
       first->second = (last++)->second;
@@ -97,13 +92,9 @@ ranges<RangesType>::erase(value_type r) {
     return;
 
   iterator first = std::find_if(
-    begin(),
-    end(),
-    utils::less(r.first, utils::const_mem_ref(&value_type::second)));
+    begin(), end(), [r](const value_type v) { return r.first < v.second; });
   iterator last = std::find_if(
-    first,
-    end(),
-    utils::less(r.second, utils::const_mem_ref(&value_type::second)));
+    first, end(), [r](const value_type v) { return r.second < v.second; });
 
   if (first == end())
     return;
@@ -135,18 +126,14 @@ template<typename RangesType>
 inline typename ranges<RangesType>::iterator
 ranges<RangesType>::find(bound_type index) {
   return std::find_if(
-    begin(),
-    end(),
-    utils::less(index, utils::const_mem_ref(&value_type::second)));
+    begin(), end(), [index](const value_type v) { return index < v.second; });
 }
 
 template<typename RangesType>
 inline typename ranges<RangesType>::const_iterator
 ranges<RangesType>::find(bound_type index) const {
   return std::find_if(
-    begin(),
-    end(),
-    utils::less(index, utils::const_mem_ref(&value_type::second)));
+    begin(), end(), [index](const value_type v) { return index < v.second; });
 }
 
 // Use find with no closest match.

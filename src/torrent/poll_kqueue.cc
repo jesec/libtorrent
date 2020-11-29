@@ -23,7 +23,6 @@
 #include "torrent/poll_kqueue.h"
 #include "torrent/torrent.h"
 #include "torrent/utils/error_number.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/thread_base.h"
 #include "torrent/utils/timer.h"
@@ -318,7 +317,7 @@ PollKQueue::close(Event* event) {
   m_changedEvents =
     std::remove_if(m_changes,
                    m_changes + m_changedEvents,
-                   utils::equal(event, utils::mem_ref(&kevent::udata))) -
+                   [event](kevent& e) { return event == e.udata; }) -
     m_changes;
 }
 
@@ -349,7 +348,7 @@ PollKQueue::closed(Event* event) {
   m_changedEvents =
     std::remove_if(m_changes,
                    m_changes + m_changedEvents,
-                   utils::equal(event, utils::mem_ref(&kevent::udata))) -
+                   [event](kevent& e) { return event == e.udata; }) -
     m_changes;
 }
 

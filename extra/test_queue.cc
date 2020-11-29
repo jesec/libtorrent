@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "torrent/utils/functional.h"
 #include "torrent/utils/priority_queue_default.h"
 
 torrent::utils::priority_queue_default
@@ -51,16 +50,6 @@ main() {
 
       priority_queue_insert(&queue, first, (std::rand() % 50) + 1);
     }
-
-    //     std::vector<torrent::utils::priority_item*> due;
-
-    //     std::copy(torrent::utils::queue_popper(queue,
-    //     torrent::utils::bind2nd(std::mem_fn(&torrent::utils::priority_item::compare),
-    //     20)),
-    // 	      torrent::utils::queue_popper(queue,
-    // torrent::utils::bind2nd(std::mem_fn(&torrent::utils::priority_item::compare),
-    // torrent::utils::timer())), 	      std::back_inserter(due));
-    //     std::for_each(due.begin(), due.end(), std::ptr_fun(&print_item));
 
     while (!queue.empty()) {
       torrent::utils::priority_item* i = queue.top();

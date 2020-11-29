@@ -43,7 +43,7 @@ HandshakeManager::size_type
 HandshakeManager::size_info(DownloadMain* info) const {
   return std::count_if(base_type::begin(),
                        base_type::end(),
-                       utils::equal(info, std::mem_fn(&Handshake::download)));
+                       [info](Handshake* h) { return info == h->download(); });
 }
 
 void
@@ -84,9 +84,9 @@ HandshakeManager::find(const utils::socket_address& sa) {
 void
 HandshakeManager::erase_download(DownloadMain* info) {
   iterator split =
-    std::partition(base_type::begin(),
-                   base_type::end(),
-                   utils::not_equal(info, std::mem_fn(&Handshake::download)));
+    std::partition(base_type::begin(), base_type::end(), [info](Handshake* h) {
+      return info != h->download();
+    });
 
   std::for_each(split, base_type::end(), [](Handshake* h) {
     return handshake_manager_delete_handshake(h);

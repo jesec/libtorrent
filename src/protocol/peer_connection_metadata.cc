@@ -15,7 +15,6 @@
 #include "torrent/download_info.h"
 #include "torrent/peer/connection_list.h"
 #include "torrent/peer/peer_info.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 
 #define LT_LOG_METADATA_EVENTS(log_fmt, ...)                                   \

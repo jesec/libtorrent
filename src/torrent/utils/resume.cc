@@ -386,13 +386,13 @@ resume_save_uncertain_pieces(Download download, Object& object) {
 
   const TransferList::completed_list_type& completedList =
     download.transfer_list()->completed_list();
-  TransferList::completed_list_type::const_iterator itr = std::find_if(
-    completedList.begin(),
-    completedList.end(),
-    utils::less_equal(
-      (utils::timer::current() - utils::timer::from_minutes(15)).usec(),
-      utils::const_mem_ref(
-        &TransferList::completed_list_type::value_type::first)));
+  TransferList::completed_list_type::const_iterator itr =
+    std::find_if(completedList.begin(),
+                 completedList.end(),
+                 [](const TransferList::completed_list_type::value_type& v) {
+                   return (utils::timer::current() -
+                           utils::timer::from_minutes(15).usec()) <= v.first;
+                 });
 
   if (itr == completedList.end())
     return;

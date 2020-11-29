@@ -7,7 +7,6 @@
 
 #include "net/socket_fd.h"
 #include "torrent/connection_manager.h"
-#include "torrent/utils/functional.h"
 #include "torrent/utils/socket_address.h"
 #include "torrent/utils/unordered_vector.h"
 

@@ -22,6 +22,7 @@
 #include "torrent/tracker_controller.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/file_stat.h"
+#include "torrent/utils/functional.h"
 #include "torrent/utils/log.h"
 
 #define LT_LOG_STORAGE_ERRORS(log_fmt, ...)                                    \
@@ -92,7 +93,7 @@ DownloadWrapper::initialize(const std::string& hash, const std::string& id) {
   file_list()->mutable_data()->mutable_hash().assign(hash.c_str());
 
   m_main->slot_hash_check_add(
-    utils::make_mem_fun(this, &DownloadWrapper::check_chunk_hash));
+    [this](torrent::ChunkHandle handle) { return check_chunk_hash(handle); });
 
   // Info hash must be calculate from here on.
   m_hashChecker = new HashTorrent(m_main->chunk_list());
@@ -324,12 +325,12 @@ DownloadWrapper::receive_tick(uint32_t ticks) {
 
   DownloadMain::have_queue_type* haveQueue = m_main->have_queue();
   haveQueue->erase(
-    std::find_if(
-      haveQueue->rbegin(),
-      haveQueue->rend(),
-      utils::less(
-        cachedTime - utils::timer::from_seconds(600),
-        utils::mem_ref(&DownloadMain::have_queue_type::value_type::first)))
+    std::find_if(haveQueue->rbegin(),
+                 haveQueue->rend(),
+                 [](DownloadMain::have_queue_type::value_type& p) {
+                   return (cachedTime - utils::timer::from_seconds(600)) <
+                          p.first;
+                 })
       .base(),
     haveQueue->end());
 
@@ -384,8 +385,7 @@ DownloadWrapper::receive_update_priorities() {
 
   std::for_each(m_main->connection_list()->begin(),
                 m_main->connection_list()->end(),
-                utils::on(std::mem_fn(&Peer::m_ptr),
-                          std::mem_fn(&PeerConnectionBase::update_interested)));
+                [](Peer* p) { return p->m_ptr()->update_interested(); });
 
   // The 'partially_done/restarted' signal only gets triggered when a
   // download is active and not completed.

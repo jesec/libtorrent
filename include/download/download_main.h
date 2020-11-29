@@ -15,7 +15,6 @@
 #include "torrent/download/group_entry.h"
 #include "torrent/download_info.h"
 #include "torrent/peer/peer_list.h"
-#include "torrent/utils/functional.h"
 
 namespace torrent {
 
@@ -140,17 +139,12 @@ public:
   void setup_delegator();
   void setup_tracker();
 
-  typedef utils::const_mem_fun1<HandshakeManager, uint32_t, DownloadMain*>
-    SlotCountHandshakes;
-  typedef utils::mem_fun1<DownloadWrapper, void, ChunkHandle> SlotHashCheckAdd;
+  typedef std::function<uint32_t(DownloadMain*)> SlotCountHandshakes;
+  typedef std::function<void(ChunkHandle)>       SlotHashCheckAdd;
 
-  typedef utils::mem_fun2<HandshakeManager,
-                          void,
-                          const utils::socket_address&,
-                          DownloadMain*>
-    slot_start_handshake_type;
-  typedef utils::mem_fun1<HandshakeManager, void, DownloadMain*>
-    slot_stop_handshakes_type;
+  typedef std::function<void(const utils::socket_address&, DownloadMain*)>
+                                             slot_start_handshake_type;
+  typedef std::function<void(DownloadMain*)> slot_stop_handshakes_type;
 
   void slot_start_handshake(slot_start_handshake_type s) {
     m_slotStartHandshake = s;
