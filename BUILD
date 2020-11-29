@@ -6,22 +6,34 @@ config_setting(
     visibility = ["//visibility:private"],
 )
 
+config_setting(
+    name = "opt",
+    values = {"compilation_mode": "opt"},
+    visibility = ["//visibility:private"],
+)
+
 COPTS = [
     "-std=c++11",
-    "-Ofast",
     "-Wall",
     "-Wextra",
     "-Wdeprecated",
     "-Werror",
     "-faligned-new",
-    "-flto",
-]
+] + select({
+    "//:opt": [
+        "-Ofast",
+        "-flto",
+    ],
+    "//conditions:default": [],
+})
 
-LINKOPTS = [
-    "-O3",
-    "-flto",
-    "-s",
-]
+LINKOPTS = select({
+    "//:opt": [
+        "-O3",
+        "-flto",
+    ],
+    "//conditions:default": [],
+})
 
 genrule(
     name = "buildinfo",
