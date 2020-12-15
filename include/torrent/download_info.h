@@ -38,6 +38,7 @@ public:
   static const int flag_meta_download = (1 << 6);
   static const int flag_pex_enabled   = (1 << 7);
   static const int flag_pex_active    = (1 << 8);
+  static const int flag_sequential    = (1 << 9);
 
   static const int public_flags = flag_accepting_seeders;
 
@@ -100,6 +101,9 @@ public:
   bool is_pex_active() const {
     return m_flags & flag_pex_active;
   }
+  bool is_sequential_enabled() const {
+    return m_flags & flag_sequential;
+  }
 
   int flags() const {
     return m_flags;
@@ -138,6 +142,10 @@ public:
   void set_pex_enabled() {
     if (!is_private())
       set_flags(flag_pex_enabled);
+  }
+
+  void set_sequential_enabled() {
+    set_flags(flag_sequential);
   }
 
   const Rate* up_rate() const {

@@ -50,6 +50,9 @@ public:
   void initialize(ChunkStatistics* cs);
   void cleanup();
 
+  // Set sequential download mode
+  void set_sequential_enabled(bool enabled);
+
   // Call this once you've modified the bitfield or priorities to
   // update cached information. This must be called once before using
   // find.
@@ -102,6 +105,8 @@ private:
   utils::partial_queue m_sharedQueue;
 
   uint32_t m_position;
+
+  bool m_sequential;
 };
 
 } // namespace torrent
