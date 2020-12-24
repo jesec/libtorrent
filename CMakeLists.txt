@@ -25,7 +25,7 @@ option(USE_EXTRA_DEBUG "Enable extra debugging checks" OFF)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Compiler options - Common
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options("-faligned-new" "-Wall" "-Wextra")
 

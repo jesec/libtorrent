@@ -13,7 +13,7 @@ config_setting(
 )
 
 COPTS = [
-    "-std=c++11",
+    "-std=c++14",
     "-Wall",
     "-Wextra",
     "-Wdeprecated",
