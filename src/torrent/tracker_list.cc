@@ -2,6 +2,7 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <functional>
+#include <random>
 
 #include "globals.h"
 #include "net/address_list.h"
@@ -298,12 +299,14 @@ TrackerList::promote(iterator itr) {
 
 void
 TrackerList::randomize_group_entries() {
-  // Random random random.
-  iterator itr = begin();
+  // Random bit generator
+  std::random_device rd;
+  std::mt19937       g(rd());
 
+  iterator itr = begin();
   while (itr != end()) {
     iterator tmp = end_group((*itr)->group());
-    std::random_shuffle(itr, tmp);
+    std::shuffle(itr, tmp, g);
 
     itr = tmp;
   }
