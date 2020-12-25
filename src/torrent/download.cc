@@ -43,7 +43,6 @@ const int DownloadInfo::flag_private;
 const int DownloadInfo::flag_meta_download;
 const int DownloadInfo::flag_pex_enabled;
 const int DownloadInfo::flag_pex_active;
-const int DownloadInfo::flag_sequential;
 
 const int DownloadInfo::public_flags;
 
@@ -234,16 +233,6 @@ Download::set_pex_enabled(bool enabled) {
     m_ptr->info()->set_pex_enabled();
   else
     m_ptr->info()->unset_flags(DownloadInfo::flag_pex_enabled);
-}
-
-void
-Download::set_sequential_enabled(bool enabled) {
-  if (enabled)
-    m_ptr->info()->set_sequential_enabled();
-  else
-    m_ptr->info()->unset_flags(DownloadInfo::flag_sequential);
-
-  m_ptr->main()->chunk_selector()->set_sequential_enabled(enabled);
 }
 
 Object*

@@ -68,7 +68,6 @@ public:
   bool is_hash_checking() const;
 
   void set_pex_enabled(bool enabled);
-  void set_sequential_enabled(bool enabled);
 
   Object*       bencode();
   const Object* bencode() const;
