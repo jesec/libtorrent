@@ -47,8 +47,13 @@ ChunkSelector::update_priorities() {
 
   m_sharedQueue.clear();
 
-  if (m_position == invalid_chunk)
-    m_position = random() % size();
+  if (m_position == invalid_chunk) {
+    if (m_sequential) {
+      m_position = 0;
+    } else {
+      m_position = random() % size();
+    }
+  }
 
   advance_position();
 }
@@ -67,12 +72,14 @@ ChunkSelector::find(PeerChunks* pc, bool) {
   utils::partial_queue* queue =
     pc->is_seeder() ? &m_sharedQueue : pc->download_cache();
 
-  // Randomize position on average every 16 chunks to prevent
-  // inefficient distribution with a slow seed and fast peers
-  // all arriving at the same position.
-  if ((random() & 63) == 0) {
-    m_position = random() % size();
-    queue->clear();
+  if (!m_sequential) {
+    // Randomize position on average every 16 chunks to prevent
+    // inefficient distribution with a slow seed and fast peers
+    // all arriving at the same position.
+    if ((random() & 63) == 0) {
+      m_position = random() % size();
+      queue->clear();
+    }
   }
 
   if (queue->is_enabled()) {
