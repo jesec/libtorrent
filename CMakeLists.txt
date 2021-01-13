@@ -71,8 +71,12 @@ if(NOT BUILDINFO_ONLY)
   set(THREADS_PREFER_PTHREAD_FLAG ON)
 
   find_package(OpenSSL REQUIRED)
+  include_directories(${OPENSSL_INCLUDE_DIR})
+
   find_package(Threads REQUIRED)
+
   find_package(ZLIB REQUIRED)
+  include_directories(${ZLIB_INCLUDE_DIRS})
 
   # headers
   install(DIRECTORY include/torrent DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
@@ -93,6 +97,7 @@ if(NOT BUILDINFO_ONLY)
   # tests
   find_package(CppUnit)
   if(CPPUNIT_FOUND)
+    include_directories(${CPPUNIT_INCLUDE_DIR})
     enable_testing()
     file(GLOB_RECURSE LIBTORRENT_TEST_SRCS "${PROJECT_SOURCE_DIR}/test/*.cc")
     add_executable(libtorrent_test ${LIBTORRENT_TEST_SRCS})
