@@ -27,8 +27,6 @@ public:
   static const int flag_unwanted  = (1 << 5);
   static const int flag_preferred = (1 << 6);
 
-  static const int mask_ip_table = flag_unwanted | flag_preferred;
-
   PeerInfo(const sockaddr* address);
   ~PeerInfo();
 

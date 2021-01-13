@@ -7,13 +7,10 @@
 #include <map>
 #include <torrent/common.h>
 #include <torrent/net/socket_address_key.h>
-#include <torrent/utils/extents.h>
 
 namespace torrent {
 
 class DownloadInfo;
-
-typedef extents<uint32_t, int> ipv4_table;
 
 class LIBTORRENT_EXPORT PeerList
   : private std::multimap<socket_address_key, PeerInfo*> {
@@ -61,10 +58,6 @@ public:
   // This will be used internally only for the moment.
   uint32_t insert_available(const void* al) LIBTORRENT_NO_EXPORT;
 
-  static ipv4_table* ipv4_filter() {
-    return &m_ipv4_table;
-  }
-
   AvailableList* available_list() {
     return m_available_list;
   }
@@ -98,8 +91,6 @@ protected:
 private:
   PeerList(const PeerList&);
   void operator=(const PeerList&);
-
-  static ipv4_table m_ipv4_table;
 
   DownloadInfo*  m_info;
   AvailableList* m_available_list;

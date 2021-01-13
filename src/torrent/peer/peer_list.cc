@@ -25,8 +25,6 @@
 
 namespace torrent {
 
-ipv4_table PeerList::m_ipv4_table;
-
 // TODO: Clean up...
 bool
 socket_address_less(const sockaddr* s1, const sockaddr* s2) {
@@ -114,13 +112,6 @@ PeerList::insert_address(const sockaddr* sa, int flags) {
 
   PeerInfo* peerInfo = new PeerInfo(sa);
   peerInfo->set_listen_port(address->port());
-  uint32_t host_byte_order_ipv4_addr = address->sa_inet()->address_h();
-
-  // IPv4 addresses stored in host byte order in ipv4_table so they are
-  // comparable. ntohl has been called
-  if (m_ipv4_table.defined(host_byte_order_ipv4_addr))
-    peerInfo->set_flags(m_ipv4_table.at(host_byte_order_ipv4_addr) &
-                        PeerInfo::mask_ip_table);
 
   manager->client_list()->retrieve_unknown(&peerInfo->mutable_client_info());
 
@@ -258,43 +249,17 @@ PeerList::connected(const sockaddr* sa, int flags) {
   if (!sock_key.is_valid() || !socket_address_key::is_comparable_sockaddr(sa))
     return NULL;
 
-  uint32_t host_byte_order_ipv4_addr = address->sa_inet()->address_h();
-  int      filter_value              = 0;
-
-  // IPv4 addresses stored in host byte order in ipv4_table so they are
-  // comparable. ntohl has been called
-  if (m_ipv4_table.defined(host_byte_order_ipv4_addr))
-    filter_value = m_ipv4_table.at(host_byte_order_ipv4_addr);
-
-  // We should also remove any PeerInfo objects already for this
-  // address.
-  if ((filter_value & PeerInfo::flag_unwanted)) {
-    char     ipv4_str[INET_ADDRSTRLEN];
-    uint32_t net_order_addr = htonl(host_byte_order_ipv4_addr);
-
-    inet_ntop(AF_INET, &net_order_addr, ipv4_str, INET_ADDRSTRLEN);
-
-    lt_log_print(
-      LOG_PEER_INFO, "Peer %s is unwanted: preventing connection", ipv4_str);
-
-    return NULL;
-  }
-
   PeerInfo*  peerInfo;
   range_type range = base_type::equal_range(sock_key);
 
   if (range.first == range.second) {
     // Create a new entry.
     peerInfo = new PeerInfo(sa);
-    peerInfo->set_flags(filter_value & PeerInfo::mask_ip_table);
-
     base_type::insert(range.second, value_type(sock_key, peerInfo));
-
   } else if (!range.first->second->is_connected()) {
     // Use an old entry.
     peerInfo = range.first->second;
     peerInfo->set_port(address->port());
-
   } else {
     // Make sure we don't end up throwing away the port the host is
     // actually listening on, when there may be several simultaneous
