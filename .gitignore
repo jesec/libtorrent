@@ -8,6 +8,7 @@ libtorrent_test
 *.la
 *.so
 *.so.*
+*.dylib
 *.sub
 *.pc
 *.out
