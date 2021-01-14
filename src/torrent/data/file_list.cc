@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <filesystem>
 #include <functional>
 #include <limits>
 #include <memory>
@@ -20,7 +21,6 @@
 #include "torrent/path.h"
 #include "torrent/utils/error_number.h"
 #include "torrent/utils/file_stat.h"
-#include "torrent/utils/fs_stat.h"
 #include "torrent/utils/log.h"
 
 #define LT_LOG_FL(log_level, log_fmt, ...)                                     \
@@ -165,18 +165,20 @@ FileList::set_max_file_size(uint64_t size) {
 // spread over multiple mount-points.
 uint64_t
 FileList::free_diskspace() const {
-  uint64_t freeDiskspace = std::numeric_limits<uint64_t>::max();
+  std::error_code error;
+  uint64_t        freeDiskspace = std::numeric_limits<uint64_t>::max();
 
   for (path_list::const_iterator itr  = m_indirectLinks.begin(),
                                  last = m_indirectLinks.end();
        itr != last;
        ++itr) {
-    utils::fs_stat stat;
+    std::filesystem::space_info si = std::filesystem::space(*itr, error);
 
-    if (!stat.update(*itr))
+    if (error) {
       continue;
+    }
 
-    freeDiskspace = std::min<uint64_t>(freeDiskspace, stat.bytes_avail());
+    freeDiskspace = std::min<uint64_t>(freeDiskspace, si.available);
   }
 
   return freeDiskspace != std::numeric_limits<uint64_t>::max() ? freeDiskspace

@@ -85,25 +85,6 @@ if(HAVE_INOTIFY)
   file(APPEND ${BUILDINFO_H} "#define LT_HAVE_INOTIFY 1\n\n")
 endif()
 
-check_include_file_cxx("sys/mount.h" HAVE_SYS_MOUNT_H)
-check_include_file_cxx("sys/param.h" HAVE_SYS_PARAM_H)
-check_include_file_cxx("sys/statfs.h" HAVE_SYS_STATFS_H)
-check_include_file_cxx("sys/statvfs.h" HAVE_SYS_STATVFS_H)
-check_include_file_cxx("sys/vfs.h" HAVE_SYS_VFS_H)
-
-if(HAVE_SYS_VFS_H
-   AND HAVE_SYS_STATVFS_H
-   AND HAVE_SYS_STATFS_H)
-  file(APPEND ${BUILDINFO_H} "/* Defined if statvfs could be found */\n")
-  file(APPEND ${BUILDINFO_H} "#define LT_HAVE_STATVFS 1\n\n")
-elseif(
-  HAVE_SYS_MOUNT_H
-  AND HAVE_SYS_PARAM_H
-  AND HAVE_SYS_STATFS_H)
-  file(APPEND ${BUILDINFO_H} "/* Defined if statfs could be found */\n")
-  file(APPEND ${BUILDINFO_H} "#define LT_HAVE_STATFS 1\n\n")
-endif()
-
 file(APPEND ${BUILDINFO_H} "/* Default address space size */\n")
 check_type_size("long" LONG_SIZE)
 if(LONG_SIZE GREATER_EQUAL 8)
