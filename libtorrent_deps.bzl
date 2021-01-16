@@ -6,9 +6,10 @@ def libtorrent_deps():
     if not native.existing_rule("boringssl"):
         http_archive(
             name = "boringssl",
-            sha256 = "bcab08a22c28f5322316542aa2c3a9ef0a9f9fde9be22d489cee574867b24675",
-            strip_prefix = "boringssl-613fe9dbe74b58d6aaaf0d22fe57dccd964c7413",
-            urls = ["https://github.com/google/boringssl/archive/613fe9dbe74b58d6aaaf0d22fe57dccd964c7413.zip"],
+            sha256 = "b2a7d159741008e61a1387ec6d93879539e8d7db055c769e4fefe9a371582e44",
+            strip_prefix = "boringssl-bdbe37905216bea8dd4d0fdee93f6ee415d3aa15",
+            urls = ["https://github.com/google/boringssl/archive/bdbe37905216bea8dd4d0fdee93f6ee415d3aa15.zip"],
+            patches = ["@libtorrent//:third_party/boringssl.patch"],
         )
 
     if not native.existing_rule("zlib"):
