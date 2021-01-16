@@ -18,7 +18,6 @@ COPTS = [
     "-Wextra",
     "-Wdeprecated",
     "-Werror",
-    "-faligned-new",
 ] + select({
     "//:opt": [
         "-Ofast",
