@@ -441,7 +441,7 @@ DownloadConstructor::parse_magnet_uri(Object& b, const std::string& uri) {
     while (*pos) {
       char c = *pos++;
       if (c == '%') {
-        if (sscanf(pos, "%02hhx", &c) != 1)
+        if (sscanf(pos, "%02hhx", (unsigned char*)&c) != 1)
           throw input_error("Invalid magnet URI.");
 
         pos += 2;

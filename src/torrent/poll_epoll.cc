@@ -84,7 +84,7 @@ PollEPoll::modify(Event* event, int op, uint32_t mask) {
                op,
                retry,
                event->file_descriptor(),
-               event,
+               static_cast<void*>(event),
                mask,
                errno,
                strerror(errno));
