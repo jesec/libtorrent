@@ -14,6 +14,8 @@ file_split(FileList*          fileList,
            FileList::iterator position,
            uint64_t           maxSize,
            const std::string& suffix) {
+  FileList::iterator result;
+
   const Path* srcPath   = (*position)->path();
   uint64_t    splitSize = ((*position)->size_bytes() + maxSize - 1) / maxSize;
 
@@ -29,7 +31,7 @@ file_split(FileList*          fileList,
   FileList::split_type* splitItr  = splitList;
 
   unsigned int nameSize = srcPath->back().size() + suffix.size();
-  char         name[nameSize + 4];
+  char*        name = static_cast<char*>(calloc((nameSize + 4), sizeof(char)));
 
   std::memcpy(name, srcPath->back().c_str(), srcPath->back().size());
   std::memcpy(name + srcPath->back().size(), suffix.c_str(), suffix.size());
@@ -49,7 +51,11 @@ file_split(FileList*          fileList,
     splitItr->second.back() = name;
   }
 
-  return fileList->split(position, splitList, splitItr).second;
+  result = fileList->split(position, splitList, splitItr).second;
+
+  free(name);
+
+  return result;
 }
 
 void

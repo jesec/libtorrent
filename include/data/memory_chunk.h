@@ -155,12 +155,18 @@ MemoryChunk::size_aligned() const {
 
 inline bool
 MemoryChunk::is_incore(uint32_t offset, uint32_t length) {
+  bool result = false;
+
   uint32_t size = pages_touched(offset, length);
-  char     buf[size];
+  char*    buf  = static_cast<char*>(malloc(size * sizeof(char)));
 
   incore(buf, offset, length);
 
-  return std::find(buf, buf + size, 0) == buf + size;
+  result = std::find(buf, buf + size, 0) == buf + size;
+
+  free(buf);
+
+  return result;
 }
 
 } // namespace torrent

@@ -157,10 +157,12 @@ log_group::internal_print(const HashString* hash,
                           size_t            dump_size,
                           const char*       fmt,
                           ...) {
-  va_list      ap;
-  unsigned int buffer_size = 4096;
-  char         buffer[buffer_size];
-  char*        first = buffer;
+  va_list ap;
+
+  // buffer_size: 4096
+
+  char  buffer[4096];
+  char* first = buffer;
 
   if (subsystem != NULL) {
     if (hash != NULL) {
@@ -173,7 +175,7 @@ log_group::internal_print(const HashString* hash,
 
   va_start(ap, fmt);
   int count = vsnprintf(first, 4096 - (first - buffer), fmt, ap);
-  first += std::min<unsigned int>(count, buffer_size - 1);
+  first += std::min<unsigned int>(count, 4096 - 1);
   va_end(ap);
 
   if (count <= 0)

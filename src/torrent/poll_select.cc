@@ -196,18 +196,22 @@ PollSelect::perform(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet) {
 
 unsigned int
 PollSelect::do_poll(int64_t timeout_usec, int flags) {
+  unsigned int result = 0;
+
   utils::timer timeout = utils::timer(timeout_usec);
 
   timeout += 10;
 
   uint32_t set_size = open_max();
 
-  char    read_set_buffer[set_size];
-  char    write_set_buffer[set_size];
-  char    error_set_buffer[set_size];
+  char* read_set_buffer  = static_cast<char*>(malloc(set_size * sizeof(char)));
+  char* write_set_buffer = static_cast<char*>(malloc(set_size * sizeof(char)));
+  char* error_set_buffer = static_cast<char*>(malloc(set_size * sizeof(char)));
+
   fd_set* read_set  = (fd_set*)read_set_buffer;
   fd_set* write_set = (fd_set*)write_set_buffer;
   fd_set* error_set = (fd_set*)error_set_buffer;
+
   std::memset(read_set_buffer, 0, set_size);
   std::memset(write_set_buffer, 0, set_size);
   std::memset(error_set_buffer, 0, set_size);
@@ -237,7 +241,13 @@ PollSelect::do_poll(int64_t timeout_usec, int flags) {
     return 0;
   }
 
-  return perform(read_set, write_set, error_set);
+  result = perform(read_set, write_set, error_set);
+
+  free(read_set_buffer);
+  free(write_set_buffer);
+  free(error_set_buffer);
+
+  return result;
 }
 
 #ifdef LT_LOG_POLL_OPEN

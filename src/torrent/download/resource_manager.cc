@@ -424,7 +424,8 @@ ResourceManager::balance_unchoked(unsigned int weight,
   // that won't work as they need to choke peers once their priority
   // is turned off.
 
-  choke_group* choke_groups[group_size()];
+  choke_group** choke_groups =
+    static_cast<choke_group**>(malloc(group_size() * sizeof(choke_group)));
   std::copy(choke_base_type::begin(), choke_base_type::end(), choke_groups);
 
   // Start with the group requesting fewest slots (relative to weight)
@@ -477,6 +478,8 @@ ResourceManager::balance_unchoked(unsigned int weight,
     weight--;
     group_first++;
   }
+
+  free(choke_groups);
 
   if (weight != 0)
     throw internal_error(

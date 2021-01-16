@@ -1093,11 +1093,13 @@ Handshake::prepare_key_plus_pad() {
   m_encryption.key()->store_pub_key(m_writeBuffer.end(), 96);
   m_writeBuffer.move_end(96);
 
-  int  length = random() % enc_pad_size;
-  char pad[length];
+  int   length = random() % enc_pad_size;
+  char* pad    = static_cast<char*>(malloc(length * sizeof(char)));
 
   std::generate_n(pad, length, &::random);
   m_writeBuffer.write_len(pad, length);
+
+  free(pad);
 }
 
 void
