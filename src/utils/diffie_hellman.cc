@@ -57,7 +57,7 @@ DiffieHellman::DiffieHellman(const unsigned char* prime,
     throw internal_error("Could not generate Diffie-Hellman parameters");
 
   DH_generate_key(dh_get(m_dh));
-};
+}
 
 bool
 DiffieHellman::is_valid() const {
@@ -76,7 +76,7 @@ DiffieHellman::compute_secret(const unsigned char* pubkey,
   BN_free(k);
 
   return m_size != -1;
-};
+}
 
 void
 DiffieHellman::store_pub_key(unsigned char* dest, unsigned int length) {
@@ -92,4 +92,4 @@ DiffieHellman::store_pub_key(unsigned char* dest, unsigned int length) {
     BN_bn2bin(pub_key, dest + length - BN_num_bytes(pub_key));
 }
 
-}; // namespace torrent
+} // namespace torrent
