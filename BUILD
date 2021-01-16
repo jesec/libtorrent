@@ -16,6 +16,7 @@ COPTS = [
     "-std=c++17",
     "-Wall",
     "-Wextra",
+    "-Wpedantic",
     "-Wdeprecated",
     "-Werror",
 ] + select({
