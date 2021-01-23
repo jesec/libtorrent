@@ -106,8 +106,8 @@ ClientList::ClientList() {
     ClientInfo::TYPE_AZUREUS, "NE", NULL, NULL, "BT Next Evolution");
   insert_helper(ClientInfo::TYPE_AZUREUS, "NX", NULL, NULL, "Net Transport");
   insert_helper(ClientInfo::TYPE_COMPACT, "O", NULL, NULL, "Osprey Permaseed");
-  insert_helper(ClientInfo::TYPE_COMPACT, "OS", NULL, NULL, "OneSwarm");
-  insert_helper(ClientInfo::TYPE_COMPACT, "OT", NULL, NULL, "OmegaTorrent");
+  insert_helper(ClientInfo::TYPE_AZUREUS, "OS", NULL, NULL, "OneSwarm");
+  insert_helper(ClientInfo::TYPE_AZUREUS, "OT", NULL, NULL, "OmegaTorrent");
   insert_helper(ClientInfo::TYPE_AZUREUS, "PC", NULL, NULL, "CacheLogic");
   insert_helper(ClientInfo::TYPE_AZUREUS, "PI", NULL, NULL, "PicoTorrent");
   insert_helper(ClientInfo::TYPE_AZUREUS, "PT", NULL, NULL, "Popcorn Time");
@@ -122,7 +122,7 @@ ClientList::ClientList() {
   insert_helper(ClientInfo::TYPE_AZUREUS, "RZ", NULL, NULL, "RezTorrent");
   insert_helper(ClientInfo::TYPE_COMPACT, "S", NULL, NULL, "Shadow's client");
   insert_helper(
-    ClientInfo::TYPE_COMPACT, "S~", NULL, NULL, "Shareaza alpha/beta");
+    ClientInfo::TYPE_AZUREUS, "S~", NULL, NULL, "Shareaza alpha/beta");
   insert_helper(ClientInfo::TYPE_AZUREUS, "SB", NULL, NULL, "SwiftBit");
   insert_helper(ClientInfo::TYPE_AZUREUS, "SG", NULL, NULL, "GS Torrent");
   insert_helper(ClientInfo::TYPE_AZUREUS, "SK", NULL, NULL, "Spark");
