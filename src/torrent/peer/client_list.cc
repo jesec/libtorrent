@@ -30,6 +30,7 @@ ClientList::ClientList() {
   insert_helper(ClientInfo::TYPE_AZUREUS, "LT", NULL, NULL, "libtorrent");
   insert_helper(ClientInfo::TYPE_AZUREUS, "BT", NULL, NULL, "Mainline");
   insert_helper(ClientInfo::TYPE_MAINLINE, "M", NULL, NULL, "Mainline");
+  insert_helper(ClientInfo::TYPE_AZUREUS, "A2", NULL, NULL, "aria2");
   insert_helper(ClientInfo::TYPE_AZUREUS, "BC", NULL, NULL, "BitComet");
   insert_helper(ClientInfo::TYPE_AZUREUS, "XL", NULL, NULL, "Xunlei");
   insert_helper(ClientInfo::TYPE_AZUREUS, "SD", NULL, NULL, "Xunlei");
