@@ -82,6 +82,7 @@ test-driver
 
 # CMake generated files #
 #########################
+/.build
 /build
 *.ninja
 .ninja_deps
