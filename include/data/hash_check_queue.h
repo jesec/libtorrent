@@ -8,8 +8,8 @@
 #include <functional>
 #include <pthread.h>
 
-#include "torrent/buildinfo.h"
 #include "torrent/utils/allocators.h"
+#include "torrent/utils/cacheline.h"
 
 namespace torrent {
 

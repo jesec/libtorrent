@@ -1,3 +1,4 @@
+#include "torrent/utils/cacheline.h"
 #include "torrent/utils/thread_base.h"
 
 class test_thread : public torrent::thread_base {

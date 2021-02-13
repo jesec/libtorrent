@@ -5,8 +5,8 @@
 #include <pthread.h>
 #include <sys/types.h>
 
-#include <torrent/buildinfo.h>
 #include <torrent/common.h>
+#include <torrent/utils/cacheline.h>
 #include <torrent/utils/signal_bitfield.h>
 
 namespace torrent {

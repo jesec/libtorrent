@@ -4,9 +4,9 @@
 #ifndef LIBTORRENT_FILE_H
 #define LIBTORRENT_FILE_H
 
-#include <torrent/buildinfo.h>
 #include <torrent/common.h>
 #include <torrent/path.h>
+#include <torrent/utils/cacheline.h>
 
 namespace torrent {
 

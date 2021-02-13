@@ -10,6 +10,7 @@
 #include <array>
 
 #include "torrent/common.h"
+#include "torrent/utils/cacheline.h"
 #include "torrent/utils/log.h"
 
 namespace torrent {

@@ -7,7 +7,7 @@
 #include <cinttypes>
 #include <cstdlib>
 
-#include "torrent/buildinfo.h"
+#include "torrent/utils/cacheline.h"
 #include "torrent/utils/timer.h"
 
 namespace torrent {

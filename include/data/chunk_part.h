@@ -4,9 +4,8 @@
 #ifndef LIBTORRENT_DATA_STORAGE_CHUNK_PART_H
 #define LIBTORRENT_DATA_STORAGE_CHUNK_PART_H
 
-#include "torrent/buildinfo.h"
-
 #include "memory_chunk.h"
+#include "torrent/utils/cacheline.h"
 
 namespace torrent {
 

@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include <torrent/buildinfo.h>
+#include <torrent/utils/cacheline.h>
 
 namespace torrent {
 namespace utils {

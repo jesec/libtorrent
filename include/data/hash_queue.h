@@ -4,16 +4,16 @@
 #ifndef LIBTORRENT_DATA_HASH_QUEUE_H
 #define LIBTORRENT_DATA_HASH_QUEUE_H
 
-#include "torrent/buildinfo.h"
-
 #include <deque>
 #include <functional>
 #include <map>
 #include <pthread.h>
 
+#include "torrent/hash_string.h"
+#include "torrent/utils/cacheline.h"
+
 #include "chunk_handle.h"
 #include "hash_queue_node.h"
-#include "torrent/hash_string.h"
 
 namespace torrent {
 

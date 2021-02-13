@@ -6,8 +6,8 @@
 
 #include <utility>
 
-#include <torrent/buildinfo.h>
 #include <torrent/event.h>
+#include <torrent/utils/cacheline.h>
 
 namespace torrent {
 

@@ -156,26 +156,6 @@ else()
   endif()
 endif()
 
-# TODO: this won't go well with cross compiling
-execute_process(COMMAND getconf LEVEL1_DCACHE_LINESIZE
-                OUTPUT_VARIABLE LT_SMP_CACHE_BYTES)
-
-if(LT_SMP_CACHE_BYTES GREATER 0)
-  file(APPEND ${BUILDINFO_H} "/* L1 cache size */\n")
-  file(APPEND ${BUILDINFO_H}
-       "#define LT_SMP_CACHE_BYTES ${LT_SMP_CACHE_BYTES}\n")
-else()
-  file(APPEND ${BUILDINFO_H}
-       "/* Largest L1 cache size we know of, should work on all archs */\n")
-  file(APPEND ${BUILDINFO_H} "#define LT_SMP_CACHE_BYTES 128\n\n")
-endif()
-
-file(APPEND ${BUILDINFO_H} "/* LibTorrent defined cacheline aligned */\n")
-file(
-  APPEND ${BUILDINFO_H}
-  "#define lt_cacheline_aligned __attribute__((__aligned__(LT_SMP_CACHE_BYTES)))\n\n"
-)
-
 check_cxx_source_compiles(
   "
   #include <cstddef>

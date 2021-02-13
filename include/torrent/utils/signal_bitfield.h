@@ -6,8 +6,8 @@
 
 #include <functional>
 
-#include <torrent/buildinfo.h>
 #include <torrent/common.h>
+#include <torrent/utils/cacheline.h>
 
 namespace torrent {
 

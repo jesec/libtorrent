@@ -4,13 +4,12 @@
 #ifndef LIBTORRENT_STORAGE_CHUNK_H
 #define LIBTORRENT_STORAGE_CHUNK_H
 
-#include "torrent/buildinfo.h"
-
 #include <algorithm>
 #include <functional>
 #include <vector>
 
 #include "chunk_part.h"
+#include "torrent/utils/cacheline.h"
 
 namespace torrent {
 
