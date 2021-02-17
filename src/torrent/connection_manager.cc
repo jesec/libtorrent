@@ -68,11 +68,12 @@ ConnectionManager::ConnectionManager()
   utils::socket_address::cast_from(m_localAddress)->clear();
   utils::socket_address::cast_from(m_proxyAddress)->clear();
 
-  m_slot_resolver = std::bind(&resolve_host,
-                              std::placeholders::_1,
-                              std::placeholders::_2,
-                              std::placeholders::_3,
-                              std::placeholders::_4);
+  m_slot_resolver = [](const char*               host,
+                       int                       family,
+                       int                       socktype,
+                       slot_resolver_result_type slot) {
+    return resolve_host(host, family, socktype, slot);
+  };
 }
 
 ConnectionManager::~ConnectionManager() {

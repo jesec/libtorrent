@@ -98,10 +98,10 @@ private:
 
 inline void
 group_entry::connection_unchoked(PeerConnectionBase* pcb) {
-  container_type::iterator itr = std::find_if(
-    m_unchoked.begin(),
-    m_unchoked.end(),
-    std::bind(&weighted_connection::operator==, std::placeholders::_1, pcb));
+  container_type::iterator itr =
+    std::find_if(m_unchoked.begin(),
+                 m_unchoked.end(),
+                 [pcb](weighted_connection c) { return c == pcb; });
 
   if (itr != m_unchoked.end())
     throw internal_error("group_entry::connection_unchoked(pcb) failed.");
@@ -111,10 +111,10 @@ group_entry::connection_unchoked(PeerConnectionBase* pcb) {
 
 inline void
 group_entry::connection_queued(PeerConnectionBase* pcb) {
-  container_type::iterator itr = std::find_if(
-    m_queued.begin(),
-    m_queued.end(),
-    std::bind(&weighted_connection::operator==, std::placeholders::_1, pcb));
+  container_type::iterator itr =
+    std::find_if(m_queued.begin(),
+                 m_queued.end(),
+                 [pcb](weighted_connection c) { return c == pcb; });
 
   if (itr != m_queued.end())
     throw internal_error("group_entry::connection_queued(pcb) failed.");
@@ -124,10 +124,10 @@ group_entry::connection_queued(PeerConnectionBase* pcb) {
 
 inline void
 group_entry::connection_choked(PeerConnectionBase* pcb) {
-  container_type::iterator itr = std::find_if(
-    m_unchoked.begin(),
-    m_unchoked.end(),
-    std::bind(&weighted_connection::operator==, std::placeholders::_1, pcb));
+  container_type::iterator itr =
+    std::find_if(m_unchoked.begin(),
+                 m_unchoked.end(),
+                 [pcb](weighted_connection c) { return c == pcb; });
 
   if (itr == m_unchoked.end())
     throw internal_error("group_entry::connection_choked(pcb) failed.");
@@ -138,10 +138,10 @@ group_entry::connection_choked(PeerConnectionBase* pcb) {
 
 inline void
 group_entry::connection_unqueued(PeerConnectionBase* pcb) {
-  container_type::iterator itr = std::find_if(
-    m_queued.begin(),
-    m_queued.end(),
-    std::bind(&weighted_connection::operator==, std::placeholders::_1, pcb));
+  container_type::iterator itr =
+    std::find_if(m_queued.begin(),
+                 m_queued.end(),
+                 [pcb](weighted_connection c) { return c == pcb; });
 
   if (itr == m_queued.end())
     throw internal_error("group_entry::connection_unqueued(pcb) failed.");

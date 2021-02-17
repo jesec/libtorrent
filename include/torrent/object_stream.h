@@ -90,7 +90,7 @@ static_map_read_bencode(const char*                                  first,
                         static_map_type<tmpl_key_type, tmpl_length>& object) {
   return static_map_read_bencode_c(
     first, last, object.values(), object.keys, object.keys + object.size);
-};
+}
 
 template<typename tmpl_key_type, size_t tmpl_length>
 inline object_buffer_t

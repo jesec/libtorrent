@@ -55,8 +55,11 @@ HashQueue::HashQueue(thread_disk* thread)
   : m_thread_disk(thread) {
 
   pthread_mutex_init(&m_done_chunks_lock, NULL);
-  m_thread_disk->hash_queue()->slot_chunk_done() = std::bind(
-    &HashQueue::chunk_done, this, std::placeholders::_1, std::placeholders::_2);
+
+  m_thread_disk->hash_queue()->slot_chunk_done() =
+    [this](HashChunk* chunk, const HashString& hash) {
+      chunk_done(chunk, hash);
+    };
 }
 
 // If we're done immediately, move the chunk to the front of the list so
@@ -155,12 +158,10 @@ HashQueue::work() {
     // TODO: This is not optimal as we jump around... Check for front
     // of HashQueue in done_chunks instead.
 
-    iterator itr = std::find_if(
-      begin(),
-      end(),
-      std::bind(std::equal_to<HashChunk*>(),
-                hash_chunk,
-                std::bind(&HashQueueNode::get_chunk, std::placeholders::_1)));
+    iterator itr =
+      std::find_if(begin(), end(), [hash_chunk](torrent::HashQueueNode n) {
+        return hash_chunk == n.get_chunk();
+      });
 
     // TODO: Fix this...
     if (itr == end())

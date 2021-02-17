@@ -45,28 +45,29 @@ Manager::Manager()
 
   m_hashQueue = new HashQueue(&m_main_thread_disk);
   m_hashQueue->slot_has_work() =
-    std::bind(&thread_base::send_event_signal,
-              &m_main_thread_main,
-              m_main_thread_main.signal_bitfield()->add_signal(
-                std::bind(&HashQueue::work, m_hashQueue)),
-              std::placeholders::_1);
+    [this,
+     signal = m_main_thread_main.signal_bitfield()->add_signal(
+       [queue = m_hashQueue]() { queue->work(); })](bool do_interrupt) {
+      m_main_thread_main.send_event_signal(signal, do_interrupt);
+    };
 
-  m_taskTick.slot() = std::bind(&Manager::receive_tick, this);
+  m_taskTick.slot() = [this]() { receive_tick(); };
 
   priority_queue_insert(
     &taskScheduler, &m_taskTick, cachedTime.round_seconds());
 
-  m_handshakeManager->slot_download_id() = std::bind(
-    &DownloadManager::find_main, m_downloadManager, std::placeholders::_1);
-  m_handshakeManager->slot_download_obfuscated() =
-    std::bind(&DownloadManager::find_main_obfuscated,
-              m_downloadManager,
-              std::placeholders::_1);
+  m_handshakeManager->slot_download_id() = [this](const char* hash) {
+    return m_downloadManager->find_main(hash);
+  };
+
+  m_handshakeManager->slot_download_obfuscated() = [this](const char* hash) {
+    return m_downloadManager->find_main_obfuscated(hash);
+  };
+
   m_connectionManager->listen()->slot_accepted() =
-    std::bind(&HandshakeManager::add_incoming,
-              m_handshakeManager,
-              std::placeholders::_1,
-              std::placeholders::_2);
+    [this](SocketFd fd, const utils::socket_address& sa) {
+      m_handshakeManager->add_incoming(fd, sa);
+    };
 
   m_resourceManager->push_group("default");
   m_resourceManager->group_back()->up_queue()->set_heuristics(

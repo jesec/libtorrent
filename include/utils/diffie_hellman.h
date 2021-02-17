@@ -41,6 +41,6 @@ private:
   int        m_size;
 };
 
-}; // namespace torrent
+} // namespace torrent
 
 #endif

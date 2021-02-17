@@ -29,6 +29,6 @@ private:
   RC4_KEY m_key;
 };
 
-}; // namespace torrent
+} // namespace torrent
 
 #endif

@@ -163,22 +163,24 @@ ResourceManager::push_group(const std::string& name) {
   choke_base_type::back()->down_queue()->set_heuristics(
     choke_queue::HEURISTICS_DOWNLOAD_LEECH);
 
-  choke_base_type::back()->up_queue()->set_slot_unchoke(std::bind(
-    &ResourceManager::receive_upload_unchoke, this, std::placeholders::_1));
-  choke_base_type::back()->down_queue()->set_slot_unchoke(std::bind(
-    &ResourceManager::receive_download_unchoke, this, std::placeholders::_1));
+  choke_base_type::back()->up_queue()->set_slot_unchoke(
+    [this](int num) { receive_upload_unchoke(num); });
+  choke_base_type::back()->down_queue()->set_slot_unchoke(
+    [this](int num) { receive_download_unchoke(num); });
+
   choke_base_type::back()->up_queue()->set_slot_can_unchoke(
-    std::bind(&ResourceManager::retrieve_upload_can_unchoke, this));
+    [this]() { return retrieve_upload_can_unchoke(); });
   choke_base_type::back()->down_queue()->set_slot_can_unchoke(
-    std::bind(&ResourceManager::retrieve_download_can_unchoke, this));
+    [this]() { return retrieve_download_can_unchoke(); });
+
   choke_base_type::back()->up_queue()->set_slot_connection(
-    std::bind(&PeerConnectionBase::receive_upload_choke,
-              std::placeholders::_1,
-              std::placeholders::_2));
+    [](PeerConnectionBase* pcb, bool choke) {
+      return pcb->receive_upload_choke(choke);
+    });
   choke_base_type::back()->down_queue()->set_slot_connection(
-    std::bind(&PeerConnectionBase::receive_download_choke,
-              std::placeholders::_1,
-              std::placeholders::_2));
+    [](PeerConnectionBase* pcb, bool choke) {
+      return pcb->receive_download_choke(choke);
+    });
 }
 
 ResourceManager::iterator
@@ -356,21 +358,17 @@ ResourceManager::receive_tick() {
   m_currentlyDownloadUnchoked +=
     balance_unchoked(choke_base_type::size(), m_maxDownloadUnchoked, false);
 
-  unsigned int up_unchoked = std::accumulate(
+  auto up_unchoked = std::accumulate(
     choke_base_type::begin(),
     choke_base_type::end(),
-    0,
-    std::bind(std::plus<unsigned int>(),
-              std::placeholders::_1,
-              std::bind(&choke_group::up_unchoked, std::placeholders::_2)));
+    static_cast<unsigned int>(0),
+    [](auto&& sum, choke_group* cg) { return sum + cg->up_unchoked(); });
 
-  unsigned int down_unchoked = std::accumulate(
+  auto down_unchoked = std::accumulate(
     choke_base_type::begin(),
     choke_base_type::end(),
-    0,
-    std::bind(std::plus<unsigned int>(),
-              std::placeholders::_1,
-              std::bind(&choke_group::down_unchoked, std::placeholders::_2)));
+    static_cast<unsigned int>(0),
+    [](auto&& sum, choke_group* cg) { return sum + cg->down_unchoked(); });
 
   if (m_currentlyUploadUnchoked != up_unchoked)
     throw torrent::internal_error(
@@ -438,11 +436,9 @@ ResourceManager::balance_unchoked(unsigned int weight,
 
   if (is_up) {
     std::sort(
-      group_first,
-      group_last,
-      std::bind(std::less<uint32_t>(),
-                std::bind(&choke_group::up_requested, std::placeholders::_1),
-                std::bind(&choke_group::up_requested, std::placeholders::_2)));
+      group_first, group_last, [](choke_group* left, choke_group* right) {
+        return left->up_requested() < right->up_requested();
+      });
     lt_log_print(
       LOG_PEER_DEBUG,
       "Upload unchoked slots cycle; currently:%u adjusted:%i max_unchoked:%u",
@@ -451,12 +447,9 @@ ResourceManager::balance_unchoked(unsigned int weight,
       max_unchoked);
   } else {
     std::sort(
-      group_first,
-      group_last,
-      std::bind(
-        std::less<uint32_t>(),
-        std::bind(&choke_group::down_requested, std::placeholders::_1),
-        std::bind(&choke_group::down_requested, std::placeholders::_2)));
+      group_first, group_last, [](choke_group* left, choke_group* right) {
+        return left->down_requested() < right->down_requested();
+      });
     lt_log_print(LOG_PEER_DEBUG,
                  "Download unchoked slots cycle; currently:%u adjusted:%i "
                  "max_unchoked:%u",

@@ -127,11 +127,12 @@ log_rebuild_cache() {
       continue;
     }
 
-    log_cache_list::iterator cache_itr = std::find_if(
-      log_cache.begin(),
-      log_cache.end(),
-      std::bind(
-        &log_cache_entry::equal_outputs, std::placeholders::_1, use_outputs));
+    log_cache_list::iterator cache_itr =
+      std::find_if(log_cache.begin(),
+                   log_cache.end(),
+                   [use_outputs](const log_cache_entry& entry) {
+                     return entry.equal_outputs(use_outputs);
+                   });
 
     if (cache_itr == log_cache.end()) {
       cache_itr          = log_cache.insert(log_cache.end(), log_cache_entry());
@@ -185,19 +186,15 @@ log_group::internal_print(const HashString* hash,
 
   std::for_each(m_first,
                 m_last,
-                std::bind(&log_slot::operator(),
-                          std::placeholders::_1,
-                          (const char*)buffer,
-                          std::distance(buffer, first),
-                          std::distance(log_groups.begin(), this)));
+                [data   = (const char*)buffer,
+                 length = std::distance(buffer, first),
+                 group  = std::distance(log_groups.begin(), this)](
+                  log_slot slot) { slot(data, length, group); });
+
   if (dump_data != NULL) {
-    std::for_each(m_first,
-                  m_last,
-                  std::bind(&log_slot::operator(),
-                            std::placeholders::_1,
-                            (const char*)dump_data,
-                            dump_size,
-                            -1));
+    std::for_each(m_first, m_last, [dump_data, dump_size](log_slot slot) {
+      slot(static_cast<const char*>(dump_data), dump_size, -1);
+    });
   }
 
   pthread_mutex_unlock(&log_mutex);
@@ -437,8 +434,8 @@ log_open_file_output(const char* name, const char* filename, bool append) {
   std::ios_base::openmode mode = std::ofstream::out;
   if (append)
     mode |= std::ofstream::app;
-  std::shared_ptr<std::ofstream> outfile(new std::ofstream(filename, mode));
 
+  auto outfile = std::make_shared<std::ofstream>(filename, mode);
   if (!outfile->good())
     throw input_error("Could not open log file '" + std::string(filename) +
                       "'.");
@@ -453,8 +450,7 @@ log_open_file_output(const char* name, const char* filename, bool append) {
 
 void
 log_open_gz_file_output(const char* name, const char* filename, bool append) {
-  std::shared_ptr<log_gz_output> outfile(new log_gz_output(filename, append));
-
+  auto outfile = std::make_shared<log_gz_output>(filename, append);
   if (!outfile->is_valid())
     throw input_error("Could not open log gzip file '" + std::string(filename) +
                       "'.");

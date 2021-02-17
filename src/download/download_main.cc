@@ -76,59 +76,68 @@ DownloadMain::DownloadMain()
   m_tracker_list       = new TrackerList();
   m_tracker_controller = new TrackerController(m_tracker_list);
 
-  m_tracker_list->slot_success() =
-    std::bind(&TrackerController::receive_success,
-              m_tracker_controller,
-              std::placeholders::_1,
-              std::placeholders::_2);
-  m_tracker_list->slot_failure() =
-    std::bind(&TrackerController::receive_failure,
-              m_tracker_controller,
-              std::placeholders::_1,
-              std::placeholders::_2);
-  m_tracker_list->slot_scrape_success() =
-    std::bind(&TrackerController::receive_scrape,
-              m_tracker_controller,
-              std::placeholders::_1);
-  m_tracker_list->slot_tracker_enabled() =
-    std::bind(&TrackerController::receive_tracker_enabled,
-              m_tracker_controller,
-              std::placeholders::_1);
-  m_tracker_list->slot_tracker_disabled() =
-    std::bind(&TrackerController::receive_tracker_disabled,
-              m_tracker_controller,
-              std::placeholders::_1);
+  m_tracker_list->slot_success() = [this](Tracker* tracker, AddressList* list) {
+    return m_tracker_controller->receive_success(tracker, list);
+  };
+
+  m_tracker_list->slot_failure() = [this](Tracker*           tracker,
+                                          const std::string& msg) {
+    m_tracker_controller->receive_failure(tracker, msg);
+  };
+
+  m_tracker_list->slot_scrape_success() = [this](Tracker* tracker) {
+    m_tracker_controller->receive_scrape(tracker);
+  };
+
+  m_tracker_list->slot_tracker_enabled() = [this](Tracker* tracker) {
+    m_tracker_controller->receive_tracker_enabled(tracker);
+  };
+
+  m_tracker_list->slot_tracker_disabled() = [this](Tracker* tracker) {
+    m_tracker_controller->receive_tracker_disabled(tracker);
+  };
 
   m_connectionList = new ConnectionList(this);
 
-  m_delegator.slot_chunk_find() = std::bind(&ChunkSelector::find,
-                                            m_chunkSelector,
-                                            std::placeholders::_1,
-                                            std::placeholders::_2);
-  m_delegator.slot_chunk_size() =
-    std::bind(&FileList::chunk_index_size, file_list(), std::placeholders::_1);
+  m_delegator.slot_chunk_find() = [this](PeerChunks* pc, bool highPriority) {
+    return m_chunkSelector->find(pc, highPriority);
+  };
 
-  m_delegator.transfer_list()->slot_canceled() = std::bind(
-    &ChunkSelector::not_using_index, m_chunkSelector, std::placeholders::_1);
-  m_delegator.transfer_list()->slot_queued() = std::bind(
-    &ChunkSelector::using_index, m_chunkSelector, std::placeholders::_1);
-  m_delegator.transfer_list()->slot_completed() =
-    std::bind(&DownloadMain::receive_chunk_done, this, std::placeholders::_1);
-  m_delegator.transfer_list()->slot_corrupt() = std::bind(
-    &DownloadMain::receive_corrupt_chunk, this, std::placeholders::_1);
+  m_delegator.slot_chunk_size() = [this](uint32_t index) {
+    return file_list()->chunk_index_size(index);
+  };
 
-  m_delayDisconnectPeers.slot() =
-    std::bind(&ConnectionList::disconnect_queued, m_connectionList);
-  m_taskTrackerRequest.slot() =
-    std::bind(&DownloadMain::receive_tracker_request, this);
+  m_delegator.transfer_list()->slot_canceled() = [this](uint32_t index) {
+    m_chunkSelector->not_using_index(index);
+  };
+
+  m_delegator.transfer_list()->slot_queued() = [this](uint32_t index) {
+    m_chunkSelector->using_index(index);
+  };
+
+  m_delegator.transfer_list()->slot_completed() = [this](uint32_t index) {
+    receive_chunk_done(index);
+  };
+
+  m_delegator.transfer_list()->slot_corrupt() = [this](PeerInfo* peer) {
+    receive_corrupt_chunk(peer);
+  };
+
+  m_delayDisconnectPeers.slot() = [this]() {
+    m_connectionList->disconnect_queued();
+  };
+
+  m_taskTrackerRequest.slot() = [this]() { receive_tracker_request(); };
 
   m_chunkList->set_data(file_list()->mutable_data());
-  m_chunkList->slot_create_chunk() = std::bind(&FileList::create_chunk_index,
-                                               file_list(),
-                                               std::placeholders::_1,
-                                               std::placeholders::_2);
-  m_chunkList->slot_free_diskspace() =
-    std::bind(&FileList::free_diskspace, file_list());
+
+  m_chunkList->slot_create_chunk() = [this](uint32_t index, int prot) {
+    return file_list()->create_chunk_index(index, prot);
+  };
+
+  m_chunkList->slot_free_diskspace() = [this]() {
+    return file_list()->free_diskspace();
+  };
 }
 
 DownloadMain::~DownloadMain() {

@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <torrent/common.h>
+#include <torrent/download/choke_queue.h>
 #include <torrent/peer/peer.h>
 
 namespace torrent {
@@ -157,7 +158,7 @@ public:
   ConnectionType connection_type() const;
   void           set_connection_type(ConnectionType t);
 
-  typedef enum {} HeuristicType;
+  using HeuristicType = choke_queue::heuristics_enum;
 
   HeuristicType upload_choke_heuristic() const;
   void          set_upload_choke_heuristic(HeuristicType t);

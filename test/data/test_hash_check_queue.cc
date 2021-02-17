@@ -80,7 +80,7 @@ void
 test_hash_check_queue::setUp() {
   test_fixture::setUp();
 
-  torrent::Poll::slot_create_poll() = std::bind(&create_select_poll);
+  torrent::Poll::slot_create_poll() = []() { return create_select_poll(); };
 
   signal(SIGUSR1, (sig_t)&do_nothing);
 }
@@ -91,8 +91,11 @@ test_hash_check_queue::test_single() {
   torrent::HashCheckQueue hash_queue;
 
   done_chunks_type done_chunks;
-  hash_queue.slot_chunk_done() = std::bind(
-    &chunk_done, &done_chunks, std::placeholders::_1, std::placeholders::_2);
+  hash_queue.slot_chunk_done() =
+    [&done_chunks](torrent::HashChunk*        hash_chunk,
+                   const torrent::HashString& hash_value) {
+      return chunk_done(&done_chunks, hash_chunk, hash_value);
+    };
 
   torrent::ChunkHandle handle_0 =
     chunk_list->get(0, torrent::ChunkList::get_blocking);
@@ -120,8 +123,11 @@ test_hash_check_queue::test_multiple() {
   torrent::HashCheckQueue hash_queue;
 
   done_chunks_type done_chunks;
-  hash_queue.slot_chunk_done() = std::bind(
-    &chunk_done, &done_chunks, std::placeholders::_1, std::placeholders::_2);
+  hash_queue.slot_chunk_done() =
+    [&done_chunks](torrent::HashChunk*        hash_chunk,
+                   const torrent::HashString& hash_value) {
+      return chunk_done(&done_chunks, hash_chunk, hash_value);
+    };
 
   handle_list handles;
 
@@ -192,8 +198,11 @@ test_hash_check_queue::test_thread() {
   torrent::HashCheckQueue* hash_queue = thread_disk->hash_queue();
 
   done_chunks_type done_chunks;
-  hash_queue->slot_chunk_done() = std::bind(
-    &chunk_done, &done_chunks, std::placeholders::_1, std::placeholders::_2);
+  hash_queue->slot_chunk_done() =
+    [&done_chunks](torrent::HashChunk*        hash_chunk,
+                   const torrent::HashString& hash_value) {
+      return chunk_done(&done_chunks, hash_chunk, hash_value);
+    };
 
   for (int i = 0; i < 1000; i++) {
     pthread_mutex_lock(&done_chunks_lock);
@@ -206,8 +215,9 @@ test_hash_check_queue::test_thread() {
     hash_queue->push_back(new torrent::HashChunk(handle_0));
     thread_disk->interrupt();
 
-    CPPUNIT_ASSERT(wait_for_true(
-      std::bind(&verify_hash, &done_chunks, 0, hash_for_index(0))));
+    CPPUNIT_ASSERT(wait_for_true([&done_chunks, this] {
+      return verify_hash(&done_chunks, 0, hash_for_index(0));
+    }));
     chunk_list->release(&handle_0);
   }
 

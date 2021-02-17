@@ -204,11 +204,7 @@ TrackerList::insert_url(unsigned int       group,
 TrackerList::iterator
 TrackerList::find_url(const std::string& url) {
   return std::find_if(
-    begin(),
-    end(),
-    std::bind(std::equal_to<std::string>(),
-              url,
-              std::bind(&Tracker::url, std::placeholders::_1)));
+    begin(), end(), [url](Tracker* tracker) { return url == tracker->url(); });
 }
 
 TrackerList::iterator
