@@ -5,6 +5,7 @@
 #define LIBTORRENT_DOWNLOAD_MAIN_H
 
 #include <deque>
+#include <utility>
 
 #include "data/chunk_handle.h"
 #include "delegator.h"
@@ -147,16 +148,16 @@ public:
   typedef std::function<void(DownloadMain*)> slot_stop_handshakes_type;
 
   void slot_start_handshake(slot_start_handshake_type s) {
-    m_slotStartHandshake = s;
+    m_slotStartHandshake = std::move(s);
   }
   void slot_stop_handshakes(slot_stop_handshakes_type s) {
-    m_slotStopHandshakes = s;
+    m_slotStopHandshakes = std::move(s);
   }
   void slot_count_handshakes(SlotCountHandshakes s) {
-    m_slotCountHandshakes = s;
+    m_slotCountHandshakes = std::move(s);
   }
   void slot_hash_check_add(SlotHashCheckAdd s) {
-    m_slotHashCheckAdd = s;
+    m_slotHashCheckAdd = std::move(s);
   }
 
   void add_peer(const utils::socket_address& sa);

@@ -134,7 +134,7 @@ directory_events::event_read() {
 
     if (itr != m_wd_list.end()) {
       std::string sname(event->name);
-      if ((sname.substr(sname.find_last_of(".")) == ".torrent"))
+      if ((sname.substr(sname.find_last_of('.')) == ".torrent"))
         itr->slot(itr->path + event->name);
     }
 

@@ -189,7 +189,7 @@ RequestList::delay_remove_choked() {
 }
 
 void
-RequestList::prepare_process_unordered(queues_type::iterator itr) {
+RequestList::prepare_process_unordered(const queues_type::iterator& itr) {
   m_queues.move_to(
     bucket_queued, m_queues.begin(bucket_queued), itr, bucket_unordered);
 

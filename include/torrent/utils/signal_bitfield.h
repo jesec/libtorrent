@@ -32,7 +32,7 @@ public:
   }
   void work();
 
-  unsigned int add_signal(slot_type slot);
+  unsigned int add_signal(const slot_type& slot);
 
 private:
   bitfield_type m_bitfield;

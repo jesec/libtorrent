@@ -118,7 +118,7 @@ Object::merge_copy(const Object& object,
 
     while (srcItr != srcLast) {
       destItr = std::find_if(
-        destItr, dest.end(), [srcItr](const map_type::value_type v) {
+        destItr, dest.end(), [srcItr](const map_type::value_type& v) {
           return srcItr->first <= v.first;
         });
 

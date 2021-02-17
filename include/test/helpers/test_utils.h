@@ -2,7 +2,7 @@
 #include <unistd.h>
 
 inline bool
-wait_for_true(std::function<bool()> test_function) {
+wait_for_true(const std::function<bool()>& test_function) {
   int i = 100;
 
   do {

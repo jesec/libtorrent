@@ -2,6 +2,7 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <sys/types.h>
+#include <utility>
 
 #include "manager.h"
 #include "net/listen.h"
@@ -15,10 +16,10 @@ namespace torrent {
 
 // Fix TrackerUdp, etc, if this is made async.
 static ConnectionManager::slot_resolver_result_type*
-resolve_host(const char*                                  host,
-             int                                          family,
-             int                                          socktype,
-             ConnectionManager::slot_resolver_result_type slot) {
+resolve_host(const char*                                         host,
+             int                                                 family,
+             int                                                 socktype,
+             const ConnectionManager::slot_resolver_result_type& slot) {
   if (manager->main_thread_main()->is_current())
     thread_base::release_global_lock();
 
@@ -68,10 +69,10 @@ ConnectionManager::ConnectionManager()
   utils::socket_address::cast_from(m_localAddress)->clear();
   utils::socket_address::cast_from(m_proxyAddress)->clear();
 
-  m_slot_resolver = [](const char*               host,
-                       int                       family,
-                       int                       socktype,
-                       slot_resolver_result_type slot) {
+  m_slot_resolver = [](const char*                      host,
+                       int                              family,
+                       int                              socktype,
+                       const slot_resolver_result_type& slot) {
     return resolve_host(host, family, socktype, slot);
   };
 }

@@ -130,7 +130,7 @@ public:
 private:
   void delay_remove_choked();
 
-  void prepare_process_unordered(queues_type::iterator itr);
+  void prepare_process_unordered(const queues_type::iterator& itr);
   void delay_process_unordered();
 
   Delegator*  m_delegator;

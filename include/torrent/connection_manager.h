@@ -70,10 +70,11 @@ public:
   // The sockaddr argument in the result slot call is NULL if the resolve
   // failed, and the int holds the errno.
   typedef std::function<void(const sockaddr*, int)> slot_resolver_result_type;
-  typedef std::function<slot_resolver_result_type*(const char*,
-                                                   int,
-                                                   int,
-                                                   slot_resolver_result_type)>
+  typedef std::function<slot_resolver_result_type*(
+    const char*,
+    int,
+    int,
+    const slot_resolver_result_type&)>
     slot_resolver_type;
 
   ConnectionManager();

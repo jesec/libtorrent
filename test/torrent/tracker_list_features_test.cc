@@ -196,7 +196,8 @@ tracker_list_features_test::test_count_active() {
 // Add separate functions for sending state to multiple trackers...
 
 bool
-verify_did_internal_error(std::function<void()> func, bool should_throw) {
+verify_did_internal_error(const std::function<void()>& func,
+                          bool                         should_throw) {
   bool did_throw = false;
 
   try {

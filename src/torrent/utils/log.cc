@@ -189,12 +189,13 @@ log_group::internal_print(const HashString* hash,
                 [data   = (const char*)buffer,
                  length = std::distance(buffer, first),
                  group  = std::distance(log_groups.begin(), this)](
-                  log_slot slot) { slot(data, length, group); });
+                  const log_slot& slot) { slot(data, length, group); });
 
   if (dump_data != NULL) {
-    std::for_each(m_first, m_last, [dump_data, dump_size](log_slot slot) {
-      slot(static_cast<const char*>(dump_data), dump_size, -1);
-    });
+    std::for_each(
+      m_first, m_last, [dump_data, dump_size](const log_slot& slot) {
+        slot(static_cast<const char*>(dump_data), dump_size, -1);
+      });
   }
 
   pthread_mutex_unlock(&log_mutex);
@@ -295,7 +296,7 @@ log_find_output_name(const char* name) {
 }
 
 void
-log_open_output(const char* name, log_slot slot) {
+log_open_output(const char* name, const log_slot& slot) {
   pthread_mutex_lock(&log_mutex);
 
   if (log_outputs.size() >= log_group::max_size_outputs()) {

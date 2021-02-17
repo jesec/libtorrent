@@ -4,6 +4,7 @@
 #include <chrono>
 #include <functional>
 #include <thread>
+#include <utility>
 
 #include "data/chunk.h"
 #include "data/chunk_list_node.h"
@@ -75,7 +76,7 @@ HashQueue::push_back(ChunkHandle            handle,
 
   HashChunk* hash_chunk = new HashChunk(handle);
 
-  base_type::push_back(HashQueueNode(id, hash_chunk, d));
+  base_type::push_back(HashQueueNode(id, hash_chunk, std::move(d)));
 
   m_thread_disk->hash_queue()->push_back(hash_chunk);
   m_thread_disk->interrupt();
@@ -83,7 +84,7 @@ HashQueue::push_back(ChunkHandle            handle,
 
 bool
 HashQueue::has(HashQueueNode::id_type id) {
-  return std::find_if(begin(), end(), [id](HashQueueNode n) {
+  return std::find_if(begin(), end(), [id](const HashQueueNode& n) {
            return id == n.id();
          }) != end();
 }
@@ -97,7 +98,7 @@ void
 HashQueue::remove(HashQueueNode::id_type id) {
   iterator itr = begin();
 
-  while ((itr = std::find_if(itr, end(), [id](HashQueueNode n) {
+  while ((itr = std::find_if(itr, end(), [id](const HashQueueNode& n) {
             return id == n.id();
           })) != end()) {
     HashChunk* hash_chunk = itr->get_chunk();

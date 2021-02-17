@@ -9,6 +9,7 @@
 #include <cinttypes>
 #include <functional>
 #include <list>
+#include <utility>
 #include <vector>
 
 #include <torrent/download/group_entry.h>
@@ -135,13 +136,13 @@ public:
   }
 
   void set_slot_unchoke(slot_unchoke s) {
-    m_slotUnchoke = s;
+    m_slotUnchoke = std::move(s);
   }
   void set_slot_can_unchoke(slot_can_unchoke s) {
-    m_slotCanUnchoke = s;
+    m_slotCanUnchoke = std::move(s);
   }
   void set_slot_connection(slot_connection s) {
-    m_slotConnection = s;
+    m_slotConnection = std::move(s);
   }
 
   // TODO: Consider putting this in queue_group.

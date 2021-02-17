@@ -6,7 +6,7 @@
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_uri_parser, "torrent/utils");
 
 void
-test_print_uri_state(torrent::utils::uri_state state) {
+test_print_uri_state(const torrent::utils::uri_state& state) {
   lt_log_print(torrent::LOG_MOCK_CALLS, "state.uri: %s", state.uri.c_str());
   lt_log_print(
     torrent::LOG_MOCK_CALLS, "state.scheme: %s", state.scheme.c_str());
@@ -73,7 +73,7 @@ test_uri_parser::test_query_magnet() {
 
   uri_parse_query_str(state.query, query_state);
 
-  for (auto element : query_state.elements)
+  for (const auto& element : query_state.elements)
     lt_log_print(torrent::LOG_MOCK_CALLS, "query_element: %s", element.c_str());
 
   CPPUNIT_ASSERT(query_state.state ==

@@ -42,8 +42,8 @@ ai_get_first_sa(const char*     nodename,
                 const addrinfo* hints    = nullptr) LIBTORRENT_EXPORT;
 
 int
-ai_each_inet_inet6_first(const char*      nodename,
-                         ai_sockaddr_func lambda) LIBTORRENT_EXPORT;
+ai_each_inet_inet6_first(const char*             nodename,
+                         const ai_sockaddr_func& lambda) LIBTORRENT_EXPORT;
 
 // Get all addrinfo's, iterate, etc.
 

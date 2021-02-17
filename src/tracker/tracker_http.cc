@@ -305,7 +305,7 @@ TrackerHttp::receive_done() {
 }
 
 void
-TrackerHttp::receive_failed(std::string msg) {
+TrackerHttp::receive_failed(const std::string& msg) {
   if (lt_log_is_valid(LOG_TRACKER_DEBUG)) {
     std::string dump = m_data->str();
     LT_LOG_TRACKER_DUMP(

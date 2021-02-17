@@ -54,7 +54,7 @@ public:
   void set_current(iterator itr) {
     m_current = itr - begin();
   }
-  void set_current(reverse_iterator itr) {
+  void set_current(const reverse_iterator& itr) {
     m_current = itr.base() - begin() - 1;
   }
 
