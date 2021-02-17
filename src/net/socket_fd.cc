@@ -2,7 +2,6 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <arpa/inet.h>
-#include <cerrno>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>

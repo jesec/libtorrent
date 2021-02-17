@@ -73,7 +73,7 @@ MemoryChunk::unmap() {
 
   if (munmap(m_ptr, m_end - m_ptr) != 0)
     throw internal_error("MemoryChunk::unmap() system call failed: " +
-                         std::string(utils::error_number::current().c_str()));
+                         utils::error_number::current().message());
 }
 
 void
@@ -96,7 +96,7 @@ MemoryChunk::incore(char* buf, uint32_t offset, uint32_t length) {
   if (mincore(m_ptr + offset, length, (char*)buf))
 #endif
     throw storage_error("System call mincore failed: " +
-                        std::string(utils::error_number::current().c_str()));
+                        utils::error_number::current().message());
 
 #else // !LT_USE_MINCORE
   // Pretend all pages are in memory.
@@ -123,7 +123,7 @@ MemoryChunk::advise(uint32_t offset, uint32_t length, int advice) {
   else if (errno == EINVAL || (errno == ENOMEM && advice != advice_willneed) ||
            errno == EBADF)
     throw internal_error("MemoryChunk::advise(...) " +
-                         std::string(strerror(errno)));
+                         utils::error_number::current().message());
 
   else
     return false;

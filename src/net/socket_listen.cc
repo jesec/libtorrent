@@ -3,6 +3,7 @@
 #include "net/socket_listen.h"
 #include "torrent/connection_manager.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/error_number.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/random.h"
 
@@ -55,7 +56,7 @@ socket_listen::open(sa_unique_ptr&& sap,
                sap,
                open_flags,
                errno,
-               std::strerror(errno));
+               utils::error_number::current().message().c_str());
     return false;
   }
 
@@ -134,7 +135,7 @@ socket_listen::m_open_port(int fd, sa_unique_ptr& sap, uint16_t port) {
                  sap,
                  fd,
                  errno,
-                 std::strerror(errno));
+                 utils::error_number::current().message().c_str());
       fd_close(fd);
       return true;
     }
@@ -148,7 +149,7 @@ socket_listen::m_open_port(int fd, sa_unique_ptr& sap, uint16_t port) {
                fd,
                m_backlog,
                errno,
-               std::strerror(errno));
+               utils::error_number::current().message().c_str());
     fd_close(fd);
     return true;
   }

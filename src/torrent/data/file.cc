@@ -41,8 +41,6 @@ File::is_created() const {
   // rather than as a way to find out if it is starting on a blank
   // slate.
   if (!fs.update(frozen_path()))
-    //     return utils::error_number::current() ==
-    //     utils::error_number::e_access;
     return false;
 
   return fs.is_regular();

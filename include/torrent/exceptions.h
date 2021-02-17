@@ -14,6 +14,7 @@
 #include <string>
 #include <torrent/common.h>
 #include <torrent/hash_string.h>
+#include <torrent/utils/error_number.h>
 
 namespace torrent {
 
@@ -99,34 +100,39 @@ private:
 
 class LIBTORRENT_EXPORT connection_error : public network_error {
 public:
-  connection_error(int err)
-    : m_errno(err) {}
+  connection_error(std::errc err)
+    : m_errno(err) {
+    m_msg = std::string(utils::error_number(m_errno).message());
+  }
   ~connection_error() noexcept override = default;
 
-  const char* what() const noexcept override;
+  const char* what() const noexcept override {
+    return m_msg.c_str();
+  };
 
-  int get_errno() const {
+  std::errc get_errno() const {
     return m_errno;
   }
 
 private:
-  int m_errno;
+  std::errc   m_errno;
+  std::string m_msg;
 };
 
 class LIBTORRENT_EXPORT address_info_error : public network_error {
 public:
-  address_info_error(int err)
+  address_info_error(std::errc err)
     : m_errno(err) {}
   ~address_info_error() noexcept override = default;
 
   const char* what() const noexcept override;
 
-  int get_errno() const {
+  std::errc get_errno() const {
     return m_errno;
   }
 
 private:
-  int m_errno;
+  std::errc m_errno;
 };
 
 class LIBTORRENT_EXPORT close_connection : public network_error {

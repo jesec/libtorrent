@@ -47,7 +47,7 @@ public:
     return m_outstanding;
   }
 
-  int error_number() const {
+  std::errc error_number() const {
     return m_errno;
   }
 
@@ -69,7 +69,7 @@ private:
   int          m_outstanding;
   Ranges       m_ranges;
 
-  int m_errno;
+  std::errc m_errno;
 
   ChunkList* m_chunk_list;
 

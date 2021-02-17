@@ -366,7 +366,7 @@ PeerConnectionBase::load_up_chunk() {
 
   if (!m_upChunk.is_valid())
     throw storage_error("File chunk read error: " +
-                        std::string(m_upChunk.error_number().c_str()));
+                        m_upChunk.error_number().message());
 
   if (is_encrypted() && m_encryptBuffer == nullptr) {
     m_encryptBuffer = new EncryptBuffer();
@@ -475,8 +475,7 @@ PeerConnectionBase::down_chunk_start(const Piece& piece) {
 
     if (!m_downChunk.is_valid())
       throw storage_error("File chunk write error: " +
-                          std::string(m_downChunk.error_number().c_str()) +
-                          ".");
+                          m_downChunk.error_number().message() + ".");
   }
 
   LT_LOG_PIECE_EVENTS(

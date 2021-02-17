@@ -47,8 +47,7 @@ thread_interrupt::create_pair() {
 
   if (!SocketFd::open_socket_pair(fd1, fd2))
     throw internal_error("Could not create socket pair for thread_interrupt: " +
-                         std::string(utils::error_number::current().c_str()) +
-                         ".");
+                         utils::error_number::current().message() + ".");
 
   thread_interrupt* t1 = new thread_interrupt(fd1);
   thread_interrupt* t2 = new thread_interrupt(fd2);

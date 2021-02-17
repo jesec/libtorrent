@@ -153,7 +153,7 @@ DownloadWrapper::receive_initial_hash() {
   if (!m_hashChecker->is_checking()) {
     receive_storage_error(
       "Hash checker was unable to map chunk: " +
-      std::string(utils::error_number(m_hashChecker->error_number()).c_str()));
+      utils::error_number(m_hashChecker->error_number()).message());
 
   } else {
     m_hashChecker->confirm_checked();

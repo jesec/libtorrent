@@ -1,5 +1,6 @@
 #include "torrent/chunk_manager.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/error_number.h"
 
 #include "test/data/test_chunk_list.h"
 
@@ -12,8 +13,9 @@ func_create_chunk(uint32_t index, int) {
     NULL, 10, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
 
   if (memory_part1 == MAP_FAILED)
-    throw torrent::internal_error("func_create_chunk() failed: " +
-                                  std::string(strerror(errno)));
+    throw torrent::internal_error(
+      "func_create_chunk() failed: " +
+      torrent::utils::error_number::current().message());
 
   std::memset(memory_part1, index, 10);
 
@@ -134,7 +136,7 @@ test_chunk_list::test_blocking() {
     0, torrent::ChunkList::get_writable | torrent::ChunkList::get_nonblock);
   CPPUNIT_ASSERT(!handle_0_rw.is_valid());
   CPPUNIT_ASSERT(handle_0_rw.error_number() ==
-                 torrent::utils::error_number::e_again);
+                 std::errc::resource_unavailable_try_again);
 
   chunk_list->release(&handle_0_ro);
 

@@ -70,8 +70,6 @@ FileList::is_root_dir_created() const {
   utils::file_stat fs;
 
   if (!fs.update(m_rootDir))
-    //     return utils::error_number::current() ==
-    //     utils::error_number::e_access;
     return false;
 
   return fs.is_directory();
@@ -388,7 +386,7 @@ FileList::open(int flags) {
   try {
     if (!(flags & open_no_create) && !make_root_path())
       throw storage_error("Could not create directory '" + m_rootDir +
-                          "': " + std::strerror(errno));
+                          "': " + utils::error_number::current().message());
 
     for (itr = begin(); itr != end(); ++itr) {
       File* entry = *itr;
@@ -428,9 +426,8 @@ FileList::open(int flags) {
         // being set or not.
         if (!(flags & open_no_create))
           // Also check if open_require_all_open is set.
-          throw storage_error(
-            "Could not open file: " +
-            std::string(utils::error_number::current().c_str()));
+          throw storage_error("Could not open file: " +
+                              utils::error_number::current().message());
 
         // Don't set the lastPath as we haven't created the directory.
         continue;
@@ -522,7 +519,7 @@ FileList::make_directory(Path::const_iterator pathBegin,
 
     if (::mkdir(path.c_str(), 0777) != 0 && errno != EEXIST)
       throw storage_error("Could not create directory '" + path +
-                          "': " + std::strerror(errno));
+                          "': " + utils::error_number::current().message());
   }
 }
 
@@ -557,7 +554,7 @@ FileList::open_file(File* node, const Path& lastPath, int flags) {
       !fileStat.is_link()) {
     // Might also bork on other kinds of file types, but there's no
     // suitable errno for all cases.
-    utils::error_number::set_global(utils::error_number::e_isdir);
+    utils::error_number::set_global(std::errc::is_a_directory);
     return false;
   }
 

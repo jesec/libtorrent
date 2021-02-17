@@ -10,6 +10,7 @@
 #include "torrent/connection_manager.h"
 #include "torrent/exceptions.h"
 #include "torrent/poll.h"
+#include "torrent/utils/error_number.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/socket_address.h"
 
@@ -113,8 +114,9 @@ Listen::event_error() {
   int error = get_fd().get_error();
 
   if (error != 0)
-    throw internal_error("Listener port received an error event: " +
-                         std::string(std::strerror(error)));
+    throw internal_error(
+      "Listener port received an error event: " +
+      utils::error_number(static_cast<std::errc>(error)).message());
 }
 
 } // namespace torrent

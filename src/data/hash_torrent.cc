@@ -22,7 +22,7 @@ namespace torrent {
 HashTorrent::HashTorrent(ChunkList* c)
   : m_position(0)
   , m_outstanding(-1)
-  , m_errno(0)
+  , m_errno(static_cast<std::errc>(0))
   ,
 
   m_chunk_list(c) {}
@@ -53,7 +53,7 @@ HashTorrent::clear() {
 
   m_outstanding = -1;
   m_position    = 0;
-  m_errno       = 0;
+  m_errno       = static_cast<std::errc>(0);
 
   // Correct?
   utils::priority_queue_erase(&taskScheduler, &m_delayChecked);
@@ -166,7 +166,8 @@ HashTorrent::queue(bool quick) {
       }
 
       if (handle.error_number().is_valid() &&
-          handle.error_number().value() != utils::error_number::e_noent) {
+          handle.error_number().value() !=
+            std::errc::no_such_file_or_directory) {
         LT_LOG_THIS(
           DEBUG, "Return on handle errno == E_NOENT: position:%u.", m_position);
         return;
@@ -180,7 +181,7 @@ HashTorrent::queue(bool quick) {
     // file that hasn't be created/resized. Which means we ignore it
     // when doing initial hashing.
     if (handle.error_number().is_valid() &&
-        handle.error_number().value() != utils::error_number::e_noent) {
+        handle.error_number().value() != std::errc::no_such_file_or_directory) {
       if (handle.is_valid())
         throw internal_error(
           "HashTorrent::queue() error, but handle.is_valid().");
@@ -203,7 +204,7 @@ HashTorrent::queue(bool quick) {
         m_position,
         quick,
         m_errno,
-        handle.error_number().c_str());
+        handle.error_number().message().c_str());
       utils::priority_queue_erase(&taskScheduler, &m_delayChecked);
       utils::priority_queue_insert(&taskScheduler, &m_delayChecked, cachedTime);
       return;

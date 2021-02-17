@@ -3,9 +3,6 @@
 
 #include "torrent/buildinfo.h"
 
-#include <cerrno>
-#include <cstdio>
-#include <cstring>
 #include <stdexcept>
 #include <unistd.h>
 
@@ -87,7 +84,7 @@ PollEPoll::modify(Event* event, int op, uint32_t mask) {
                static_cast<void*>(event),
                mask,
                errno,
-               strerror(errno));
+               utils::error_number::current().message().c_str());
 
       throw internal_error(errmsg);
     }
@@ -199,10 +196,9 @@ PollEPoll::do_poll(int64_t timeout_usec, int flags) {
   }
 
   if (status == -1) {
-    if (utils::error_number::current().value() != utils::error_number::e_intr) {
-      throw std::runtime_error(
-        "PollEPoll::work(): " +
-        std::string(utils::error_number::current().c_str()));
+    if (utils::error_number::current().value() != std::errc::interrupted) {
+      throw std::runtime_error("PollEPoll::work(): " +
+                               utils::error_number::current().message());
     }
 
     return 0;

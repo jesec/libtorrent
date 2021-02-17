@@ -3,7 +3,6 @@
 
 #include "torrent/buildinfo.h"
 
-#include <cerrno>
 #include <string>
 #include <unistd.h>
 
@@ -35,7 +34,7 @@ directory_events::open() {
     m_fileDesc = -1;
   }
 #else
-  utils::error_number::set_global(utils::error_number::e_nodev);
+  utils::error_number::set_global(std::errc::no_such_device);
 #endif
 
   if (m_fileDesc == -1)
@@ -91,7 +90,7 @@ directory_events::notify_on(const std::string& path,
 
   if (result == -1)
     throw input_error("Call to inotify_add_watch(...) failed: " +
-                      std::string(utils::error_number::current().c_str()));
+                      utils::error_number::current().message());
 
   wd_list::iterator itr = m_wd_list.insert(m_wd_list.end(), watch_descriptor());
   itr->descriptor       = result;

@@ -123,7 +123,7 @@ ChunkList::get(size_type index, int flags) {
                   "Could not allocate: memory:%" PRIu64 " block:%" PRIu32 ".",
                   m_manager->memory_usage(),
                   m_manager->memory_block_count());
-      return ChunkHandle::from_error(utils::error_number::e_nomem);
+      return ChunkHandle::from_error(std::errc::not_enough_memory);
     }
 
     Chunk* chunk = m_slot_create_chunk(index, prot_flags);
@@ -137,12 +137,12 @@ ChunkList::get(size_type index, int flags) {
                   m_manager->memory_usage(),
                   m_manager->memory_block_count(),
                   current_error.value(),
-                  current_error.c_str());
+                  current_error.message().c_str());
       m_manager->deallocate(m_chunk_size,
                             allocate_flags | ChunkManager::allocate_revert_log);
       return ChunkHandle::from_error(current_error.is_valid()
                                        ? current_error
-                                       : utils::error_number::e_noent);
+                                       : std::errc::no_such_file_or_directory);
     }
 
     node->set_chunk(chunk);
@@ -151,7 +151,8 @@ ChunkList::get(size_type index, int flags) {
   } else if (flags & get_writable && !node->chunk()->is_writable()) {
     if (node->blocking() != 0) {
       if ((flags & get_nonblock))
-        return ChunkHandle::from_error(utils::error_number::e_again);
+        return ChunkHandle::from_error(
+          std::errc::resource_unavailable_try_again);
 
       throw internal_error(
         "No support yet for getting write permission for blocked chunk.");
@@ -162,7 +163,7 @@ ChunkList::get(size_type index, int flags) {
     if (chunk == nullptr)
       return ChunkHandle::from_error(utils::error_number::current().is_valid()
                                        ? utils::error_number::current()
-                                       : utils::error_number::e_noent);
+                                       : std::errc::no_such_file_or_directory);
 
     delete node->chunk();
 
@@ -361,7 +362,7 @@ ChunkList::sync_chunks(int flags) {
   // download or set the sync_ignore_error flag.
   if (failed && !(flags & sync_ignore_error))
     m_slot_storage_error("Could not sync chunk: " +
-                         std::string(utils::error_number::current().c_str()));
+                         utils::error_number::current().message());
 
   return failed;
 }

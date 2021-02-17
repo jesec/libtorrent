@@ -232,10 +232,9 @@ PollSelect::do_poll(int64_t timeout_usec, int flags) {
   }
 
   if (status == -1) {
-    if (utils::error_number::current().value() != utils::error_number::e_intr) {
-      throw std::runtime_error(
-        "PollSelect::work(): " +
-        std::string(utils::error_number::current().c_str()));
+    if (utils::error_number::current().value() != std::errc::interrupted) {
+      throw std::runtime_error("PollSelect::work(): " +
+                               utils::error_number::current().message());
     }
 
     return 0;

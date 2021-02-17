@@ -3,8 +3,6 @@
 
 #include "torrent/buildinfo.h"
 
-#include <cerrno>
-#include <cstring>
 #include <iostream>
 #include <netdb.h>
 #include <sstream>
@@ -40,13 +38,8 @@ input_error::initialize(const std::string& msg) {
 }
 
 const char*
-connection_error::what() const noexcept {
-  return std::strerror(m_errno);
-}
-
-const char*
 address_info_error::what() const noexcept {
-  return ::gai_strerror(m_errno);
+  return ::gai_strerror(static_cast<int>(m_errno));
 }
 
 void

@@ -148,10 +148,10 @@ TrackerUdp::start_announce(const sockaddr* sa, int) {
     manager->connection_manager()->bind_address());
 
   if (bind_address->is_bindable() && !get_fd().bind(*bind_address))
-    return receive_failed("failed to bind socket to udp address '" +
-                          bind_address->pretty_address_str() +
-                          "' with error '" +
-                          utils::error_number::current().c_str() + "'");
+    return receive_failed(
+      "failed to bind socket to udp address '" +
+      bind_address->pretty_address_str() + "' with error '" +
+      utils::error_number::current().message().c_str() + "'");
 
   m_readBuffer  = new ReadBuffer;
   m_writeBuffer = new WriteBuffer;

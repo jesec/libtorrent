@@ -4,7 +4,6 @@
 #include "torrent/buildinfo.h"
 
 #include <cassert>
-#include <cerrno>
 
 #include <algorithm>
 #include <stdexcept>
@@ -64,7 +63,7 @@ PollKQueue::flush_events() {
                     &timeout);
   if (nfds == -1)
     throw internal_error("PollKQueue::flush_events() error: " +
-                         std::string(utils::error_number::current().c_str()));
+                         utils::error_number::current().message());
 
   m_changedEvents = 0;
   m_waitingEvents += nfds;
@@ -83,7 +82,7 @@ PollKQueue::modify(Event* event, unsigned short op, short mask) {
   if (m_changedEvents == m_maxEvents) {
     if (kevent(m_fd, m_changes, m_changedEvents, NULL, 0, NULL) == -1)
       throw internal_error("PollKQueue::modify() error: " +
-                           std::string(utils::error_number::current().c_str()));
+                           utils::error_number::current().message());
 
     m_changedEvents = 0;
   }
@@ -263,10 +262,9 @@ PollKQueue::do_poll(int64_t timeout_usec, int flags) {
   }
 
   if (status == -1) {
-    if (utils::error_number::current().value() != utils::error_number::e_intr) {
-      throw std::runtime_error(
-        "PollKQueue::work(): " +
-        std::string(utils::error_number::current().c_str()));
+    if (utils::error_number::current().value() != std::errc::interrupted) {
+      throw std::runtime_error("PollKQueue::work(): " +
+                               utils::error_number::current().message());
     }
 
     return 0;

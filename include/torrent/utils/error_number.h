@@ -4,66 +4,56 @@
 #ifndef LIBTORRENT_UTILS_ERROR_NUMBER_H
 #define LIBTORRENT_UTILS_ERROR_NUMBER_H
 
-#include <cerrno>
-#include <cstring>
+#include <system_error>
 
 namespace torrent {
 namespace utils {
 
 class error_number {
 public:
-  static const int e_access      = EACCES;
-  static const int e_again       = EAGAIN;
-  static const int e_connreset   = ECONNRESET;
-  static const int e_connaborted = ECONNABORTED;
-  static const int e_deadlk      = EDEADLK;
-
-  static const int e_noent  = ENOENT;
-  static const int e_nodev  = ENODEV;
-  static const int e_nomem  = ENOMEM;
-  static const int e_notdir = ENOTDIR;
-  static const int e_isdir  = EISDIR;
-
-  static const int e_intr = EINTR;
-
   error_number() = default;
-  error_number(int e)
+  error_number(std::errc e)
     : m_errno(e) {}
 
   bool is_valid() const {
-    return m_errno != 0;
+    return static_cast<int>(m_errno) != 0;
   }
 
-  int value() const {
+  std::errc value() const {
     return m_errno;
   }
-  const char* c_str() const {
-    return std::strerror(m_errno);
+
+  std::string message() const {
+    return std::make_error_code(m_errno).message();
   }
 
   bool is_blocked_momentary() const {
-    return m_errno == e_again || m_errno == e_intr;
+    return m_errno == std::errc::resource_unavailable_try_again ||
+           m_errno == std::errc::interrupted;
   }
   bool is_blocked_prolonged() const {
-    return m_errno == e_deadlk;
+    return m_errno == std::errc::resource_deadlock_would_occur;
   }
 
   bool is_closed() const {
-    return m_errno == e_connreset || m_errno == e_connaborted;
+    return m_errno == std::errc::connection_reset ||
+           m_errno == std::errc::connection_aborted;
   }
 
   bool is_bad_path() const {
-    return m_errno == e_noent || m_errno == e_notdir || m_errno == e_access;
+    return m_errno == std::errc::no_such_file_or_directory ||
+           m_errno == std::errc::not_a_directory ||
+           m_errno == std::errc::permission_denied;
   }
 
   static error_number current() {
-    return errno;
+    return static_cast<std::errc>(errno);
   }
   static void clear_global() {
     errno = 0;
   }
   static void set_global(error_number err) {
-    errno = err.m_errno;
+    errno = static_cast<int>(err.m_errno);
   }
 
   bool operator==(const error_number& e) const {
@@ -71,7 +61,7 @@ public:
   }
 
 private:
-  int m_errno{ 0 };
+  std::errc m_errno{ 0 };
 };
 
 } // namespace utils
