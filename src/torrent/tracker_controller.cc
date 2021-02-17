@@ -194,13 +194,11 @@ TrackerController::send_stop_event() {
 
   close();
 
-  for (TrackerList::iterator itr = m_tracker_list->begin();
-       itr != m_tracker_list->end();
-       itr++) {
-    if (!(*itr)->is_in_use())
+  for (auto& tracker : *m_tracker_list) {
+    if (!tracker->is_in_use())
       continue;
 
-    m_tracker_list->send_state(*itr, Tracker::EVENT_STOPPED);
+    m_tracker_list->send_state(tracker, Tracker::EVENT_STOPPED);
   }
 
   // Timer...
@@ -227,13 +225,11 @@ TrackerController::send_completed_event() {
 
   close();
 
-  for (TrackerList::iterator itr = m_tracker_list->begin();
-       itr != m_tracker_list->end();
-       itr++) {
-    if (!(*itr)->is_in_use())
+  for (auto& itr : *m_tracker_list) {
+    if (!itr->is_in_use())
       continue;
 
-    m_tracker_list->send_state(*itr, Tracker::EVENT_COMPLETED);
+    m_tracker_list->send_state(itr, Tracker::EVENT_COMPLETED);
   }
 
   // Timer...
@@ -552,7 +548,7 @@ TrackerController::receive_failure(Tracker* tb, const std::string& msg) {
     return;
   }
 
-  if (tb == NULL) {
+  if (tb == nullptr) {
     LT_LOG_TRACKER(INFO, "Received failure msg:'%s'.", msg.c_str());
     m_slot_failure(msg);
     return;

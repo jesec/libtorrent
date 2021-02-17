@@ -16,10 +16,10 @@ class thread_interrupt;
 
 class LIBTORRENT_EXPORT lt_cacheline_aligned thread_base {
 public:
-  typedef void* (*pthread_func)(void*);
-  typedef std::function<void()>     slot_void;
-  typedef std::function<uint64_t()> slot_timer;
-  typedef class signal_bitfield     signal_type;
+  using pthread_func = void* (*)(void*);
+  using slot_void    = std::function<void()>;
+  using slot_timer   = std::function<uint64_t()>;
+  using signal_type  = class signal_bitfield;
 
   enum state_type {
     STATE_UNKNOWN,
@@ -123,20 +123,20 @@ protected:
 
   static global_lock_type m_global;
 
-  pthread_t          m_thread;
-  state_type m_state lt_cacheline_aligned;
-  int m_flags        lt_cacheline_aligned;
+  pthread_t                       m_thread;
+  state_type lt_cacheline_aligned m_state{ STATE_UNKNOWN };
+  int lt_cacheline_aligned        m_flags{ 0 };
 
   int m_instrumentation_index;
 
-  Poll*       m_poll;
+  Poll*       m_poll{ nullptr };
   signal_type m_signal_bitfield;
 
   slot_void  m_slot_do_work;
   slot_timer m_slot_next_timeout;
 
-  thread_interrupt* m_interrupt_sender;
-  thread_interrupt* m_interrupt_receiver;
+  thread_interrupt* m_interrupt_sender{ nullptr };
+  thread_interrupt* m_interrupt_receiver{ nullptr };
 };
 
 inline bool

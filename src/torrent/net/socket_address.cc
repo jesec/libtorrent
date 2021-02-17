@@ -40,22 +40,23 @@ sin6_make_addr32(uint32_t addr0,
 
 bool
 sa_is_unspec(const sockaddr* sa) {
-  return sa != NULL && sa->sa_family == AF_UNSPEC;
+  return sa != nullptr && sa->sa_family == AF_UNSPEC;
 }
 
 bool
 sa_is_inet(const sockaddr* sa) {
-  return sa != NULL && sa->sa_family == AF_INET;
+  return sa != nullptr && sa->sa_family == AF_INET;
 }
 
 bool
 sa_is_inet6(const sockaddr* sa) {
-  return sa != NULL && sa->sa_family == AF_INET6;
+  return sa != nullptr && sa->sa_family == AF_INET6;
 }
 
 bool
 sa_is_inet_inet6(const sockaddr* sa) {
-  return sa != NULL && (sa->sa_family == AF_INET || sa->sa_family == AF_INET6);
+  return sa != nullptr &&
+         (sa->sa_family == AF_INET || sa->sa_family == AF_INET6);
 }
 
 bool
@@ -105,13 +106,13 @@ sin_is_broadcast(const sockaddr_in* sa) {
 
 bool
 sa_is_v4mapped(const sockaddr* sa) {
-  return sa != NULL && sa->sa_family == AF_INET6 &&
+  return sa != nullptr && sa->sa_family == AF_INET6 &&
          sin6_is_v4mapped(reinterpret_cast<const sockaddr_in6*>(sa));
 }
 
 bool
 sin6_is_v4mapped(const sockaddr_in6* sa) {
-  return sa != NULL && IN6_IS_ADDR_V4MAPPED(&sa->sin6_addr);
+  return sa != nullptr && IN6_IS_ADDR_V4MAPPED(&sa->sin6_addr);
 }
 
 bool
@@ -167,7 +168,7 @@ sa_make_unix(const std::string& pathname) {
 
 sa_unique_ptr
 sa_convert(const sockaddr* sa) {
-  if (sa == NULL)
+  if (sa == nullptr)
     return sa_make_unspec();
 
   switch (sa->sa_family) {
@@ -377,7 +378,7 @@ sa_clear_inet6(sockaddr_in6* sa) {
 
 uint16_t
 sa_port(const sockaddr* sa) {
-  if (sa == NULL)
+  if (sa == nullptr)
     return 0;
 
   switch (sa->sa_family) {
@@ -490,7 +491,7 @@ sin6_equal_addr(const sockaddr_in6* lhs, const sockaddr_in6* rhs) {
 
 std::string
 sa_addr_str(const sockaddr* sa) {
-  if (sa == NULL)
+  if (sa == nullptr)
     return "unspec";
 
   switch (sa->sa_family) {
@@ -509,7 +510,7 @@ std::string
 sin_addr_str(const sockaddr_in* sa) {
   char buffer[INET_ADDRSTRLEN];
 
-  if (inet_ntop(AF_INET, &sa->sin_addr, buffer, INET_ADDRSTRLEN) == NULL)
+  if (inet_ntop(AF_INET, &sa->sin_addr, buffer, INET_ADDRSTRLEN) == nullptr)
     return "inet_error";
 
   return buffer;
@@ -519,7 +520,7 @@ std::string
 sin6_addr_str(const sockaddr_in6* sa) {
   char buffer[INET6_ADDRSTRLEN];
 
-  if (inet_ntop(AF_INET6, &sa->sin6_addr, buffer, INET6_ADDRSTRLEN) == NULL)
+  if (inet_ntop(AF_INET6, &sa->sin6_addr, buffer, INET6_ADDRSTRLEN) == nullptr)
     return "inet6_error";
 
   return buffer;

@@ -30,9 +30,9 @@ public:
   friend class DownloadWrapper;
   friend class Handshake;
 
-  typedef std::vector<File*>        base_type;
-  typedef std::vector<std::string>  path_list;
-  typedef std::pair<uint64_t, Path> split_type;
+  using base_type  = std::vector<File*>;
+  using path_list  = std::vector<std::string>;
+  using split_type = std::pair<uint64_t, Path>;
 
   // The below are using-directives that make visible functions and
   // typedefs in the parent std::vector, only those listed below are
@@ -44,7 +44,7 @@ public:
   using base_type::reverse_iterator;
   using base_type::value_type;
 
-  typedef std::pair<iterator, iterator> iterator_range;
+  using iterator_range = std::pair<iterator, iterator>;
 
   using base_type::begin;
   using base_type::end;
@@ -59,7 +59,7 @@ public:
   using base_type::at;
   using base_type::operator[];
 
-  FileList() LIBTORRENT_NO_EXPORT;
+  FileList() LIBTORRENT_NO_EXPORT = default;
   ~FileList() LIBTORRENT_NO_EXPORT;
 
   bool is_open() const {
@@ -196,11 +196,11 @@ private:
 
   download_data m_data;
 
-  bool m_isOpen;
+  bool m_isOpen{ false };
 
-  uint64_t m_torrentSize;
-  uint32_t m_chunkSize;
-  uint64_t m_maxFileSize;
+  uint64_t m_torrentSize{ 0 };
+  uint32_t m_chunkSize{ 0 };
+  uint64_t m_maxFileSize{ ~uint64_t() };
 
   std::string m_rootDir;
 

@@ -87,8 +87,8 @@ public:
   }
 
 protected:
-  Peer() {}
-  virtual ~Peer() {}
+  Peer()          = default;
+  virtual ~Peer() = default;
 
   Peer(const Peer&);
   void operator=(const Peer&);

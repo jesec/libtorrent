@@ -68,7 +68,7 @@ HandshakeManager::erase(Handshake* handshake) {
 struct handshake_manager_equal
   : std::binary_function<const utils::socket_address*, const Handshake*, bool> {
   bool operator()(const utils::socket_address* sa1, const Handshake* p2) const {
-    return p2->peer_info() != NULL &&
+    return p2->peer_info() != nullptr &&
            *sa1 == *utils::socket_address::cast_from(
                      p2->peer_info()->socket_address());
   }
@@ -137,7 +137,7 @@ HandshakeManager::create_outgoing(const utils::socket_address& sa,
   PeerInfo* peerInfo =
     download->peer_list()->connected(sa.c_sockaddr(), connection_options);
 
-  if (peerInfo == NULL || peerInfo->failed_counter() > max_failed)
+  if (peerInfo == nullptr || peerInfo->failed_counter() > max_failed)
     return;
 
   SocketFd                     fd;
@@ -207,7 +207,7 @@ HandshakeManager::receive_succeeded(Handshake* handshake) {
          handshake->get_fd(),
          handshake->bitfield(),
          handshake->encryption()->info(),
-         handshake->extensions())) != NULL) {
+         handshake->extensions())) != nullptr) {
 
     manager->client_list()->retrieve_id(
       &handshake->peer_info()->mutable_client_info(),

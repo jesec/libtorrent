@@ -13,7 +13,7 @@ namespace torrent {
 
 class BlockFailed : public std::vector<std::pair<char*, uint32_t>> {
 public:
-  typedef std::vector<std::pair<char*, uint32_t>> base_type;
+  using base_type = std::vector<std::pair<char*, uint32_t>>;
 
   using base_type::difference_type;
   using base_type::reference;
@@ -62,8 +62,8 @@ public:
   reverse_iterator reverse_max_element();
 
 private:
-  BlockFailed(const BlockFailed&);
-  void operator=(const BlockFailed&);
+  BlockFailed(const BlockFailed&) = delete;
+  void operator=(const BlockFailed&) = delete;
 
   static void delete_entry(value_type e) {
     delete[] e.first;

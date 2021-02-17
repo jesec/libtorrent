@@ -14,12 +14,12 @@ class LIBTORRENT_EXPORT Tracker {
 public:
   friend class TrackerList;
 
-  typedef enum {
+  using Type = enum {
     TRACKER_NONE,
     TRACKER_HTTP,
     TRACKER_UDP,
     TRACKER_DHT,
-  } Type;
+  };
 
   enum tracker_event {
     EVENT_NONE,
@@ -36,7 +36,7 @@ public:
   static const int max_flag_size   = 0x10;
   static const int mask_base_flags = 0x10 - 1;
 
-  virtual ~Tracker() {}
+  virtual ~Tracker() = default;
 
   int flags() const {
     return m_flags;
@@ -156,7 +156,7 @@ public:
   static std::string scrape_url_from(std::string url);
 
 protected:
-  Tracker(TrackerList* parent, const std::string& url, int flags = 0);
+  Tracker(TrackerList* parent, std::string url, int flags = 0);
   Tracker(const Tracker& t);
   void operator=(const Tracker& t);
 

@@ -13,8 +13,8 @@ class File;
 
 class LIBTORRENT_EXPORT FileManager : private std::vector<File*> {
 public:
-  typedef std::vector<File*> base_type;
-  typedef uint32_t           size_type;
+  using base_type = std::vector<File*>;
+  using size_type = uint32_t;
 
   using base_type::iterator;
   using base_type::reverse_iterator;
@@ -25,7 +25,7 @@ public:
   using base_type::rbegin;
   using base_type::rend;
 
-  FileManager();
+  FileManager() = default;
   ~FileManager();
 
   size_type open_files() const {
@@ -54,14 +54,14 @@ public:
   }
 
 private:
-  FileManager(const FileManager&) LIBTORRENT_NO_EXPORT;
-  void operator=(const FileManager&) LIBTORRENT_NO_EXPORT;
+  FileManager(const FileManager&) LIBTORRENT_NO_EXPORT = delete;
+  void operator=(const FileManager&) LIBTORRENT_NO_EXPORT = delete;
 
-  size_type m_maxOpenFiles;
+  size_type m_maxOpenFiles{ 0 };
 
-  uint64_t m_filesOpenedCounter;
-  uint64_t m_filesClosedCounter;
-  uint64_t m_filesFailedCounter;
+  uint64_t m_filesOpenedCounter{ 0 };
+  uint64_t m_filesClosedCounter{ 0 };
+  uint64_t m_filesFailedCounter{ 0 };
 };
 
 } // namespace torrent

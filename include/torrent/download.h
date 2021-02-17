@@ -37,7 +37,7 @@ public:
 
   static const int stop_skip_tracker = (1 << 0);
 
-  Download(DownloadWrapper* d = NULL)
+  Download(DownloadWrapper* d = nullptr)
     : m_ptr(d) {}
 
   const DownloadInfo*  info() const;
@@ -148,12 +148,12 @@ public:
   void manual_request(bool force);
   void manual_cancel();
 
-  typedef enum {
+  using ConnectionType = enum {
     CONNECTION_LEECH,
     CONNECTION_SEED,
     CONNECTION_INITIAL_SEED,
     CONNECTION_METADATA,
-  } ConnectionType;
+  };
 
   ConnectionType connection_type() const;
   void           set_connection_type(ConnectionType t);

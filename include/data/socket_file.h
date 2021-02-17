@@ -17,7 +17,7 @@ namespace torrent {
 
 class SocketFile {
 public:
-  typedef int fd_type;
+  using fd_type = int;
 
   static const fd_type invalid_fd = -1;
 
@@ -55,8 +55,8 @@ public:
 private:
   // Use custom flags if stuff like file locking etc is implemented.
 
-  SocketFile(const SocketFile&);
-  void operator=(const SocketFile&);
+  SocketFile(const SocketFile&) = delete;
+  void operator=(const SocketFile&) = delete;
 
   fd_type m_fd;
 };

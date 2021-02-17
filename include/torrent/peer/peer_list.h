@@ -20,8 +20,8 @@ public:
   friend class HandshakeManager;
   friend class ConnectionList;
 
-  typedef std::multimap<socket_address_key, PeerInfo*>        base_type;
-  typedef std::pair<base_type::iterator, base_type::iterator> range_type;
+  using base_type  = std::multimap<socket_address_key, PeerInfo*>;
+  using range_type = std::pair<base_type::iterator, base_type::iterator>;
 
   using base_type::difference_type;
   using base_type::reference;
@@ -89,8 +89,8 @@ protected:
   iterator disconnected(iterator itr, int flags) LIBTORRENT_NO_EXPORT;
 
 private:
-  PeerList(const PeerList&);
-  void operator=(const PeerList&);
+  PeerList(const PeerList&) = delete;
+  void operator=(const PeerList&) = delete;
 
   DownloadInfo*  m_info;
   AvailableList* m_available_list;

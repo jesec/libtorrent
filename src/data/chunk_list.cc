@@ -71,14 +71,13 @@ ChunkList::clear() {
 
   // Don't do any sync'ing as whomever decided to shut down really
   // doesn't care, so just de-reference all chunks in queue.
-  for (Queue::iterator itr = m_queue.begin(), last = m_queue.end(); itr != last;
-       ++itr) {
-    if ((*itr)->references() != 1 || (*itr)->writable() != 1)
+  for (auto& node : m_queue) {
+    if (node->references() != 1 || node->writable() != 1)
       throw internal_error("ChunkList::clear() called but a node in the queue "
                            "is still referenced.");
 
-    (*itr)->dec_rw();
-    clear_chunk(*itr);
+    node->dec_rw();
+    clear_chunk(node);
   }
 
   m_queue.clear();
@@ -129,7 +128,7 @@ ChunkList::get(size_type index, int flags) {
 
     Chunk* chunk = m_slot_create_chunk(index, prot_flags);
 
-    if (chunk == NULL) {
+    if (chunk == nullptr) {
       utils::error_number current_error = utils::error_number::current();
 
       LT_LOG_THIS(DEBUG,
@@ -160,7 +159,7 @@ ChunkList::get(size_type index, int flags) {
 
     Chunk* chunk = m_slot_create_chunk(index, prot_flags);
 
-    if (chunk == NULL)
+    if (chunk == nullptr)
       return ChunkHandle::from_error(utils::error_number::current().is_valid()
                                        ? utils::error_number::current()
                                        : utils::error_number::e_noent);
@@ -251,7 +250,7 @@ ChunkList::clear_chunk(ChunkListNode* node, int flags) {
     throw internal_error("ChunkList::clear_chunk(...) !node->is_valid().");
 
   delete node->chunk();
-  node->set_chunk(NULL);
+  node->set_chunk(nullptr);
 
   m_manager->deallocate(
     m_chunk_size, (flags & get_dont_log) ? ChunkManager::allocate_dont_log : 0);

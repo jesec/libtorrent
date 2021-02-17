@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
+#include <cstdlib>
 #include <iterator>
-#include <stdlib.h>
 
 #include "data/chunk_list.h"
 #include "data/hash_queue.h"
@@ -38,9 +38,8 @@ DownloadWrapper::DownloadWrapper()
   : m_main(new DownloadMain)
   ,
 
-  m_bencode(NULL)
-  , m_hashChecker(NULL)
-  , m_connectionType(0) {
+  m_bencode(nullptr)
+  , m_hashChecker(nullptr) {
 
   m_main->delay_download_done().slot() = [this]() {
     data()->call_download_done();
@@ -185,7 +184,7 @@ DownloadWrapper::receive_hash_done(ChunkHandle handle, const char* hash) {
 
   if (m_hashChecker->is_checking()) {
 
-    if (hash == NULL) {
+    if (hash == nullptr) {
       m_hashChecker->receive_chunk_cleared(handle.index());
 
     } else {
@@ -199,8 +198,8 @@ DownloadWrapper::receive_hash_done(ChunkHandle handle, const char* hash) {
     return;
   }
 
-  // If hash == NULL we're clearing the queue, so do nothing.
-  if (hash != NULL) {
+  // If hash == nullptr we're clearing the queue, so do nothing.
+  if (hash != nullptr) {
     if (!m_hashChecker->is_checked())
       throw internal_error("DownloadWrapper::receive_hash_done(...) Was not "
                            "expecting non-NULL hash.");
@@ -314,10 +313,8 @@ DownloadWrapper::receive_tick(uint32_t ticks) {
       } else if (info()->is_pex_active()) {
         info()->unset_flags(DownloadInfo::flag_pex_active);
 
-        for (ConnectionList::iterator itr = m_main->connection_list()->begin();
-             itr != m_main->connection_list()->end();
-             ++itr)
-          (*itr)->m_ptr()->set_peer_exchange(false);
+        for (auto& peer : *m_main->connection_list())
+          peer->m_ptr()->set_peer_exchange(false);
       }
     }
 
@@ -352,20 +349,18 @@ DownloadWrapper::receive_update_priorities() {
   data()->mutable_high_priority()->clear();
   data()->mutable_normal_priority()->clear();
 
-  for (FileList::iterator itr = m_main->file_list()->begin();
-       itr != m_main->file_list()->end();
-       ++itr) {
-    switch ((*itr)->priority()) {
+  for (auto& file : *m_main->file_list()) {
+    switch (file->priority()) {
       case PRIORITY_NORMAL: {
-        File::range_type range = (*itr)->range();
+        File::range_type range = file->range();
 
-        if ((*itr)->has_flags(File::flag_prioritize_first) &&
+        if (file->has_flags(File::flag_prioritize_first) &&
             range.first != range.second) {
           data()->mutable_high_priority()->insert(range.first, range.first + 1);
           range.first++;
         }
 
-        if ((*itr)->has_flags(File::flag_prioritize_last) &&
+        if (file->has_flags(File::flag_prioritize_last) &&
             range.first != range.second) {
           data()->mutable_high_priority()->insert(range.second - 1,
                                                   range.second);
@@ -376,8 +371,8 @@ DownloadWrapper::receive_update_priorities() {
         break;
       }
       case PRIORITY_HIGH:
-        data()->mutable_high_priority()->insert((*itr)->range().first,
-                                                (*itr)->range().second);
+        data()->mutable_high_priority()->insert(file->range().first,
+                                                file->range().second);
         break;
       default:
         break;

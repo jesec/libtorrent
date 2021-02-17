@@ -16,8 +16,8 @@ namespace torrent {
 
 class LIBTORRENT_EXPORT ChunkManager : private std::vector<ChunkList*> {
 public:
-  typedef std::vector<ChunkList*> base_type;
-  typedef uint32_t                size_type;
+  using base_type = std::vector<ChunkList*>;
+  using size_type = uint32_t;
 
   using base_type::const_iterator;
   using base_type::iterator;
@@ -149,29 +149,29 @@ public:
   }
 
 private:
-  ChunkManager(const ChunkManager&);
-  void operator=(const ChunkManager&);
+  ChunkManager(const ChunkManager&) = delete;
+  void operator=(const ChunkManager&) = delete;
 
   void sync_all(int flags, uint64_t target) LIBTORRENT_NO_EXPORT;
 
-  uint64_t m_memoryUsage;
+  uint64_t m_memoryUsage{ 0 };
   uint64_t m_maxMemoryUsage;
 
-  uint32_t m_memoryBlockCount;
+  uint32_t m_memoryBlockCount{ 0 };
 
-  bool     m_safeSync;
-  uint32_t m_timeoutSync;
-  uint32_t m_timeoutSafeSync;
+  bool     m_safeSync{ false };
+  uint32_t m_timeoutSync{ 600 };
+  uint32_t m_timeoutSafeSync{ 900 };
 
-  uint32_t m_preloadType;
-  uint32_t m_preloadMinSize;
-  uint32_t m_preloadRequiredRate;
+  uint32_t m_preloadType{ 0 };
+  uint32_t m_preloadMinSize{ 256 << 10 };
+  uint32_t m_preloadRequiredRate{ 5 << 10 };
 
-  uint32_t m_statsPreloaded;
-  uint32_t m_statsNotPreloaded;
+  uint32_t m_statsPreloaded{ 0 };
+  uint32_t m_statsNotPreloaded{ 0 };
 
-  int32_t   m_timerStarved;
-  size_type m_lastFreed;
+  int32_t   m_timerStarved{ 0 };
+  size_type m_lastFreed{ 0 };
 };
 
 } // namespace torrent

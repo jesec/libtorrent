@@ -2,7 +2,7 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <arpa/inet.h>
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
@@ -228,8 +228,8 @@ SocketFd::accept(utils::socket_address* sa) {
   check_valid();
   socklen_t len = sizeof(utils::socket_address);
 
-  if (sa == NULL) {
-    return SocketFd(::accept(m_fd, NULL, &len), m_ipv6_socket);
+  if (sa == nullptr) {
+    return SocketFd(::accept(m_fd, nullptr, &len), m_ipv6_socket);
   }
 
   int fd = ::accept(m_fd, sa->c_sockaddr(), &len);

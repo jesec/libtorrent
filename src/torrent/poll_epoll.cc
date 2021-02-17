@@ -99,7 +99,7 @@ PollEPoll::create(int maxOpenSockets) {
   int fd = epoll_create(maxOpenSockets);
 
   if (fd == -1)
-    return NULL;
+    return nullptr;
 
   return new PollEPoll(fd, 1024, maxOpenSockets);
 }
@@ -151,25 +151,25 @@ PollEPoll::perform() {
 
     Table::iterator evItr = m_table.begin() + itr->data.fd;
 
-    // Each branch must check for data.ptr != NULL to allow the socket
+    // Each branch must check for data.ptr != nullptr to allow the socket
     // to remove itself between the calls.
     //
     // TODO: Make it so that it checks that read/write is wanted, that
     // it wasn't removed from one of them but not closed.
 
-    if (itr->events & EPOLLERR && evItr->second != NULL &&
+    if (itr->events & EPOLLERR && evItr->second != nullptr &&
         evItr->first & EPOLLERR) {
       count++;
       evItr->second->event_error();
     }
 
-    if (itr->events & EPOLLIN && evItr->second != NULL &&
+    if (itr->events & EPOLLIN && evItr->second != nullptr &&
         evItr->first & EPOLLIN) {
       count++;
       evItr->second->event_read();
     }
 
-    if (itr->events & EPOLLOUT && evItr->second != NULL &&
+    if (itr->events & EPOLLOUT && evItr->second != nullptr &&
         evItr->first & EPOLLOUT) {
       count++;
       evItr->second->event_write();
@@ -333,7 +333,7 @@ PollEPoll::remove_error(Event* event) {
 
 PollEPoll*
 PollEPoll::create(int) {
-  return NULL;
+  return nullptr;
 }
 PollEPoll::~PollEPoll() {}
 

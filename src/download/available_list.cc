@@ -2,8 +2,8 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <algorithm>
+#include <cstdlib>
 #include <iterator>
-#include <stdlib.h>
 
 #include "download/available_list.h"
 #include "torrent/exceptions.h"

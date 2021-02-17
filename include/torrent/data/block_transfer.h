@@ -16,21 +16,21 @@ class LIBTORRENT_EXPORT BlockTransfer {
 public:
   static const uint32_t invalid_index = ~uint32_t();
 
-  typedef PeerInfo* key_type;
+  using key_type = PeerInfo*;
 
-  typedef enum {
+  using state_type = enum {
     STATE_ERASED,
     STATE_QUEUED,
     STATE_LEADER,
     STATE_NOT_LEADER
-  } state_type;
+  };
 
-  BlockTransfer();
+  BlockTransfer() = default;
   ~BlockTransfer();
 
   // TODO: Do we need to also check for peer_info?...
   bool is_valid() const {
-    return m_block != NULL;
+    return m_block != nullptr;
   }
 
   bool is_erased() const {
@@ -118,11 +118,11 @@ public:
   }
 
 private:
-  BlockTransfer(const BlockTransfer&);
-  void operator=(const BlockTransfer&);
+  BlockTransfer(const BlockTransfer&) = delete;
+  void operator=(const BlockTransfer&) = delete;
 
-  key_type m_peer_info;
-  Block*   m_block;
+  key_type m_peer_info{ nullptr };
+  Block*   m_block{ nullptr };
   Piece    m_piece;
 
   state_type m_state;
@@ -133,17 +133,13 @@ private:
   uint32_t m_failedIndex;
 };
 
-inline BlockTransfer::BlockTransfer()
-  : m_peer_info(NULL)
-  , m_block(NULL) {}
-
 inline BlockTransfer::~BlockTransfer() {
-  if (m_block != NULL) {
+  if (m_block != nullptr) {
     destruct_error("BlockTransfer::~BlockTransfer() block not NULL");
     return;
   }
 
-  if (m_peer_info != NULL) {
+  if (m_peer_info != nullptr) {
     destruct_error("BlockTransfer::~BlockTransfer() peer_info not NULL");
     return;
   }
@@ -151,12 +147,12 @@ inline BlockTransfer::~BlockTransfer() {
 
 inline void
 BlockTransfer::set_peer_info(key_type p) {
-  if (m_peer_info != NULL)
+  if (m_peer_info != nullptr)
     m_peer_info->dec_transfer_counter();
 
   m_peer_info = p;
 
-  if (m_peer_info != NULL)
+  if (m_peer_info != nullptr)
     m_peer_info->inc_transfer_counter();
 }
 

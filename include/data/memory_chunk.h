@@ -134,7 +134,7 @@ MemoryChunk::is_valid_range(uint32_t offset, uint32_t length) const {
 
 inline void
 MemoryChunk::clear() {
-  m_ptr = m_begin = m_end = NULL;
+  m_ptr = m_begin = m_end = nullptr;
   m_flags                 = PROT_NONE;
 }
 

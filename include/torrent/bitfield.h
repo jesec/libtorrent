@@ -11,22 +11,19 @@ namespace torrent {
 
 class LIBTORRENT_EXPORT Bitfield {
 public:
-  typedef uint32_t          size_type;
-  typedef uint8_t           value_type;
-  typedef const uint8_t     const_value_type;
-  typedef value_type*       iterator;
-  typedef const value_type* const_iterator;
+  using size_type        = uint32_t;
+  using value_type       = uint8_t;
+  using const_value_type = const uint8_t;
+  using iterator         = value_type*;
+  using const_iterator   = const value_type*;
 
-  Bitfield()
-    : m_size(0)
-    , m_set(0)
-    , m_data(NULL) {}
+  Bitfield() = default;
   ~Bitfield() {
     clear();
   }
 
   bool empty() const {
-    return m_data == NULL;
+    return m_data == nullptr;
   }
 
   bool is_all_set() const {
@@ -134,13 +131,13 @@ public:
   }
 
 private:
-  Bitfield(const Bitfield& bf);
-  Bitfield& operator=(const Bitfield& bf);
+  Bitfield(const Bitfield& bf) = delete;
+  Bitfield& operator=(const Bitfield& bf) = delete;
 
-  size_type m_size;
-  size_type m_set;
+  size_type m_size{ 0 };
+  size_type m_set{ 0 };
 
-  value_type* m_data;
+  value_type* m_data{ nullptr };
 };
 
 } // namespace torrent

@@ -21,13 +21,10 @@ class PeerInfo;
 
 class Delegator {
 public:
-  typedef std::function<uint32_t(PeerChunks*, bool)> slot_peer_chunk;
-  typedef std::function<uint32_t(uint32_t)>          slot_size;
+  using slot_peer_chunk = std::function<uint32_t(PeerChunks*, bool)>;
+  using slot_size       = std::function<uint32_t(uint32_t)>;
 
   static const unsigned int block_size = 1 << 14;
-
-  Delegator()
-    : m_aggressive(false) {}
 
   TransferList* transfer_list() {
     return &m_transfers;
@@ -67,7 +64,7 @@ private:
 
   TransferList m_transfers;
 
-  bool m_aggressive;
+  bool m_aggressive{ false };
 
   // Propably should add a m_slotChunkStart thing, which will take
   // care of enabling etc, and will be possible to listen to.

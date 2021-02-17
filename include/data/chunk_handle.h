@@ -13,16 +13,16 @@ class ChunkListNode;
 
 class ChunkHandle {
 public:
-  ChunkHandle(ChunkListNode* c = NULL, bool wr = false, bool blk = false)
+  ChunkHandle(ChunkListNode* c = nullptr, bool wr = false, bool blk = false)
     : m_node(c)
     , m_writable(wr)
     , m_blocking(blk) {}
 
   bool is_valid() const {
-    return m_node != NULL;
+    return m_node != nullptr;
   }
   bool is_loaded() const {
-    return m_node != NULL && m_node->is_valid();
+    return m_node != nullptr && m_node->is_valid();
   }
   bool is_writable() const {
     return m_writable;
@@ -32,7 +32,7 @@ public:
   }
 
   void clear() {
-    m_node     = NULL;
+    m_node     = nullptr;
     m_writable = false;
     m_blocking = false;
   }

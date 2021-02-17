@@ -11,10 +11,7 @@ namespace torrent {
 
 // Recipient must call clear() when done with the buffer.
 struct DataBuffer {
-  DataBuffer()
-    : m_data(NULL)
-    , m_end(NULL)
-    , m_owned(true) {}
+  DataBuffer() = default;
   DataBuffer(char* data, char* end)
     : m_data(data)
     , m_end(end)
@@ -27,7 +24,7 @@ struct DataBuffer {
   }
   DataBuffer release() {
     DataBuffer d = *this;
-    set(NULL, NULL, false);
+    set(nullptr, nullptr, false);
     return d;
   }
 
@@ -42,7 +39,7 @@ struct DataBuffer {
     return m_owned;
   }
   bool empty() const {
-    return m_data == NULL;
+    return m_data == nullptr;
   }
   size_t length() const {
     return m_end - m_data;
@@ -52,12 +49,12 @@ struct DataBuffer {
   void set(char* data, char* end, bool owned);
 
 private:
-  char* m_data;
-  char* m_end;
+  char* m_data{ nullptr };
+  char* m_end{ nullptr };
 
   // Used to indicate if buffer held by PCB is its own and needs to be
   // deleted after transmission (false if shared with other connections).
-  bool m_owned;
+  bool m_owned{ true };
 };
 
 inline void
@@ -65,7 +62,7 @@ DataBuffer::clear() {
   if (!empty() && m_owned)
     delete[] m_data;
 
-  m_data = m_end = NULL;
+  m_data = m_end = nullptr;
   m_owned        = false;
 }
 

@@ -14,11 +14,11 @@ class DiffieHellman;
 
 class HandshakeEncryption {
 public:
-  typedef enum {
+  using Retry = enum {
     RETRY_NONE,
     RETRY_PLAIN,
     RETRY_ENCRYPTED,
-  } Retry;
+  };
 
   static const int crypto_plain = 1;
   static const int crypto_rc4   = 2;
@@ -33,7 +33,7 @@ public:
   static const unsigned int  vc_length = 8;
 
   HandshakeEncryption(int options)
-    : m_key(NULL)
+    : m_key(nullptr)
     , m_options(options)
     , m_crypto(0)
     , m_retry(RETRY_NONE)

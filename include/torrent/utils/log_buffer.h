@@ -6,14 +6,15 @@
 #include <memory>
 #include <pthread.h>
 #include <string>
+#include <utility>
 
 namespace torrent {
 
 struct log_entry {
-  log_entry(int32_t t, int32_t grp, const std::string& msg)
+  log_entry(int32_t t, int32_t grp, std::string msg)
     : timestamp(t)
     , group(grp)
-    , message(msg) {}
+    , message(std::move(msg)) {}
 
   bool is_older_than(int32_t t) const {
     return timestamp < t;
@@ -33,8 +34,8 @@ struct log_entry {
 class [[gnu::visibility("default")]] log_buffer
   : private std::deque<log_entry> {
 public:
-  typedef std::deque<log_entry> base_type;
-  typedef std::function<void()> slot_void;
+  using base_type = std::deque<log_entry>;
+  using slot_void = std::function<void()>;
 
   using base_type::const_iterator;
   using base_type::const_reverse_iterator;
@@ -51,9 +52,8 @@ public:
   using base_type::empty;
   using base_type::size;
 
-  log_buffer()
-    : m_max_size(200) {
-    pthread_mutex_init(&m_lock, NULL);
+  log_buffer() {
+    pthread_mutex_init(&m_lock, nullptr);
   }
 
   unsigned int max_size() const {
@@ -80,12 +80,12 @@ public:
 
 private:
   pthread_mutex_t m_lock;
-  unsigned int    m_max_size;
+  unsigned int    m_max_size{ 200 };
   slot_void       m_slot_update;
 };
 
-typedef std::unique_ptr<log_buffer, std::function<void(log_buffer*)>>
-  log_buffer_ptr;
+using log_buffer_ptr =
+  std::unique_ptr<log_buffer, std::function<void(log_buffer*)>>;
 
 [[gnu::visibility("default")]] log_buffer_ptr
 log_open_log_buffer(const char* name);

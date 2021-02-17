@@ -35,9 +35,9 @@ public:
                                       enc_negotiation_size + enc_pad_size + 2 +
                                       handshake_size + 5;
 
-  typedef ProtocolBuffer<buffer_size> Buffer;
+  using Buffer = ProtocolBuffer<buffer_size>;
 
-  typedef enum {
+  using State = enum {
     INACTIVE,
     CONNECTING,
     POST_HANDSHAKE,
@@ -58,12 +58,12 @@ public:
     READ_BITFIELD,
     READ_EXT,
     READ_PORT
-  } State;
+  };
 
   Handshake(SocketFd fd, HandshakeManager* m, int encryption_options);
-  ~Handshake();
+  ~Handshake() override;
 
-  const char* type_name() const {
+  const char* type_name() const override {
     return "handshake";
   }
 
@@ -117,9 +117,9 @@ public:
     return m_initializedTime;
   }
 
-  virtual void event_read();
-  virtual void event_write();
-  virtual void event_error();
+  void event_read() override;
+  void event_write() override;
+  void event_error() override;
 
   HandshakeEncryption* encryption() {
     return &m_encryption;

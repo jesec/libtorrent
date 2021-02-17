@@ -79,33 +79,30 @@ choke_queue::prepare_weights(group_stats gs) {
   //
   // also remember to clear the queue/unchoked thingies.
 
-  for (group_container_type::iterator itr  = m_group_container.begin(),
-                                      last = m_group_container.end();
-       itr != last;
-       itr++) {
+  for (const auto& entries : m_group_container) {
     m_heuristics_list[m_heuristics].slot_choke_weight(
-      (*itr)->mutable_unchoked()->begin(), (*itr)->mutable_unchoked()->end());
-    std::sort((*itr)->mutable_unchoked()->begin(),
-              (*itr)->mutable_unchoked()->end(),
+      entries->mutable_unchoked()->begin(), entries->mutable_unchoked()->end());
+    std::sort(entries->mutable_unchoked()->begin(),
+              entries->mutable_unchoked()->end(),
               choke_manager_less());
 
     m_heuristics_list[m_heuristics].slot_unchoke_weight(
-      (*itr)->mutable_queued()->begin(), (*itr)->mutable_queued()->end());
-    std::sort((*itr)->mutable_queued()->begin(),
-              (*itr)->mutable_queued()->end(),
+      entries->mutable_queued()->begin(), entries->mutable_queued()->end());
+    std::sort(entries->mutable_queued()->begin(),
+              entries->mutable_queued()->end(),
               choke_manager_less());
 
     // Aggregate the statistics... Remember to update them after
     // optimistic/pessimistic unchokes.
     gs.sum_min_needed +=
-      std::min((*itr)->size_connections(),
-               std::min((*itr)->min_slots(), (*itr)->max_slots()));
+      std::min(entries->size_connections(),
+               std::min(entries->min_slots(), entries->max_slots()));
 
     uint32_t max_slots =
-      std::min((*itr)->size_connections(), (*itr)->max_slots());
+      std::min(entries->size_connections(), entries->max_slots());
 
     gs.sum_max_needed += max_slots;
-    gs.sum_max_leftovers += (*itr)->size_connections() - max_slots;
+    gs.sum_max_leftovers += entries->size_connections() - max_slots;
 
     // Counter for how many can choke/unchoke based on weights?
     // However one should never have zero weight for any weight group.
@@ -118,20 +115,17 @@ group_stats
 choke_queue::retrieve_connections(group_stats     gs,
                                   container_type* queued,
                                   container_type* unchoked) {
-  for (group_container_type::iterator itr  = m_group_container.begin(),
-                                      last = m_group_container.end();
-       itr != last;
-       itr++) {
-    group_entry* entry     = *itr;
-    unsigned int min_slots = std::min(entry->min_slots(), entry->max_slots());
+  for (const auto& entries : m_group_container) {
+    unsigned int min_slots =
+      std::min(entries->min_slots(), entries->max_slots());
 
     lt_log_print(LOG_PEER_DEBUG,
                  "Choke queue retrieve_connections; queued:%u unchoked:%u "
                  "min_slots:%u max_slots:%u.",
-                 (unsigned)entry->queued()->size(),
-                 (unsigned)entry->unchoked()->size(),
+                 (unsigned)entries->queued()->size(),
+                 (unsigned)entries->unchoked()->size(),
                  min_slots,
-                 entry->max_slots());
+                 entries->max_slots());
 
     // Disable this after finding the flaw... ?
     // if (entry->unchoked()->size() > entry->max_slots()) {
@@ -147,40 +141,41 @@ choke_queue::retrieve_connections(group_stats     gs,
     //   gs.now_choked += entry->unchoked()->size(); // Need to add this...
     // }
 
-    if (entry->unchoked()->size() < min_slots) {
+    if (entries->unchoked()->size() < min_slots) {
       // Currently unchoked is less than min_slots, so don't give any
       // candidates for choking and also check if we can fill the
       // requirement by unchoking queued connections.
       unsigned int count = 0;
 
       // Still needing choke/unchoke to fill min_size.
-      while (!entry->queued()->empty() && entry->unchoked()->size() < min_slots)
-        count += m_slotConnection(entry->queued()->back().connection, false);
+      while (!entries->queued()->empty() &&
+             entries->unchoked()->size() < min_slots)
+        count += m_slotConnection(entries->queued()->back().connection, false);
 
       gs.changed_unchoked += count;
-      gs.now_unchoked += entry->unchoked()->size();
+      gs.now_unchoked += entries->unchoked()->size();
 
     } else {
       // TODO: This only handles a single weight group, fixme.
       group_entry::container_type::const_iterator first =
-        entry->unchoked()->begin() + min_slots;
+        entries->unchoked()->begin() + min_slots;
       group_entry::container_type::const_iterator last =
-        entry->unchoked()->end();
+        entries->unchoked()->end();
 
       unchoked->insert(unchoked->end(), first, last);
       gs.now_unchoked += min_slots;
     }
 
     // TODO: Does not do optimistic unchokes if min_slots >= max_slots.
-    if (entry->unchoked()->size() < entry->max_slots()) {
+    if (entries->unchoked()->size() < entries->max_slots()) {
       // We can assume that at either we have no queued connections or
       // 'min_slots' has been reached.
-      queued->insert(
-        queued->end(),
-        entry->queued()->end() -
-          std::min<uint32_t>(entry->queued()->size(),
-                             entry->max_slots() - entry->unchoked()->size()),
-        entry->queued()->end());
+      queued->insert(queued->end(),
+                     entries->queued()->end() -
+                       std::min<uint32_t>(entries->queued()->size(),
+                                          entries->max_slots() -
+                                            entries->unchoked()->size()),
+                     entries->queued()->end());
     }
   }
 
@@ -193,14 +188,12 @@ choke_queue::rebuild_containers(container_type* queued,
   queued->clear();
   unchoked->clear();
 
-  for (group_container_type::iterator itr  = m_group_container.begin(),
-                                      last = m_group_container.end();
-       itr != last;
-       itr++) {
+  for (const auto& entries : m_group_container) {
     queued->insert(
-      queued->end(), (*itr)->queued()->begin(), (*itr)->queued()->end());
-    unchoked->insert(
-      unchoked->end(), (*itr)->unchoked()->begin(), (*itr)->unchoked()->end());
+      queued->end(), entries->queued()->begin(), entries->queued()->end());
+    unchoked->insert(unchoked->end(),
+                     entries->unchoked()->begin(),
+                     entries->unchoked()->end());
   }
 }
 
@@ -474,7 +467,7 @@ choke_queue::move_connections(choke_queue* src,
                               choke_queue* dest,
                               DownloadMain*,
                               group_entry* base) noexcept(false) {
-  if (src != NULL) {
+  if (src != nullptr) {
     group_container_type::iterator itr = std::find(
       src->m_group_container.begin(), src->m_group_container.end(), base);
 
@@ -486,11 +479,11 @@ choke_queue::move_connections(choke_queue* src,
     src->m_group_container.pop_back();
   }
 
-  if (dest != NULL) {
+  if (dest != nullptr) {
     dest->m_group_container.push_back(base);
   }
 
-  if (src == NULL || dest == NULL)
+  if (src == nullptr || dest == nullptr)
     return;
 
   src->modify_currently_queued(-base->queued()->size());

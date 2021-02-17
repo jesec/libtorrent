@@ -168,24 +168,24 @@ enum {
         NULL, log_subsystem, NULL, 0, __VA_ARGS__);                            \
   }
 
-typedef std::function<void(const char*, unsigned int, int)> log_slot;
+using log_slot = std::function<void(const char*, unsigned int, int)>;
 
 class LIBTORRENT_EXPORT log_group {
 public:
-  typedef std::bitset<64> outputs_type;
+  using outputs_type = std::bitset<64>;
 
   log_group()
-    : m_first(NULL)
-    , m_last(NULL) {
+    : m_first(nullptr)
+    , m_last(nullptr) {
     m_outputs.reset();
     m_cached_outputs.reset();
   }
 
   bool valid() const {
-    return m_first != NULL;
+    return m_first != nullptr;
   }
   bool empty() const {
-    return m_first == NULL;
+    return m_first == nullptr;
   }
 
   size_t size_outputs() const {
@@ -242,7 +242,7 @@ private:
   log_slot* m_last;
 };
 
-typedef std::array<log_group, LOG_GROUP_MAX_SIZE> log_group_list;
+using log_group_list = std::array<log_group, LOG_GROUP_MAX_SIZE>;
 
 extern log_group_list log_groups LIBTORRENT_EXPORT;
 

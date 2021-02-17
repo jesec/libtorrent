@@ -29,7 +29,7 @@ DhtRouter::DhtRouter(const Object& cache, const utils::socket_address* sa)
   : DhtNode(zero_id, sa)
   , // actual ID is set later
   m_server(this)
-  , m_contacts(NULL)
+  , m_contacts(nullptr)
   , m_numRefresh(0)
   , m_curToken(random())
   , m_prevToken(random()) {
@@ -69,14 +69,12 @@ DhtRouter::DhtRouter(const Object& cache, const utils::socket_address* sa)
 
     LT_LOG_THIS("adding nodes (size:%zu)", nodes.size());
 
-    for (Object::map_type::const_iterator itr = nodes.begin();
-         itr != nodes.end();
-         ++itr) {
-      if (itr->first.length() != HashString::size_data)
+    for (const auto& node : nodes) {
+      if (node.first.length() != HashString::size_data)
         throw bencode_error("Loading cache: Invalid node hash.");
 
       add_node_to_bucket(
-        m_nodes.add_node(new DhtNode(itr->first, itr->second)));
+        m_nodes.add_node(new DhtNode(node.first, node.second)));
     }
   }
 
@@ -86,10 +84,8 @@ DhtRouter::DhtRouter(const Object& cache, const utils::socket_address* sa)
     if (cache.has_key("contacts")) {
       const Object::list_type& contacts = cache.get_key_list("contacts");
 
-      for (Object::list_type::const_iterator itr = contacts.begin();
-           itr != contacts.end();
-           ++itr) {
-        Object::list_type::const_iterator litr = itr->as_list().begin();
+      for (const auto& contact : contacts) {
+        Object::list_type::const_iterator litr = contact.as_list().begin();
         const std::string&                host = litr->as_string();
         int                               port = (++litr)->as_value();
         m_contacts->push_back(std::make_pair(host, port));
@@ -100,24 +96,20 @@ DhtRouter::DhtRouter(const Object& cache, const utils::socket_address* sa)
 
 DhtRouter::~DhtRouter() {
   stop();
+
   delete m_contacts;
 
-  for (DhtBucketList::iterator itr  = m_routingTable.begin(),
-                               last = m_routingTable.end();
-       itr != last;
-       itr++)
-    delete itr->second;
+  for (auto& bucket_pair : m_routingTable) {
+    delete bucket_pair.second;
+  }
 
-  for (DhtTrackerList::iterator itr  = m_trackers.begin(),
-                                last = m_trackers.end();
-       itr != last;
-       itr++)
-    delete itr->second;
+  for (auto& tracker : m_trackers) {
+    delete tracker.second;
+  }
 
-  for (DhtNodeList::iterator itr = m_nodes.begin(), last = m_nodes.end();
-       itr != last;
-       itr++)
-    delete itr->second;
+  for (auto& node : m_nodes) {
+    delete node.second;
+  }
 }
 
 void
@@ -162,7 +154,7 @@ DhtRouter::get_tracker(const HashString& hash, bool create) {
     return itr.tracker();
 
   if (!create)
-    return NULL;
+    return nullptr;
 
   std::pair<DhtTrackerList::accessor, bool> res =
     m_trackers.insert(std::make_pair(hash, new DhtTracker()));
@@ -195,7 +187,7 @@ DhtRouter::get_node(const HashString& id) {
     if (id == this->id())
       return this;
     else
-      return NULL;
+      return nullptr;
   }
 
   return itr.node();
@@ -221,7 +213,7 @@ void
 DhtRouter::add_contact(const std::string& host, int port) {
   // Externally obtained nodes are added to the contact list, but only if
   // we're still bootstrapping. We don't contact external nodes after that.
-  if (m_contacts != NULL) {
+  if (m_contacts != nullptr) {
     if (m_contacts->size() >= num_bootstrap_contacts)
       m_contacts->pop_front();
 
@@ -245,18 +237,18 @@ DhtNode*
 DhtRouter::node_queried(const HashString& id, const utils::socket_address* sa) {
   DhtNode* node = get_node(id);
 
-  if (node == NULL) {
+  if (node == nullptr) {
     if (want_node(id))
       m_server.ping(id, sa);
 
-    return NULL;
+    return nullptr;
   }
 
   // If we know the ID but the address is different, don't set the original node
   // active, but neither use this new address to prevent rogue nodes from
   // polluting our routing table with fake source addresses.
   if (node->address()->sa_inet()->address_n() != sa->sa_inet()->address_n())
-    return NULL;
+    return nullptr;
 
   node->queried();
   if (node->is_good())
@@ -272,20 +264,20 @@ DhtNode*
 DhtRouter::node_replied(const HashString& id, const utils::socket_address* sa) {
   DhtNode* node = get_node(id);
 
-  if (node == NULL) {
+  if (node == nullptr) {
     if (!want_node(id))
-      return NULL;
+      return nullptr;
 
     // New node, create it. It's a good node (it replied!) so add it to a
     // bucket.
     node = m_nodes.add_node(new DhtNode(id, sa));
 
     if (!add_node_to_bucket(node)) // deletes the node if it fails
-      return NULL;
+      return nullptr;
   }
 
   if (node->address()->sa_inet()->address_n() != sa->sa_inet()->address_n())
-    return NULL;
+    return nullptr;
 
   node->replied();
   node->bucket()->touch();
@@ -302,7 +294,7 @@ DhtRouter::node_inactive(const HashString&            id,
   // If not found add it to some blacklist so we won't try contacting it again
   // immediately?
   if (itr == m_nodes.end())
-    return NULL;
+    return nullptr;
 
   // Check source address. Normally node_inactive is called if we DON'T receive
   // a reply, however it can also be called if a node replied with an malformed
@@ -310,7 +302,7 @@ DhtRouter::node_inactive(const HashString&            id,
   // cannot cause other nodes to be considered bad by sending malformed packets.
   if (itr.node()->address()->sa_inet()->address_n() !=
       sa->sa_inet()->address_n())
-    return NULL;
+    return nullptr;
 
   itr.node()->inactive();
 
@@ -320,7 +312,7 @@ DhtRouter::node_inactive(const HashString&            id,
   // instantly.
   if (itr.node()->is_bad() && itr.node()->age() >= timeout_remove_node) {
     delete_node(itr);
-    return NULL;
+    return nullptr;
   }
 
   return itr.node();
@@ -332,7 +324,7 @@ void
 DhtRouter::node_invalid(const HashString& id) {
   DhtNode* node = get_node(id);
 
-  if (node == NULL || node == this)
+  if (node == nullptr || node == this)
     return;
 
   delete_node(m_nodes.find(&node->id()));
@@ -352,16 +344,14 @@ DhtRouter::store_cache(Object* container) const {
   }
 
   // Insert contacts, if we have any.
-  if (m_contacts != NULL) {
+  if (m_contacts != nullptr) {
     Object& contacts = container->insert_key("contacts", Object::create_list());
 
-    for (std::deque<contact_t>::const_iterator itr = m_contacts->begin();
-         itr != m_contacts->end();
-         ++itr) {
+    for (const auto& m_contact : *m_contacts) {
       Object::list_type& list =
         contacts.insert_back(Object::create_list()).as_list();
-      list.push_back(itr->first);
-      list.push_back(itr->second);
+      list.push_back(m_contact.first);
+      list.push_back(m_contact.second);
     }
   }
 
@@ -411,7 +401,7 @@ DhtRouter::receive_timeout_bootstrap() {
   // switch to a less aggressive non-bootstrap mode of collecting nodes that
   // contact us and through doing normal torrent announces.
   if (m_nodes.size() < num_bootstrap_complete) {
-    if (m_contacts == NULL)
+    if (m_contacts == nullptr)
       throw internal_error(
         "DhtRouter::receive_timeout_bootstrap called without contact list.");
 
@@ -429,7 +419,7 @@ DhtRouter::receive_timeout_bootstrap() {
   } else {
     // We won't be needing external contacts after this.
     delete m_contacts;
-    m_contacts = NULL;
+    m_contacts = nullptr;
 
     m_taskTimeout.slot() = [this]() { receive_timeout(); };
 
@@ -552,7 +542,7 @@ DhtRouter::find_node(const utils::socket_address* sa) {
         sa->sa_inet()->address_n())
       return itr.node();
 
-  return NULL;
+  return nullptr;
 }
 
 DhtRouter::DhtBucketList::iterator
@@ -562,7 +552,7 @@ DhtRouter::split_bucket(const DhtBucketList::iterator& itr, DhtNode* node) {
   DhtBucket* newBucket = itr->second->split(id());
 
   // If our bucket has a child now (the new bucket), move ourself into it.
-  if (bucket()->child() != NULL)
+  if (bucket()->child() != nullptr)
     set_bucket(bucket()->child());
 
   if (!bucket()->is_in_range(id()))
@@ -624,7 +614,7 @@ DhtRouter::delete_node(const DhtNodeList::accessor& itr) {
     throw internal_error(
       "DhtRouter::delete_node called with invalid iterator.");
 
-  if (itr.node()->bucket() != NULL)
+  if (itr.node()->bucket() != nullptr)
     itr.node()->bucket()->remove_node(itr.node());
 
   delete itr.node();
@@ -638,7 +628,7 @@ struct contact_node_t {
     , m_port(port) {}
 
   void operator()(const sockaddr* sa, int) {
-    if (sa != NULL)
+    if (sa != nullptr)
       m_router->contact(utils::socket_address::cast_from(sa), m_port);
   }
 
@@ -666,10 +656,9 @@ DhtRouter::bootstrap() {
 
   // Aggressively ping all questionable nodes in our own bucket to weed
   // out bad nodes as early as possible and make room for fresh nodes.
-  for (DhtBucket::iterator itr = bucket()->begin(); itr != bucket()->end();
-       ++itr)
-    if (!(*itr)->is_good())
-      m_server.ping((*itr)->id(), (*itr)->address());
+  for (auto& node : *bucket())
+    if (!node->is_good())
+      m_server.ping(node->id(), node->address());
 
   // Also bootstrap a random bucket, if there are others.
   if (m_routingTable.size() < 2)

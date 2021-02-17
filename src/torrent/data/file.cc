@@ -24,22 +24,7 @@ const int File::flag_prioritize_first;
 const int File::flag_prioritize_last;
 
 File::File()
-  : m_fd(-1)
-  , m_protection(0)
-  , m_flags(0)
-  ,
-
-  m_offset(0)
-  , m_size(0)
-  , m_lastTouched(cachedTime.usec())
-  ,
-
-  m_completed(0)
-  , m_priority(PRIORITY_NORMAL)
-  ,
-
-  m_matchDepthPrev(0)
-  , m_matchDepthNext(0) {}
+  : m_lastTouched(cachedTime.usec()) {}
 
 File::~File() {
   if (is_open())

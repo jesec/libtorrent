@@ -15,12 +15,10 @@ namespace torrent {
 
 class Listen : public SocketBase {
 public:
-  typedef std::function<void(SocketFd, const utils::socket_address&)>
-    slot_connection;
+  using slot_connection =
+    std::function<void(SocketFd, const utils::socket_address&)>;
 
-  Listen()
-    : m_port(0) {}
-  ~Listen() {
+  ~Listen() override {
     close();
   }
 
@@ -42,12 +40,12 @@ public:
     return m_slot_accepted;
   }
 
-  virtual void event_read();
-  virtual void event_write();
-  virtual void event_error();
+  void event_read() override;
+  void event_write() override;
+  void event_error() override;
 
 private:
-  uint64_t m_port;
+  uint64_t m_port{ 0 };
 
   slot_connection m_slot_accepted;
 };

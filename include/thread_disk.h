@@ -8,18 +8,18 @@ namespace torrent {
 
 class LIBTORRENT_EXPORT thread_disk : public thread_base {
 public:
-  const char* name() const {
+  const char* name() const override {
     return "rtorrent disk";
   }
   HashCheckQueue* hash_queue() {
     return &m_hash_queue;
   }
 
-  virtual void init_thread();
+  void init_thread() override;
 
 protected:
-  virtual void    call_events();
-  virtual int64_t next_timeout_usec();
+  void    call_events() override;
+  int64_t next_timeout_usec() override;
 
   HashCheckQueue m_hash_queue;
 };

@@ -22,7 +22,7 @@
 
 namespace torrent {
 
-Manager* manager = NULL;
+Manager* manager = nullptr;
 
 Manager::Manager()
   : m_downloadManager(new DownloadManager)
@@ -39,9 +39,8 @@ Manager::Manager()
 
   m_uploadThrottle(Throttle::create_throttle())
   , m_downloadThrottle(Throttle::create_throttle())
-  ,
 
-  m_ticks(0) {
+{
 
   m_hashQueue = new HashQueue(&m_main_thread_disk);
   m_hashQueue->slot_has_work() =

@@ -26,8 +26,7 @@ public:
 
   static const int e_intr = EINTR;
 
-  error_number()
-    : m_errno(0) {}
+  error_number() = default;
   error_number(int e)
     : m_errno(e) {}
 
@@ -72,7 +71,7 @@ public:
   }
 
 private:
-  int m_errno;
+  int m_errno{ 0 };
 };
 
 } // namespace utils

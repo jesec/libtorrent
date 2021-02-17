@@ -26,7 +26,7 @@ class ConnectionManager;
 class Throttle;
 class DhtManager;
 
-typedef std::list<std::string> EncodingList;
+using EncodingList = std::list<std::string>;
 
 class Manager {
 public:
@@ -109,7 +109,7 @@ private:
   Throttle* m_uploadThrottle;
   Throttle* m_downloadThrottle;
 
-  unsigned int         m_ticks;
+  unsigned int         m_ticks{ 0 };
   utils::priority_item m_taskTick;
 };
 

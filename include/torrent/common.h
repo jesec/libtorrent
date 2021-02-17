@@ -16,7 +16,7 @@ namespace torrent {
 
 enum priority_enum { PRIORITY_OFF = 0, PRIORITY_NORMAL, PRIORITY_HIGH };
 
-typedef priority_enum priority_t;
+using priority_t = priority_enum;
 
 // Just forward declare everything here so we can keep the actual
 // headers clean.

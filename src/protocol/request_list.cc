@@ -78,8 +78,8 @@ struct request_list_keep_request {
 };
 
 RequestList::~RequestList() {
-  if (m_transfer != NULL) {
-    destruct_error("request dtor m_transfer != NULL");
+  if (m_transfer != nullptr) {
+    destruct_error("request dtor m_transfer != nullptr");
     return;
   }
 
@@ -98,8 +98,8 @@ RequestList::delegate() {
 
   instrumentation_update(INSTRUMENTATION_TRANSFER_REQUESTS_DELEGATED, 1);
 
-  if (transfer == NULL)
-    return NULL;
+  if (transfer == nullptr)
+    return nullptr;
 
   m_affinity = transfer->index();
   m_queues.push_back(bucket_queued, transfer);
@@ -123,7 +123,7 @@ RequestList::stall_initial() {
 
 void
 RequestList::stall_prolonged() {
-  if (m_transfer != NULL)
+  if (m_transfer != nullptr)
     Block::stalled(m_transfer);
 
   queue_bucket_for_all_in_queue(
@@ -241,8 +241,9 @@ RequestList::clear() {
 
 bool
 RequestList::downloading(const Piece& piece) {
-  if (m_transfer != NULL)
-    throw internal_error("RequestList::downloading(...) m_transfer != NULL.");
+  if (m_transfer != nullptr)
+    throw internal_error(
+      "RequestList::downloading(...) m_transfer != nullptr.");
 
   instrumentation_update(INSTRUMENTATION_TRANSFER_REQUESTS_DOWNLOADING, 1);
 
@@ -335,7 +336,7 @@ RequestList::finished() {
       "RequestList::finished() called but transfer is invalid.");
 
   BlockTransfer* transfer = m_transfer;
-  m_transfer              = NULL;
+  m_transfer              = nullptr;
 
   m_delegator->transfer_list()->finished(transfer);
 
@@ -349,7 +350,7 @@ RequestList::skipped() {
       "RequestList::skip() called but no transfer is in progress.");
 
   Block::release(m_transfer);
-  m_transfer = NULL;
+  m_transfer = nullptr;
 
   instrumentation_update(INSTRUMENTATION_TRANSFER_REQUESTS_SKIPPED, 1);
 }
@@ -380,11 +381,8 @@ struct equals_reservee
 
 bool
 RequestList::is_interested_in_active() const {
-  for (TransferList::const_iterator itr = m_delegator->transfer_list()->begin(),
-                                    last = m_delegator->transfer_list()->end();
-       itr != last;
-       ++itr)
-    if (m_peerChunks->bitfield()->get((*itr)->index()))
+  for (auto transfer : *m_delegator->transfer_list())
+    if (m_peerChunks->bitfield()->get(transfer->index()))
       return true;
 
   return false;

@@ -98,7 +98,7 @@ address_info::get_address_info(const char*    node,
   hints.set_socket_type(stype);
 
   return ::getaddrinfo(
-    node, NULL, hints.c_addrinfo(), reinterpret_cast<addrinfo**>(ai));
+    node, nullptr, hints.c_addrinfo(), reinterpret_cast<addrinfo**>(ai));
 }
 
 } // namespace utils

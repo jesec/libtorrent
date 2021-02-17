@@ -8,8 +8,8 @@ namespace torrent {
 
 class DiffieHellman {
 public:
-  typedef std::unique_ptr<char[]>                secret_ptr;
-  typedef std::unique_ptr<void, void (*)(void*)> dh_ptr;
+  using secret_ptr = std::unique_ptr<char[]>;
+  using dh_ptr     = std::unique_ptr<void, void (*)(void*)>;
 
   DiffieHellman(const unsigned char prime[],
                 int                 primeLength,
@@ -33,8 +33,8 @@ public:
   }
 
 private:
-  DiffieHellman(const DiffieHellman& dh);
-  DiffieHellman& operator=(const DiffieHellman& dh);
+  DiffieHellman(const DiffieHellman& dh) = delete;
+  DiffieHellman& operator=(const DiffieHellman& dh) = delete;
 
   dh_ptr     m_dh;
   secret_ptr m_secret;

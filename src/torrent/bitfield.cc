@@ -12,16 +12,16 @@ namespace torrent {
 
 void
 Bitfield::set_size_bits(size_type s) noexcept(false) {
-  if (m_data != NULL)
+  if (m_data != nullptr)
     throw internal_error(
-      "Bitfield::set_size_bits(size_type s) m_data != NULL.");
+      "Bitfield::set_size_bits(size_type s) m_data != nullptr.");
 
   m_size = s;
 }
 
 void
 Bitfield::set_size_set(size_type s) noexcept(false) {
-  if (s > m_size || m_data != NULL)
+  if (s > m_size || m_data != nullptr)
     throw internal_error("Bitfield::set_size_set(size_type s) s > m_size.");
 
   m_set = s;
@@ -29,7 +29,7 @@ Bitfield::set_size_set(size_type s) noexcept(false) {
 
 void
 Bitfield::allocate() {
-  if (m_data != NULL)
+  if (m_data != nullptr)
     return;
 
   m_data = new value_type[size_bytes()];
@@ -40,11 +40,11 @@ Bitfield::allocate() {
 
 void
 Bitfield::unallocate() {
-  if (m_data == NULL)
+  if (m_data == nullptr)
     return;
 
   delete[] m_data;
-  m_data = NULL;
+  m_data = nullptr;
 
   instrumentation_update(INSTRUMENTATION_MEMORY_BITFIELDS,
                          -(int64_t)size_bytes());
@@ -77,8 +77,8 @@ Bitfield::copy(const Bitfield& bf) {
   m_size = bf.m_size;
   m_set  = bf.m_set;
 
-  if (bf.m_data == NULL) {
-    m_data = NULL;
+  if (bf.m_data == nullptr) {
+    m_data = nullptr;
   } else {
     allocate();
     std::memcpy(m_data, bf.m_data, size_bytes());

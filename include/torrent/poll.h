@@ -13,14 +13,12 @@ class Event;
 
 class LIBTORRENT_EXPORT Poll {
 public:
-  typedef std::function<Poll*()> slot_poll;
+  using slot_poll = std::function<Poll*()>;
 
   static const int      poll_worker_thread     = 0x1;
   static const uint32_t flag_waive_global_lock = 0x1;
 
-  Poll()
-    : m_flags(0) {}
-  virtual ~Poll() {}
+  virtual ~Poll() = default;
 
   uint32_t flags() const {
     return m_flags;
@@ -70,7 +68,7 @@ public:
 private:
   static slot_poll m_slot_create_poll;
 
-  uint32_t m_flags;
+  uint32_t m_flags{ 0 };
 };
 
 } // namespace torrent

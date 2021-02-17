@@ -46,14 +46,6 @@ verify_file_list(const FileList* fl) {
       throw internal_error("verify_file_list() 3.", fl->data()->hash());
 }
 
-FileList::FileList()
-  : m_isOpen(false)
-  ,
-
-  m_torrentSize(0)
-  , m_chunkSize(0)
-  , m_maxFileSize(~uint64_t()) {}
-
 FileList::~FileList() {
   // Can we skip close()?
   close();
@@ -168,11 +160,9 @@ FileList::free_diskspace() const {
   std::error_code error;
   uint64_t        freeDiskspace = std::numeric_limits<uint64_t>::max();
 
-  for (path_list::const_iterator itr  = m_indirectLinks.begin(),
-                                 last = m_indirectLinks.end();
-       itr != last;
-       ++itr) {
-    std::filesystem::space_info si = std::filesystem::space(*itr, error);
+  for (const auto& indirectLink : m_indirectLinks) {
+    std::filesystem::space_info si =
+      std::filesystem::space(indirectLink, error);
 
     if (error) {
       continue;
@@ -206,7 +196,7 @@ FileList::split(iterator position, split_type* first, split_type* last) {
   size_type index  = std::distance(begin(), position);
   size_type length = std::distance(first, last);
 
-  base_type::insert(position, length - 1, NULL);
+  base_type::insert(position, length - 1, nullptr);
   position = begin() + index;
 
   iterator itr = position;
@@ -381,7 +371,7 @@ struct file_list_cstr_less {
 
 void
 FileList::open(int flags) {
-  typedef std::set<const char*, file_list_cstr_less> path_set;
+  using path_set = std::set<const char*, file_list_cstr_less>;
 
   LT_LOG_FL(INFO, "Opening.", 0);
 
@@ -450,9 +440,9 @@ FileList::open(int flags) {
     }
 
   } catch (local_error& e) {
-    for (iterator itr2 = begin(), last = end(); itr2 != last; ++itr2) {
-      (*itr2)->unset_flags_protected(File::flag_active);
-      manager->file_manager()->close(*itr2);
+    for (auto& file : *this) {
+      file->unset_flags_protected(File::flag_active);
+      manager->file_manager()->close(file);
     }
 
     if (itr == end()) {
@@ -495,9 +485,9 @@ FileList::close() {
 
   LT_LOG_FL(INFO, "Closing.", 0);
 
-  for (iterator itr = begin(), last = end(); itr != last; ++itr) {
-    (*itr)->unset_flags_protected(File::flag_active);
-    manager->file_manager()->close(*itr);
+  for (auto& file : *this) {
+    file->unset_flags_protected(File::flag_active);
+    manager->file_manager()->close(file);
   }
 
   m_isOpen = false;
@@ -620,7 +610,7 @@ FileList::create_chunk(uint64_t offset, uint32_t length, int prot) {
     MemoryChunk mc = create_chunk_part(itr, offset, length, prot);
 
     if (!mc.is_valid())
-      return NULL;
+      return nullptr;
 
     if (mc.size() == 0)
       throw internal_error("FileList::create_chunk(...) mc.size() == 0.",
@@ -638,7 +628,7 @@ FileList::create_chunk(uint64_t offset, uint32_t length, int prot) {
   }
 
   if (chunk->empty())
-    return NULL;
+    return nullptr;
 
   return chunk.release();
 }
@@ -722,14 +712,14 @@ FileList::update_completed() {
   m_data.update_wanted_chunks();
 
   if (bitfield()->is_all_set()) {
-    for (iterator itr = begin(), last = end(); itr != last; ++itr)
-      (*itr)->set_completed_protected((*itr)->size_chunks());
+    for (auto& file : *this)
+      file->set_completed_protected(file->size_chunks());
 
   } else {
     // Clear any old progress data from the entries as we don't clear
     // this on close, etc.
-    for (iterator itr = begin(), last = end(); itr != last; ++itr)
-      (*itr)->set_completed_protected(0);
+    for (auto& file : *this)
+      file->set_completed_protected(0);
 
     if (bitfield()->is_all_unset())
       return;

@@ -13,13 +13,13 @@ class File;
 
 class lt_cacheline_aligned ChunkPart {
 public:
-  typedef enum { MAPPED_MMAP, MAPPED_STATIC } mapped_type;
+  using mapped_type = enum { MAPPED_MMAP, MAPPED_STATIC };
 
   ChunkPart(mapped_type mapped, const MemoryChunk& c, uint32_t pos)
     : m_mapped(mapped)
     , m_chunk(c)
     , m_position(pos)
-    , m_file(NULL)
+    , m_file(nullptr)
     , m_file_offset(0) {}
 
   bool is_valid() const {

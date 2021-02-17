@@ -1,6 +1,6 @@
 #include <chrono>
+#include <csignal>
 #include <cstring>
-#include <signal.h>
 #include <thread>
 
 #include "torrent/exceptions.h"
@@ -16,15 +16,8 @@ thread_base::global_lock_type lt_cacheline_aligned
   thread_base::m_global = { 0, 0, PTHREAD_MUTEX_INITIALIZER };
 
 thread_base::thread_base()
-  : m_state(STATE_UNKNOWN)
-  , m_flags(0)
-  , m_instrumentation_index(INSTRUMENTATION_POLLING_DO_POLL_OTHERS -
-                            INSTRUMENTATION_POLLING_DO_POLL)
-  ,
-
-  m_poll(NULL)
-  , m_interrupt_sender(NULL)
-  , m_interrupt_receiver(NULL) {
+  : m_instrumentation_index(INSTRUMENTATION_POLLING_DO_POLL_OTHERS -
+                            INSTRUMENTATION_POLLING_DO_POLL) {
   std::memset(&m_thread, 0, sizeof(pthread_t));
 
   thread_interrupt::pair_type interrupt_sockets =
@@ -41,12 +34,12 @@ thread_base::~thread_base() {
 
 void
 thread_base::start_thread() {
-  if (m_poll == NULL)
+  if (m_poll == nullptr)
     throw internal_error("No poll object for thread defined.");
 
   if (!is_initialized() ||
       pthread_create(
-        &m_thread, NULL, (pthread_func)&thread_base::event_loop, this))
+        &m_thread, nullptr, (pthread_func)&thread_base::event_loop, this))
     throw internal_error("Failed to create thread.");
 }
 
@@ -156,7 +149,7 @@ thread_base::event_loop(thread_base* thread) {
   }
 
   __sync_lock_test_and_set(&thread->m_state, STATE_INACTIVE);
-  return NULL;
+  return nullptr;
 }
 
 } // namespace torrent

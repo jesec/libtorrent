@@ -19,29 +19,29 @@ public:
   // Using vectors as they will remain small, thus the cost of erase
   // should be small. Later we can do faster erase by ignoring the
   // ordering.
-  typedef std::vector<BlockTransfer*> transfer_list_type;
-  typedef uint32_t                    size_type;
+  using transfer_list_type = std::vector<BlockTransfer*>;
+  using size_type          = uint32_t;
 
-  typedef enum { STATE_INCOMPLETE, STATE_COMPLETED, STATE_INVALID } state_type;
+  using state_type = enum { STATE_INCOMPLETE, STATE_COMPLETED, STATE_INVALID };
 
-  Block();
+  Block() = default;
   ~Block();
 
   bool is_stalled() const {
     return m_notStalled == 0;
   }
   bool is_finished() const {
-    return m_leader != NULL && m_leader->is_finished();
+    return m_leader != nullptr && m_leader->is_finished();
   }
   bool is_transfering() const {
-    return m_leader != NULL && !m_leader->is_finished();
+    return m_leader != nullptr && !m_leader->is_finished();
   }
 
   bool is_peer_queued(const PeerInfo* p) const {
-    return find_queued(p) != NULL;
+    return find_queued(p) != nullptr;
   }
   bool is_peer_transfering(const PeerInfo* p) const {
-    return find_transfer(p) != NULL;
+    return find_transfer(p) != nullptr;
   }
 
   size_type size_all() const {
@@ -130,8 +130,8 @@ public:
   static void release(BlockTransfer* transfer);
 
 private:
-  Block(const Block&);
-  void operator=(const Block&);
+  Block(const Block&) = delete;
+  void operator=(const Block&) = delete;
 
   void invalidate_transfer(BlockTransfer* transfer) LIBTORRENT_NO_EXPORT;
 
@@ -141,28 +141,22 @@ private:
   BlockList* m_parent;
   Piece      m_piece;
 
-  state_type m_state;
-  uint32_t   m_notStalled;
+  state_type m_state{ STATE_INCOMPLETE };
+  uint32_t   m_notStalled{ 0 };
 
   transfer_list_type m_queued;
   transfer_list_type m_transfers;
 
-  BlockTransfer* m_leader;
+  BlockTransfer* m_leader{ nullptr };
 
-  BlockFailed* m_failedList;
+  BlockFailed* m_failedList{ nullptr };
 };
-
-inline Block::Block()
-  : m_state(STATE_INCOMPLETE)
-  , m_notStalled(0)
-  , m_leader(NULL)
-  , m_failedList(NULL) {}
 
 inline BlockTransfer*
 Block::find(const PeerInfo* p) {
   BlockTransfer* transfer;
 
-  if ((transfer = find_queued(p)) != NULL)
+  if ((transfer = find_queued(p)) != nullptr)
     return transfer;
   else
     return find_transfer(p);
@@ -172,7 +166,7 @@ inline const BlockTransfer*
 Block::find(const PeerInfo* p) const {
   const BlockTransfer* transfer;
 
-  if ((transfer = find_queued(p)) != NULL)
+  if ((transfer = find_queued(p)) != nullptr)
     return transfer;
   else
     return find_transfer(p);

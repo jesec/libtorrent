@@ -3,6 +3,7 @@
 
 #include "torrent/buildinfo.h"
 
+#include <cassert>
 #include <cerrno>
 
 #include <algorithm>
@@ -15,8 +16,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #endif
-
-#include <assert.h>
 
 #include "torrent/event.h"
 #include "torrent/exceptions.h"
@@ -100,7 +99,7 @@ PollKQueue::create(int maxOpenSockets) {
   int fd = kqueue();
 
   if (fd == -1)
-    return NULL;
+    return nullptr;
 
   return new PollKQueue(fd, 1024, maxOpenSockets);
 }
@@ -110,7 +109,7 @@ PollKQueue::PollKQueue(int fd, int maxEvents, int maxOpenSockets)
   , m_maxEvents(maxEvents)
   , m_waitingEvents(0)
   , m_changedEvents(0)
-  , m_stdinEvent(NULL) {
+  , m_stdinEvent(nullptr) {
 
   m_events  = new struct kevent[m_maxEvents];
   m_changes = new struct kevent[maxOpenSockets];
@@ -129,7 +128,7 @@ PollKQueue::~PollKQueue() {
 int
 PollKQueue::poll(int msec) {
 #if LT_KQUEUE_SOCKET_ONLY
-  if (m_stdinEvent != NULL) {
+  if (m_stdinEvent != nullptr) {
     // Flush all changes to the kqueue poll before we start select
     // polling, so that they get included.
     if (m_changedEvents != 0)
@@ -219,7 +218,7 @@ PollKQueue::perform() {
 
     Table::iterator evItr = m_table.begin() + itr->ident;
 
-    if ((itr->flags & EV_ERROR) && evItr->second != NULL) {
+    if ((itr->flags & EV_ERROR) && evItr->second != nullptr) {
       if (evItr->first & flag_error)
         evItr->second->event_error();
 
@@ -229,13 +228,13 @@ PollKQueue::perform() {
 
     // Also check current mask.
 
-    if (itr->filter == EVFILT_READ && evItr->second != NULL &&
+    if (itr->filter == EVFILT_READ && evItr->second != nullptr &&
         evItr->first & flag_read) {
       count++;
       evItr->second->event_read();
     }
 
-    if (itr->filter == EVFILT_WRITE && evItr->second != NULL &&
+    if (itr->filter == EVFILT_WRITE && evItr->second != nullptr &&
         evItr->first & flag_write) {
       count++;
       evItr->second->event_write();
@@ -296,7 +295,7 @@ PollKQueue::close(Event* event) {
 
 #if LT_KQUEUE_SOCKET_ONLY
   if (event->file_descriptor() == 0) {
-    m_stdinEvent = NULL;
+    m_stdinEvent = nullptr;
     return;
   }
 #endif
@@ -327,7 +326,7 @@ PollKQueue::closed(Event* event) {
 
 #if LT_KQUEUE_SOCKET_ONLY
   if (event->file_descriptor() == 0) {
-    m_stdinEvent = NULL;
+    m_stdinEvent = nullptr;
     return;
   }
 #endif
@@ -412,7 +411,7 @@ PollKQueue::remove_read(Event* event) {
 
 #if LT_KQUEUE_SOCKET_ONLY
   if (event->file_descriptor() == 0) {
-    m_stdinEvent = NULL;
+    m_stdinEvent = nullptr;
     return;
   }
 #endif
@@ -439,10 +438,8 @@ PollKQueue::remove_error(Event* event) {
 
 PollKQueue*
 PollKQueue::create(int) {
-  return NULL;
+  return nullptr;
 }
-
-PollKQueue::~PollKQueue() {}
 
 int
 PollKQueue::poll(int) {

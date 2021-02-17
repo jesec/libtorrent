@@ -15,8 +15,8 @@ namespace torrent {
 
 class AvailableList : private std::vector<utils::socket_address> {
 public:
-  typedef std::vector<utils::socket_address> base_type;
-  typedef uint32_t                           size_type;
+  using base_type = std::vector<utils::socket_address>;
+  using size_type = uint32_t;
 
   using base_type::const_reference;
   using base_type::reference;
@@ -37,9 +37,6 @@ public:
   using base_type::pop_back;
   using base_type::rbegin;
   using base_type::rend;
-
-  AvailableList()
-    : m_maxSize(1000) {}
 
   value_type pop_random();
 
@@ -73,7 +70,7 @@ public:
   }
 
 private:
-  size_type m_maxSize;
+  size_type m_maxSize{ 1000 };
 
   AddressList m_buffer;
 };

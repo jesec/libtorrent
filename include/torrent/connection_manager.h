@@ -19,13 +19,13 @@ namespace torrent {
 
 // Standard pair of up/down throttles.
 // First element is upload throttle, second element is download throttle.
-typedef std::pair<Throttle*, Throttle*> ThrottlePair;
+using ThrottlePair = std::pair<Throttle*, Throttle*>;
 
 class LIBTORRENT_EXPORT ConnectionManager {
 public:
-  typedef uint32_t size_type;
-  typedef uint16_t port_type;
-  typedef uint8_t  priority_type;
+  using size_type     = uint32_t;
+  using port_type     = uint16_t;
+  using priority_type = uint8_t;
 
   static const priority_type iptos_default     = 0;
   static const priority_type iptos_lowdelay    = IPTOS_LOWDELAY;
@@ -64,18 +64,17 @@ public:
     handshake_retry_encrypted    = 9
   };
 
-  typedef std::function<uint32_t(const sockaddr*)>     slot_filter_type;
-  typedef std::function<ThrottlePair(const sockaddr*)> slot_throttle_type;
+  using slot_filter_type   = std::function<uint32_t(const sockaddr*)>;
+  using slot_throttle_type = std::function<ThrottlePair(const sockaddr*)>;
 
   // The sockaddr argument in the result slot call is NULL if the resolve
   // failed, and the int holds the errno.
-  typedef std::function<void(const sockaddr*, int)> slot_resolver_result_type;
-  typedef std::function<slot_resolver_result_type*(
-    const char*,
-    int,
-    int,
-    const slot_resolver_result_type&)>
-    slot_resolver_type;
+  using slot_resolver_result_type = std::function<void(const sockaddr*, int)>;
+  using slot_resolver_type =
+    std::function<slot_resolver_result_type*(const char*,
+                                             int,
+                                             int,
+                                             const slot_resolver_result_type&)>;
 
   ConnectionManager();
   ~ConnectionManager();
@@ -181,24 +180,24 @@ public:
   }
 
 private:
-  ConnectionManager(const ConnectionManager&);
-  void operator=(const ConnectionManager&);
+  ConnectionManager(const ConnectionManager&) = delete;
+  void operator=(const ConnectionManager&) = delete;
 
-  size_type m_size;
-  size_type m_maxSize;
+  size_type m_size{ 0 };
+  size_type m_maxSize{ 0 };
 
-  priority_type m_priority;
-  uint32_t      m_sendBufferSize;
-  uint32_t      m_receiveBufferSize;
-  int           m_encryptionOptions;
+  priority_type m_priority{ iptos_throughput };
+  uint32_t      m_sendBufferSize{ 0 };
+  uint32_t      m_receiveBufferSize{ 0 };
+  int           m_encryptionOptions{ encryption_none };
 
   sockaddr* m_bindAddress;
   sockaddr* m_localAddress;
   sockaddr* m_proxyAddress;
 
   Listen*   m_listen;
-  port_type m_listen_port;
-  uint32_t  m_listen_backlog;
+  port_type m_listen_port{ 0 };
+  uint32_t  m_listen_backlog{ SOMAXCONN };
 
   slot_filter_type   m_slot_filter;
   slot_resolver_type m_slot_resolver;

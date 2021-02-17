@@ -12,9 +12,7 @@ namespace torrent {
 
 class socket_listen : public socket_event {
 public:
-  typedef std::function<void(int, sa_unique_ptr)> accepted_ftor;
-
-  socket_listen();
+  using accepted_ftor = std::function<void(int, sa_unique_ptr)>;
 
   int backlog() const;
 
@@ -46,7 +44,7 @@ public:
 private:
   bool m_open_port(int fd, sa_unique_ptr& sap, uint16_t port);
 
-  int           m_backlog;
+  int           m_backlog{ SOMAXCONN };
   accepted_ftor m_slot_accepted;
 };
 

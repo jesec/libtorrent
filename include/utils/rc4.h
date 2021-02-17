@@ -10,7 +10,7 @@ namespace torrent {
 
 class RC4 {
 public:
-  RC4() {}
+  RC4() = default;
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   RC4(const unsigned char key[], int len) {

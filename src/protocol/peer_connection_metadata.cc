@@ -34,8 +34,6 @@
 
 namespace torrent {
 
-PeerConnectionMetadata::~PeerConnectionMetadata() {}
-
 void
 PeerConnectionMetadata::initialize_custom() {}
 
@@ -426,7 +424,7 @@ PeerConnectionMetadata::try_request_metadata_pieces() {
 
   const Piece* p = request_list()->delegate();
 
-  if (p == NULL)
+  if (p == nullptr)
     return false;
 
   if (!m_download->file_list()->is_valid_piece(*p) ||
@@ -448,7 +446,7 @@ void
 PeerConnectionMetadata::receive_metadata_piece(uint32_t    piece,
                                                const char* data,
                                                uint32_t    length) {
-  if (data == NULL) {
+  if (data == nullptr) {
     // Length is not set in a reject message.
     length = ProtocolExtension::metadata_piece_size;
 
@@ -475,7 +473,7 @@ PeerConnectionMetadata::receive_metadata_piece(uint32_t    piece,
     down_chunk_process(data, length);
   }
 
-  if (m_request_list.transfer() != NULL &&
+  if (m_request_list.transfer() != nullptr &&
       !m_request_list.transfer()->is_finished())
     throw internal_error("PeerConnectionMetadata::receive_metadata_piece did "
                          "not have complete piece.");

@@ -1,8 +1,8 @@
 #ifndef LIBTORRENT_NET_HANDSHAKE_MANAGER_H
 #define LIBTORRENT_NET_HANDSHAKE_MANAGER_H
 
+#include <cinttypes>
 #include <functional>
-#include <inttypes.h>
 #include <string>
 
 #include "net/socket_fd.h"
@@ -19,17 +19,17 @@ class PeerConnectionBase;
 
 class HandshakeManager : private utils::unordered_vector<Handshake*> {
 public:
-  typedef utils::unordered_vector<Handshake*> base_type;
-  typedef uint32_t                            size_type;
+  using base_type = utils::unordered_vector<Handshake*>;
+  using size_type = uint32_t;
 
-  typedef std::function<DownloadMain*(const char*)> slot_download;
+  using slot_download = std::function<DownloadMain*(const char*)>;
 
   // Do not connect to peers with this many or more failed chunks.
   static const unsigned int max_failed = 3;
 
   using base_type::empty;
 
-  HandshakeManager() {}
+  HandshakeManager() = default;
   ~HandshakeManager() {
     clear();
   }

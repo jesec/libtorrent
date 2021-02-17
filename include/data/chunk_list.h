@@ -22,13 +22,13 @@ class FileList;
 
 class ChunkList : private std::vector<ChunkListNode> {
 public:
-  typedef uint32_t                    size_type;
-  typedef std::vector<ChunkListNode>  base_type;
-  typedef std::vector<ChunkListNode*> Queue;
+  using size_type = uint32_t;
+  using base_type = std::vector<ChunkListNode>;
+  using Queue     = std::vector<ChunkListNode*>;
 
-  typedef std::function<Chunk*(uint32_t, int)>    slot_chunk_index;
-  typedef std::function<uint64_t()>               slot_value;
-  typedef std::function<void(const std::string&)> slot_string;
+  using slot_chunk_index = std::function<Chunk*(uint32_t, int)>;
+  using slot_value       = std::function<uint64_t()>;
+  using slot_string      = std::function<void(const std::string&)>;
 
   using base_type::difference_type;
   using base_type::reference;
@@ -58,11 +58,6 @@ public:
 
   static const int flag_active = (1 << 0);
 
-  ChunkList()
-    : m_data(NULL)
-    , m_manager(NULL)
-    , m_flags(0)
-    , m_chunk_size(0) {}
   ~ChunkList() {
     clear();
   }
@@ -130,7 +125,7 @@ public:
     return m_slot_free_diskspace;
   }
 
-  typedef std::pair<iterator, Chunk::iterator> chunk_address_result;
+  using chunk_address_result = std::pair<iterator, Chunk::iterator>;
 
   chunk_address_result find_address(void* ptr);
 
@@ -152,12 +147,12 @@ private:
 
   std::pair<int, bool> sync_options(ChunkListNode* node, int flags);
 
-  download_data* m_data;
-  ChunkManager*  m_manager;
+  download_data* m_data{ nullptr };
+  ChunkManager*  m_manager{ nullptr };
   Queue          m_queue;
 
-  int      m_flags;
-  uint32_t m_chunk_size;
+  int      m_flags{ 0 };
+  uint32_t m_chunk_size{ 0 };
 
   slot_string      m_slot_storage_error;
   slot_chunk_index m_slot_create_chunk;

@@ -2,7 +2,7 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <algorithm>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "download/chunk_selector.h"
 #include "download/chunk_statistics.h"
@@ -35,7 +35,7 @@ ChunkSelector::initialize(ChunkStatistics* cs) {
 void
 ChunkSelector::cleanup() {
   m_data->mutable_untouched_bitfield()->clear();
-  m_statistics = NULL;
+  m_statistics = nullptr;
 }
 
 // Consider if ChunksSelector::not_using_index(...) needs to be

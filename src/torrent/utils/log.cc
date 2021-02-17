@@ -1,11 +1,11 @@
 #include <algorithm>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <memory>
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <zlib.h>
 
 #include "globals.h"
@@ -19,7 +19,7 @@
 namespace torrent {
 
 struct log_cache_entry {
-  typedef log_group::outputs_type outputs_type;
+  using outputs_type = log_group::outputs_type;
 
   bool equal_outputs(const outputs_type& out) const {
     return out == outputs;
@@ -31,8 +31,8 @@ struct log_cache_entry {
   }
   void clear() {
     delete[] cache_first;
-    cache_first = NULL;
-    cache_last  = NULL;
+    cache_first = nullptr;
+    cache_last  = nullptr;
   }
 
   outputs_type outputs;
@@ -45,7 +45,7 @@ struct log_gz_output {
     gz_file = gzopen(filename, append ? "a" : "w");
   }
   ~log_gz_output() {
-    if (gz_file != NULL)
+    if (gz_file != nullptr)
       gzclose(gz_file);
   }
 
@@ -58,10 +58,10 @@ struct log_gz_output {
   gzFile gz_file;
 };
 
-typedef std::vector<log_cache_entry>                  log_cache_list;
-typedef std::vector<std::pair<int, int>>              log_child_list;
-typedef std::vector<log_slot>                         log_slot_list;
-typedef std::vector<std::pair<std::string, log_slot>> log_output_list;
+using log_cache_list  = std::vector<log_cache_entry>;
+using log_child_list  = std::vector<std::pair<int, int>>;
+using log_slot_list   = std::vector<log_slot>;
+using log_output_list = std::vector<std::pair<std::string, log_slot>>;
 
 log_output_list log_outputs;
 log_child_list  log_children;
@@ -123,7 +123,7 @@ log_rebuild_cache() {
       log_groups[idx].cached_outputs();
 
     if (use_outputs == 0) {
-      log_groups[idx].set_cached(NULL, NULL);
+      log_groups[idx].set_cached(nullptr, nullptr);
       continue;
     }
 
@@ -165,8 +165,8 @@ log_group::internal_print(const HashString* hash,
   char  buffer[4096];
   char* first = buffer;
 
-  if (subsystem != NULL) {
-    if (hash != NULL) {
+  if (subsystem != nullptr) {
+    if (hash != nullptr) {
       first = hash_string_to_hex(*hash, first);
       first += snprintf(first, 4096 - (first - buffer), "->%s: ", subsystem);
     } else {
@@ -191,7 +191,7 @@ log_group::internal_print(const HashString* hash,
                  group  = std::distance(log_groups.begin(), this)](
                   const log_slot& slot) { slot(data, length, group); });
 
-  if (dump_data != NULL) {
+  if (dump_data != nullptr) {
     std::for_each(
       m_first, m_last, [dump_data, dump_size](const log_slot& slot) {
         slot(static_cast<const char*>(dump_data), dump_size, -1);

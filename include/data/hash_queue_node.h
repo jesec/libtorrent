@@ -18,8 +18,8 @@ class download_data;
 
 class HashQueueNode {
 public:
-  typedef std::function<void(ChunkHandle, const char*)> slot_done_type;
-  typedef download_data*                                id_type;
+  using slot_done_type = std::function<void(ChunkHandle, const char*)>;
+  using id_type        = download_data*;
 
   HashQueueNode(id_type id, HashChunk* c, slot_done_type d)
     : m_id(id)

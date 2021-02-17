@@ -7,8 +7,8 @@
 #define LIBTORRENT_UTILS_ALLOCATORS_H
 
 #include <cstddef>
+#include <cstdlib>
 #include <limits>
-#include <stdlib.h>
 #include <sys/types.h>
 
 #include <torrent/utils/cacheline.h>
@@ -19,24 +19,24 @@ namespace utils {
 template<class T = void*>
 class cacheline_allocator {
 public:
-  typedef size_t      size_type;
-  typedef ptrdiff_t   difference_type;
-  typedef T*          pointer;
-  typedef const T*    const_pointer;
-  typedef const void* const_void_pointer;
-  typedef T&          reference;
-  typedef const T&    const_reference;
-  typedef T           value_type;
+  using size_type          = size_t;
+  using difference_type    = ptrdiff_t;
+  using pointer            = T*;
+  using const_pointer      = const T*;
+  using const_void_pointer = const void*;
+  using reference          = T&;
+  using const_reference    = const T&;
+  using value_type         = T;
 
-  cacheline_allocator() noexcept {}
-  cacheline_allocator(const cacheline_allocator&) noexcept {}
+  cacheline_allocator() noexcept                           = default;
+  cacheline_allocator(const cacheline_allocator&) noexcept = default;
   template<class U>
   cacheline_allocator(const cacheline_allocator<U>&) noexcept {}
-  ~cacheline_allocator() noexcept {}
+  ~cacheline_allocator() noexcept = default;
 
   template<class U>
   struct rebind {
-    typedef cacheline_allocator<U> other;
+    using other = cacheline_allocator<U>;
   };
 
   // return address of values
@@ -51,12 +51,12 @@ public:
     return std::numeric_limits<size_t>::max() / sizeof(T);
   }
 
-  pointer allocate(size_type num, const_void_pointer = 0) {
+  pointer allocate(size_type num, const_void_pointer = nullptr) {
     return alloc_size(num * sizeof(T));
   }
 
   static pointer alloc_size(size_type size) {
-    pointer ptr = NULL;
+    pointer ptr = nullptr;
 
     int result [[maybe_unused]] =
       posix_memalign((void**)&ptr, LT_SMP_CACHE_BYTES, size);

@@ -25,12 +25,6 @@ resource_manager_entry::down_rate() const {
   return m_download->info()->down_rate();
 }
 
-ResourceManager::ResourceManager()
-  : m_currentlyUploadUnchoked(0)
-  , m_currentlyDownloadUnchoked(0)
-  , m_maxUploadUnchoked(0)
-  , m_maxDownloadUnchoked(0) {}
-
 ResourceManager::~ResourceManager() {
   if (m_currentlyUploadUnchoked != 0) {
     destruct_error("ResourceManager::~ResourceManager() called but "
@@ -72,11 +66,11 @@ ResourceManager::insert(const resource_manager_entry& entry) {
                   std::mem_fn(&choke_group::inc_iterators));
   }
 
-  choke_queue::move_connections(NULL,
+  choke_queue::move_connections(nullptr,
                                 group_at(entry.group())->up_queue(),
                                 download,
                                 download->up_group_entry());
-  choke_queue::move_connections(NULL,
+  choke_queue::move_connections(nullptr,
                                 group_at(entry.group())->down_queue(),
                                 download,
                                 download->down_group_entry());
@@ -129,9 +123,9 @@ ResourceManager::erase(DownloadMain* d) noexcept(false) {
     throw internal_error("ResourceManager::erase() itr == end().");
 
   choke_queue::move_connections(
-    group_at(itr->group())->up_queue(), NULL, d, d->up_group_entry());
+    group_at(itr->group())->up_queue(), nullptr, d, d->up_group_entry());
   choke_queue::move_connections(
-    group_at(itr->group())->down_queue(), NULL, d, d->down_group_entry());
+    group_at(itr->group())->down_queue(), nullptr, d, d->down_group_entry());
 
   choke_base_type::iterator group_itr = choke_base_type::begin() + itr->group();
   (*group_itr)->set_last((*group_itr)->last() - 1);

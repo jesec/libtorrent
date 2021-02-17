@@ -19,9 +19,9 @@ class HashChunk;
 class lt_cacheline_aligned HashCheckQueue
   : private std::deque<HashChunk*, utils::cacheline_allocator<HashChunk*>> {
 public:
-  typedef std::deque<HashChunk*, utils::cacheline_allocator<HashChunk*>>
-                                                             base_type;
-  typedef std::function<void(HashChunk*, const HashString&)> slot_chunk_handle;
+  using base_type =
+    std::deque<HashChunk*, utils::cacheline_allocator<HashChunk*>>;
+  using slot_chunk_handle = std::function<void(HashChunk*, const HashString&)>;
 
   using base_type::iterator;
 

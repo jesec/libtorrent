@@ -13,8 +13,8 @@ namespace torrent {
 
 class TransferList : public std::vector<BlockList*> {
 public:
-  typedef std::vector<BlockList*>                   base_type;
-  typedef std::vector<std::pair<int64_t, uint32_t>> completed_list_type;
+  using base_type           = std::vector<BlockList*>;
+  using completed_list_type = std::vector<std::pair<int64_t, uint32_t>>;
 
   using base_type::difference_type;
   using base_type::reference;
@@ -32,7 +32,7 @@ public:
   using base_type::rbegin;
   using base_type::rend;
 
-  TransferList();
+  TransferList() = default;
   ~TransferList();
 
   iterator       find(uint32_t index);
@@ -63,8 +63,8 @@ public:
   void hash_succeeded(uint32_t index, Chunk* chunk);
   void hash_failed(uint32_t index, Chunk* chunk);
 
-  typedef std::function<void(uint32_t)>  slot_chunk_index;
-  typedef std::function<void(PeerInfo*)> slot_peer_info;
+  using slot_chunk_index = std::function<void(uint32_t)>;
+  using slot_peer_info   = std::function<void(PeerInfo*)>;
 
   slot_chunk_index& slot_canceled() {
     return m_slot_canceled;
@@ -80,8 +80,8 @@ public:
   }
 
 private:
-  TransferList(const TransferList&);
-  void operator=(const TransferList&);
+  TransferList(const TransferList&) = delete;
+  void operator=(const TransferList&) = delete;
 
   unsigned int update_failed(BlockList* blockList, Chunk* chunk);
   void         mark_failed_peers(BlockList* blockList, Chunk* chunk);
@@ -95,8 +95,8 @@ private:
 
   completed_list_type m_completedList;
 
-  uint32_t m_succeededCount;
-  uint32_t m_failedCount;
+  uint32_t m_succeededCount{ 0 };
+  uint32_t m_failedCount{ 0 };
 };
 
 } // namespace torrent

@@ -12,8 +12,6 @@ namespace torrent {
 
 Http::slot_http Http::m_factory;
 
-Http::~Http() {}
-
 void
 Http::trigger_done() {
   if (signal_done().empty())
@@ -27,7 +25,7 @@ Http::trigger_done() {
 
   if (should_delete_stream) {
     delete m_stream;
-    m_stream = NULL;
+    m_stream = nullptr;
   }
 
   if (should_delete_self)
@@ -47,7 +45,7 @@ Http::trigger_failed(const std::string& message) {
 
   if (should_delete_stream) {
     delete m_stream;
-    m_stream = NULL;
+    m_stream = nullptr;
   }
 
   if (should_delete_self)

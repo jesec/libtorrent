@@ -13,7 +13,7 @@
 namespace torrent {
 
 struct watch_descriptor {
-  typedef std::function<void(const std::string&)> slot_string;
+  using slot_string = std::function<void(const std::string&)>;
 
   bool compare_desc(int desc) const {
     return desc == descriptor;
@@ -26,8 +26,8 @@ struct watch_descriptor {
 
 class LIBTORRENT_EXPORT directory_events : public Event {
 public:
-  typedef std::vector<watch_descriptor> wd_list;
-  typedef watch_descriptor::slot_string slot_string;
+  using wd_list     = std::vector<watch_descriptor>;
+  using slot_string = watch_descriptor::slot_string;
 
   static const int flag_on_added   = 0x1;
   static const int flag_on_removed = 0x2;
@@ -36,18 +36,18 @@ public:
   directory_events() {
     m_fileDesc = -1;
   }
-  ~directory_events() {}
+  ~directory_events() override = default;
 
   bool open();
   void close();
 
   void notify_on(const std::string& path, int flags, const slot_string& slot);
 
-  virtual void event_read();
-  virtual void event_write();
-  virtual void event_error();
+  void event_read() override;
+  void event_write() override;
+  void event_error() override;
 
-  virtual const char* type_name() const {
+  const char* type_name() const override {
     return "directory_events";
   }
 

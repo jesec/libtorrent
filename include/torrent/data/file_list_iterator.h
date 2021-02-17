@@ -16,11 +16,11 @@ class File;
 // a dired structure.
 class LIBTORRENT_EXPORT FileListIterator {
 public:
-  typedef FileList::iterator iterator;
-  typedef File*              reference;
-  typedef File**             pointer;
+  using iterator  = FileList::iterator;
+  using reference = File*;
+  using pointer   = File**;
 
-  FileListIterator() {}
+  FileListIterator() = default;
   explicit FileListIterator(iterator pos, uint32_t depth = 0)
     : m_position(pos)
     , m_depth(depth) {}
@@ -100,8 +100,8 @@ operator!=(const FileListIterator& left, const FileListIterator& right) {
 class LIBTORRENT_EXPORT file_list_collapsed_iterator
   : private FileListIterator {
 public:
-  typedef FileListIterator             base_type;
-  typedef file_list_collapsed_iterator this_type;
+  using base_type = FileListIterator;
+  using this_type = file_list_collapsed_iterator;
 
   using base_type::iterator;
   using base_type::pointer;
@@ -114,7 +114,7 @@ public:
   using base_type::is_file;
   using base_type::is_leaving;
 
-  file_list_collapsed_iterator() {}
+  file_list_collapsed_iterator() = default;
   file_list_collapsed_iterator(const FileListIterator& src)
     : FileListIterator(src) {}
   explicit file_list_collapsed_iterator(iterator pos, uint32_t depth = 0)

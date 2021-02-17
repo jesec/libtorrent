@@ -10,11 +10,6 @@ namespace torrent {
 
 class EncryptionInfo {
 public:
-  EncryptionInfo()
-    : m_encrypted(false)
-    , m_obfuscated(false)
-    , m_decryptValid(false){};
-
   void encrypt(const void* indata, void* outdata, unsigned int length) {
     m_encrypt.crypt(indata, outdata, length);
   }
@@ -52,9 +47,9 @@ public:
   }
 
 private:
-  bool m_encrypted;
-  bool m_obfuscated;
-  bool m_decryptValid;
+  bool m_encrypted{ false };
+  bool m_obfuscated{ false };
+  bool m_decryptValid{ false };
 
   RC4 m_encrypt;
   RC4 m_decrypt;

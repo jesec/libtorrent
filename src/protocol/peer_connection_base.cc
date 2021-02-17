@@ -60,33 +60,19 @@ log_mincore_stats_func(bool is_incore, bool new_index, bool& continous) {
 }
 
 PeerConnectionBase::PeerConnectionBase()
-  : m_download(NULL)
+  : m_download(nullptr)
   ,
 
   m_down(new ProtocolRead())
   , m_up(new ProtocolWrite())
   ,
 
-  m_downStall(0)
-  ,
+  m_encryptBuffer(nullptr)
+  , m_extensions(nullptr)
 
-  m_downInterested(false)
-  , m_downUnchoked(false)
-  ,
+{
 
-  m_sendChoked(false)
-  , m_sendInterested(false)
-  , m_tryRequest(true)
-  , m_sendPEXMask(0)
-  ,
-
-  m_encryptBuffer(NULL)
-  , m_extensions(NULL)
-  ,
-
-  m_incoreContinous(false) {
-
-  m_peerInfo = NULL;
+  m_peerInfo = nullptr;
 }
 
 PeerConnectionBase::~PeerConnectionBase() {
@@ -95,7 +81,7 @@ PeerConnectionBase::~PeerConnectionBase() {
 
   delete m_encryptBuffer;
 
-  if (m_extensions != NULL && !m_extensions->is_default())
+  if (m_extensions != nullptr && !m_extensions->is_default())
     delete m_extensions;
 
   m_extensionMessage.clear();
@@ -157,9 +143,9 @@ PeerConnectionBase::initialize(DownloadMain*      download,
 
   } catch (close_connection& e) {
     // The handshake manager closes the socket for us.
-    m_peerInfo   = NULL;
-    m_download   = NULL;
-    m_extensions = NULL;
+    m_peerInfo   = nullptr;
+    m_download   = nullptr;
+    m_extensions = nullptr;
 
     get_fd().clear();
     return;
@@ -190,9 +176,9 @@ PeerConnectionBase::cleanup() {
   if (!get_fd().is_valid())
     return;
 
-  if (m_download == NULL)
+  if (m_download == nullptr)
     throw internal_error("PeerConnection::~PeerConnection() m_fd is valid but "
-                         "m_state and/or m_net is NULL");
+                         "m_state and/or m_net is nullptr");
 
   // TODO: Verify that transfer counter gets modified by this...
   m_request_list.clear();
@@ -228,7 +214,7 @@ PeerConnectionBase::cleanup() {
   m_up->set_state(ProtocolWrite::INTERNAL_ERROR);
   m_down->set_state(ProtocolRead::INTERNAL_ERROR);
 
-  m_download = NULL;
+  m_download = nullptr;
 }
 
 void
@@ -382,7 +368,7 @@ PeerConnectionBase::load_up_chunk() {
     throw storage_error("File chunk read error: " +
                         std::string(m_upChunk.error_number().c_str()));
 
-  if (is_encrypted() && m_encryptBuffer == NULL) {
+  if (is_encrypted() && m_encryptBuffer == nullptr) {
     m_encryptBuffer = new EncryptBuffer();
     m_encryptBuffer->reset();
   }
@@ -795,9 +781,9 @@ PeerConnectionBase::down_extension() {
 
 inline uint32_t
 PeerConnectionBase::up_chunk_encrypt(uint32_t quota) {
-  if (m_encryptBuffer == NULL)
+  if (m_encryptBuffer == nullptr)
     throw internal_error(
-      "PeerConnectionBase::up_chunk: m_encryptBuffer is NULL.");
+      "PeerConnectionBase::up_chunk: m_encryptBuffer is nullptr.");
 
   if (quota <= m_encryptBuffer->remaining())
     return quota;
@@ -1084,7 +1070,7 @@ PeerConnectionBase::try_request_pieces() {
 
     const Piece* p = request_list()->delegate();
 
-    if (p == NULL)
+    if (p == nullptr)
       break;
 
     if (!m_download->file_list()->is_valid_piece(*p) ||

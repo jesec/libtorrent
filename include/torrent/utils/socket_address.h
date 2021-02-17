@@ -603,7 +603,7 @@ socket_address_inet6::pretty_address_str() const {
   char buf[INET6_ADDRSTRLEN + 2 + 6];
 
   if (inet_ntop(family(), &m_sockaddr.sin6_addr, buf + 1, INET6_ADDRSTRLEN) ==
-      NULL)
+      nullptr)
     return std::string();
 
   buf[0] = '[';
@@ -612,7 +612,7 @@ socket_address_inet6::pretty_address_str() const {
 
   // TODO: Throw exception here.
 
-  if (last_char == NULL || last_char >= buf + 1 + INET6_ADDRSTRLEN)
+  if (last_char == nullptr || last_char >= buf + 1 + INET6_ADDRSTRLEN)
     throw std::logic_error("inet_ntop for inet6 returned bad buffer");
 
   *(last_char++) = ']';

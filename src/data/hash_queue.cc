@@ -55,7 +55,7 @@ struct HashQueueWillneed {
 HashQueue::HashQueue(thread_disk* thread)
   : m_thread_disk(thread) {
 
-  pthread_mutex_init(&m_done_chunks_lock, NULL);
+  pthread_mutex_init(&m_done_chunks_lock, nullptr);
 
   m_thread_disk->hash_queue()->slot_chunk_done() =
     [this](HashChunk* chunk, const HashString& hash) {

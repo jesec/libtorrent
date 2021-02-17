@@ -2,6 +2,7 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <algorithm>
+#include <utility>
 
 #include "globals.h"
 #include "torrent/exceptions.h"
@@ -10,11 +11,11 @@
 
 namespace torrent {
 
-Tracker::Tracker(TrackerList* parent, const std::string& url, int flags)
+Tracker::Tracker(TrackerList* parent, std::string url, int flags)
   : m_flags(flags)
   , m_parent(parent)
   , m_group(0)
-  , m_url(url)
+  , m_url(std::move(url))
   ,
 
   m_normal_interval(1800)

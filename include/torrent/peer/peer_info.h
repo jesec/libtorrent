@@ -152,8 +152,8 @@ protected:
   }
 
 private:
-  PeerInfo(const PeerInfo&);
-  void operator=(const PeerInfo&);
+  PeerInfo(const PeerInfo&) = delete;
+  void operator=(const PeerInfo&) = delete;
 
   // Replace id with a char buffer, or a cheap struct?
   int        m_flags;

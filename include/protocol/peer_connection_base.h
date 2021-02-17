@@ -38,14 +38,14 @@ class PeerConnectionBase
   : public Peer
   , public SocketStream {
 public:
-  typedef ProtocolBase ProtocolRead;
-  typedef ProtocolBase ProtocolWrite;
+  using ProtocolRead  = ProtocolBase;
+  using ProtocolWrite = ProtocolBase;
 
 #if LT_USE_EXTRA_DEBUG == 666
   // For testing, use a really small buffer.
   typedef ProtocolBuffer<256> EncryptBuffer;
 #else
-  typedef ProtocolBuffer<16384> EncryptBuffer;
+  using EncryptBuffer = ProtocolBuffer<16384>;
 #endif
 
   // Find an optimal number for this.
@@ -57,9 +57,9 @@ public:
   static const int PEX_DISABLE = (1 << 2);
 
   PeerConnectionBase();
-  virtual ~PeerConnectionBase();
+  ~PeerConnectionBase() override;
 
-  const char* type_name() const {
+  const char* type_name() const override {
     return "pcb";
   }
 
@@ -158,7 +158,7 @@ public:
   bool receive_upload_choke(bool choke);
   bool receive_download_choke(bool choke);
 
-  virtual void event_error();
+  void event_error() override;
 
   void push_unread(const void* data, uint32_t size);
 
@@ -225,7 +225,7 @@ protected:
 
   RequestList m_request_list;
   ChunkHandle m_downChunk;
-  uint32_t    m_downStall;
+  uint32_t    m_downStall{ 0 };
 
   Piece       m_upPiece;
   ChunkHandle m_upChunk;
@@ -243,14 +243,14 @@ protected:
   choke_status m_upChoke;
   choke_status m_downChoke;
 
-  bool m_downInterested;
-  bool m_downUnchoked;
+  bool m_downInterested{ false };
+  bool m_downUnchoked{ false };
 
-  bool m_sendChoked;
-  bool m_sendInterested;
-  bool m_tryRequest;
+  bool m_sendChoked{ false };
+  bool m_sendInterested{ false };
+  bool m_tryRequest{ true };
 
-  int m_sendPEXMask;
+  int m_sendPEXMask{ 0 };
 
   utils::timer m_timeLastRead;
 
@@ -261,7 +261,7 @@ protected:
   EncryptionInfo     m_encryption;
   ProtocolExtension* m_extensions;
 
-  bool m_incoreContinous;
+  bool m_incoreContinous{ false };
 };
 
 inline void

@@ -26,7 +26,7 @@ namespace torrent {
 
 class ProtocolExtension {
 public:
-  typedef enum {
+  using MessageType = enum {
     HANDSHAKE = 0,
     UT_PEX,
     UT_METADATA,
@@ -34,9 +34,9 @@ public:
     FIRST_INVALID, // first invalid message ID
 
     SKIP_EXTENSION,
-  } MessageType;
+  };
 
-  typedef std::vector<SocketAddressCompact> PEXList;
+  using PEXList = std::vector<SocketAddressCompact>;
 
   static const int flag_default           = 1 << 0;
   static const int flag_initial_handshake = 1 << 1;
@@ -180,17 +180,20 @@ private:
 
   uint32_t m_maxQueueLength;
 
-  int                 m_flags;
-  PeerInfo*           m_peerInfo;
-  DownloadMain*       m_download;
-  PeerConnectionBase* m_connection;
+  // Set HANDSHAKE as enabled and supported. Those bits should not be
+  // touched.
+  int           m_flags{ flag_local_enabled_base | flag_remote_supported_base |
+               flag_initial_handshake };
+  PeerInfo*     m_peerInfo{ nullptr };
+  DownloadMain* m_download{ nullptr };
+  PeerConnectionBase* m_connection{ nullptr };
 
-  uint8_t  m_readType;
+  uint8_t  m_readType{ FIRST_INVALID };
   uint32_t m_readLeft;
-  char*    m_read;
+  char*    m_read{ nullptr };
   char*    m_readPos;
 
-  MessageType m_pendingType;
+  MessageType m_pendingType{ HANDSHAKE };
   DataBuffer  m_pending;
 };
 
@@ -218,28 +221,17 @@ enum ext_metadata_keys {
   key_metadata_LAST
 };
 
-typedef static_map_type<ext_handshake_keys, key_handshake_LAST>
-                                                    ExtHandshakeMessage;
-typedef static_map_type<ext_pex_keys, key_pex_LAST> ExtPEXMessage;
-typedef static_map_type<ext_metadata_keys, key_metadata_LAST>
-  ExtMetadataMessage;
+using ExtHandshakeMessage =
+  static_map_type<ext_handshake_keys, key_handshake_LAST>;
+using ExtPEXMessage = static_map_type<ext_pex_keys, key_pex_LAST>;
+using ExtMetadataMessage =
+  static_map_type<ext_metadata_keys, key_metadata_LAST>;
 
 //
 //
 //
 
-inline ProtocolExtension::ProtocolExtension()
-  : // Set HANDSHAKE as enabled and supported. Those bits should not be
-    // touched.
-  m_flags(flag_local_enabled_base | flag_remote_supported_base |
-          flag_initial_handshake)
-  , m_peerInfo(NULL)
-  , m_download(NULL)
-  , m_connection(NULL)
-  , m_readType(FIRST_INVALID)
-  , m_read(NULL)
-  , m_pendingType(HANDSHAKE) {
-
+inline ProtocolExtension::ProtocolExtension() {
   reset();
   set_local_enabled(UT_METADATA);
 }

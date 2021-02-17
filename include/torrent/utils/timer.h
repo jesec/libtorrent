@@ -130,7 +130,7 @@ private:
 inline timer
 timer::current() {
   timeval t;
-  gettimeofday(&t, 0);
+  gettimeofday(&t, nullptr);
 
   return timer(t);
 }

@@ -32,9 +32,9 @@ Path::as_string() const {
 
   std::string s;
 
-  for (const_iterator itr = begin(); itr != end(); ++itr) {
+  for (const auto& segment : *this) {
     s += '/';
-    s += *itr;
+    s += segment;
   }
 
   return s;

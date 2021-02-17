@@ -21,7 +21,7 @@ class ChunkListNode;
 
 class lt_cacheline_aligned HashChunk {
 public:
-  HashChunk() {}
+  HashChunk() = default;
   HashChunk(ChunkHandle h) {
     set_chunk(h);
   }

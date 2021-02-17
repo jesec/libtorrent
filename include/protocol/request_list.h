@@ -35,8 +35,8 @@ struct request_list_constants {
 
 class RequestList {
 public:
-  typedef torrent::queue_buckets<BlockTransfer*, request_list_constants>
-    queues_type;
+  using queues_type =
+    torrent::queue_buckets<BlockTransfer*, request_list_constants>;
 
   static const int bucket_queued    = 0;
   static const int bucket_unordered = 1;
@@ -71,7 +71,7 @@ public:
   void transfer_dissimilar();
 
   bool is_downloading() {
-    return m_transfer != NULL;
+    return m_transfer != nullptr;
   }
   bool is_interested_in_active() const;
 
@@ -133,29 +133,24 @@ private:
   void prepare_process_unordered(const queues_type::iterator& itr);
   void delay_process_unordered();
 
-  Delegator*  m_delegator;
-  PeerChunks* m_peerChunks;
+  Delegator*  m_delegator{ nullptr };
+  PeerChunks* m_peerChunks{ nullptr };
 
-  BlockTransfer* m_transfer;
+  BlockTransfer* m_transfer{ nullptr };
 
   queues_type m_queues;
 
-  int32_t m_affinity;
+  int32_t m_affinity{ -1 };
 
   utils::timer m_last_choke;
   utils::timer m_last_unchoke;
-  size_t       m_last_unordered_position;
+  size_t       m_last_unordered_position{ 0 };
 
   utils::priority_item m_delay_remove_choked;
   utils::priority_item m_delay_process_unordered;
 };
 
-inline RequestList::RequestList()
-  : m_delegator(NULL)
-  , m_peerChunks(NULL)
-  , m_transfer(NULL)
-  , m_affinity(-1)
-  , m_last_unordered_position(0) {
+inline RequestList::RequestList() {
   m_delay_remove_choked.slot()     = [this]() { delay_remove_choked(); };
   m_delay_process_unordered.slot() = [this]() { delay_process_unordered(); };
 }

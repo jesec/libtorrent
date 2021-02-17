@@ -17,13 +17,13 @@ class Content;
 class DownloadWrapper;
 class Path;
 
-typedef std::list<std::string> EncodingList;
+using EncodingList = std::list<std::string>;
 
 class DownloadConstructor {
 public:
   DownloadConstructor()
-    : m_download(NULL)
-    , m_encodingList(NULL) {}
+    : m_download(nullptr)
+    , m_encodingList(nullptr) {}
 
   void initialize(Object& b);
 

@@ -19,9 +19,7 @@ class PeerInfo;
 
 class PeerChunks {
 public:
-  typedef std::list<Piece> piece_list_type;
-
-  PeerChunks();
+  using piece_list_type = std::list<Piece>;
 
   bool is_seeder() const {
     return m_bitfield.is_all_set();
@@ -95,9 +93,9 @@ public:
   }
 
 private:
-  PeerInfo* m_peerInfo;
+  PeerInfo* m_peerInfo{ nullptr };
 
-  bool m_usingCounter;
+  bool m_usingCounter{ false };
 
   Bitfield m_bitfield;
 
@@ -108,24 +106,11 @@ private:
 
   utils::timer m_haveTimer;
 
-  Rate m_peerRate;
+  Rate m_peerRate{ 600 };
 
-  ThrottleNode m_downloadThrottle;
-  ThrottleNode m_uploadThrottle;
+  ThrottleNode m_downloadThrottle{ 30 };
+  ThrottleNode m_uploadThrottle{ 30 };
 };
-
-inline PeerChunks::PeerChunks()
-  : m_peerInfo(NULL)
-  ,
-
-  m_usingCounter(false)
-  ,
-
-  m_peerRate(600)
-  ,
-
-  m_downloadThrottle(30)
-  , m_uploadThrottle(30) {}
 
 } // namespace torrent
 

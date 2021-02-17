@@ -189,7 +189,7 @@ DhtAnnounce::~DhtAnnounce() {
     return;
   }
 
-  const char* failure = NULL;
+  const char* failure = nullptr;
 
   if (m_tracker->get_state() != TrackerDht::state_announcing) {
     if (!m_contacted)
@@ -204,7 +204,7 @@ DhtAnnounce::~DhtAnnounce() {
       failure = "Announce failed";
   }
 
-  if (failure != NULL)
+  if (failure != nullptr)
     m_tracker->receive_failed(failure);
   else
     m_tracker->receive_success();
@@ -237,7 +237,7 @@ DhtTransactionPacket::build_buffer(const DhtMessage& msg) {
                      // went very wrong.
   object_buffer_t result =
     static_map_write_bencode_c(object_write_to_buffer,
-                               NULL,
+                               nullptr,
                                std::make_pair(buffer, buffer + sizeof(buffer)),
                                msg);
 
@@ -255,10 +255,10 @@ DhtTransaction::DhtTransaction(int                          quick_timeout,
   , m_sa(*sa)
   , m_timeout(cachedTime.seconds() + timeout)
   , m_quickTimeout(cachedTime.seconds() + quick_timeout)
-  , m_packet(NULL) {}
+  , m_packet(nullptr) {}
 
 DhtTransaction::~DhtTransaction() {
-  if (m_packet != NULL)
+  if (m_packet != nullptr)
     m_packet->set_failed();
 }
 

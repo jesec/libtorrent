@@ -6,8 +6,7 @@
 #include "torrent/utils/string_manip.h"
 #include "torrent/utils/uri_parser.h"
 
-namespace torrent {
-namespace utils {
+namespace torrent::utils {
 
 inline bool
 is_unreserved_uri_char(char c) {
@@ -166,5 +165,4 @@ uri_parse_query_str(const char* query, uri_query_state& state) {
   uri_parse_query_str(std::string(query), state);
 }
 
-} // namespace utils
 } // namespace torrent

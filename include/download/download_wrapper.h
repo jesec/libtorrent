@@ -104,8 +104,8 @@ public:
   void receive_update_priorities();
 
 private:
-  DownloadWrapper(const DownloadWrapper&);
-  void operator=(const DownloadWrapper&);
+  DownloadWrapper(const DownloadWrapper&) = delete;
+  void operator=(const DownloadWrapper&) = delete;
 
   void finished_download();
 
@@ -116,7 +116,7 @@ private:
 
   std::string m_hash;
 
-  int m_connectionType;
+  int m_connectionType{ 0 };
 };
 
 } // namespace torrent

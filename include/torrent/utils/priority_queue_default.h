@@ -16,9 +16,9 @@ namespace utils {
 
 class priority_item {
 public:
-  typedef std::function<void(void)> slot_void;
+  using slot_void = std::function<void()>;
 
-  priority_item() {}
+  priority_item() = default;
   ~priority_item() {
     if (is_queued()) {
       torrent::internal_error(
@@ -56,8 +56,8 @@ public:
   }
 
 private:
-  priority_item(const priority_item&);
-  void operator=(const priority_item&);
+  priority_item(const priority_item&) = delete;
+  void operator=(const priority_item&) = delete;
 
   timer     m_time;
   slot_void m_slot;
@@ -70,12 +70,12 @@ struct priority_compare {
   }
 };
 
-typedef std::equal_to<priority_item*> priority_equal;
-typedef priority_queue<priority_item*,
-                       priority_compare,
-                       priority_equal,
-                       cacheline_allocator<priority_item*>>
-  priority_queue_default;
+using priority_equal = std::equal_to<priority_item*>;
+using priority_queue_default =
+  priority_queue<priority_item*,
+                 priority_compare,
+                 priority_equal,
+                 cacheline_allocator<priority_item*>>;
 
 inline void
 priority_queue_perform(priority_queue_default* queue, timer t) {

@@ -13,28 +13,28 @@ namespace torrent {
 class TrackerDht : public Tracker {
 public:
   TrackerDht(TrackerList* parent, const std::string& url, int flags);
-  ~TrackerDht();
+  ~TrackerDht() override;
 
-  typedef enum {
+  using state_type = enum {
     state_idle,
     state_searching,
     state_announcing,
-  } state_type;
+  };
 
   static const char* states[];
 
   static bool is_allowed();
 
-  virtual bool is_busy() const;
-  virtual bool is_usable() const;
+  bool is_busy() const override;
+  bool is_usable() const override;
 
-  virtual void send_state(int state);
-  virtual void close();
-  virtual void disown();
+  void send_state(int state) override;
+  void close() override;
+  void disown() override;
 
-  virtual Type type() const;
+  Type type() const override;
 
-  virtual void get_status(char* buffer, int length);
+  void get_status(char* buffer, int length) override;
 
   void set_state(state_type state) {
     m_state = state;

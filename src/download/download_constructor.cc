@@ -3,7 +3,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <string.h>
 
 #include "download/download_constructor.h"
 #include "download/download_wrapper.h"
@@ -69,7 +68,7 @@ DownloadConstructor::parse_name(const Object& b) {
 
   std::list<Path> pathList;
 
-  pathList.push_back(Path());
+  pathList.emplace_back();
   pathList.back().set_encoding(m_defaultEncoding);
   pathList.back().push_back(b.get_key_string("name"));
 
@@ -78,7 +77,7 @@ DownloadConstructor::parse_name(const Object& b) {
           itr, b.as_map().end(), download_constructor_is_single_path())) !=
        b.as_map().end();
        ++itr) {
-    pathList.push_back(Path());
+    pathList.emplace_back();
     pathList.back().set_encoding(itr->first.substr(sizeof("name.") - 1));
     pathList.back().push_back(itr->second.as_string());
   }
@@ -150,7 +149,7 @@ DownloadConstructor::parse_info(const Object& b) {
 
 void
 DownloadConstructor::parse_tracker(const Object& b) {
-  const Object::list_type* announce_list = NULL;
+  const Object::list_type* announce_list = nullptr;
 
   if (b.has_key_list("announce-list") &&
 
@@ -244,7 +243,7 @@ DownloadConstructor::parse_single_file(const Object& b, uint32_t chunkSize) {
 
   std::list<Path> pathList;
 
-  pathList.push_back(Path());
+  pathList.emplace_back();
   pathList.back().set_encoding(m_defaultEncoding);
   pathList.back().push_back(b.get_key_string("name"));
 
@@ -253,7 +252,7 @@ DownloadConstructor::parse_single_file(const Object& b, uint32_t chunkSize) {
           itr, b.as_map().end(), download_constructor_is_single_path())) !=
        b.as_map().end();
        ++itr) {
-    pathList.push_back(Path());
+    pathList.emplace_back();
     pathList.back().set_encoding(itr->first.substr(sizeof("name.") - 1));
     pathList.back().push_back(itr->second.as_string());
   }
@@ -382,13 +381,13 @@ parse_base32_sha1(const char* pos, HashString& hash) {
     else if (c == '&')
       break;
     else
-      return NULL;
+      return nullptr;
 
     decoded |= (value << shift);
     if (shift <= 8) {
       // Too many characters for a base32 SHA1.
       if (hashItr == hash.end())
-        return NULL;
+        return nullptr;
 
       *hashItr++ = (decoded >> 8);
       decoded <<= 8;
@@ -398,7 +397,7 @@ parse_base32_sha1(const char* pos, HashString& hash) {
     }
   }
 
-  return hashItr != hash.end() || shift != base_shift ? NULL : pos;
+  return hashItr != hash.end() || shift != base_shift ? nullptr : pos;
 }
 
 void
@@ -429,7 +428,7 @@ DownloadConstructor::parse_magnet_uri(Object& b, const std::string& uri) {
       pos += 9;
 
       const char* nextPos = parse_base32_sha1(pos, hash);
-      if (nextPos != NULL) {
+      if (nextPos != nullptr) {
         pos       = nextPos;
         hashValid = true;
         continue;

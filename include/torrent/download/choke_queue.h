@@ -35,19 +35,19 @@ struct group_stats {
 
 class LIBTORRENT_EXPORT choke_queue {
 public:
-  typedef std::function<void(int)>                       slot_unchoke;
-  typedef std::function<int()>                           slot_can_unchoke;
-  typedef std::function<bool(PeerConnectionBase*, bool)> slot_connection;
+  using slot_unchoke     = std::function<void(int)>;
+  using slot_can_unchoke = std::function<int()>;
+  using slot_connection  = std::function<bool(PeerConnectionBase*, bool)>;
 
-  typedef std::vector<weighted_connection> container_type;
-  typedef container_type::value_type       value_type;
-  typedef container_type::iterator         iterator;
+  using container_type = std::vector<weighted_connection>;
+  using value_type     = container_type::value_type;
+  using iterator       = container_type::iterator;
 
-  typedef std::pair<uint32_t, iterator> target_type;
+  using target_type = std::pair<uint32_t, iterator>;
 
-  typedef std::vector<group_entry*> group_container_type;
+  using group_container_type = std::vector<group_entry*>;
 
-  typedef void (*slot_weight)(iterator first, iterator last);
+  using slot_weight = void (*)(iterator, iterator);
 
   static const int flag_unchoke_all_new = 0x1;
 
@@ -74,11 +74,7 @@ public:
   };
 
   choke_queue(int flags = 0)
-    : m_flags(flags)
-    , m_heuristics(HEURISTICS_MAX_SIZE)
-    , m_maxUnchoked(unlimited)
-    , m_currently_queued(0)
-    , m_currently_unchoked(0) {}
+    : m_flags(flags) {}
   ~choke_queue();
 
   bool is_full() const {
@@ -176,12 +172,12 @@ private:
   static heuristics_type m_heuristics_list[HEURISTICS_MAX_SIZE];
 
   int             m_flags;
-  heuristics_enum m_heuristics;
+  heuristics_enum m_heuristics{ HEURISTICS_MAX_SIZE };
 
-  uint32_t m_maxUnchoked;
+  uint32_t m_maxUnchoked{ unlimited };
 
-  uint32_t m_currently_queued;
-  uint32_t m_currently_unchoked;
+  uint32_t m_currently_queued{ 0 };
+  uint32_t m_currently_unchoked{ 0 };
 
   slot_unchoke     m_slotUnchoke;
   slot_can_unchoke m_slotCanUnchoke;

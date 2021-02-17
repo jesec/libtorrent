@@ -18,21 +18,18 @@ namespace torrent {
 // Keep in mind that these objects get reused.
 class LIBTORRENT_EXPORT Http {
 public:
-  typedef std::function<void()>                   slot_void;
-  typedef std::function<void(const std::string&)> slot_string;
-  typedef std::function<Http*(void)>              slot_http;
+  using slot_void   = std::function<void()>;
+  using slot_string = std::function<void(const std::string&)>;
+  using slot_http   = std::function<Http*()>;
 
-  typedef std::list<slot_void>   signal_void;
-  typedef std::list<slot_string> signal_string;
+  using signal_void   = std::list<slot_void>;
+  using signal_string = std::list<slot_string>;
 
   static const int flag_delete_self   = 0x1;
   static const int flag_delete_stream = 0x2;
 
-  Http()
-    : m_flags(0)
-    , m_stream(NULL)
-    , m_timeout(0) {}
-  virtual ~Http();
+  Http()          = default;
+  virtual ~Http() = default;
 
   // Start must never throw on bad input. Calling start/stop on an
   // object in the wrong state should throw a torrent::internal_error.
@@ -92,17 +89,17 @@ protected:
   void trigger_done();
   void trigger_failed(const std::string& message);
 
-  int            m_flags;
+  int            m_flags{ 0 };
   std::string    m_url;
-  std::iostream* m_stream;
-  uint32_t       m_timeout;
+  std::iostream* m_stream{ nullptr };
+  uint32_t       m_timeout{ 0 };
 
   signal_void   m_signal_done;
   signal_string m_signal_failed;
 
 private:
-  Http(const Http&);
-  void operator=(const Http&);
+  Http(const Http&) = delete;
+  void operator=(const Http&) = delete;
 
   static slot_http m_factory;
 };

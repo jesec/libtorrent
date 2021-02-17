@@ -54,7 +54,7 @@ calculate_reserved(uint32_t openMax) {
 
 void
 initialize() {
-  if (manager != NULL)
+  if (manager != nullptr)
     throw internal_error("torrent::initialize(...) called but the library has "
                          "already been initialized");
 
@@ -80,19 +80,19 @@ initialize() {
 // them to finish is not required, but recommended.
 void
 cleanup() {
-  if (manager == NULL)
+  if (manager == nullptr)
     throw internal_error(
       "torrent::cleanup() called but the library is not initialized.");
 
   manager->main_thread_disk()->stop_thread_wait();
 
   delete manager;
-  manager = NULL;
+  manager = nullptr;
 }
 
 bool
 is_inactive() {
-  return manager == NULL ||
+  return manager == nullptr ||
          std::find_if(manager->download_manager()->begin(),
                       manager->download_manager()->end(),
                       std::not1(std::mem_fn(&DownloadWrapper::is_stopped))) ==
@@ -228,11 +228,8 @@ download_remove(Download d) {
 // Add all downloads to dlist. Make sure it's cleared.
 void
 download_list(DList& dlist) {
-  for (DownloadManager::const_iterator itr =
-         manager->download_manager()->begin();
-       itr != manager->download_manager()->end();
-       ++itr)
-    dlist.push_back(Download(*itr));
+  for (auto download : *manager->download_manager())
+    dlist.push_back(Download(download));
 }
 
 // Make sure you check that it's valid.

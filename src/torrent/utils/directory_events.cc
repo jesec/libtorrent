@@ -3,7 +3,7 @@
 
 #include "torrent/buildinfo.h"
 
-#include <errno.h>
+#include <cerrno>
 #include <string>
 #include <unistd.h>
 

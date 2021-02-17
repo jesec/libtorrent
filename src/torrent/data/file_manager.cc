@@ -11,12 +11,6 @@
 
 namespace torrent {
 
-FileManager::FileManager()
-  : m_maxOpenFiles(0)
-  , m_filesOpenedCounter(0)
-  , m_filesClosedCounter(0)
-  , m_filesFailedCounter(0) {}
-
 FileManager::~FileManager() {
   if (!empty())
     destruct_error("FileManager::~FileManager() called but empty() != true.");
@@ -86,7 +80,7 @@ FileManager::close(value_type file) {
 struct FileManagerActivity {
   FileManagerActivity()
     : m_last(utils::timer::max().usec())
-    , m_file(NULL) {}
+    , m_file(nullptr) {}
 
   void operator()(File* f) {
     if (f->is_open() && f->last_touched() <= m_last) {

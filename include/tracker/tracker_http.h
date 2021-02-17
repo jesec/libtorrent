@@ -16,16 +16,16 @@ class Http;
 class TrackerHttp : public Tracker {
 public:
   TrackerHttp(TrackerList* parent, const std::string& url, int flags);
-  ~TrackerHttp();
+  ~TrackerHttp() override;
 
-  virtual bool is_busy() const;
+  bool is_busy() const override;
 
-  virtual void send_state(int state);
-  virtual void send_scrape();
-  virtual void close();
-  virtual void disown();
+  void send_state(int state) override;
+  void send_scrape() override;
+  void close() override;
+  void disown() override;
 
-  virtual Type type() const;
+  Type type() const override;
 
 private:
   void close_directly();

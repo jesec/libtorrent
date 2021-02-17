@@ -31,7 +31,7 @@ option_pair option_list_connection_type[] = {
   { "seed", Download::CONNECTION_SEED },
   { "initial_seed", Download::CONNECTION_INITIAL_SEED },
   { "metadata", Download::CONNECTION_METADATA },
-  { NULL, 0 }
+  { nullptr, 0 }
 };
 
 option_pair option_list_heuristics[] = {
@@ -41,12 +41,12 @@ option_pair option_list_heuristics[] = {
   { "upload_seed", choke_queue::HEURISTICS_UPLOAD_SEED },
   { "download_leech", choke_queue::HEURISTICS_DOWNLOAD_LEECH },
   { "invalid", choke_queue::HEURISTICS_MAX_SIZE },
-  { NULL, 0 }
+  { nullptr, 0 }
 };
 
 option_pair option_list_heuristics_download[] = {
   { "download_leech", choke_queue::HEURISTICS_DOWNLOAD_LEECH },
-  { NULL, 0 }
+  { nullptr, 0 }
 };
 
 option_pair option_list_heuristics_upload[] = {
@@ -54,7 +54,7 @@ option_pair option_list_heuristics_upload[] = {
   { "upload_leech_experimental",
     choke_queue::HEURISTICS_UPLOAD_LEECH_EXPERIMENTAL },
   { "upload_seed", choke_queue::HEURISTICS_UPLOAD_SEED },
-  { NULL, 0 }
+  { nullptr, 0 }
 };
 
 option_pair option_list_encryption[] = {
@@ -67,13 +67,13 @@ option_pair option_list_encryption[] = {
   { "enable_retry", torrent::ConnectionManager::encryption_enable_retry },
   { "prefer_plaintext",
     torrent::ConnectionManager::encryption_prefer_plaintext },
-  { NULL, 0 }
+  { nullptr, 0 }
 };
 
 option_pair option_list_ip_filter[] = { { "unwanted", PeerInfo::flag_unwanted },
                                         { "preferred",
                                           PeerInfo::flag_preferred },
-                                        { NULL, 0 } };
+                                        { nullptr, 0 } };
 
 option_pair option_list_ip_tos[] = {
   { "default", torrent::ConnectionManager::iptos_default },
@@ -81,13 +81,13 @@ option_pair option_list_ip_tos[] = {
   { "throughput", torrent::ConnectionManager::iptos_throughput },
   { "reliability", torrent::ConnectionManager::iptos_reliability },
   { "mincost", torrent::ConnectionManager::iptos_mincost },
-  { NULL, 0 }
+  { nullptr, 0 }
 };
 
 option_pair option_list_tracker_mode[] = {
   { "normal", choke_group::TRACKER_MODE_NORMAL },
   { "aggressive", choke_group::TRACKER_MODE_AGGRESSIVE },
-  { NULL, 0 }
+  { nullptr, 0 }
 };
 
 const char* option_list_handshake_connection[] = { "none",
@@ -197,12 +197,12 @@ const char* option_list_log_group[] = { "critical",
 
                                         "ui_events",
 
-                                        NULL };
+                                        nullptr };
 
 const char* option_list_tracker_event[] = { "updated", "completed", "started",
                                             "stopped", "scrape",
 
-                                            NULL };
+                                            nullptr };
 
 option_pair* option_pair_lists[OPTION_START_COMPACT] = {
   option_list_connection_type,
@@ -232,7 +232,7 @@ option_find_string(option_enum opt_enum, const char* name) {
     do {
       if (std::strcmp(itr->name, name) == 0)
         return itr->value;
-    } while ((++itr)->name != NULL);
+    } while ((++itr)->name != nullptr);
 
   } else if (opt_enum < OPTION_MAX_SIZE) {
     const char** itr =
@@ -242,7 +242,7 @@ option_find_string(option_enum opt_enum, const char* name) {
       if (std::strcmp(*itr, name) == 0)
         return std::distance(
           option_single_lists[opt_enum - OPTION_START_COMPACT].name, itr);
-    } while (*++itr != NULL);
+    } while (*++itr != nullptr);
   }
 
   throw input_error("Invalid option name.");
@@ -258,7 +258,7 @@ option_to_string(option_enum  opt_enum,
     do {
       if (itr->value == value)
         return itr->name;
-    } while ((++itr)->name != NULL);
+    } while ((++itr)->name != nullptr);
 
   } else if (opt_enum < OPTION_MAX_SIZE) {
     if (value < option_single_lists[opt_enum - OPTION_START_COMPACT].size)
@@ -272,9 +272,9 @@ const char*
 option_to_string_or_throw(option_enum  opt_enum,
                           unsigned int value,
                           const char*  not_found) {
-  const char* result = option_to_string(opt_enum, value, NULL);
+  const char* result = option_to_string(opt_enum, value, nullptr);
 
-  if (result == NULL)
+  if (result == nullptr)
     throw input_error(not_found);
   else
     return result;
@@ -282,9 +282,9 @@ option_to_string_or_throw(option_enum  opt_enum,
 
 const char*
 option_as_string(option_enum opt_enum, unsigned int value) {
-  const char* result = option_to_string(opt_enum, value, NULL);
+  const char* result = option_to_string(opt_enum, value, nullptr);
 
-  if (result == NULL)
+  if (result == nullptr)
     throw input_error("Invalid option value.");
   else
     return result;
@@ -297,14 +297,14 @@ option_list_strings(option_enum opt_enum) {
   if (opt_enum < OPTION_START_COMPACT) {
     option_pair* itr = option_pair_lists[opt_enum];
 
-    while (itr->name != NULL)
+    while (itr->name != nullptr)
       result.push_back(std::string(itr++->name));
 
   } else if (opt_enum < OPTION_MAX_SIZE) {
     const char** itr =
       option_single_lists[opt_enum - OPTION_START_COMPACT].name;
 
-    while (*itr != NULL)
+    while (*itr != nullptr)
       result.push_back(std::string(*itr++));
   }
 

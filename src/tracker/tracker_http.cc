@@ -47,7 +47,7 @@ TrackerHttp::TrackerHttp(TrackerList* parent, const std::string& url, int flags)
   ,
 
   m_get(Http::slot_factory()())
-  , m_data(NULL) {
+  , m_data(nullptr) {
 
   m_get->signal_done().push_back([this]() { receive_done(); });
   m_get->signal_failed().push_back(
@@ -75,7 +75,7 @@ TrackerHttp::~TrackerHttp() {
 
 bool
 TrackerHttp::is_busy() const {
-  return m_data != NULL;
+  return m_data != nullptr;
 }
 
 void
@@ -92,7 +92,7 @@ void
 TrackerHttp::send_state(int state) {
   close_directly();
 
-  if (m_parent == NULL)
+  if (m_parent == nullptr)
     throw internal_error(
       "TrackerHttp::send_state(...) does not have a valid m_parent.");
 
@@ -192,7 +192,7 @@ TrackerHttp::send_state(int state) {
 
 void
 TrackerHttp::send_scrape() {
-  if (m_data != NULL)
+  if (m_data != nullptr)
     return;
 
   m_latest_event = EVENT_SCRAPE;
@@ -218,7 +218,7 @@ TrackerHttp::send_scrape() {
 
 void
 TrackerHttp::close() {
-  if (m_data == NULL)
+  if (m_data == nullptr)
     return;
 
   LT_LOG_TRACKER(DEBUG,
@@ -231,7 +231,7 @@ TrackerHttp::close() {
 
 void
 TrackerHttp::disown() {
-  if (m_data == NULL)
+  if (m_data == nullptr)
     return;
 
   LT_LOG_TRACKER(DEBUG,
@@ -246,7 +246,7 @@ TrackerHttp::disown() {
 
   // Allocate this dynamically, so that we don't need to do this here.
   m_get  = Http::slot_factory()();
-  m_data = NULL;
+  m_data = nullptr;
 }
 
 TrackerHttp::Type
@@ -256,19 +256,19 @@ TrackerHttp::type() const {
 
 void
 TrackerHttp::close_directly() {
-  if (m_data == NULL)
+  if (m_data == nullptr)
     return;
 
   m_get->close();
-  m_get->set_stream(NULL);
+  m_get->set_stream(nullptr);
 
   delete m_data;
-  m_data = NULL;
+  m_data = nullptr;
 }
 
 void
 TrackerHttp::receive_done() {
-  if (m_data == NULL)
+  if (m_data == nullptr)
     throw internal_error(
       "TrackerHttp::receive_done() called on an invalid object");
 

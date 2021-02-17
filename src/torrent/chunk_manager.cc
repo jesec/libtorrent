@@ -15,27 +15,7 @@
 
 namespace torrent {
 
-ChunkManager::ChunkManager()
-  : m_memoryUsage(0)
-  , m_memoryBlockCount(0)
-  ,
-
-  m_safeSync(false)
-  , m_timeoutSync(600)
-  , m_timeoutSafeSync(900)
-  ,
-
-  m_preloadType(0)
-  , m_preloadMinSize(256 << 10)
-  , m_preloadRequiredRate(5 << 10)
-  ,
-
-  m_statsPreloaded(0)
-  , m_statsNotPreloaded(0)
-  ,
-
-  m_timerStarved(0)
-  , m_lastFreed(0) {
+ChunkManager::ChunkManager() {
 
   // 1/5 of the available memory should be enough for the client. If
   // the client really requires alot more memory it should call this
@@ -54,9 +34,9 @@ uint64_t
 ChunkManager::sync_queue_memory_usage() const {
   uint64_t size = 0;
 
-  for (const_iterator itr = begin(), last = end(); itr != last; itr++) {
-    uint64_t chuckListSize = (*itr)->chunk_size();
-    chuckListSize *= (*itr)->queue_size();
+  for (auto chunkList : *this) {
+    uint64_t chuckListSize = chunkList->chunk_size();
+    chuckListSize *= chunkList->queue_size();
     size += chuckListSize;
   }
 
@@ -67,8 +47,8 @@ uint32_t
 ChunkManager::sync_queue_size() const {
   uint32_t size = 0;
 
-  for (const_iterator itr = begin(), last = end(); itr != last; itr++)
-    size += (*itr)->queue_size();
+  for (auto chunkList : *this)
+    size += chunkList->queue_size();
 
   return size;
 }
@@ -113,7 +93,7 @@ ChunkManager::erase(ChunkList* chunkList) {
   std::iter_swap(itr, --base_type::end());
   base_type::pop_back();
 
-  chunkList->set_manager(NULL);
+  chunkList->set_manager(nullptr);
 }
 
 bool

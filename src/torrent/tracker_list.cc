@@ -22,14 +22,6 @@
 
 namespace torrent {
 
-TrackerList::TrackerList()
-  : m_info(NULL)
-  , m_state(DownloadInfo::STOPPED)
-  ,
-
-  m_key(0)
-  , m_numwant(-1) {}
-
 bool
 TrackerList::has_active() const {
   return std::find_if(begin(), end(), std::mem_fn(&Tracker::is_busy)) != end();
@@ -81,19 +73,19 @@ TrackerList::count_usable() const {
 
 void
 TrackerList::close_all_excluding(int event_bitmap) {
-  for (iterator itr = begin(); itr != end(); itr++) {
-    if ((event_bitmap & (1 << (*itr)->latest_event())))
+  for (auto& tracker : *this) {
+    if ((event_bitmap & (1 << tracker->latest_event())))
       continue;
 
-    (*itr)->close();
+    tracker->close();
   }
 }
 
 void
 TrackerList::disown_all_including(int event_bitmap) {
-  for (iterator itr = begin(); itr != end(); itr++) {
-    if ((event_bitmap & (1 << (*itr)->latest_event())))
-      (*itr)->disown();
+  for (auto& tracker : *this) {
+    if ((event_bitmap & (1 << tracker->latest_event())))
+      tracker->disown();
   }
 }
 

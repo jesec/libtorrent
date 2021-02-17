@@ -21,7 +21,7 @@ namespace torrent {
 // everything libtorrent related at the root easier.
 class LIBTORRENT_EXPORT base_error : public std::exception {
 public:
-  virtual ~base_error() noexcept {}
+  ~base_error() noexcept override = default;
 };
 
 // The library or application did some borking it shouldn't have, bug
@@ -40,9 +40,9 @@ public:
   internal_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~internal_error() noexcept {}
+  ~internal_error() noexcept override = default;
 
-  virtual const char* what() const noexcept {
+  const char* what() const noexcept override {
     return m_msg.c_str();
   }
   const std::string& backtrace() const noexcept {
@@ -50,7 +50,7 @@ public:
   }
 
 protected:
-  internal_error() {}
+  internal_error() = default;
   // Use this function for breaking on throws.
   void initialize(const std::string& msg, const bool print = false);
 
@@ -73,7 +73,7 @@ public:
 // library bug, connection problem or bad input.
 class LIBTORRENT_EXPORT network_error : public base_error {
 public:
-  virtual ~network_error() noexcept {}
+  ~network_error() noexcept override = default;
 };
 
 class LIBTORRENT_EXPORT communication_error : public network_error {
@@ -84,9 +84,9 @@ public:
   communication_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~communication_error() noexcept {}
+  ~communication_error() noexcept override = default;
 
-  virtual const char* what() const noexcept {
+  const char* what() const noexcept override {
     return m_msg.c_str();
   }
 
@@ -101,9 +101,9 @@ class LIBTORRENT_EXPORT connection_error : public network_error {
 public:
   connection_error(int err)
     : m_errno(err) {}
-  virtual ~connection_error() noexcept {}
+  ~connection_error() noexcept override = default;
 
-  virtual const char* what() const throw();
+  const char* what() const noexcept override;
 
   int get_errno() const {
     return m_errno;
@@ -117,9 +117,9 @@ class LIBTORRENT_EXPORT address_info_error : public network_error {
 public:
   address_info_error(int err)
     : m_errno(err) {}
-  virtual ~address_info_error() noexcept {}
+  ~address_info_error() noexcept override = default;
 
-  virtual const char* what() const throw();
+  const char* what() const noexcept override;
 
   int get_errno() const {
     return m_errno;
@@ -131,18 +131,18 @@ private:
 
 class LIBTORRENT_EXPORT close_connection : public network_error {
 public:
-  virtual ~close_connection() noexcept {}
+  ~close_connection() noexcept override = default;
 };
 
 class LIBTORRENT_EXPORT blocked_connection : public network_error {
 public:
-  virtual ~blocked_connection() noexcept {}
+  ~blocked_connection() noexcept override = default;
 };
 
 // Stuff like bad torrent file, disk space and permissions.
 class LIBTORRENT_EXPORT local_error : public base_error {
 public:
-  virtual ~local_error() noexcept {}
+  ~local_error() noexcept override = default;
 };
 
 class LIBTORRENT_EXPORT storage_error : public local_error {
@@ -153,9 +153,9 @@ public:
   storage_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~storage_error() noexcept {}
+  ~storage_error() noexcept override = default;
 
-  virtual const char* what() const noexcept {
+  const char* what() const noexcept override {
     return m_msg.c_str();
   }
 
@@ -174,9 +174,9 @@ public:
   resource_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~resource_error() noexcept {}
+  ~resource_error() noexcept override = default;
 
-  virtual const char* what() const noexcept {
+  const char* what() const noexcept override {
     return m_msg.c_str();
   }
 
@@ -195,9 +195,9 @@ public:
   input_error(const std::string& msg) {
     initialize(msg);
   }
-  virtual ~input_error() noexcept {}
+  ~input_error() noexcept override = default;
 
-  virtual const char* what() const noexcept {
+  const char* what() const noexcept override {
     return m_msg.c_str();
   }
 
@@ -215,12 +215,12 @@ public:
   bencode_error(const std::string& msg)
     : input_error(msg) {}
 
-  virtual ~bencode_error() noexcept {}
+  ~bencode_error() noexcept override = default;
 };
 
 class LIBTORRENT_EXPORT shutdown_exception : public base_error {
 public:
-  virtual ~shutdown_exception() noexcept {}
+  ~shutdown_exception() noexcept override = default;
 };
 
 } // namespace torrent

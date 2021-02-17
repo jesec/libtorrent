@@ -45,33 +45,21 @@ DownloadInfo::DownloadInfo()
   , m_skipRate(60)
   ,
 
-  m_uploadedBaseline(0)
-  , m_completedBaseline(0)
-  , m_sizePex(0)
-  , m_maxSizePex(8)
-  , m_metadataSize(0)
-  ,
-
-  m_creationDate(0)
-  , m_loadDate(utils::timer::current_seconds())
-  ,
-
-  m_upload_unchoked(0)
-  , m_download_unchoked(0) {}
+  m_loadDate(utils::timer::current_seconds()) {}
 
 DownloadMain::DownloadMain()
   : m_info(new DownloadInfo)
   ,
 
-  m_choke_group(NULL)
+  m_choke_group(nullptr)
   , m_chunkList(new ChunkList)
   , m_chunkSelector(new ChunkSelector(file_list()->mutable_data()))
   , m_chunkStatistics(new ChunkStatistics)
   ,
 
-  m_initialSeeding(NULL)
-  , m_uploadThrottle(NULL)
-  , m_downloadThrottle(NULL) {
+  m_initialSeeding(nullptr)
+  , m_uploadThrottle(nullptr)
+  , m_downloadThrottle(nullptr) {
 
   m_tracker_list       = new TrackerList();
   m_tracker_controller = new TrackerController(m_tracker_list);
@@ -171,14 +159,15 @@ DownloadMain::~DownloadMain() {
 
 std::pair<ThrottleList*, ThrottleList*>
 DownloadMain::throttles(const sockaddr* sa) {
-  ThrottlePair pair = ThrottlePair(NULL, NULL);
+  ThrottlePair pair = ThrottlePair(nullptr, nullptr);
 
   if (manager->connection_manager()->address_throttle())
     pair = manager->connection_manager()->address_throttle()(sa);
 
-  return std::make_pair(
-    pair.first == NULL ? upload_throttle() : pair.first->throttle_list(),
-    pair.second == NULL ? download_throttle() : pair.second->throttle_list());
+  return std::make_pair(pair.first == nullptr ? upload_throttle()
+                                              : pair.first->throttle_list(),
+                        pair.second == nullptr ? download_throttle()
+                                               : pair.second->throttle_list());
 }
 
 void
@@ -251,7 +240,7 @@ DownloadMain::stop() {
                                      ConnectionList::disconnect_available);
 
   delete m_initialSeeding;
-  m_initialSeeding = NULL;
+  m_initialSeeding = nullptr;
 
   priority_queue_erase(&taskScheduler, &m_delayDisconnectPeers);
   priority_queue_erase(&taskScheduler, &m_taskTrackerRequest);
@@ -272,7 +261,7 @@ DownloadMain::start_initial_seeding() {
 
 void
 DownloadMain::initial_seeding_done(PeerConnectionBase* pcb) {
-  if (m_initialSeeding == NULL)
+  if (m_initialSeeding == nullptr)
     throw internal_error(
       "DownloadMain::initial_seeding_done called when not initial seeding.");
 
@@ -301,7 +290,7 @@ DownloadMain::initial_seeding_done(PeerConnectionBase* pcb) {
   m_connectionList->slot_new_connection(&createPeerConnectionSeed);
 
   delete m_initialSeeding;
-  m_initialSeeding = NULL;
+  m_initialSeeding = nullptr;
 
   // And close the current connection.
   throw close_connection();
@@ -436,10 +425,8 @@ DownloadMain::do_peer_exchange() {
 
   ProtocolExtension::PEXList current;
 
-  for (ConnectionList::iterator itr = m_connectionList->begin();
-       itr != m_connectionList->end();
-       ++itr) {
-    PeerConnectionBase*          pcb = (*itr)->m_ptr();
+  for (auto& peer : *m_connectionList) {
+    PeerConnectionBase*          pcb = peer->m_ptr();
     const utils::socket_address* sa =
       utils::socket_address::cast_from(pcb->peer_info()->socket_address());
 

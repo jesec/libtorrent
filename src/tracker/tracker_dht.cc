@@ -35,7 +35,7 @@ TrackerDht::TrackerDht(TrackerList* parent, const std::string& url, int flags)
 
 TrackerDht::~TrackerDht() {
   if (is_busy())
-    manager->dht_manager()->router()->cancel_announce(NULL, this);
+    manager->dht_manager()->router()->cancel_announce(nullptr, this);
 }
 
 bool
@@ -50,7 +50,7 @@ TrackerDht::is_usable() const {
 
 void
 TrackerDht::send_state(int state) {
-  if (m_parent == NULL)
+  if (m_parent == nullptr)
     throw internal_error(
       "TrackerDht::send_state(...) does not have a valid m_parent.");
 

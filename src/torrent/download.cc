@@ -78,11 +78,8 @@ Download::open(int flags) {
   if (flags & open_enable_fallocate)
     fileFlags |= File::flag_fallocate;
 
-  for (FileList::iterator itr  = m_ptr->main()->file_list()->begin(),
-                          last = m_ptr->main()->file_list()->end();
-       itr != last;
-       itr++)
-    (*itr)->set_flags(fileFlags);
+  for (auto& file : *m_ptr->main()->file_list())
+    file->set_flags(fileFlags);
 }
 
 void
@@ -300,16 +297,10 @@ Download::bytes_done() const {
 
   Delegator* d = m_ptr->main()->delegator();
 
-  for (TransferList::const_iterator itr1  = d->transfer_list()->begin(),
-                                    last1 = d->transfer_list()->end();
-       itr1 != last1;
-       ++itr1)
-    for (BlockList::const_iterator itr2  = (*itr1)->begin(),
-                                   last2 = (*itr1)->end();
-         itr2 != last2;
-         ++itr2)
-      if (itr2->is_finished())
-        a += itr2->piece().length();
+  for (const auto transfer : *d->transfer_list())
+    for (const auto& block : *transfer)
+      if (block.is_finished())
+        a += block.piece().length();
 
   return a + m_ptr->main()->file_list()->completed_bytes();
 }
@@ -323,7 +314,7 @@ const uint8_t*
 Download::chunks_seen() const {
   return !m_ptr->main()->chunk_statistics()->empty()
            ? &*m_ptr->main()->chunk_statistics()->begin()
-           : NULL;
+           : nullptr;
 }
 
 void
@@ -578,7 +569,7 @@ Download::set_connection_type(ConnectionType t) {
         &createPeerConnectionSeed);
       break;
     case CONNECTION_INITIAL_SEED:
-      if (info()->is_active() && m_ptr->main()->initial_seeding() == NULL)
+      if (info()->is_active() && m_ptr->main()->initial_seeding() == nullptr)
         throw input_error(
           "Can't switch to initial seeding: download is active.");
       m_ptr->main()->connection_list()->slot_new_connection(

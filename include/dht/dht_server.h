@@ -31,9 +31,9 @@ class TrackerDht;
 class DhtServer : public SocketDatagram {
 public:
   DhtServer(DhtRouter* self);
-  ~DhtServer();
+  ~DhtServer() override;
 
-  const char* type_name() const {
+  const char* type_name() const override {
     return "dht";
   }
 
@@ -99,9 +99,9 @@ public:
     m_downloadThrottle = t;
   }
 
-  virtual void event_read();
-  virtual void event_write();
-  virtual void event_error();
+  void event_read() override;
+  void event_write() override;
+  void event_error() override;
 
 private:
   // DHT error codes.
@@ -122,12 +122,12 @@ private:
     }
   } __attribute__((packed));
 
-  typedef std::deque<DhtTransactionPacket*> packet_queue;
-  typedef std::list<compact_node_info>      node_info_list;
+  using packet_queue   = std::deque<DhtTransactionPacket*>;
+  using node_info_list = std::list<compact_node_info>;
 
   // Pending transactions.
-  typedef std::map<DhtTransaction::key_type, DhtTransaction*> transaction_map;
-  typedef transaction_map::iterator                           transaction_itr;
+  using transaction_map = std::map<DhtTransaction::key_type, DhtTransaction*>;
+  using transaction_itr = transaction_map::iterator;
 
   // DHT transaction names for given transaction type.
   static const char* queries[];

@@ -14,10 +14,10 @@ public:
   // used.
   int read_datagram(void*                  buffer,
                     unsigned int           length,
-                    utils::socket_address* sa = NULL);
+                    utils::socket_address* sa = nullptr);
   int write_datagram(const void*            buffer,
                      unsigned int           length,
-                     utils::socket_address* sa = NULL);
+                     utils::socket_address* sa = nullptr);
 };
 
 } // namespace torrent

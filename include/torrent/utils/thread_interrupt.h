@@ -15,9 +15,9 @@ class SocketFd;
 
 class LIBTORRENT_EXPORT lt_cacheline_aligned thread_interrupt : public Event {
 public:
-  typedef std::pair<thread_interrupt*, thread_interrupt*> pair_type;
+  using pair_type = std::pair<thread_interrupt*, thread_interrupt*>;
 
-  ~thread_interrupt();
+  ~thread_interrupt() override;
 
   static pair_type create_pair();
 
@@ -25,9 +25,9 @@ public:
 
   bool poke();
 
-  void event_read();
-  void event_write() {}
-  void event_error() {}
+  void event_read() override;
+  void event_write() override {}
+  void event_error() override {}
 
 private:
   thread_interrupt(int fd);

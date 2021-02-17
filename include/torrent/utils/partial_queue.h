@@ -19,16 +19,14 @@ namespace utils {
 
 class partial_queue {
 public:
-  typedef uint8_t                         key_type;
-  typedef uint32_t                        mapped_type;
-  typedef uint16_t                        size_type;
-  typedef std::pair<size_type, size_type> size_pair_type;
+  using key_type       = uint8_t;
+  using mapped_type    = uint32_t;
+  using size_type      = uint16_t;
+  using size_pair_type = std::pair<size_type, size_type>;
 
   static const size_type num_layers = 8;
 
-  partial_queue()
-    : m_data(NULL)
-    , m_maxLayerSize(0) {}
+  partial_queue() = default;
   ~partial_queue() {
     disable();
   }
@@ -41,7 +39,7 @@ public:
   }
 
   bool is_enabled() const {
-    return m_data != NULL;
+    return m_data != nullptr;
   }
 
   // Add check to see if we can add more. Also make it possible to
@@ -85,8 +83,8 @@ private:
 
   void find_non_empty();
 
-  mapped_type* m_data;
-  size_type    m_maxLayerSize;
+  mapped_type* m_data{ nullptr };
+  size_type    m_maxLayerSize{ 0 };
 
   size_type m_index;
   size_type m_ceiling;
@@ -108,14 +106,14 @@ partial_queue::enable(size_type ls) {
 inline void
 partial_queue::disable() {
   delete[] m_data;
-  m_data = NULL;
+  m_data = nullptr;
 
   m_maxLayerSize = 0;
 }
 
 inline void
 partial_queue::clear() {
-  if (m_data == NULL)
+  if (m_data == nullptr)
     return;
 
   m_index   = 0;

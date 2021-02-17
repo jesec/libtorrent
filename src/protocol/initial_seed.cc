@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include <string.h>
+#include <cstring>
 
 #include "download/chunk_statistics.h"
 #include "protocol/initial_seed.h"
@@ -11,7 +11,7 @@
 
 namespace torrent {
 
-PeerInfo* const InitialSeeding::chunk_unsent  = (PeerInfo*)0;
+PeerInfo* const InitialSeeding::chunk_unsent  = (PeerInfo*)nullptr;
 PeerInfo* const InitialSeeding::chunk_unknown = (PeerInfo*)1;
 PeerInfo* const InitialSeeding::chunk_done    = (PeerInfo*)2;
 
@@ -42,7 +42,7 @@ InitialSeeding::clear_peer(PeerInfo* peer) {
   peer->unset_flags(PeerInfo::flag_blocked);
 
   // If peer is still connected, offer new piece right away.
-  if (peer->connection() != NULL)
+  if (peer->connection() != nullptr)
     peer->connection()->write_insert_poll_safe();
 }
 
@@ -258,10 +258,8 @@ InitialSeeding::complete(PeerConnectionBase* pcb) {
 
 void
 InitialSeeding::unblock_all() {
-  for (PeerList::const_iterator itr = m_download->peer_list()->begin();
-       itr != m_download->peer_list()->end();
-       ++itr)
-    itr->second->unset_flags(PeerInfo::flag_blocked);
+  for (const auto& peer_pair : *m_download->peer_list())
+    peer_pair.second->unset_flags(PeerInfo::flag_blocked);
 }
 
 } // namespace torrent

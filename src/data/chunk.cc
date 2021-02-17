@@ -157,9 +157,11 @@ bool
 Chunk::sync(int flags) {
   bool success = true;
 
-  for (iterator itr = begin(), last = end(); itr != last; ++itr)
-    if (!itr->chunk().sync(0, itr->chunk().size(), flags))
+  for (auto& part : *this) {
+    if (!part.chunk().sync(0, part.chunk().size(), flags)) {
       success = false;
+    }
+  }
 
   return success;
 }
@@ -242,7 +244,7 @@ Chunk::from_buffer(const void* buffer, uint32_t position, uint32_t length) {
   struct sigaction oldact;
   if (intercept_sigbus(&oldact)) {
     // Stop intercepting SIGBUS
-    sigaction(SIGBUS, &oldact, NULL);
+    sigaction(SIGBUS, &oldact, nullptr);
     throw storage_error("no space left on disk");
   }
 
@@ -254,7 +256,7 @@ Chunk::from_buffer(const void* buffer, uint32_t position, uint32_t length) {
   } while (itr.next());
 
   // Stop intercepting SIGBUS
-  sigaction(SIGBUS, &oldact, NULL);
+  sigaction(SIGBUS, &oldact, nullptr);
 
   return true;
 }

@@ -118,10 +118,9 @@ ChunkStatistics::received_have_chunk(PeerChunks* pc,
       m_complete++;
       m_accounted--;
 
-      for (iterator itr = base_type::begin(), last = base_type::end();
-           itr != last;
-           ++itr)
+      for (iterator itr = base_type::begin(); itr != base_type::end(); ++itr) {
         *itr -= 1;
+      }
     }
 
   } else {

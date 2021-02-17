@@ -536,14 +536,11 @@ object_write_bencode_c_object(object_write_data_t* output,
     case Object::TYPE_LIST:
       object_write_bencode_c_char(output, 'l');
 
-      for (Object::list_const_iterator itr  = object->as_list().begin(),
-                                       last = object->as_list().end();
-           itr != last;
-           ++itr) {
-        if (itr->is_empty() || itr->flags() & skip_mask)
+      for (const auto& element : object->as_list()) {
+        if (element.is_empty() || element.flags() & skip_mask)
           continue;
 
-        object_write_bencode_c_object(output, &*itr, skip_mask);
+        object_write_bencode_c_object(output, &element, skip_mask);
       }
 
       object_write_bencode_c_char(output, 'e');
@@ -552,15 +549,12 @@ object_write_bencode_c_object(object_write_data_t* output,
     case Object::TYPE_MAP:
       object_write_bencode_c_char(output, 'd');
 
-      for (Object::map_const_iterator itr  = object->as_map().begin(),
-                                      last = object->as_map().end();
-           itr != last;
-           ++itr) {
-        if (itr->second.is_empty() || itr->second.flags() & skip_mask)
+      for (const auto& element : object->as_map()) {
+        if (element.second.is_empty() || element.second.flags() & skip_mask)
           continue;
 
-        object_write_bencode_c_obj_string(output, itr->first);
-        object_write_bencode_c_object(output, &itr->second, skip_mask);
+        object_write_bencode_c_obj_string(output, element.first);
+        object_write_bencode_c_object(output, &element.second, skip_mask);
       }
 
       object_write_bencode_c_char(output, 'e');
@@ -826,7 +820,7 @@ static_map_write_bencode_c_values(object_write_data_t*           output,
                                   const static_map_entry_type*   entry_values,
                                   const static_map_mapping_type* first_key,
                                   const static_map_mapping_type* last_key) {
-  const char* prev_key = NULL;
+  const char* prev_key = nullptr;
 
   static_map_stack_type  stack[8];
   static_map_stack_type* stack_itr = stack;

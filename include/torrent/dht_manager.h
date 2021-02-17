@@ -17,7 +17,7 @@ class ThrottleList;
 
 class LIBTORRENT_EXPORT DhtManager {
 public:
-  typedef ConnectionManager::port_type port_type;
+  using port_type = ConnectionManager::port_type;
 
   struct statistics_type {
     // Cycle; 0=inactive, 1=initial bootstrapping, 2 and up=normal operation
@@ -48,10 +48,6 @@ public:
       , down_rate(down) {}
   };
 
-  DhtManager()
-    : m_router(NULL)
-    , m_portSent(0)
-    , m_canReceive(true){};
   ~DhtManager();
 
   void initialize(const Object& dhtCache);
@@ -105,11 +101,11 @@ public:
   }
 
 private:
-  DhtRouter* m_router;
+  DhtRouter* m_router{ nullptr };
   port_type  m_port;
 
-  int  m_portSent;
-  bool m_canReceive;
+  int  m_portSent{ 0 };
+  bool m_canReceive{ true };
 };
 
 } // namespace torrent

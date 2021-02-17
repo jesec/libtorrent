@@ -74,7 +74,7 @@ public:
   virtual int code() const noexcept {
     return m_code;
   }
-  virtual const char* what() const noexcept {
+  const char* what() const noexcept override {
     return m_message;
   }
 
@@ -247,8 +247,8 @@ DhtServer::cancel_announce(DownloadInfo* info, const TrackerDht* tracker) {
       DhtAnnounce* announce =
         static_cast<DhtAnnounce*>(itr->second->as_search()->search());
 
-      if ((info == NULL || announce->target() == info->hash()) &&
-          (tracker == NULL || announce->tracker() == tracker)) {
+      if ((info == nullptr || announce->target() == info->hash()) &&
+          (tracker == nullptr || announce->tracker() == tracker)) {
         drop_packet(itr->second->packet());
         delete itr->second;
         m_transactions.erase(itr++);
@@ -463,10 +463,10 @@ DhtServer::parse_find_node_reply(DhtTransactionSearch* transaction,
       nodes.data() + nodes.size() - nodes.size() % sizeof(compact_node_info)),
     std::back_inserter(list));
 
-  for (node_info_list::iterator itr = list.begin(); itr != list.end(); ++itr) {
-    if (itr->id() != m_router->id()) {
-      utils::socket_address sa = itr->address();
-      transaction->search()->add_contact(itr->id(), &sa);
+  for (auto& info : list) {
+    if (info.id() != m_router->id()) {
+      utils::socket_address sa = info.address();
+      transaction->search()->add_contact(info.id(), &sa);
     }
   }
 
@@ -696,7 +696,7 @@ DhtServer::failed_transaction(transaction_itr itr, bool quick) {
   // sent due to throttling, so don't blame the remote node for not replying.
   // Finally, if we haven't received anything whatsoever so far, assume the
   // entire network is down and so we can't blame the node either.
-  if (!quick && m_networkUp && transaction->packet() == NULL &&
+  if (!quick && m_networkUp && transaction->packet() == nullptr &&
       transaction->id() != m_router->zero_id)
     m_router->node_inactive(transaction->id(), transaction->address());
 
@@ -734,12 +734,9 @@ DhtServer::failed_transaction(transaction_itr itr, bool quick) {
 
 void
 DhtServer::clear_transactions() {
-  for (transaction_map::iterator itr  = m_transactions.begin(),
-                                 last = m_transactions.end();
-       itr != last;
-       itr++) {
-    drop_packet(itr->second->packet());
-    delete itr->second;
+  for (auto& m_transaction : m_transactions) {
+    drop_packet(m_transaction.second->packet());
+    delete m_transaction.second;
   }
 
   m_transactions.clear();
@@ -754,7 +751,7 @@ DhtServer::event_read() {
     utils::socket_address sa;
     int                   type = '?';
     DhtMessage            message;
-    const HashString*     nodeId = NULL;
+    const HashString*     nodeId = nullptr;
 
     try {
       char    buffer[2048];
@@ -819,7 +816,7 @@ DhtServer::event_read() {
                         "Invalid transaction ID type/length.");
 
       // Stupid broken implementations.
-      if (nodeId != NULL && *nodeId == m_router->id())
+      if (nodeId != nullptr && *nodeId == m_router->id())
         throw dht_error(dht_error_protocol, "Send your own ID, not mine");
 
       switch (type) {
@@ -843,7 +840,7 @@ DhtServer::event_read() {
       // node as "query failed", so that if it repeatedly sends malformed
       // replies we will drop it instead of propagating it to other nodes.
     } catch (bencode_error& e) {
-      if ((type == 'r' || type == 'e') && nodeId != NULL) {
+      if ((type == 'r' || type == 'e') && nodeId != nullptr) {
         m_router->node_inactive(*nodeId, &sa);
       } else {
         snprintf(message.data_end,
@@ -855,7 +852,7 @@ DhtServer::event_read() {
       }
 
     } catch (dht_error& e) {
-      if ((type == 'r' || type == 'e') && nodeId != NULL)
+      if ((type == 'r' || type == 'e') && nodeId != nullptr)
         m_router->node_inactive(*nodeId, &sa);
       else
         create_error(message, &sa, e.code(), e.what());
@@ -926,7 +923,7 @@ DhtServer::process_queue(packet_queue& queue, uint32_t* quota) {
       // here transaction can be already deleted by failed_transaction.
       transaction_itr itr = m_transactions.find(transactionKey);
       if (itr != m_transactions.end())
-        packet->transaction()->set_packet(NULL);
+        packet->transaction()->set_packet(nullptr);
     }
 
     delete packet;

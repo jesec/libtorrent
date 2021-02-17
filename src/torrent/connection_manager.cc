@@ -32,7 +32,7 @@ resolve_host(const char*                                         host,
       thread_base::acquire_global_lock();
 
     slot(NULL, err);
-    return NULL;
+    return nullptr;
   }
 
   utils::socket_address sa;
@@ -43,24 +43,11 @@ resolve_host(const char*                                         host,
     thread_base::acquire_global_lock();
 
   slot(sa.c_sockaddr(), 0);
-  return NULL;
+  return nullptr;
 }
 
 ConnectionManager::ConnectionManager()
-  : m_size(0)
-  , m_maxSize(0)
-  ,
-
-  m_priority(iptos_throughput)
-  , m_sendBufferSize(0)
-  , m_receiveBufferSize(0)
-  , m_encryptionOptions(encryption_none)
-  ,
-
-  m_listen(new Listen)
-  , m_listen_port(0)
-  , m_listen_backlog(SOMAXCONN) {
-
+  : m_listen(new Listen) {
   m_bindAddress  = (new utils::socket_address())->c_sockaddr();
   m_localAddress = (new utils::socket_address())->c_sockaddr();
   m_proxyAddress = (new utils::socket_address())->c_sockaddr();

@@ -7,8 +7,10 @@
 #include <algorithm>
 #include <functional>
 #include <string>
-#include <torrent/common.h>
 #include <vector>
+
+#include <torrent/common.h>
+#include <torrent/download_info.h>
 
 namespace torrent {
 
@@ -28,12 +30,12 @@ class LIBTORRENT_EXPORT TrackerList : private std::vector<Tracker*> {
 public:
   friend class DownloadWrapper;
 
-  typedef std::vector<Tracker*> base_type;
-  typedef AddressList           address_list;
+  using base_type    = std::vector<Tracker*>;
+  using address_list = AddressList;
 
-  typedef std::function<void(Tracker*)>                     slot_tracker;
-  typedef std::function<void(Tracker*, const std::string&)> slot_string;
-  typedef std::function<uint32_t(Tracker*, AddressList*)>   slot_address_list;
+  using slot_tracker      = std::function<void(Tracker*)>;
+  using slot_string       = std::function<void(Tracker*, const std::string&)>;
+  using slot_address_list = std::function<uint32_t(Tracker*, AddressList*)>;
 
   using base_type::value_type;
 
@@ -54,7 +56,7 @@ public:
   using base_type::at;
   using base_type::operator[];
 
-  TrackerList();
+  TrackerList() = default;
 
   bool has_active() const;
   bool has_active_not_scrape() const;
@@ -170,14 +172,14 @@ protected:
   }
 
 private:
-  TrackerList(const TrackerList&) LIBTORRENT_NO_EXPORT;
-  void operator=(const TrackerList&) LIBTORRENT_NO_EXPORT;
+  TrackerList(const TrackerList&) LIBTORRENT_NO_EXPORT = delete;
+  void operator=(const TrackerList&) LIBTORRENT_NO_EXPORT = delete;
 
-  DownloadInfo* m_info;
-  int           m_state;
+  DownloadInfo* m_info{ nullptr };
+  int           m_state{ DownloadInfo::STOPPED };
 
-  uint32_t m_key;
-  int32_t  m_numwant;
+  uint32_t m_key{ 0 };
+  int32_t  m_numwant{ -1 };
 
   slot_address_list m_slot_success;
   slot_string       m_slot_failed;

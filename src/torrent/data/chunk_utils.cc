@@ -20,21 +20,15 @@ chunk_list_mapping(Download* download) {
 
   std::vector<vm_mapping> mappings;
 
-  for (ChunkList::const_iterator itr  = chunk_list->begin(),
-                                 last = chunk_list->end();
-       itr != last;
-       itr++) {
-    if (!itr->is_valid())
+  for (const auto& chunk : *chunk_list) {
+    if (!chunk.is_valid())
       continue;
 
-    for (Chunk::const_iterator itr2  = itr->chunk()->begin(),
-                               last2 = itr->chunk()->end();
-         itr2 != last2;
-         itr2++) {
-      if (itr2->mapped() != ChunkPart::MAPPED_MMAP)
+    for (const auto& part : *chunk.chunk()) {
+      if (part.mapped() != ChunkPart::MAPPED_MMAP)
         continue;
 
-      vm_mapping val = { itr2->chunk().ptr(), itr2->chunk().size_aligned() };
+      vm_mapping val = { part.chunk().ptr(), part.chunk().size_aligned() };
       mappings.push_back(val);
     }
   }

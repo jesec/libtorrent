@@ -15,17 +15,15 @@ namespace torrent {
 template<typename Type>
 class no_copy_vector {
 public:
-  typedef Type        value_type;
-  typedef size_t      size_type;
-  typedef value_type& reference;
-  typedef ptrdiff_t   difference_type;
+  using value_type      = Type;
+  using size_type       = size_t;
+  using reference       = value_type&;
+  using difference_type = ptrdiff_t;
 
-  typedef value_type*       iterator;
-  typedef const value_type* const_iterator;
+  using iterator       = value_type*;
+  using const_iterator = const value_type*;
 
-  no_copy_vector()
-    : m_size(0)
-    , m_values(NULL) {}
+  no_copy_vector() = default;
   ~no_copy_vector() {
     clear();
   }
@@ -45,7 +43,7 @@ public:
 
   void clear() {
     delete[] m_values;
-    m_values = NULL;
+    m_values = nullptr;
     m_size   = 0;
   }
 
@@ -72,17 +70,17 @@ public:
   }
 
 private:
-  no_copy_vector(const no_copy_vector&);
-  void operator=(const no_copy_vector&);
+  no_copy_vector(const no_copy_vector&) = delete;
+  void operator=(const no_copy_vector&) = delete;
 
-  size_type m_size;
-  Block*    m_values;
+  size_type m_size{ 0 };
+  Block*    m_values{ nullptr };
 };
 
 class LIBTORRENT_EXPORT BlockList : public no_copy_vector<Block> {
 public:
-  typedef no_copy_vector<Block> base_type;
-  typedef uint32_t              size_type;
+  using base_type = no_copy_vector<Block>;
+  using size_type = uint32_t;
 
   using base_type::difference_type;
   using base_type::reference;
@@ -162,8 +160,8 @@ public:
   void do_all_failed();
 
 private:
-  BlockList(const BlockList&);
-  void operator=(const BlockList&);
+  BlockList(const BlockList&) = delete;
+  void operator=(const BlockList&) = delete;
 
   Piece      m_piece;
   priority_t m_priority;

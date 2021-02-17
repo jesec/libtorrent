@@ -13,12 +13,12 @@ class Piece;
 
 class ProtocolBase {
 public:
-  typedef ProtocolBuffer<512> Buffer;
-  typedef uint32_t            size_type;
+  using Buffer    = ProtocolBuffer<512>;
+  using size_type = uint32_t;
 
   static const size_type buffer_size = 512;
 
-  typedef enum {
+  using Protocol = enum {
     CHOKE = 0,
     UNCHOKE,
     INTERESTED,
@@ -34,9 +34,9 @@ public:
 
     NONE,      // These are not part of the protocol
     KEEP_ALIVE // Last command was a keep alive
-  } Protocol;
+  };
 
-  typedef enum {
+  using State = enum {
     IDLE,
     MSG,
     READ_PIECE,
@@ -45,13 +45,9 @@ public:
     WRITE_PIECE,
     WRITE_EXTENSION,
     INTERNAL_ERROR
-  } State;
+  };
 
-  ProtocolBase()
-    : m_state(IDLE)
-    , m_lastCommand(NONE)
-    , m_throttle(NULL) {
-
+  ProtocolBase() {
     m_buffer.reset();
   }
 
@@ -166,9 +162,9 @@ public:
   }
 
 protected:
-  State         m_state;
-  Protocol      m_lastCommand;
-  ThrottleList* m_throttle;
+  State         m_state{ IDLE };
+  Protocol      m_lastCommand{ NONE };
+  ThrottleList* m_throttle{ nullptr };
 
   Buffer m_buffer;
 };

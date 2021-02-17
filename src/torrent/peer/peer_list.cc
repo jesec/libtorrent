@@ -74,7 +74,7 @@ PeerList::~PeerList() {
   std::for_each(begin(), end(), [](const value_type& v) { delete v.second; });
   base_type::clear();
 
-  m_info = NULL;
+  m_info = nullptr;
   delete m_available_list;
 }
 
@@ -91,7 +91,7 @@ PeerList::insert_address(const sockaddr* sa, int flags) {
 
   if (sock_key.is_valid() && !socket_address_key::is_comparable_sockaddr(sa)) {
     LT_LOG_EVENTS("address not comparable", 0);
-    return NULL;
+    return nullptr;
   }
 
   const utils::socket_address* address = utils::socket_address::cast_from(sa);
@@ -107,7 +107,7 @@ PeerList::insert_address(const sockaddr* sa, int flags) {
     LT_LOG_EVENTS("address already exists " LT_LOG_SA_FMT,
                   address->address_str().c_str(),
                   address->port());
-    return NULL;
+    return nullptr;
   }
 
   PeerInfo* peerInfo = new PeerInfo(sa);
@@ -199,7 +199,7 @@ PeerList::insert_available(const void* al) {
       if (peerInfo->listen_port() == 0)
         peerInfo->set_port(itr->port());
 
-      if (peerInfo->connection() != NULL ||
+      if (peerInfo->connection() != nullptr ||
           peerInfo->last_handshake() + 600 > (uint32_t)cachedTime.seconds()) {
         updated++;
         continue;
@@ -247,7 +247,7 @@ PeerList::connected(const sockaddr* sa, int flags) {
   socket_address_key           sock_key = socket_address_key::from_sockaddr(sa);
 
   if (!sock_key.is_valid() || !socket_address_key::is_comparable_sockaddr(sa))
-    return NULL;
+    return nullptr;
 
   PeerInfo*  peerInfo;
   range_type range = base_type::equal_range(sock_key);
@@ -273,12 +273,12 @@ PeerList::connected(const sockaddr* sa, int flags) {
             ->port() != address->port())
       m_available_list->buffer()->push_back(*address);
 
-    return NULL;
+    return nullptr;
   }
 
   if (flags & connect_filter_recent &&
       peerInfo->last_handshake() + 600 > (uint32_t)cachedTime.seconds())
-    return NULL;
+    return nullptr;
 
   if (!(flags & connect_incoming))
     peerInfo->set_listen_port(address->port());

@@ -120,7 +120,7 @@ ProtocolExtension::generate_handshake_message() {
   char            buffer[1024];
   object_buffer_t result =
     static_map_write_bencode_c(object_write_to_buffer,
-                               NULL,
+                               nullptr,
                                std::make_pair(buffer, buffer + sizeof(buffer)),
                                message);
 
@@ -192,7 +192,7 @@ ProtocolExtension::read_start(int type, uint32_t length, bool skip) {
   if (is_default() || (type >= FIRST_INVALID) || length > (1 << 15))
     throw communication_error("Received invalid extension message.");
 
-  if (m_read != NULL || (int32_t)length < 0)
+  if (m_read != nullptr || (int32_t)length < 0)
     throw internal_error(
       "ProtocolExtension::read_start called in inconsistent state.");
 
@@ -240,7 +240,7 @@ ProtocolExtension::read_done() {
   }
 
   delete[] m_read;
-  m_read = NULL;
+  m_read = nullptr;
 
   m_readType = FIRST_INVALID;
   m_flags |= flag_received_ext;
@@ -350,7 +350,7 @@ ProtocolExtension::parse_ut_metadata() {
       break;
 
     case 1:
-      if (m_connection == NULL)
+      if (m_connection == nullptr)
         break;
 
       m_connection->receive_metadata_piece(
@@ -358,11 +358,11 @@ ProtocolExtension::parse_ut_metadata() {
       break;
 
     case 2:
-      if (m_connection == NULL)
+      if (m_connection == nullptr)
         break;
 
       m_connection->receive_metadata_piece(
-        message[key_piece].as_value(), NULL, 0);
+        message[key_piece].as_value(), nullptr, 0);
       break;
   };
 
@@ -389,7 +389,7 @@ ProtocolExtension::send_metadata_piece(size_t piece) {
   char* buffer = new char[metadataSize];
   object_write_bencode_c(
     object_write_to_buffer,
-    NULL,
+    nullptr,
     object_buffer_t(buffer, buffer + metadataSize),
     &(*manager->download_manager()->find(m_download->info()))
        ->bencode()

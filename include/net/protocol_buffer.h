@@ -17,10 +17,10 @@ namespace torrent {
 template<uint16_t tmpl_size>
 class ProtocolBuffer {
 public:
-  typedef uint8_t     value_type;
-  typedef value_type* iterator;
-  typedef uint16_t    size_type;
-  typedef int16_t     difference_type;
+  using value_type      = uint8_t;
+  using iterator        = value_type*;
+  using size_type       = uint16_t;
+  using difference_type = int16_t;
 
   void reset() {
     m_position = m_end = begin();

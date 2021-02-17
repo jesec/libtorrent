@@ -12,21 +12,21 @@ namespace utils {
 template<typename _Tp>
 class unordered_vector : private std::vector<_Tp> {
 public:
-  typedef std::vector<_Tp> Base;
+  using Base = std::vector<_Tp>;
 
-  typedef typename Base::value_type      value_type;
-  typedef typename Base::pointer         pointer;
-  typedef typename Base::const_pointer   const_pointer;
-  typedef typename Base::reference       reference;
-  typedef typename Base::const_reference const_reference;
-  typedef typename Base::size_type       size_type;
-  typedef typename Base::difference_type difference_type;
-  typedef typename Base::allocator_type  allocator_type;
+  using value_type      = typename Base::value_type;
+  using pointer         = typename Base::pointer;
+  using const_pointer   = typename Base::const_pointer;
+  using reference       = typename Base::reference;
+  using const_reference = typename Base::const_reference;
+  using size_type       = typename Base::size_type;
+  using difference_type = typename Base::difference_type;
+  using allocator_type  = typename Base::allocator_type;
 
-  typedef typename Base::iterator               iterator;
-  typedef typename Base::reverse_iterator       reverse_iterator;
-  typedef typename Base::const_iterator         const_iterator;
-  typedef typename Base::const_reverse_iterator const_reverse_iterator;
+  using iterator               = typename Base::iterator;
+  using reverse_iterator       = typename Base::reverse_iterator;
+  using const_iterator         = typename Base::const_iterator;
+  using const_reverse_iterator = typename Base::const_reverse_iterator;
 
   using Base::clear;
   using Base::empty;

@@ -62,7 +62,7 @@ class DhtSearch : protected std::map<DhtNode*, DhtSearch*, dht_compare_closer> {
   friend class DhtTransactionSearch;
 
 public:
-  typedef std::map<DhtNode*, DhtSearch*, dht_compare_closer> base_type;
+  using base_type = std::map<DhtNode*, DhtSearch*, dht_compare_closer>;
 
   // Number of closest potential contact nodes to keep.
   static const unsigned int max_contacts = 18;
@@ -78,7 +78,7 @@ public:
   // without having to modify much code using iterators.
   template<typename T>
   struct accessor_wrapper : public T {
-    accessor_wrapper() {}
+    accessor_wrapper() = default;
     accessor_wrapper(const T& itr)
       : T(itr) {}
 
@@ -90,8 +90,8 @@ public:
     }
   };
 
-  typedef accessor_wrapper<base_type::const_iterator> const_accessor;
-  typedef accessor_wrapper<base_type::iterator>       accessor;
+  using const_accessor = accessor_wrapper<base_type::const_iterator>;
+  using accessor       = accessor_wrapper<base_type::iterator>;
 
   // Add a potential node to contact for the search.
   bool add_contact(const HashString& id, const utils::socket_address* sa);
@@ -159,7 +159,7 @@ protected:
   const_accessor m_next;
 
 private:
-  DhtSearch(const DhtSearch& s);
+  DhtSearch(const DhtSearch& s) = delete;
 
   bool node_uncontacted(const DhtNode* node) const;
 
@@ -173,9 +173,9 @@ public:
               const DhtBucket&  contacts)
     : DhtSearch(infoHash, contacts)
     , m_tracker(tracker) {}
-  ~DhtAnnounce();
+  ~DhtAnnounce() override;
 
-  virtual bool is_announce() const {
+  bool is_announce() const override {
     return true;
   }
 
@@ -226,7 +226,7 @@ enum dht_keys {
 
 class DhtMessage : public static_map_type<dht_keys, key_LAST> {
 public:
-  typedef static_map_type<dht_keys, key_LAST> base_type;
+  using base_type = static_map_type<dht_keys, key_LAST>;
 
   DhtMessage()
     : data_end(data){};
@@ -265,7 +265,7 @@ public:
   DhtTransactionPacket(const utils::socket_address* s, const DhtMessage& d)
     : m_sa(*s)
     , m_id(-cachedTime.seconds())
-    , m_transaction(NULL) {
+    , m_transaction(nullptr) {
     build_buffer(d);
   };
 
@@ -327,12 +327,12 @@ class DhtTransaction {
 public:
   virtual ~DhtTransaction();
 
-  typedef enum {
+  using transaction_type = enum {
     DHT_PING,
     DHT_FIND_NODE,
     DHT_GET_PEERS,
     DHT_ANNOUNCE_PEER,
-  } transaction_type;
+  };
 
   virtual transaction_type type() = 0;
   virtual bool             is_search() {
@@ -340,7 +340,7 @@ public:
   }
 
   // Key to uniquely identify a transaction with given per-node transaction id.
-  typedef uint64_t key_type;
+  using key_type = uint64_t;
 
   key_type key(int id) const {
     return key(&m_sa, id);
@@ -392,7 +392,7 @@ protected:
   bool             m_hasQuickTimeout;
 
 private:
-  DhtTransaction(const DhtTransaction& t);
+  DhtTransaction(const DhtTransaction& t) = delete;
 
   utils::socket_address m_sa;
   int                   m_timeout;
@@ -402,9 +402,9 @@ private:
 
 class DhtTransactionSearch : public DhtTransaction {
 public:
-  virtual ~DhtTransactionSearch();
+  ~DhtTransactionSearch() override;
 
-  virtual bool is_search() {
+  bool is_search() override {
     return true;
   }
 
@@ -444,7 +444,7 @@ public:
   DhtTransactionPing(const HashString& id, const utils::socket_address* sa)
     : DhtTransaction(-1, 30, id, sa) {}
 
-  virtual transaction_type type() {
+  transaction_type type() override {
     return DHT_PING;
   }
 };
@@ -454,7 +454,7 @@ public:
   DhtTransactionFindNode(DhtSearch::const_accessor& node)
     : DhtTransactionSearch(4, 30, node) {}
 
-  virtual transaction_type type() {
+  transaction_type type() override {
     return DHT_FIND_NODE;
   }
 };
@@ -464,7 +464,7 @@ public:
   DhtTransactionGetPeers(DhtSearch::const_accessor& node)
     : DhtTransactionSearch(-1, 30, node) {}
 
-  virtual transaction_type type() {
+  transaction_type type() override {
     return DHT_GET_PEERS;
   }
 };
@@ -479,7 +479,7 @@ public:
     , m_infoHash(infoHash)
     , m_token(token) {}
 
-  virtual transaction_type type() {
+  transaction_type type() override {
     return DHT_ANNOUNCE_PEER;
   }
 

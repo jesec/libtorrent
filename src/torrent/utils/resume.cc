@@ -209,10 +209,8 @@ resume_save_progress(Download download, Object& object) {
 
     Object::list_type& files = object.get_key_list("files");
 
-    for (Object::list_iterator itr = files.begin(), last = files.end();
-         itr != last;
-         itr++)
-      itr->insert_key("mtime", ~int64_t(2));
+    for (auto& file : files)
+      file.insert_key("mtime", ~int64_t(2));
 
     return;
   }
@@ -405,11 +403,8 @@ resume_save_uncertain_pieces(Download download, Object& object) {
 
   std::sort(buffer.begin(), buffer.end());
 
-  for (std::vector<uint32_t>::iterator itr2 = buffer.begin(),
-                                       last = buffer.end();
-       itr2 != last;
-       itr2++)
-    *itr2 = htonl(*itr2);
+  for (unsigned int& timestamp : buffer)
+    timestamp = htonl(timestamp);
 
   Object::string_type& completed =
     object.insert_key("uncertain_pieces", std::string()).as_string();
@@ -517,19 +512,17 @@ resume_load_addresses(Download download, const Object& object) {
 
   const Object::list_type& src = object.get_key_list("peers");
 
-  for (Object::list_const_iterator itr = src.begin(), last = src.end();
-       itr != last;
-       ++itr) {
-    if (!itr->is_map() || !itr->has_key_string("inet") ||
-        itr->get_key_string("inet").size() != sizeof(SocketAddressCompact) ||
-        !itr->has_key_value("failed") || !itr->has_key_value("last") ||
-        itr->get_key_value("last") > cachedTime.seconds())
+  for (const auto& peer : src) {
+    if (!peer.is_map() || !peer.has_key_string("inet") ||
+        peer.get_key_string("inet").size() != sizeof(SocketAddressCompact) ||
+        !peer.has_key_value("failed") || !peer.has_key_value("last") ||
+        peer.get_key_value("last") > cachedTime.seconds())
       continue;
 
     int                   flags = 0;
     utils::socket_address socketAddress =
       *reinterpret_cast<const SocketAddressCompact*>(
-        itr->get_key_string("inet").c_str());
+        peer.get_key_string("inet").c_str());
 
     if (socketAddress.port() != 0)
       flags |= PeerList::address_available;
@@ -537,11 +530,11 @@ resume_load_addresses(Download download, const Object& object) {
     PeerInfo* peerInfo =
       peerList->insert_address(socketAddress.c_sockaddr(), flags);
 
-    if (peerInfo == NULL)
+    if (peerInfo == nullptr)
       continue;
 
-    peerInfo->set_failed_counter(itr->get_key_value("failed"));
-    peerInfo->set_last_connection(itr->get_key_value("last"));
+    peerInfo->set_failed_counter(peer.get_key_value("failed"));
+    peerInfo->set_last_connection(peer.get_key_value("last"));
   }
 
   // Tell rTorrent to harvest addresses.
@@ -591,36 +584,31 @@ resume_load_tracker_settings(Download download, const Object& object) {
   const Object& src          = object.get_key("trackers");
   TrackerList*  tracker_list = download.tracker_list();
 
-  for (Object::map_const_iterator itr  = src.as_map().begin(),
-                                  last = src.as_map().end();
-       itr != last;
-       ++itr) {
-    if (!itr->second.has_key("extra_tracker") ||
-        itr->second.get_key_value("extra_tracker") == 0 ||
-        !itr->second.has_key("group"))
+  for (const auto& tracker : src.as_map()) {
+    const auto& [url, properties] = tracker;
+
+    if (!properties.has_key("extra_tracker") ||
+        properties.get_key_value("extra_tracker") == 0 ||
+        !properties.has_key("group"))
       continue;
 
-    if (tracker_list->find_url(itr->first) != tracker_list->end())
+    if (tracker_list->find_url(url) != tracker_list->end())
       continue;
 
-    download.tracker_list()->insert_url(itr->second.get_key_value("group"),
-                                        itr->first);
+    download.tracker_list()->insert_url(properties.get_key_value("group"), url);
   }
 
-  for (TrackerList::iterator itr  = tracker_list->begin(),
-                             last = tracker_list->end();
-       itr != last;
-       ++itr) {
-    if (!src.has_key_map((*itr)->url()))
+  for (auto& tracker : *tracker_list) {
+    if (!src.has_key_map(tracker->url()))
       continue;
 
-    const Object& trackerObject = src.get_key((*itr)->url());
+    const Object& trackerObject = src.get_key(tracker->url());
 
     if (trackerObject.has_key_value("enabled") &&
         trackerObject.get_key_value("enabled") == 0)
-      (*itr)->disable();
+      tracker->disable();
     else
-      (*itr)->enable();
+      tracker->enable();
   }
 }
 
@@ -630,18 +618,15 @@ resume_save_tracker_settings(Download download, Object& object) {
     object.insert_preserve_copy("trackers", Object::create_map()).first->second;
   TrackerList* tracker_list = download.tracker_list();
 
-  for (TrackerList::iterator itr  = tracker_list->begin(),
-                             last = tracker_list->end();
-       itr != last;
-       ++itr) {
+  for (auto& tracker : *tracker_list) {
     Object& trackerObject =
-      dest.insert_key((*itr)->url(), Object::create_map());
+      dest.insert_key(tracker->url(), Object::create_map());
 
-    trackerObject.insert_key("enabled", Object((int64_t)(*itr)->is_enabled()));
+    trackerObject.insert_key("enabled", Object((int64_t)tracker->is_enabled()));
 
-    if ((*itr)->is_extra_tracker()) {
+    if (tracker->is_extra_tracker()) {
       trackerObject.insert_key("extra_tracker", Object((int64_t)1));
-      trackerObject.insert_key("group", (*itr)->group());
+      trackerObject.insert_key("group", tracker->group());
     }
   }
 }

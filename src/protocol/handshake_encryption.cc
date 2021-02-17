@@ -45,7 +45,7 @@ HandshakeEncryption::initialize() {
 void
 HandshakeEncryption::cleanup() {
   delete m_key;
-  m_key = NULL;
+  m_key = nullptr;
 }
 
 bool

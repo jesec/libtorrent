@@ -20,12 +20,12 @@ template<typename Value,
          typename Alloc = std::allocator<Value>>
 class priority_queue : public std::vector<Value, Alloc> {
 public:
-  typedef std::vector<Value, Alloc>           base_type;
-  typedef typename base_type::reference       reference;
-  typedef typename base_type::const_reference const_reference;
-  typedef typename base_type::iterator        iterator;
-  typedef typename base_type::const_iterator  const_iterator;
-  typedef typename base_type::value_type      value_type;
+  using base_type       = std::vector<Value, Alloc>;
+  using reference       = typename base_type::reference;
+  using const_reference = typename base_type::const_reference;
+  using iterator        = typename base_type::iterator;
+  using const_iterator  = typename base_type::const_iterator;
+  using value_type      = typename base_type::value_type;
 
   using base_type::begin;
   using base_type::clear;
@@ -90,7 +90,7 @@ template<typename Queue, typename Compare>
 class queue_pop_iterator
   : public std::iterator<std::forward_iterator_tag, void, void, void, void> {
 public:
-  typedef Queue container_type;
+  using container_type = Queue;
 
   queue_pop_iterator()
     : m_queue(NULL) {}

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
-#include <errno.h>
+#include <cerrno>
 #include <sys/socket.h>
 #include <sys/types.h>
 

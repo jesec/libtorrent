@@ -90,10 +90,10 @@ trim_classic(const Sequence& seq) {
 template<typename Sequence>
 class split_iterator_t {
 public:
-  typedef typename Sequence::const_iterator const_iterator;
-  typedef typename Sequence::value_type     value_type;
+  using const_iterator = typename Sequence::const_iterator;
+  using value_type     = typename Sequence::value_type;
 
-  split_iterator_t() {}
+  split_iterator_t() = default;
 
   split_iterator_t(const Sequence& seq, value_type delim)
     : m_seq(&seq)

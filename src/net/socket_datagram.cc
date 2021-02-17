@@ -21,7 +21,7 @@ SocketDatagram::read_datagram(void*                  buffer,
   int       r;
   socklen_t fromlen;
 
-  if (sa != NULL) {
+  if (sa != nullptr) {
     fromlen = sizeof(utils::socket_address);
     r = ::recvfrom(m_fileDesc, buffer, length, 0, sa->c_sockaddr(), &fromlen);
   } else {
@@ -40,7 +40,7 @@ SocketDatagram::write_datagram(const void*            buffer,
 
   int r;
 
-  if (sa != NULL) {
+  if (sa != nullptr) {
     if (m_ipv6_socket && sa->family() == utils::socket_address::pf_inet) {
       utils::socket_address_inet6 sa_mapped =
         sa->sa_inet()->to_mapped_address();

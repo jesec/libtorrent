@@ -15,8 +15,8 @@ namespace torrent {
 
 class lt_cacheline_aligned Chunk : private std::vector<ChunkPart> {
 public:
-  typedef std::vector<ChunkPart>     base_type;
-  typedef std::pair<void*, uint32_t> data_type;
+  using base_type = std::vector<ChunkPart>;
+  using data_type = std::pair<void*, uint32_t>;
 
   using base_type::value_type;
 
@@ -34,9 +34,7 @@ public:
   using base_type::back;
   using base_type::front;
 
-  Chunk()
-    : m_chunkSize(0)
-    , m_prot(~0) {}
+  Chunk() = default;
   ~Chunk() {
     clear();
   }
@@ -84,11 +82,11 @@ public:
   bool compare_buffer(const void* buffer, uint32_t position, uint32_t length);
 
 private:
-  Chunk(const Chunk&);
-  void operator=(const Chunk&);
+  Chunk(const Chunk&) = delete;
+  void operator=(const Chunk&) = delete;
 
-  uint32_t m_chunkSize;
-  int      m_prot;
+  uint32_t m_chunkSize{ 0 };
+  int      m_prot{ ~0 };
 };
 
 inline Chunk::iterator

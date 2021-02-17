@@ -22,7 +22,7 @@ class DhtBucket : private std::vector<DhtNode*> {
 public:
   static const unsigned int num_nodes = 8;
 
-  typedef std::vector<DhtNode*> base_type;
+  using base_type = std::vector<DhtNode*>;
 
   using base_type::const_iterator;
   using base_type::iterator;
@@ -180,15 +180,15 @@ inline const DhtBucket*
 DhtBucketChain::next() {
   // m_restart is clear when we're done recursing into the children and
   // follow the parents instead.
-  if (m_restart == NULL) {
+  if (m_restart == nullptr) {
     m_cur = m_cur->parent();
 
   } else {
     m_cur = m_cur->child();
 
-    if (m_cur == NULL) {
+    if (m_cur == nullptr) {
       m_cur     = m_restart->parent();
-      m_restart = NULL;
+      m_restart = nullptr;
     }
   }
 

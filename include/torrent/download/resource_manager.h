@@ -29,7 +29,7 @@ class LIBTORRENT_EXPORT resource_manager_entry {
 public:
   friend class ResourceManager;
 
-  resource_manager_entry(DownloadMain* d   = NULL,
+  resource_manager_entry(DownloadMain* d   = nullptr,
                          uint16_t      pri = 0,
                          uint16_t      grp = 0)
     : m_download(d)
@@ -72,19 +72,18 @@ class LIBTORRENT_EXPORT ResourceManager
   : private std::vector<resource_manager_entry>
   , private std::vector<choke_group*> {
 public:
-  typedef std::vector<resource_manager_entry> base_type;
-  typedef std::vector<choke_group*>           choke_base_type;
-  typedef base_type::value_type               value_type;
-  typedef base_type::iterator                 iterator;
+  using base_type       = std::vector<resource_manager_entry>;
+  using choke_base_type = std::vector<choke_group*>;
+  using value_type      = base_type::value_type;
+  using iterator        = base_type::iterator;
 
-  typedef choke_base_type::iterator group_iterator;
+  using group_iterator = choke_base_type::iterator;
 
   using base_type::begin;
   using base_type::capacity;
   using base_type::end;
   using base_type::size;
 
-  ResourceManager();
   ~ResourceManager();
 
   void insert(DownloadMain* d, uint16_t priority) {
@@ -163,11 +162,11 @@ private:
                        unsigned int max_unchoked,
                        bool         is_up);
 
-  unsigned int m_currentlyUploadUnchoked;
-  unsigned int m_currentlyDownloadUnchoked;
+  unsigned int m_currentlyUploadUnchoked{ 0 };
+  unsigned int m_currentlyDownloadUnchoked{ 0 };
 
-  unsigned int m_maxUploadUnchoked;
-  unsigned int m_maxDownloadUnchoked;
+  unsigned int m_maxUploadUnchoked{ 0 };
+  unsigned int m_maxDownloadUnchoked{ 0 };
 };
 
 } // namespace torrent

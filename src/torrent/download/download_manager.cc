@@ -70,7 +70,7 @@ DownloadManager::find_main(const char* hash) {
   });
 
   if (itr == end())
-    return NULL;
+    return nullptr;
   else
     return (*itr)->main();
 }
@@ -82,7 +82,7 @@ DownloadManager::find_main_obfuscated(const char* hash) {
   });
 
   if (itr == end())
-    return NULL;
+    return nullptr;
   else
     return (*itr)->main();
 }

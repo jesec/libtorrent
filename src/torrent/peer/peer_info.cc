@@ -26,7 +26,7 @@ PeerInfo::PeerInfo(const sockaddr* address)
   , m_listenPort(0)
   ,
 
-  m_connection(NULL) {
+  m_connection(nullptr) {
   utils::socket_address* sa = new utils::socket_address();
   *sa                       = *utils::socket_address::cast_from(address);
 

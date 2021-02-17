@@ -16,10 +16,10 @@ class SocketBase;
 
 class ThrottleNode {
 public:
-  typedef ThrottleList::iterator       iterator;
-  typedef ThrottleList::const_iterator const_iterator;
+  using iterator       = ThrottleList::iterator;
+  using const_iterator = ThrottleList::const_iterator;
 
-  typedef std::function<void()> slot_void;
+  using slot_void = std::function<void()>;
 
   ThrottleNode(uint32_t rateSpan)
     : m_rate(rateSpan) {
@@ -63,8 +63,8 @@ public:
   }
 
 private:
-  ThrottleNode(const ThrottleNode&);
-  void operator=(const ThrottleNode&);
+  ThrottleNode(const ThrottleNode&) = delete;
+  void operator=(const ThrottleNode&) = delete;
 
   uint32_t m_quota;
   iterator m_listIterator;
