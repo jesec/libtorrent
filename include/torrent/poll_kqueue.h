@@ -20,7 +20,7 @@ public:
   static const uint32_t flag_error = (1 << 2);
 
   static PollKQueue* create(int maxOpenSockets);
-  ~PollKQueue() override = default;
+  ~PollKQueue() override;
 
   int          poll(int msec);
   unsigned int perform();
