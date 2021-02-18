@@ -58,8 +58,9 @@ FileManager::open(value_type file, int prot, int flags) {
 
 void
 FileManager::close(value_type file) {
-  if (!file->is_open())
+  if (file == nullptr || !file->is_open()) {
     return;
+  }
 
   SocketFile(file->file_descriptor()).close();
 

@@ -806,6 +806,10 @@ DhtServer::event_read() {
           throw dht_error(dht_error_protocol, "`id' value too short");
 
         nodeId = HashString::cast_from(nodeIdStr.data());
+
+        if (nodeId == nullptr) {
+          throw bencode_error("Failed to parse nodeId.");
+        }
       }
 
       // Sanity check the returned transaction ID.
