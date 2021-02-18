@@ -15,7 +15,7 @@
 
 namespace torrent {
 
-class TrackerUdp
+class TrackerUdp final
   : public SocketDatagram
   , public Tracker {
 public:

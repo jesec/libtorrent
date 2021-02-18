@@ -10,7 +10,7 @@
 
 namespace torrent {
 
-class TrackerDht : public Tracker {
+class TrackerDht final : public Tracker {
 public:
   TrackerDht(TrackerList* parent, const std::string& url, int flags);
   ~TrackerDht() override;

@@ -13,7 +13,7 @@ namespace torrent {
 
 class Http;
 
-class TrackerHttp : public Tracker {
+class TrackerHttp final : public Tracker {
 public:
   TrackerHttp(TrackerList* parent, const std::string& url, int flags);
   ~TrackerHttp() override;
