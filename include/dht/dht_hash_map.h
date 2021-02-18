@@ -24,39 +24,22 @@ namespace torrent {
 // the size of size_t does not exceed 12 bytes, while still having correctly
 // aligned 64-bit access.
 static constexpr unsigned int hashstring_hash_ofs = 8;
+static_assert((hashstring_hash_ofs + sizeof(size_t)) <= HashString::size_data);
 
 struct hashstring_ptr_hash
   : public std::unary_function<const HashString*, size_t> {
   size_t operator()(const HashString* n) const {
-#if LT_USE_ALIGNED
-    size_t      result = 0;
-    const char* first  = n->data() + hashstring_hash_ofs;
-    const char* last   = first + sizeof(size_t);
-
-    while (first != last)
-      result = (result << 8) + *first++;
-
+    size_t result = 0;
+    std::memcpy(&result, n->data() + hashstring_hash_ofs, sizeof(size_t));
     return result;
-#else
-    return *(size_t*)(n->data() + hashstring_hash_ofs);
-#endif
   }
 };
 
 struct hashstring_hash : public std::unary_function<HashString, size_t> {
   size_t operator()(const HashString& n) const {
-#if LT_USE_ALIGNED
-    size_t      result = 0;
-    const char* first  = n.data() + hashstring_hash_ofs;
-    const char* last   = first + sizeof(size_t);
-
-    while (first != last)
-      result = (result << 8) + *first++;
-
+    size_t result = 0;
+    std::memcpy(&result, n.data() + hashstring_hash_ofs, sizeof(size_t));
     return result;
-#else
-    return *(size_t*)(n.data() + hashstring_hash_ofs);
-#endif
   }
 };
 

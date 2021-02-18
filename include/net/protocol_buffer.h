@@ -165,47 +165,25 @@ ProtocolBuffer<tmpl_size>::consume(difference_type v) {
 template<uint16_t tmpl_size>
 inline uint16_t
 ProtocolBuffer<tmpl_size>::read_16() {
-#ifndef LT_USE_ALIGNED
-  uint16_t t = ntohs(*reinterpret_cast<uint16_t*>(m_position));
-  m_position += sizeof(uint16_t);
-
-  return t;
-#else
   return read_int<uint16_t>();
-#endif
 }
 
 template<uint16_t tmpl_size>
 inline uint16_t
 ProtocolBuffer<tmpl_size>::peek_16() {
-#ifndef LT_USE_ALIGNED
-  return ntohs(*reinterpret_cast<uint16_t*>(m_position));
-#else
   return peek_int<uint16_t>();
-#endif
 }
 
 template<uint16_t tmpl_size>
 inline uint32_t
 ProtocolBuffer<tmpl_size>::read_32() {
-#ifndef LT_USE_ALIGNED
-  uint32_t t = ntohl(*reinterpret_cast<uint32_t*>(m_position));
-  m_position += sizeof(uint32_t);
-
-  return t;
-#else
   return read_int<uint32_t>();
-#endif
 }
 
 template<uint16_t tmpl_size>
 inline uint32_t
 ProtocolBuffer<tmpl_size>::peek_32() {
-#ifndef LT_USE_ALIGNED
-  return ntohl(*reinterpret_cast<uint32_t*>(m_position));
-#else
   return peek_int<uint32_t>();
-#endif
 }
 
 template<uint16_t tmpl_size>
@@ -236,27 +214,13 @@ ProtocolBuffer<tmpl_size>::peek_int() {
 template<uint16_t tmpl_size>
 inline void
 ProtocolBuffer<tmpl_size>::write_16(uint16_t v) {
-#ifndef LT_USE_ALIGNED
-  *reinterpret_cast<uint16_t*>(m_end) = htons(v);
-  m_end += sizeof(uint16_t);
-
-  validate_end();
-#else
   write_int<uint16_t>(v);
-#endif
 }
 
 template<uint16_t tmpl_size>
 inline void
 ProtocolBuffer<tmpl_size>::write_32(uint32_t v) {
-#ifndef LT_USE_ALIGNED
-  *reinterpret_cast<uint32_t*>(m_end) = htonl(v);
-  m_end += sizeof(uint32_t);
-
-  validate_end();
-#else
   write_int<uint32_t>(v);
-#endif
 }
 
 template<uint16_t tmpl_size>

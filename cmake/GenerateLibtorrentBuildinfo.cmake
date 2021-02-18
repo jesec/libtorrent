@@ -27,11 +27,6 @@ if(LT_INSTRUMENTATION)
   file(APPEND ${BUILDINFO_H} "#define LT_INSTRUMENTATION 1\n\n")
 endif()
 
-if(USE_ALIGNED)
-  file(APPEND ${BUILDINFO_H} "/* Require byte alignment */\n")
-  file(APPEND ${BUILDINFO_H} "#define LT_USE_ALIGNED 1\n\n")
-endif()
-
 if(USE_EXTRA_DEBUG)
   file(APPEND ${BUILDINFO_H} "/* Enable extra debugging checks */\n")
   file(APPEND ${BUILDINFO_H} "#define LT_USE_EXTRA_DEBUG 1\n\n")
