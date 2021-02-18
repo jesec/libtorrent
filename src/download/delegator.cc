@@ -16,97 +16,11 @@
 
 namespace torrent {
 
-struct DelegatorCheckAffinity {
-  DelegatorCheckAffinity(Delegator*      delegator,
-                         Block**         target,
-                         unsigned int    index,
-                         const PeerInfo* peerInfo)
-    : m_delegator(delegator)
-    , m_target(target)
-    , m_index(index)
-    , m_peerInfo(peerInfo) {}
-
-  bool operator()(BlockList* d) {
-    return m_index == d->index() &&
-           (*m_target = m_delegator->delegate_piece(d, m_peerInfo)) != nullptr;
+#define DelegatorCheckPriority(THIS, TARGET, PRIORITY, CHUNKS)                 \
+  [THIS, &TARGET, CHUNKS](BlockList* d) {                                      \
+    return PRIORITY == d->priority() && CHUNKS->bitfield()->get(d->index()) && \
+           (TARGET = delegate_piece(d, CHUNKS->peer_info())) != nullptr;       \
   }
-
-  Delegator*      m_delegator;
-  Block**         m_target;
-  unsigned int    m_index;
-  const PeerInfo* m_peerInfo;
-};
-
-struct DelegatorCheckSeeder {
-  DelegatorCheckSeeder(Delegator*      delegator,
-                       Block**         target,
-                       const PeerInfo* peerInfo)
-    : m_delegator(delegator)
-    , m_target(target)
-    , m_peerInfo(peerInfo) {}
-
-  bool operator()(BlockList* d) {
-    return d->by_seeder() &&
-           (*m_target = m_delegator->delegate_piece(d, m_peerInfo)) != nullptr;
-  }
-
-  Delegator*      m_delegator;
-  Block**         m_target;
-  const PeerInfo* m_peerInfo;
-};
-
-struct DelegatorCheckPriority {
-  DelegatorCheckPriority(Delegator*        delegator,
-                         Block**           target,
-                         priority_t        p,
-                         const PeerChunks* peerChunks)
-    : m_delegator(delegator)
-    , m_target(target)
-    , m_priority(p)
-    , m_peerChunks(peerChunks) {}
-
-  bool operator()(BlockList* d) {
-    return m_priority == d->priority() &&
-           m_peerChunks->bitfield()->get(d->index()) &&
-           (*m_target = m_delegator->delegate_piece(
-              d, m_peerChunks->peer_info())) != nullptr;
-  }
-
-  Delegator*        m_delegator;
-  Block**           m_target;
-  priority_t        m_priority;
-  const PeerChunks* m_peerChunks;
-};
-
-// TODO: Should this ensure we don't download pieces that are priority off?
-struct DelegatorCheckAggressive {
-  DelegatorCheckAggressive(Delegator*        delegator,
-                           Block**           target,
-                           uint16_t*         o,
-                           const PeerChunks* peerChunks)
-    : m_delegator(delegator)
-    , m_target(target)
-    , m_overlapp(o)
-    , m_peerChunks(peerChunks) {}
-
-  bool operator()(BlockList* d) {
-    Block* tmp;
-
-    if (!m_peerChunks->bitfield()->get(d->index()) ||
-        d->priority() == PRIORITY_OFF ||
-        (tmp = m_delegator->delegate_aggressive(
-           d, m_overlapp, m_peerChunks->peer_info())) == nullptr)
-      return false;
-
-    *m_target = tmp;
-    return m_overlapp == nullptr;
-  }
-
-  Delegator*        m_delegator;
-  Block**           m_target;
-  uint16_t*         m_overlapp;
-  const PeerChunks* m_peerChunks;
-};
 
 BlockTransfer*
 Delegator::delegate(PeerChunks* peerChunks, int affinity) {
@@ -122,37 +36,49 @@ Delegator::delegate(PeerChunks* peerChunks, int affinity) {
   if (affinity >= 0 &&
       std::any_of(m_transfers.begin(),
                   m_transfers.end(),
-                  DelegatorCheckAffinity(
-                    this, &target, affinity, peerChunks->peer_info())))
+                  [this,
+                   &target,
+                   affinity = static_cast<unsigned int>(affinity),
+                   peerInfo = peerChunks->peer_info()](BlockList* d) {
+                    return affinity == d->index() &&
+                           (target = delegate_piece(d, peerInfo)) != nullptr;
+                  })) {
     return target->insert(peerChunks->peer_info());
+  }
 
   if (peerChunks->is_seeder() &&
-      (target = delegate_seeder(peerChunks)) != nullptr)
+      (target = delegate_seeder(peerChunks)) != nullptr) {
     return target->insert(peerChunks->peer_info());
+  }
 
   // High priority pieces.
   if (std::any_of(
         m_transfers.begin(),
         m_transfers.end(),
-        DelegatorCheckPriority(this, &target, PRIORITY_HIGH, peerChunks)))
+        DelegatorCheckPriority(this, target, PRIORITY_HIGH, peerChunks))) {
     return target->insert(peerChunks->peer_info());
+  }
 
   // Find normal priority pieces.
-  if ((target = new_chunk(peerChunks, true)))
+  if ((target = new_chunk(peerChunks, true))) {
     return target->insert(peerChunks->peer_info());
+  }
 
   // Normal priority pieces.
   if (std::any_of(
         m_transfers.begin(),
         m_transfers.end(),
-        DelegatorCheckPriority(this, &target, PRIORITY_NORMAL, peerChunks)))
+        DelegatorCheckPriority(this, target, PRIORITY_NORMAL, peerChunks))) {
     return target->insert(peerChunks->peer_info());
+  }
 
-  if ((target = new_chunk(peerChunks, false)))
+  if ((target = new_chunk(peerChunks, false))) {
     return target->insert(peerChunks->peer_info());
+  }
 
-  if (!m_aggressive)
+  if (!m_aggressive) {
     return nullptr;
+  }
 
   // Aggressive mode, look for possible downloads that already have
   // one or more queued.
@@ -160,10 +86,20 @@ Delegator::delegate(PeerChunks* peerChunks, int affinity) {
   // No more than 4 per piece.
   uint16_t overlapped = 5;
 
-  std::find_if(
-    m_transfers.begin(),
-    m_transfers.end(),
-    DelegatorCheckAggressive(this, &target, &overlapped, peerChunks));
+  // TODO: Should this ensure we don't download pieces that are priority off?
+  std::for_each(m_transfers.begin(),
+                m_transfers.end(),
+                [this, &target, &overlapped, peerChunks](BlockList* d) {
+                  Block* tmp;
+
+                  if (!peerChunks->bitfield()->get(d->index()) ||
+                      d->priority() == PRIORITY_OFF ||
+                      (tmp = delegate_aggressive(
+                         d, &overlapped, peerChunks->peer_info())) == nullptr)
+                    return;
+
+                  target = tmp;
+                });
 
   return target ? target->insert(peerChunks->peer_info()) : nullptr;
 }
@@ -172,10 +108,15 @@ Block*
 Delegator::delegate_seeder(PeerChunks* peerChunks) {
   Block* target = nullptr;
 
-  if (std::any_of(m_transfers.begin(),
-                  m_transfers.end(),
-                  DelegatorCheckSeeder(this, &target, peerChunks->peer_info())))
+  if (std::any_of(
+        m_transfers.begin(),
+        m_transfers.end(),
+        [this, &target, peerInfo = peerChunks->peer_info()](BlockList* d) {
+          return d->by_seeder() &&
+                 (target = delegate_piece(d, peerInfo)) != nullptr;
+        })) {
     return target;
+  }
 
   if ((target = new_chunk(peerChunks, true)))
     return target;
