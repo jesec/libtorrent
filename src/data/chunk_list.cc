@@ -82,24 +82,25 @@ ChunkList::clear() {
 
   m_queue.clear();
 
-  if (std::find_if(begin(), end(), std::mem_fn(&ChunkListNode::chunk)) != end())
+  if (std::any_of(begin(), end(), std::mem_fn(&ChunkListNode::chunk))) {
     throw internal_error(
       "ChunkList::clear() called but a node with a valid chunk was found.");
+  }
 
-  if (std::find_if(begin(), end(), std::mem_fn(&ChunkListNode::references)) !=
-      end())
+  if (std::any_of(begin(), end(), std::mem_fn(&ChunkListNode::references))) {
     throw internal_error(
       "ChunkList::clear() called but a node with references != 0 was found.");
+  }
 
-  if (std::find_if(begin(), end(), std::mem_fn(&ChunkListNode::writable)) !=
-      end())
+  if (std::any_of(begin(), end(), std::mem_fn(&ChunkListNode::writable))) {
     throw internal_error(
       "ChunkList::clear() called but a node with writable != 0 was found.");
+  }
 
-  if (std::find_if(begin(), end(), std::mem_fn(&ChunkListNode::blocking)) !=
-      end())
+  if (std::any_of(begin(), end(), std::mem_fn(&ChunkListNode::blocking))) {
     throw internal_error(
       "ChunkList::clear() called but a node with blocking != 0 was found.");
+  }
 
   base_type::clear();
 }
@@ -430,10 +431,10 @@ ChunkList::partition_optimize(Queue::iterator first,
   for (Queue::iterator itr = first; itr != last;) {
     Queue::iterator range = seek_range(itr, last);
 
-    bool required = std::find_if(itr, range, [this](ChunkListNode* node) {
-                      return check_node(node);
-                    }) != range;
-    dontSkip      = dontSkip || required;
+    bool required = std::any_of(
+      itr, range, [this](ChunkListNode* node) { return check_node(node); });
+
+    dontSkip = dontSkip || required;
 
     if (!required && std::distance(itr, range) < maxDistance) {
       // Don't sync this range.

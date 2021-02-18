@@ -65,20 +65,13 @@ HandshakeManager::erase(Handshake* handshake) {
   base_type::erase(itr);
 }
 
-struct handshake_manager_equal
-  : std::binary_function<const utils::socket_address*, const Handshake*, bool> {
-  bool operator()(const utils::socket_address* sa1, const Handshake* p2) const {
-    return p2->peer_info() != nullptr &&
-           *sa1 == *utils::socket_address::cast_from(
-                     p2->peer_info()->socket_address());
-  }
-};
-
 bool
 HandshakeManager::find(const utils::socket_address& sa) {
-  return std::find_if(base_type::begin(), base_type::end(), [sa](Handshake* h) {
-           return handshake_manager_equal()(&sa, h);
-         }) != base_type::end();
+  return std::any_of(base_type::begin(), base_type::end(), [sa](Handshake* h) {
+    return h->peer_info() != nullptr &&
+           sa == *utils::socket_address::cast_from(
+                   h->peer_info()->socket_address());
+  });
 }
 
 void

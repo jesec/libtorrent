@@ -24,28 +24,25 @@ namespace torrent {
 
 bool
 TrackerList::has_active() const {
-  return std::find_if(begin(), end(), std::mem_fn(&Tracker::is_busy)) != end();
+  return std::any_of(begin(), end(), std::mem_fn(&Tracker::is_busy));
 }
 
 bool
 TrackerList::has_active_not_scrape() const {
-  return std::find_if(
-           begin(), end(), std::mem_fn(&Tracker::is_busy_not_scrape)) != end();
+  return std::any_of(begin(), end(), std::mem_fn(&Tracker::is_busy_not_scrape));
 }
 
 bool
 TrackerList::has_active_in_group(uint32_t group) const {
-  return std::find_if(begin_group(group),
-                      end_group(group),
-                      std::mem_fn(&Tracker::is_busy)) != end_group(group);
+  return std::any_of(
+    begin_group(group), end_group(group), std::mem_fn(&Tracker::is_busy));
 }
 
 bool
 TrackerList::has_active_not_scrape_in_group(uint32_t group) const {
-  return std::find_if(begin_group(group),
-                      end_group(group),
-                      std::mem_fn(&Tracker::is_busy_not_scrape)) !=
-         end_group(group);
+  return std::any_of(begin_group(group),
+                     end_group(group),
+                     std::mem_fn(&Tracker::is_busy_not_scrape));
 }
 
 // Need a custom predicate because the is_usable function is virtual.
@@ -58,7 +55,7 @@ struct tracker_usable_t
 
 bool
 TrackerList::has_usable() const {
-  return std::find_if(begin(), end(), tracker_usable_t()) != end();
+  return std::any_of(begin(), end(), tracker_usable_t());
 }
 
 unsigned int

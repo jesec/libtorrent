@@ -94,26 +94,22 @@ private:
 
 inline void
 group_entry::connection_unchoked(PeerConnectionBase* pcb) {
-  container_type::iterator itr =
-    std::find_if(m_unchoked.begin(),
-                 m_unchoked.end(),
-                 [pcb](weighted_connection c) { return c == pcb; });
-
-  if (itr != m_unchoked.end())
+  if (std::any_of(m_unchoked.begin(),
+                  m_unchoked.end(),
+                  [pcb](weighted_connection c) { return c == pcb; })) {
     throw internal_error("group_entry::connection_unchoked(pcb) failed.");
+  }
 
   m_unchoked.push_back(weighted_connection(pcb, uint32_t()));
 }
 
 inline void
 group_entry::connection_queued(PeerConnectionBase* pcb) {
-  container_type::iterator itr =
-    std::find_if(m_queued.begin(),
-                 m_queued.end(),
-                 [pcb](weighted_connection c) { return c == pcb; });
-
-  if (itr != m_queued.end())
+  if (std::any_of(m_queued.begin(),
+                  m_queued.end(),
+                  [pcb](weighted_connection c) { return c == pcb; })) {
     throw internal_error("group_entry::connection_queued(pcb) failed.");
+  }
 
   m_queued.push_back(weighted_connection(pcb, uint32_t()));
 }
@@ -125,8 +121,10 @@ group_entry::connection_choked(PeerConnectionBase* pcb) {
                  m_unchoked.end(),
                  [pcb](weighted_connection c) { return c == pcb; });
 
-  if (itr == m_unchoked.end())
+  // none_of
+  if (itr == m_unchoked.end()) {
     throw internal_error("group_entry::connection_choked(pcb) failed.");
+  }
 
   std::swap(*itr, m_unchoked.back());
   m_unchoked.pop_back();
@@ -139,8 +137,10 @@ group_entry::connection_unqueued(PeerConnectionBase* pcb) {
                  m_queued.end(),
                  [pcb](weighted_connection c) { return c == pcb; });
 
-  if (itr == m_queued.end())
+  // none_of
+  if (itr == m_queued.end()) {
     throw internal_error("group_entry::connection_unqueued(pcb) failed.");
+  }
 
   std::swap(*itr, m_queued.back());
   m_queued.pop_back();

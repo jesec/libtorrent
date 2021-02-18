@@ -93,10 +93,9 @@ cleanup() {
 bool
 is_inactive() {
   return manager == nullptr ||
-         std::find_if(manager->download_manager()->begin(),
-                      manager->download_manager()->end(),
-                      std::not1(std::mem_fn(&DownloadWrapper::is_stopped))) ==
-           manager->download_manager()->end();
+         std::all_of(manager->download_manager()->begin(),
+                     manager->download_manager()->end(),
+                     std::mem_fn(&DownloadWrapper::is_stopped));
 }
 
 thread_base*

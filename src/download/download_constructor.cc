@@ -72,14 +72,16 @@ DownloadConstructor::parse_name(const Object& b) {
   pathList.back().set_encoding(m_defaultEncoding);
   pathList.back().push_back(b.get_key_string("name"));
 
-  for (Object::map_const_iterator itr = b.as_map().begin();
+  for (auto itr = b.as_map().begin();
        (itr = std::find_if(
           itr, b.as_map().end(), download_constructor_is_single_path())) !=
        b.as_map().end();
        ++itr) {
+    // "name.[encoding]": name
+    const auto& [key, value] = *itr;
     pathList.emplace_back();
-    pathList.back().set_encoding(itr->first.substr(sizeof("name.") - 1));
-    pathList.back().push_back(itr->second.as_string());
+    pathList.back().set_encoding(key.substr(sizeof("name.") - 1));
+    pathList.back().push_back(value.as_string());
   }
 
   if (pathList.empty())

@@ -84,56 +84,59 @@ HashQueue::push_back(ChunkHandle            handle,
 
 bool
 HashQueue::has(HashQueueNode::id_type id) {
-  return std::find_if(begin(), end(), [id](const HashQueueNode& n) {
-           return id == n.id();
-         }) != end();
+  return std::any_of(
+    begin(), end(), [id](const HashQueueNode& n) { return id == n.id(); });
 }
 
 bool
 HashQueue::has(HashQueueNode::id_type id, uint32_t index) {
-  return std::find_if(begin(), end(), HashQueueEqual(id, index)) != end();
+  return std::any_of(begin(), end(), HashQueueEqual(id, index));
 }
 
 void
 HashQueue::remove(HashQueueNode::id_type id) {
-  iterator itr = begin();
+  erase(std::remove_if(
+          begin(),
+          end(),
+          [id, this](HashQueueNode& node) {
+            if (node.id() != id) {
+              return false;
+            }
 
-  while ((itr = std::find_if(itr, end(), [id](const HashQueueNode& n) {
-            return id == n.id();
-          })) != end()) {
-    HashChunk* hash_chunk = itr->get_chunk();
+            HashChunk* hash_chunk = node.get_chunk();
 
-    LT_LOG_DATA(id,
-                DEBUG,
-                "Removing index:%" PRIu32 " from queue.",
-                hash_chunk->handle().index());
+            LT_LOG_DATA(id,
+                        DEBUG,
+                        "Removing index:%" PRIu32 " from queue.",
+                        hash_chunk->handle().index());
 
-    thread_base::release_global_lock();
-    bool result = m_thread_disk->hash_queue()->remove(hash_chunk);
-    thread_base::acquire_global_lock();
+            thread_base::release_global_lock();
+            bool result = m_thread_disk->hash_queue()->remove(hash_chunk);
+            thread_base::acquire_global_lock();
 
-    // The hash chunk was not found, so we need to wait until the hash
-    // check finishes.
-    if (!result) {
-      pthread_mutex_lock(&m_done_chunks_lock);
-      done_chunks_type::iterator done_itr;
+            // The hash chunk was not found, so we need to wait until the hash
+            // check finishes.
+            if (!result) {
+              pthread_mutex_lock(&m_done_chunks_lock);
+              done_chunks_type::iterator done_itr;
 
-      while ((done_itr = m_done_chunks.find(hash_chunk)) ==
-             m_done_chunks.end()) {
-        pthread_mutex_unlock(&m_done_chunks_lock);
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
-        pthread_mutex_lock(&m_done_chunks_lock);
-      }
+              while ((done_itr = m_done_chunks.find(hash_chunk)) ==
+                     m_done_chunks.end()) {
+                pthread_mutex_unlock(&m_done_chunks_lock);
+                std::this_thread::sleep_for(std::chrono::microseconds(100));
+                pthread_mutex_lock(&m_done_chunks_lock);
+              }
 
-      m_done_chunks.erase(done_itr);
-      pthread_mutex_unlock(&m_done_chunks_lock);
-    }
+              m_done_chunks.erase(done_itr);
+              pthread_mutex_unlock(&m_done_chunks_lock);
+            }
 
-    itr->slot_done()(*hash_chunk->chunk(), NULL);
-    itr->clear();
+            node.slot_done()(*hash_chunk->chunk(), NULL);
+            node.clear();
 
-    itr = erase(itr);
-  }
+            return true;
+          }),
+        end());
 }
 
 void

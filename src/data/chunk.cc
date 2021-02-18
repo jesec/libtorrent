@@ -39,9 +39,9 @@ intercept_sigbus(struct sigaction* oldact) noexcept(false) {
 
 bool
 Chunk::is_all_valid() const {
-  return !empty() && std::find_if(begin(), end(), [](const ChunkPart& c) {
-                       return !c.is_valid();
-                     }) == end();
+  return !empty() && std::all_of(begin(), end(), [](const ChunkPart& c) {
+    return c.is_valid();
+  });
 }
 
 void

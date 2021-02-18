@@ -120,11 +120,10 @@ Delegator::delegate(PeerChunks* peerChunks, int affinity) {
   //
   // TODO: What if the hash failed? Don't want data from that peer again.
   if (affinity >= 0 &&
-      std::find_if(m_transfers.begin(),
-                   m_transfers.end(),
-                   DelegatorCheckAffinity(
-                     this, &target, affinity, peerChunks->peer_info())) !=
-        m_transfers.end())
+      std::any_of(m_transfers.begin(),
+                  m_transfers.end(),
+                  DelegatorCheckAffinity(
+                    this, &target, affinity, peerChunks->peer_info())))
     return target->insert(peerChunks->peer_info());
 
   if (peerChunks->is_seeder() &&
@@ -132,11 +131,10 @@ Delegator::delegate(PeerChunks* peerChunks, int affinity) {
     return target->insert(peerChunks->peer_info());
 
   // High priority pieces.
-  if (std::find_if(
+  if (std::any_of(
         m_transfers.begin(),
         m_transfers.end(),
-        DelegatorCheckPriority(this, &target, PRIORITY_HIGH, peerChunks)) !=
-      m_transfers.end())
+        DelegatorCheckPriority(this, &target, PRIORITY_HIGH, peerChunks)))
     return target->insert(peerChunks->peer_info());
 
   // Find normal priority pieces.
@@ -144,11 +142,10 @@ Delegator::delegate(PeerChunks* peerChunks, int affinity) {
     return target->insert(peerChunks->peer_info());
 
   // Normal priority pieces.
-  if (std::find_if(
+  if (std::any_of(
         m_transfers.begin(),
         m_transfers.end(),
-        DelegatorCheckPriority(this, &target, PRIORITY_NORMAL, peerChunks)) !=
-      m_transfers.end())
+        DelegatorCheckPriority(this, &target, PRIORITY_NORMAL, peerChunks)))
     return target->insert(peerChunks->peer_info());
 
   if ((target = new_chunk(peerChunks, false)))
@@ -175,11 +172,9 @@ Block*
 Delegator::delegate_seeder(PeerChunks* peerChunks) {
   Block* target = nullptr;
 
-  if (std::find_if(
-        m_transfers.begin(),
-        m_transfers.end(),
-        DelegatorCheckSeeder(this, &target, peerChunks->peer_info())) !=
-      m_transfers.end())
+  if (std::any_of(m_transfers.begin(),
+                  m_transfers.end(),
+                  DelegatorCheckSeeder(this, &target, peerChunks->peer_info())))
     return target;
 
   if ((target = new_chunk(peerChunks, true)))
