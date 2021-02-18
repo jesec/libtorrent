@@ -95,22 +95,34 @@ ResourceManager::update_group_iterators() {
 
 void
 ResourceManager::validate_group_iterators() noexcept(false) {
-  base_type::iterator       entry_itr = base_type::begin();
-  choke_base_type::iterator group_itr = choke_base_type::begin();
+  if (base_type::empty()) {
+    for (auto group_itr = choke_base_type::begin();
+         group_itr != choke_base_type::end();
+         group_itr++) {
+      if ((*group_itr)->first() != nullptr || (*group_itr)->last() != nullptr) {
+        throw internal_error(
+          "ResourceManager::receive_tick() invalid non-null iterator.");
+      }
+    }
+  } else {
+    base_type::iterator entry_itr = base_type::begin();
+    for (auto group_itr = choke_base_type::begin();
+         group_itr != choke_base_type::end();
+         group_itr++) {
+      if ((*group_itr)->first() != &*entry_itr)
+        throw internal_error(
+          "ResourceManager::receive_tick() invalid first iterator.");
 
-  while (group_itr != choke_base_type::end()) {
-    if ((*group_itr)->first() != &*entry_itr)
-      throw internal_error(
-        "ResourceManager::receive_tick() invalid first iterator.");
+      entry_itr =
+        std::find_if(entry_itr, end(), [group_itr, this](value_type v) {
+          return (std::distance(choke_base_type::begin(), group_itr)) <
+                 v.group();
+        });
 
-    entry_itr = std::find_if(entry_itr, end(), [group_itr, this](value_type v) {
-      return (std::distance(choke_base_type::begin(), group_itr)) < v.group();
-    });
-    if ((*group_itr)->last() != &*entry_itr)
-      throw internal_error(
-        "ResourceManager::receive_tick() invalid last iterator.");
-
-    group_itr++;
+      if ((*group_itr)->last() != &*entry_itr)
+        throw internal_error(
+          "ResourceManager::receive_tick() invalid last iterator.");
+    }
   }
 }
 
@@ -128,29 +140,39 @@ ResourceManager::erase(DownloadMain* d) noexcept(false) {
     group_at(itr->group())->down_queue(), nullptr, d, d->down_group_entry());
 
   choke_base_type::iterator group_itr = choke_base_type::begin() + itr->group();
-  (*group_itr)->set_last((*group_itr)->last() - 1);
 
-  std::for_each(++group_itr,
-                choke_base_type::end(),
-                std::mem_fn(&choke_group::dec_iterators));
+  if (base_type::size() == 1) {
+    std::for_each(group_itr, choke_base_type::end(), [](choke_group* cg) {
+      cg->set_first(nullptr);
+      cg->set_last(nullptr);
+    });
+  } else {
+    (*group_itr)->set_last((*group_itr)->last() - 1);
+
+    std::for_each(++group_itr,
+                  choke_base_type::end(),
+                  std::mem_fn(&choke_group::dec_iterators));
+  }
 
   base_type::erase(itr);
 }
 
 void
 ResourceManager::push_group(const std::string& name) {
-  if (name.empty() || std::find_if(choke_base_type::begin(),
-                                   choke_base_type::end(),
-                                   [name](choke_group* g) {
-                                     return name == g->name();
-                                   }) != choke_base_type::end())
+  if (name.empty() ||
+      std::any_of(choke_base_type::begin(),
+                  choke_base_type::end(),
+                  [name](choke_group* g) { return name == g->name(); }))
     throw input_error("Duplicate name for choke group.");
 
   choke_base_type::push_back(new choke_group());
 
   choke_base_type::back()->set_name(name);
-  choke_base_type::back()->set_first(&*base_type::end());
-  choke_base_type::back()->set_last(&*base_type::end());
+
+  if (!base_type::empty()) {
+    choke_base_type::back()->set_first(&*base_type::end());
+    choke_base_type::back()->set_last(&*base_type::end());
+  }
 
   choke_base_type::back()->up_queue()->set_heuristics(
     choke_queue::HEURISTICS_UPLOAD_LEECH);
