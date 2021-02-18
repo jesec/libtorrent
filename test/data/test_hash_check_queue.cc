@@ -215,7 +215,7 @@ test_hash_check_queue::test_thread() {
     hash_queue->push_back(new torrent::HashChunk(handle_0));
     thread_disk->interrupt();
 
-    CPPUNIT_ASSERT(wait_for_true([&done_chunks, this] {
+    CPPUNIT_ASSERT(wait_for_true([&done_chunks] {
       return verify_hash(&done_chunks, 0, hash_for_index(0));
     }));
     chunk_list->release(&handle_0);
