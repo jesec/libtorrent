@@ -6,7 +6,7 @@
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_queue_buckets, "torrent/utils");
 
 struct test_constants {
-  static const int bucket_count = 2;
+  static constexpr int bucket_count = 2;
 
   static const torrent::instrumentation_enum
     instrumentation_added[bucket_count];
@@ -20,8 +20,6 @@ struct test_constants {
   template<typename Type>
   static void destroy(Type& obj);
 };
-
-const int test_constants::bucket_count;
 
 const torrent::instrumentation_enum
   test_constants::instrumentation_added[bucket_count] = {

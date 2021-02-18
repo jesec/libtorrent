@@ -7,16 +7,6 @@
 
 #include "test/helpers/test_thread.h"
 
-const int test_thread::test_flag_pre_stop;
-const int test_thread::test_flag_long_timeout;
-
-const int test_thread::test_flag_acquire_global;
-const int test_thread::test_flag_has_global;
-
-const int test_thread::test_flag_do_work;
-const int test_thread::test_flag_pre_poke;
-const int test_thread::test_flag_post_poke;
-
 test_thread::test_thread()
   : m_test_state(TEST_NONE)
   , m_test_flags(0) {}

@@ -28,20 +28,20 @@ public:
 
   enum State { NONE, COMPLETED, STARTED, STOPPED };
 
-  static const int flag_open                = (1 << 0);
-  static const int flag_active              = (1 << 1);
-  static const int flag_compact             = (1 << 2);
-  static const int flag_accepting_new_peers = (1 << 3);
-  static const int flag_accepting_seeders =
+  static constexpr int flag_open                = (1 << 0);
+  static constexpr int flag_active              = (1 << 1);
+  static constexpr int flag_compact             = (1 << 2);
+  static constexpr int flag_accepting_new_peers = (1 << 3);
+  static constexpr int flag_accepting_seeders =
     (1 << 4); // Only used during leeching.
-  static const int flag_private       = (1 << 5);
-  static const int flag_meta_download = (1 << 6);
-  static const int flag_pex_enabled   = (1 << 7);
-  static const int flag_pex_active    = (1 << 8);
+  static constexpr int flag_private       = (1 << 5);
+  static constexpr int flag_meta_download = (1 << 6);
+  static constexpr int flag_pex_enabled   = (1 << 7);
+  static constexpr int flag_pex_active    = (1 << 8);
 
-  static const int public_flags = flag_accepting_seeders;
+  static constexpr int public_flags = flag_accepting_seeders;
 
-  static const uint32_t unlimited = ~uint32_t();
+  static constexpr uint32_t unlimited = ~uint32_t();
 
   DownloadInfo();
 

@@ -26,7 +26,7 @@ public:
 
   using resolver_type = ConnectionManager::slot_resolver_result_type;
 
-  static const uint64_t magic_connection_id = 0x0000041727101980ll;
+  static constexpr uint64_t magic_connection_id = 0x0000041727101980ll;
 
   TrackerUdp(TrackerList* parent, const std::string& url, int flags);
   ~TrackerUdp() override;

@@ -24,7 +24,7 @@ public:
   using size_type      = uint16_t;
   using size_pair_type = std::pair<size_type, size_type>;
 
-  static const size_type num_layers = 8;
+  static constexpr size_type num_layers = 8;
 
   partial_queue() = default;
   ~partial_queue() {

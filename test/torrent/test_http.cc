@@ -35,7 +35,7 @@ private:
 
 class TestHttp : public torrent::Http {
 public:
-  static const int flag_active = 0x1;
+  static constexpr int flag_active = 0x1;
 
   TestHttp(bool* destroyed = NULL)
     : m_flags(0)

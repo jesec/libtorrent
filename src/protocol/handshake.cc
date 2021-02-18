@@ -236,8 +236,8 @@ Handshake::read_proxy_connect() {
   // Being greedy for now.
   m_readBuffer.move_end(read_unthrottled(m_readBuffer.end(), 512));
 
-  const char*        pattern       = "\r\n\r\n";
-  const unsigned int patternLength = 4;
+  const char*            pattern       = "\r\n\r\n";
+  constexpr unsigned int patternLength = 4;
 
   if (m_readBuffer.remaining() < patternLength)
     return false;

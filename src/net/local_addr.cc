@@ -121,7 +121,7 @@ get_local_address(sa_family_t family, utils::socket_address* address) {
     return false;
   }
 
-  const int seq_no = 1;
+  constexpr int seq_no = 1;
   struct {
     nlmsghdr nh;
     rtgenmsg g;

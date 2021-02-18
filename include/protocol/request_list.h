@@ -18,7 +18,7 @@ class PeerChunks;
 class Delegator;
 
 struct request_list_constants {
-  static const int bucket_count = 4;
+  static constexpr int bucket_count = 4;
 
   static const torrent::instrumentation_enum
     instrumentation_added[bucket_count];
@@ -38,14 +38,14 @@ public:
   using queues_type =
     torrent::queue_buckets<BlockTransfer*, request_list_constants>;
 
-  static const int bucket_queued    = 0;
-  static const int bucket_unordered = 1;
-  static const int bucket_stalled   = 2;
-  static const int bucket_choked    = 3;
+  static constexpr int bucket_queued    = 0;
+  static constexpr int bucket_unordered = 1;
+  static constexpr int bucket_stalled   = 2;
+  static constexpr int bucket_choked    = 3;
 
-  static const int timeout_remove_choked     = 6;
-  static const int timeout_choked_received   = 60;
-  static const int timeout_process_unordered = 60;
+  static constexpr int timeout_remove_choked     = 6;
+  static constexpr int timeout_choked_received   = 60;
+  static constexpr int timeout_process_unordered = 60;
 
   RequestList();
   ~RequestList();

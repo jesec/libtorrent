@@ -12,8 +12,6 @@
 
 namespace torrent {
 
-const int request_list_constants::bucket_count;
-
 const instrumentation_enum
   request_list_constants::instrumentation_added[bucket_count] = {
     INSTRUMENTATION_TRANSFER_REQUESTS_QUEUED_ADDED,

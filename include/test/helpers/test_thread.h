@@ -5,15 +5,15 @@ class test_thread : public torrent::thread_base {
 public:
   enum test_state { TEST_NONE, TEST_PRE_START, TEST_PRE_STOP, TEST_STOP };
 
-  static const int test_flag_pre_stop     = 0x1;
-  static const int test_flag_long_timeout = 0x2;
+  static constexpr int test_flag_pre_stop     = 0x1;
+  static constexpr int test_flag_long_timeout = 0x2;
 
-  static const int test_flag_acquire_global = 0x10;
-  static const int test_flag_has_global     = 0x20;
+  static constexpr int test_flag_acquire_global = 0x10;
+  static constexpr int test_flag_has_global     = 0x20;
 
-  static const int test_flag_do_work   = 0x100;
-  static const int test_flag_pre_poke  = 0x200;
-  static const int test_flag_post_poke = 0x400;
+  static constexpr int test_flag_do_work   = 0x100;
+  static constexpr int test_flag_pre_poke  = 0x200;
+  static constexpr int test_flag_post_poke = 0x400;
 
   test_thread();
 

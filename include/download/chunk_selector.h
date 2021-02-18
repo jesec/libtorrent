@@ -26,7 +26,7 @@ class PeerChunks;
 
 class ChunkSelector {
 public:
-  static const uint32_t invalid_chunk = ~(uint32_t)0;
+  static constexpr uint32_t invalid_chunk = ~(uint32_t)0;
 
   ChunkSelector(download_data* data)
     : m_data(data) {}

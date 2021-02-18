@@ -52,8 +52,8 @@ public:
 
 class TrackerTest : public torrent::Tracker {
 public:
-  static const int flag_close_on_done     = max_flag_size << 0;
-  static const int flag_scrape_on_success = max_flag_size << 1;
+  static constexpr int flag_close_on_done     = max_flag_size << 0;
+  static constexpr int flag_scrape_on_success = max_flag_size << 1;
 
   // TODO: Clean up tracker related enums.
   TrackerTest(torrent::TrackerList* parent,

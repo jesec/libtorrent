@@ -38,18 +38,18 @@ public:
   // Consider if part of the mask should be made to clear upon copy,
   // and do so for both private and public?
 
-  static const state_type mask_private = 0x0000ffff;
-  static const state_type mask_public  = 0xffff0000;
-  static const state_type mask_type    = 0x000000ff;
+  static constexpr state_type mask_private = 0x0000ffff;
+  static constexpr state_type mask_public  = 0xffff0000;
+  static constexpr state_type mask_type    = 0x000000ff;
 
-  //   static const state_type flag_const   = 0x000000;
-  static const state_type flag_reference = 0x100;
+  //   static constexpr state_type flag_const   = 0x000000;
+  static constexpr state_type flag_reference = 0x100;
 
-  static const state_type type_none   = TYPE_NONE;
-  static const state_type type_value  = TYPE_VALUE;
-  static const state_type type_string = TYPE_STRING;
-  static const state_type type_list   = TYPE_LIST;
-  static const state_type type_map    = TYPE_MAP;
+  static constexpr state_type type_none   = TYPE_NONE;
+  static constexpr state_type type_value  = TYPE_VALUE;
+  static constexpr state_type type_string = TYPE_STRING;
+  static constexpr state_type type_list   = TYPE_LIST;
+  static constexpr state_type type_map    = TYPE_MAP;
 
   // Add ctors that take a use_copy, use_move and use_internal_move
   // parameters.

@@ -65,10 +65,10 @@ public:
   using base_type = std::map<DhtNode*, DhtSearch*, dht_compare_closer>;
 
   // Number of closest potential contact nodes to keep.
-  static const unsigned int max_contacts = 18;
+  static constexpr unsigned int max_contacts = 18;
 
   // Number of closest nodes we actually announce to.
-  static const unsigned int max_announce = 3;
+  static constexpr unsigned int max_announce = 3;
 
   DhtSearch(const HashString& target, const DhtBucket& contacts);
   virtual ~DhtSearch();
@@ -238,9 +238,9 @@ public:
   // Never more than one of the above.
   // And additionally for queries we send:
   // - transaction ID (3 bytes)
-  static const size_t data_size = 64;
-  char                data[data_size];
-  char*               data_end;
+  static constexpr size_t data_size = 64;
+  char                    data[data_size];
+  char*                   data_end;
 };
 
 // See dht/dht_server.cc

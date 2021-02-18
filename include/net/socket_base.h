@@ -43,7 +43,7 @@ protected:
   SocketBase(const SocketBase&);
   void operator=(const SocketBase&);
 
-  static const size_t null_buffer_size = 1 << 17;
+  static constexpr size_t null_buffer_size = 1 << 17;
 
   static char* m_nullBuffer;
 };

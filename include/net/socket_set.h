@@ -28,7 +28,7 @@ public:
   using base_type = std::vector<Event*, utils::cacheline_allocator<Event*>>;
   using Table = std::vector<size_type, utils::cacheline_allocator<size_type>>;
 
-  static const size_type npos = static_cast<size_type>(-1);
+  static constexpr size_type npos = static_cast<size_type>(-1);
 
   using base_type::value_type;
 

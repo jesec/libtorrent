@@ -33,19 +33,19 @@ class socket_address_inet6;
 
 class socket_address {
 public:
-  static const sa_family_t af_inet   = AF_INET;
-  static const int         pf_inet   = PF_INET;
-  static const sa_family_t af_inet6  = AF_INET6;
-  static const int         pf_inet6  = PF_INET6;
-  static const sa_family_t af_unspec = AF_UNSPEC;
-  static const int         pf_unspec = PF_UNSPEC;
+  static constexpr sa_family_t af_inet   = AF_INET;
+  static constexpr int         pf_inet   = PF_INET;
+  static constexpr sa_family_t af_inet6  = AF_INET6;
+  static constexpr int         pf_inet6  = PF_INET6;
+  static constexpr sa_family_t af_unspec = AF_UNSPEC;
+  static constexpr int         pf_unspec = PF_UNSPEC;
 
 #ifdef AF_LOCAL
-  static const sa_family_t af_local = AF_LOCAL;
-  static const int         pf_local = PF_LOCAL;
+  static constexpr sa_family_t af_local = AF_LOCAL;
+  static constexpr int         pf_local = PF_LOCAL;
 #else
-  static const sa_family_t af_local = AF_UNIX;
-  static const int         pf_local = PF_UNIX;
+  static constexpr sa_family_t af_local = AF_UNIX;
+  static constexpr int         pf_local = PF_UNIX;
 #endif
 
   bool is_any() const;
