@@ -76,7 +76,7 @@ private:
   inline void check_valid() const;
 
   int  m_fd{ -1 };
-  bool m_ipv6_socket;
+  bool m_ipv6_socket{ false };
 };
 
 } // namespace torrent

@@ -21,27 +21,27 @@ public:
 
   struct statistics_type {
     // Cycle; 0=inactive, 1=initial bootstrapping, 2 and up=normal operation
-    unsigned int cycle;
+    unsigned int cycle{ 0 };
 
     // UDP transfer rates.
     const Rate& up_rate;
     const Rate& down_rate;
 
     // DHT query statistics.
-    unsigned int queries_received;
-    unsigned int queries_sent;
-    unsigned int replies_received;
-    unsigned int errors_received;
-    unsigned int errors_caught;
+    unsigned int queries_received{ 0 };
+    unsigned int queries_sent{ 0 };
+    unsigned int replies_received{ 0 };
+    unsigned int errors_received{ 0 };
+    unsigned int errors_caught{ 0 };
 
     // DHT node info.
-    unsigned int num_nodes;
-    unsigned int num_buckets;
+    unsigned int num_nodes{ 0 };
+    unsigned int num_buckets{ 0 };
 
     // DHT tracker info.
-    unsigned int num_peers;
-    unsigned int max_peers;
-    unsigned int num_trackers;
+    unsigned int num_peers{ 0 };
+    unsigned int max_peers{ 0 };
+    unsigned int num_trackers{ 0 };
 
     statistics_type(const Rate& up, const Rate& down)
       : up_rate(up)
