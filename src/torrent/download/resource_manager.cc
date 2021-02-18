@@ -417,7 +417,7 @@ ResourceManager::balance_unchoked(unsigned int weight,
   // is turned off.
 
   choke_group** choke_groups =
-    static_cast<choke_group**>(malloc(group_size() * sizeof(choke_group)));
+    static_cast<choke_group**>(malloc(group_size() * sizeof(choke_group*)));
   std::copy(choke_base_type::begin(), choke_base_type::end(), choke_groups);
 
   // Start with the group requesting fewest slots (relative to weight)
