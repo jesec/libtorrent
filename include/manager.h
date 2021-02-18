@@ -90,6 +90,9 @@ public:
   void receive_tick();
 
 private:
+  thread_main m_main_thread_main;
+  thread_disk m_main_thread_disk;
+
   DownloadManager*  m_downloadManager;
   FileManager*      m_fileManager;
   HandshakeManager* m_handshakeManager;
@@ -101,16 +104,13 @@ private:
   ConnectionManager* m_connectionManager;
   DhtManager*        m_dhtManager;
 
-  thread_main m_main_thread_main;
-  thread_disk m_main_thread_disk;
-
-  EncodingList m_encodingList;
-
   Throttle* m_uploadThrottle;
   Throttle* m_downloadThrottle;
 
-  unsigned int         m_ticks{ 0 };
+  EncodingList m_encodingList;
+
   utils::priority_item m_taskTick;
+  unsigned int         m_ticks{ 0 };
 };
 
 extern Manager* manager;

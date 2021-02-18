@@ -123,20 +123,21 @@ protected:
 
   static global_lock_type m_global;
 
-  pthread_t                       m_thread;
-  state_type lt_cacheline_aligned m_state{ STATE_UNKNOWN };
-  int lt_cacheline_aligned        m_flags{ 0 };
+  pthread_t m_thread;
+  Poll*     m_poll{ nullptr };
 
-  int m_instrumentation_index;
-
-  Poll*       m_poll{ nullptr };
-  signal_type m_signal_bitfield;
+  thread_interrupt* m_interrupt_sender{ nullptr };
+  thread_interrupt* m_interrupt_receiver{ nullptr };
 
   slot_void  m_slot_do_work;
   slot_timer m_slot_next_timeout;
 
-  thread_interrupt* m_interrupt_sender{ nullptr };
-  thread_interrupt* m_interrupt_receiver{ nullptr };
+  int m_instrumentation_index;
+
+  state_type lt_cacheline_aligned m_state{ STATE_UNKNOWN };
+  int lt_cacheline_aligned        m_flags{ 0 };
+
+  signal_type m_signal_bitfield;
 };
 
 inline bool
