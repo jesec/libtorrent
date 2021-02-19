@@ -753,8 +753,9 @@ DhtServer::event_read() {
     DhtMessage            message;
     const HashString*     nodeId = nullptr;
 
+    char buffer[2048];
+
     try {
-      char    buffer[2048];
       int32_t read = read_datagram(buffer, sizeof(buffer), &sa);
 
       if (read < 0)
