@@ -67,9 +67,9 @@ ConnectionManager::ConnectionManager()
 ConnectionManager::~ConnectionManager() {
   delete m_listen;
 
-  delete m_bindAddress;
-  delete m_localAddress;
-  delete m_proxyAddress;
+  delete utils::socket_address::cast_from(m_bindAddress);
+  delete utils::socket_address::cast_from(m_localAddress);
+  delete utils::socket_address::cast_from(m_proxyAddress);
 }
 
 bool
