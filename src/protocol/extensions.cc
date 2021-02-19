@@ -3,6 +3,7 @@
 
 #include "torrent/buildinfo.h"
 
+#include <cassert>
 #include <cstdarg>
 #include <cstdio>
 #include <limits>
@@ -172,11 +173,17 @@ ProtocolExtension::generate_ut_pex_message(const PEXList& added,
   char* end    = buffer;
 
   end += sprintf(end, "d5:added%d:", added_len);
-  memcpy(end, added.begin()->c_str(), added_len);
+  if (added_len > 0) {
+    assert(added.begin()->c_str() != nullptr);
+    std::memcpy(end, added.begin()->c_str(), added_len);
+  }
   end += added_len;
 
   end += sprintf(end, "7:dropped%d:", removed_len);
-  memcpy(end, removed.begin()->c_str(), removed_len);
+  if (removed_len > 0) {
+    assert(removed.begin()->c_str() != nullptr);
+    std::memcpy(end, removed.begin()->c_str(), removed_len);
+  }
   end += removed_len;
 
   *end++ = 'e';
