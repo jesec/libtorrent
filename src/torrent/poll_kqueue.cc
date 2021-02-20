@@ -513,6 +513,8 @@ PollKQueue::PollKQueue(int, int, int) {
     "An PollKQueue function was called, but it is disabled.");
 }
 
+PollKQueue::~PollKQueue() = default;
+
 #endif // LT_USE_KQUEUE
 
 } // namespace torrent
