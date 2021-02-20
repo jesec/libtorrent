@@ -91,6 +91,11 @@ cleanup() {
 }
 
 bool
+is_initialized() {
+  return manager != nullptr;
+}
+
+bool
 is_inactive() {
   return manager == nullptr ||
          std::all_of(manager->download_manager()->begin(),

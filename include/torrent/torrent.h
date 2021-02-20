@@ -26,6 +26,9 @@ void
 cleanup() LIBTORRENT_EXPORT;
 
 bool
+is_initialized() LIBTORRENT_EXPORT;
+
+bool
 is_inactive() LIBTORRENT_EXPORT;
 
 thread_base*
