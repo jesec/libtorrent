@@ -11,13 +11,7 @@
 namespace torrent {
 
 DhtSearch::DhtSearch(const HashString& target, const DhtBucket& contacts)
-  : base_type(dht_compare_closer(target))
-  , m_pending(0)
-  , m_contacted(0)
-  , m_replied(0)
-  , m_concurrency(3)
-  , m_restart(false)
-  , m_started(false)
+  : base_type(get_dht_compare_closer(target))
   , m_next(end())
   , m_target(target) {
 
@@ -44,7 +38,7 @@ DhtSearch::~DhtSearch() {
 
 bool
 DhtSearch::add_contact(const HashString& id, const utils::socket_address* sa) {
-  DhtNode* n     = new DhtNode(id, sa);
+  DhtNode* n     = new DhtNode(HashString(id.data()), sa);
   bool     added = insert(std::make_pair(n, this)).second;
 
   if (!added)

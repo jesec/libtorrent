@@ -28,6 +28,11 @@ public:
 
   static constexpr size_type size_data = 20;
 
+  HashString() = default;
+  HashString(const value_type* src) {
+    assign(src);
+  }
+
   size_type size() const {
     return size_data;
   }

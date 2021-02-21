@@ -209,7 +209,7 @@ DhtServer::ping(const HashString& id, const utils::socket_address* sa) {
 // Contact nodes in given bucket and ask for their nodes closest to target.
 void
 DhtServer::find_node(const DhtBucket& contacts, const HashString& target) {
-  DhtSearch* search = new DhtSearch(target, contacts);
+  DhtSearch* search = new DhtSearch(HashString(target.data()), contacts);
 
   DhtSearch::const_accessor n;
   while ((n = search->get_contact()) != search->end())

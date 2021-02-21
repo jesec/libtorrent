@@ -29,40 +29,35 @@ class DhtTransactionFindNodeAnnounce;
 class DhtTransactionGetPeers;
 class DhtTransactionAnnouncePeer;
 
-// DhtSearch implements the DHT search algorithm and holds search data
-// that needs to be persistent across multiple find_node transactions.
-//
-// DhtAnnounce is a derived class used for searches that will eventually
-// lead to an announce to the closest nodes.
+using dht_compare_closer_type =
+  std::function<bool(torrent::DhtNode*, torrent::DhtNode*)>;
 
-// Compare predicate for ID closeness.
-struct dht_compare_closer
-  : public std::binary_function<const DhtNode*, const DhtNode*, bool> {
-  dht_compare_closer(const HashString& target)
-    : m_target(target) {}
+const std::function<dht_compare_closer_type(const torrent::HashString&)>
+  get_dht_compare_closer = [](const torrent::HashString& target) {
+    return [&target](torrent::DhtNode* left, torrent::DhtNode* right) {
+      const torrent::HashString one = *left;
+      const torrent::HashString two = *right;
 
-  bool operator()(const DhtNode* one, const DhtNode* two) const;
+      for (unsigned int i = 0; i < one.size(); i++) {
+        if (one[i] != two[i]) {
+          return (uint8_t)(one[i] ^ target[i]) < (uint8_t)(two[i] ^ target[i]);
+        }
+      }
 
-  const HashString& target() const {
-    return m_target;
-  }
-  raw_string target_raw_string() const {
-    return raw_string(m_target.data(), HashString::size_data);
-  }
-
-private:
-  const HashString& m_target;
-};
+      return false;
+    };
+  };
 
 // DhtSearch contains a list of nodes sorted by closeness to the given target,
 // and returns what nodes to contact with up to three concurrent transactions
 // pending. The map element is the DhtSearch object itself to allow the returned
 // accessors to know which search a given node belongs to.
-class DhtSearch : protected std::map<DhtNode*, DhtSearch*, dht_compare_closer> {
+class DhtSearch
+  : protected std::map<DhtNode*, DhtSearch*, dht_compare_closer_type> {
   friend class DhtTransactionSearch;
 
 public:
-  using base_type = std::map<DhtNode*, DhtSearch*, dht_compare_closer>;
+  using base_type = std::map<DhtNode*, DhtSearch*, dht_compare_closer_type>;
 
   // Number of closest potential contact nodes to keep.
   static constexpr unsigned int max_contacts = 18;
@@ -134,25 +129,20 @@ public:
     return base_type::end();
   }
 
-  // Used by the sorting/comparison predicate to see which node is closer.
-  static bool is_closer(const HashString& one,
-                        const HashString& two,
-                        const HashString& target);
-
 protected:
   void trim(bool final);
   void node_status(const_accessor& n, bool success);
   void set_node_active(const_accessor& n, bool active);
 
   // Statistics about contacted nodes.
-  unsigned int m_pending;
-  unsigned int m_contacted;
-  unsigned int m_replied;
-  unsigned int m_concurrency;
+  unsigned int m_pending{ 0 };
+  unsigned int m_contacted{ 0 };
+  unsigned int m_replied{ 0 };
+  unsigned int m_concurrency{ 3 };
 
-  bool m_restart; // If true, trim nodes and reset m_next on the following
-                  // get_contact call.
-  bool m_started;
+  bool m_restart{ false }; // If true, trim nodes and reset m_next on the
+                           // following get_contact call.
+  bool m_started{ false };
 
   // Next node to return in get_contact, is end() if we have no more contactable
   // nodes.
@@ -498,25 +488,9 @@ private:
   raw_string m_token;
 };
 
-inline bool
-DhtSearch::is_closer(const HashString& one,
-                     const HashString& two,
-                     const HashString& target) {
-  for (unsigned int i = 0; i < one.size(); i++)
-    if (one[i] != two[i])
-      return (uint8_t)(one[i] ^ target[i]) < (uint8_t)(two[i] ^ target[i]);
-
-  return false;
-}
-
 inline void
 DhtSearch::set_node_active(const_accessor& n, bool active) {
   n.node()->m_lastSeen = active;
-}
-
-inline bool
-dht_compare_closer::operator()(const DhtNode* one, const DhtNode* two) const {
-  return DhtSearch::is_closer(*one, *two, m_target);
 }
 
 inline DhtTransaction::key_type
