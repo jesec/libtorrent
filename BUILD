@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_foreign_cc//tools/build_defs:cmake.bzl", "cmake_external")
 
 config_setting(
     name = "macos",
@@ -35,26 +36,35 @@ LINKOPTS = select({
     "//conditions:default": [],
 })
 
-genrule(
-    name = "buildinfo",
+filegroup(
+    name = "cmake_rules",
     srcs = [
         "CMakeLists.txt",
     ] + glob([
         "cmake/**/*",
-        "**/*.in",
     ]),
-    outs = ["include/torrent/buildinfo.h"],
-    cmd = "cmake -S $$(dirname $(location CMakeLists.txt)) -B $(RULEDIR) -DBUILDINFO_ONLY=ON",
+)
+
+cmake_external(
+    name = "buildinfo",
+    cache_entries = {
+        "BUILDINFO_ONLY": "ON",
+    },
+    headers_only = True,
+    lib_source = "//:cmake_rules",
 )
 
 filegroup(
     name = "included_headers",
-    srcs = ["include/torrent/buildinfo.h"] + glob(["include/**/*.h"]),
+    srcs = glob(
+        ["include/**/*.h"],
+        exclude = ["include/buildinfo.h"],
+    ),
 )
 
 filegroup(
     name = "exported_headers",
-    srcs = ["include/torrent/buildinfo.h"] + glob(["include/torrent/**/*.h"]),
+    srcs = glob(["include/torrent/**/*.h"]),
 )
 
 cc_library(
@@ -68,6 +78,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
+        "//:buildinfo",
         "@boringssl//:crypto",
         "@zlib",
     ],

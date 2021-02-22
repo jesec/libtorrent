@@ -52,11 +52,6 @@ endif()
 # Use GNU install destinations
 include(GNUInstallDirs)
 
-# Generate libtorrent.pc
-configure_file("libtorrent.pc.in" ${CMAKE_BINARY_DIR}/libtorrent.pc @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/libtorrent.pc
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig/)
-
 # Generate buildinfo.h
 include(GenerateLibtorrentBuildinfo)
 install(FILES ${CMAKE_BINARY_DIR}/include/torrent/buildinfo.h
@@ -66,6 +61,11 @@ install(FILES ${CMAKE_BINARY_DIR}/include/torrent/buildinfo.h
 include_directories(${PROJECT_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
 
 if(NOT BUILDINFO_ONLY)
+  # Generate libtorrent.pc
+  configure_file("libtorrent.pc.in" ${CMAKE_BINARY_DIR}/libtorrent.pc @ONLY)
+  install(FILES ${CMAKE_BINARY_DIR}/libtorrent.pc
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig/)
+
   # Required packages
   set(CMAKE_THREAD_PREFER_PTHREAD ON)
   set(THREADS_PREFER_PTHREAD_FLAG ON)

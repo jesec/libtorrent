@@ -1,5 +1,9 @@
 workspace(name = "libtorrent")
 
+load("//:libtorrent_repos.bzl", "libtorrent_repos")
+
+libtorrent_repos()
+
 load("//:libtorrent_deps.bzl", "libtorrent_deps")
 
 libtorrent_deps()
