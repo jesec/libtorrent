@@ -23,8 +23,7 @@ thread_main::init_thread() {
   m_poll = Poll::slot_create_poll()();
   m_poll->set_flags(Poll::flag_waive_global_lock);
 
-  m_state  = STATE_INITIALIZED;
-  m_thread = pthread_self();
+  m_state = STATE_INITIALIZED;
   m_flags |= flag_main_thread;
 
   m_instrumentation_index =

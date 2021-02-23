@@ -141,8 +141,10 @@ ProtocolExtension::build_bencode(size_t maxLength, const char* format, ...) {
   unsigned int length = vsnprintf(b, maxLength, format, args);
   va_end(args);
 
-  if (length > maxLength)
+  if (length > maxLength) {
+    delete[] b;
     throw internal_error("ProtocolExtension::build_bencode wrote past buffer.");
+  }
 
   return DataBuffer(b, b + length);
 }

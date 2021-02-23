@@ -4,7 +4,7 @@
 #include <deque>
 #include <functional>
 #include <memory>
-#include <pthread.h>
+#include <mutex>
 #include <string>
 #include <utility>
 
@@ -52,20 +52,16 @@ public:
   using base_type::empty;
   using base_type::size;
 
-  log_buffer() {
-    pthread_mutex_init(&m_lock, nullptr);
-  }
-
   unsigned int max_size() const {
     return m_max_size;
   }
 
   // Always lock before calling any function.
   void lock() {
-    pthread_mutex_lock(&m_lock);
+    m_lock.lock();
   }
   void unlock() {
-    pthread_mutex_unlock(&m_lock);
+    m_lock.unlock();
   }
 
   const_iterator find_older(int32_t older_than);
@@ -79,9 +75,9 @@ public:
   void lock_and_push_log(const char* data, size_t length, int group);
 
 private:
-  pthread_mutex_t m_lock;
-  unsigned int    m_max_size{ 200 };
-  slot_void       m_slot_update;
+  std::mutex   m_lock;
+  unsigned int m_max_size{ 200 };
+  slot_void    m_slot_update;
 };
 
 using log_buffer_ptr =

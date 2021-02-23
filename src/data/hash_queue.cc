@@ -54,9 +54,6 @@ struct HashQueueWillneed {
 
 HashQueue::HashQueue(thread_disk* thread)
   : m_thread_disk(thread) {
-
-  pthread_mutex_init(&m_done_chunks_lock, nullptr);
-
   m_thread_disk->hash_queue()->slot_chunk_done() =
     [this](HashChunk* chunk, const HashString& hash) {
       chunk_done(chunk, hash);
@@ -117,18 +114,18 @@ HashQueue::remove(HashQueueNode::id_type id) {
             // The hash chunk was not found, so we need to wait until the hash
             // check finishes.
             if (!result) {
-              pthread_mutex_lock(&m_done_chunks_lock);
+              m_done_chunks_lock.lock();
               done_chunks_type::iterator done_itr;
 
               while ((done_itr = m_done_chunks.find(hash_chunk)) ==
                      m_done_chunks.end()) {
-                pthread_mutex_unlock(&m_done_chunks_lock);
+                m_done_chunks_lock.unlock();
                 std::this_thread::sleep_for(std::chrono::microseconds(100));
-                pthread_mutex_lock(&m_done_chunks_lock);
+                m_done_chunks_lock.lock();
               }
 
               m_done_chunks.erase(done_itr);
-              pthread_mutex_unlock(&m_done_chunks_lock);
+              m_done_chunks_lock.unlock();
             }
 
             node.slot_done()(*hash_chunk->chunk(), NULL);
@@ -152,7 +149,7 @@ HashQueue::clear() {
 
 void
 HashQueue::work() {
-  pthread_mutex_lock(&m_done_chunks_lock);
+  std::lock_guard lk(m_done_chunks_lock);
 
   while (!m_done_chunks.empty()) {
     HashChunk* hash_chunk = m_done_chunks.begin()->first;
@@ -183,18 +180,14 @@ HashQueue::work() {
     slotDone(hash_chunk->handle(), hash_value.c_str());
     delete hash_chunk;
   }
-
-  pthread_mutex_unlock(&m_done_chunks_lock);
 }
 
 void
 HashQueue::chunk_done(HashChunk* hash_chunk, const HashString& hash_value) {
-  pthread_mutex_lock(&m_done_chunks_lock);
+  std::lock_guard lk(m_done_chunks_lock);
 
   m_done_chunks[hash_chunk] = hash_value;
   m_slot_has_work(m_done_chunks.empty());
-
-  pthread_mutex_unlock(&m_done_chunks_lock);
 }
 
 } // namespace torrent

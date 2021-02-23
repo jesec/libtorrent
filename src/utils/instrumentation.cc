@@ -6,12 +6,12 @@
 namespace torrent {
 
 #ifdef LT_INSTRUMENTATION
-std::array<int64_t, INSTRUMENTATION_MAX_SIZE> instrumentation_values
-  lt_cacheline_aligned;
+std::atomic<std::array<int64_t, INSTRUMENTATION_MAX_SIZE>>
+  instrumentation_values lt_cacheline_aligned;
 
 inline int64_t
 instrumentation_fetch_and_clear(instrumentation_enum type) {
-  return __sync_fetch_and_and(&instrumentation_values[type], int64_t());
+  return instrumentation_values[type] &= int64_t();
 }
 
 void

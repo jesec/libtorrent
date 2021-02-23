@@ -19,7 +19,7 @@ signal_bitfield::add_signal(const slot_type& slot) {
       "signal_bitfield::add_signal(...): Cannot add empty slot.");
 
   unsigned int index = m_size;
-  __sync_add_and_fetch(&m_size, 1);
+  ++m_size;
 
   m_slots[index] = slot;
   return index;
@@ -27,9 +27,9 @@ signal_bitfield::add_signal(const slot_type& slot) {
 
 void
 signal_bitfield::work() {
-  bitfield_type bitfield;
+  bitfield_type bitfield = m_bitfield;
 
-  while (!__sync_bool_compare_and_swap(&m_bitfield, (bitfield = m_bitfield), 0))
+  while (!m_bitfield.compare_exchange_weak(bitfield, 0))
     ; // Do nothing.
 
   unsigned int i = 0;

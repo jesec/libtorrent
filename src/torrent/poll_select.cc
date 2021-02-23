@@ -133,13 +133,6 @@ PollSelect::~PollSelect() {
   m_writeSet->prepare();
   m_exceptSet->prepare();
 
-  // Re-add this check when you've cleaned up the client shutdown procedure.
-  if (!m_readSet->empty() || !m_writeSet->empty() || !m_exceptSet->empty()) {
-    destruct_error(
-      "PollSelect::~PollSelect() called but the sets are not empty");
-    return;
-  }
-
   m_readSet = m_writeSet = m_exceptSet = nullptr;
 }
 
@@ -220,14 +213,12 @@ PollSelect::do_poll(int64_t timeout_usec, int flags) {
   timeval      t     = timeout.tval();
 
   if (!(flags & poll_worker_thread)) {
-    thread_base::entering_main_polling();
     thread_base::release_global_lock();
   }
 
   int status = select(maxFd + 1, read_set, write_set, error_set, &t);
 
   if (!(flags & poll_worker_thread)) {
-    thread_base::leaving_main_polling();
     thread_base::acquire_global_lock();
   }
 

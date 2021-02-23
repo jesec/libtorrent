@@ -1,3 +1,5 @@
+#include <atomic>
+
 #include "torrent/utils/cacheline.h"
 #include "torrent/utils/thread_base.h"
 
@@ -40,14 +42,14 @@ public:
   void init_thread();
 
   void set_pre_stop() {
-    __sync_or_and_fetch(&m_test_flags, test_flag_pre_stop);
+    m_test_flags |= test_flag_pre_stop;
   }
   void set_acquire_global() {
-    __sync_or_and_fetch(&m_test_flags, test_flag_acquire_global);
+    m_test_flags |= test_flag_acquire_global;
   }
 
   void set_test_flag(int flags) {
-    __sync_or_and_fetch(&m_test_flags, flags);
+    m_test_flags |= flags;
   }
 
 private:
@@ -57,8 +59,8 @@ private:
                                                    : (100 * 1000);
   }
 
-  int m_test_state lt_cacheline_aligned;
-  int m_test_flags lt_cacheline_aligned;
+  std::atomic<int> m_test_state lt_cacheline_aligned;
+  std::atomic<int> m_test_flags lt_cacheline_aligned;
 };
 
 struct thread_management_type {

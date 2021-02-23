@@ -4,6 +4,7 @@
 #ifndef LIBTORRENT_UTILS_SIGNAL_BITFIELD_H
 #define LIBTORRENT_UTILS_SIGNAL_BITFIELD_H
 
+#include <atomic>
 #include <functional>
 
 #include <torrent/common.h>
@@ -24,16 +25,16 @@ public:
 
   // Do the interrupt from the thread?
   void signal(unsigned int index) {
-    __sync_or_and_fetch(&m_bitfield, 1 << index);
+    m_bitfield |= 1 << index;
   }
   void work();
 
   unsigned int add_signal(const slot_type& slot);
 
 private:
-  bitfield_type m_bitfield{ 0 };
-  unsigned int  m_size{ 0 };
-  slot_type     m_slots[max_size] lt_cacheline_aligned;
+  std::atomic<bitfield_type> m_bitfield{ 0 };
+  std::atomic<unsigned int>  m_size{ 0 };
+  slot_type                  m_slots[max_size] lt_cacheline_aligned;
 };
 
 } // namespace torrent

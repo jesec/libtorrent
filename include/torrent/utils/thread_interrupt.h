@@ -4,6 +4,7 @@
 #ifndef LIBTORRENT_UTILS_THREAD_INTERRUPT_H
 #define LIBTORRENT_UTILS_THREAD_INTERRUPT_H
 
+#include <atomic>
 #include <utility>
 
 #include <torrent/event.h>
@@ -36,8 +37,8 @@ private:
     return *reinterpret_cast<SocketFd*>(&m_fileDesc);
   }
 
-  thread_interrupt* m_other;
-  bool m_poking     lt_cacheline_aligned;
+  thread_interrupt*          m_other;
+  std::atomic<bool> m_poking lt_cacheline_aligned;
 };
 
 inline bool

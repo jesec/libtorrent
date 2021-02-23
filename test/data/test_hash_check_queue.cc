@@ -1,4 +1,5 @@
 #include <functional>
+#include <mutex>
 #include <signal.h>
 
 #include "data/chunk_handle.h"
@@ -16,15 +17,14 @@
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_hash_check_queue, "data");
 
-pthread_mutex_t done_chunks_lock = PTHREAD_MUTEX_INITIALIZER;
+std::mutex done_chunks_lock;
 
 static void
 chunk_done(done_chunks_type*          done_chunks,
            torrent::HashChunk*        hash_chunk,
            const torrent::HashString& hash_value) {
-  pthread_mutex_lock(&done_chunks_lock);
+  std::lock_guard lk(done_chunks_lock);
   (*done_chunks)[hash_chunk->handle().index()] = hash_value;
-  pthread_mutex_unlock(&done_chunks_lock);
 }
 
 torrent::HashString
@@ -45,16 +45,17 @@ bool
 verify_hash(const done_chunks_type*    done_chunks,
             int                        index,
             const torrent::HashString& hash) {
-  pthread_mutex_lock(&done_chunks_lock);
+  done_chunks_lock.lock();
+
   done_chunks_type::const_iterator itr = done_chunks->find(index);
 
   if (itr == done_chunks->end()) {
-    pthread_mutex_unlock(&done_chunks_lock);
+    done_chunks_lock.unlock();
     return false;
   }
 
   bool matches = itr->second == hash;
-  pthread_mutex_unlock(&done_chunks_lock);
+  done_chunks_lock.unlock();
 
   if (!matches) {
     // std::cout << "chunk compare: " << index << " "
@@ -205,9 +206,9 @@ test_hash_check_queue::test_thread() {
     };
 
   for (int i = 0; i < 1000; i++) {
-    pthread_mutex_lock(&done_chunks_lock);
+    done_chunks_lock.lock();
     done_chunks.erase(0);
-    pthread_mutex_unlock(&done_chunks_lock);
+    done_chunks_lock.unlock();
 
     torrent::ChunkHandle handle_0 =
       chunk_list->get(0, torrent::ChunkList::get_blocking);

@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 
 #include "torrent/common.h"
 #include "torrent/utils/cacheline.h"
@@ -76,8 +77,8 @@ enum instrumentation_enum {
   INSTRUMENTATION_MAX_SIZE
 };
 
-extern std::array<int64_t, INSTRUMENTATION_MAX_SIZE> instrumentation_values
-  lt_cacheline_aligned;
+extern std::atomic<std::array<int64_t, INSTRUMENTATION_MAX_SIZE>>
+  instrumentation_values lt_cacheline_aligned;
 
 void
 instrumentation_initialize();
@@ -101,7 +102,7 @@ instrumentation_initialize() {
 
 inline void
 instrumentation_update(instrumentation_enum type, int64_t change) {
-  __sync_add_and_fetch(&instrumentation_values[type], change);
+  instrumentation_values[type] += change;
 }
 #else
 inline void

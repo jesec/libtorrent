@@ -6,7 +6,7 @@
 
 #include <deque>
 #include <functional>
-#include <pthread.h>
+#include <mutex>
 
 #include "torrent/utils/allocators.h"
 #include "torrent/utils/cacheline.h"
@@ -33,9 +33,6 @@ public:
   using base_type::end;
   using base_type::front;
 
-  HashCheckQueue();
-  ~HashCheckQueue();
-
   // Guarded functions for adding new...
 
   void push_back(HashChunk* node);
@@ -49,7 +46,7 @@ public:
 
 private:
   slot_chunk_handle m_slot_chunk_done;
-  pthread_mutex_t   m_lock;
+  std::mutex        m_lock;
 };
 
 } // namespace torrent

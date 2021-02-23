@@ -7,7 +7,7 @@
 #include <deque>
 #include <functional>
 #include <map>
-#include <pthread.h>
+#include <mutex>
 
 #include "torrent/hash_string.h"
 #include "torrent/utils/cacheline.h"
@@ -47,7 +47,6 @@ public:
   HashQueue(thread_disk* thread);
   ~HashQueue() {
     clear();
-    pthread_mutex_destroy(&m_done_chunks_lock);
   }
 
   void push_back(ChunkHandle            handle,
@@ -74,7 +73,7 @@ private:
   done_chunks_type m_done_chunks;
   slot_bool        m_slot_has_work;
 
-  pthread_mutex_t m_done_chunks_lock lt_cacheline_aligned;
+  std::mutex m_done_chunks_lock lt_cacheline_aligned;
 };
 
 } // namespace torrent

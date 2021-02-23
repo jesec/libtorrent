@@ -13,13 +13,11 @@
 namespace torrent {
 
 thread_base::global_lock_type lt_cacheline_aligned
-  thread_base::m_global = { 0, 0, PTHREAD_MUTEX_INITIALIZER };
+  thread_base::m_global{ 0, std::mutex() };
 
 thread_base::thread_base()
   : m_instrumentation_index(INSTRUMENTATION_POLLING_DO_POLL_OTHERS -
                             INSTRUMENTATION_POLLING_DO_POLL) {
-  std::memset(&m_thread, 0, sizeof(pthread_t));
-
   thread_interrupt::pair_type interrupt_sockets =
     thread_interrupt::create_pair();
 
@@ -28,26 +26,38 @@ thread_base::thread_base()
 }
 
 thread_base::~thread_base() {
+  if (m_thread) {
+    if (m_thread->joinable()) {
+      m_thread->join();
+    }
+  }
+
   delete m_interrupt_sender;
   delete m_interrupt_receiver;
   delete m_poll;
-  m_poll = nullptr;
 }
 
 void
 thread_base::start_thread() {
-  if (m_poll == nullptr)
+  if (m_poll == nullptr) {
     throw internal_error("No poll object for thread defined.");
+  }
 
-  if (!is_initialized() ||
-      pthread_create(
-        &m_thread, nullptr, (pthread_func)&thread_base::event_loop, this))
+  if (!is_initialized()) {
+    throw internal_error("Wrong state.");
+  }
+
+  try {
+    m_thread    = std::make_unique<std::thread>(thread_base::event_loop, this);
+    m_thread_id = m_thread->get_id();
+  } catch (std::system_error&) {
     throw internal_error("Failed to create thread.");
+  }
 }
 
 void
 thread_base::stop_thread() {
-  __sync_fetch_and_or(&m_flags, flag_do_shutdown);
+  m_flags |= flag_do_shutdown;
   interrupt();
 }
 
@@ -79,13 +89,7 @@ thread_base::should_handle_sigusr1() {
 
 void*
 thread_base::event_loop(thread_base* thread) {
-  __sync_lock_test_and_set(&thread->m_state, STATE_ACTIVE);
-
-#ifdef __APPLE__
-  pthread_setname_np(thread->name());
-#else
-  pthread_setname_np(thread->m_thread, thread->name());
-#endif
+  thread->m_state = STATE_ACTIVE;
 
   lt_log_print(
     torrent::LOG_THREAD_NOTICE, "%s: Starting thread.", thread->name());
@@ -100,7 +104,7 @@ thread_base::event_loop(thread_base* thread) {
       thread->call_events();
       thread->signal_bitfield()->work();
 
-      __sync_fetch_and_or(&thread->m_flags, flag_polling);
+      thread->m_flags |= flag_polling;
 
       // Call again after setting flag_polling to ensure we process
       // any events set while it was working.
@@ -141,7 +145,7 @@ thread_base::event_loop(thread_base* thread) {
                              thread->m_instrumentation_index),
         event_count);
 
-      __sync_fetch_and_and(&thread->m_flags, ~(flag_polling | flag_no_timeout));
+      thread->m_flags &= ~(flag_polling | flag_no_timeout);
     }
 
     thread->m_poll->remove_write(thread->m_interrupt_receiver);
@@ -150,7 +154,7 @@ thread_base::event_loop(thread_base* thread) {
       torrent::LOG_THREAD_NOTICE, "%s: Shutting down thread.", thread->name());
   }
 
-  __sync_lock_test_and_set(&thread->m_state, STATE_INACTIVE);
+  thread->m_state = STATE_INACTIVE;
   return nullptr;
 }
 
