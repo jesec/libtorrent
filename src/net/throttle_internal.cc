@@ -32,9 +32,11 @@ ThrottleInternal::~ThrottleInternal() {
   if (is_root())
     priority_queue_erase(&taskScheduler, &m_taskTick);
 
-  std::for_each(m_slaveList.begin(),
-                m_slaveList.end(),
-                [](ThrottleInternal* t) { delete t; });
+  std::for_each(
+    m_slaveList.begin(), m_slaveList.end(), [](ThrottleInternal* t) {
+      delete t->throttle_list();
+      delete t;
+    });
 }
 
 void
