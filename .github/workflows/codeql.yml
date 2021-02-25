@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - run: sudo apt install -y libc6-dev libssl-dev ninja-build zlib1g-dev
+      - run: sudo apt install -y build-essential libgtest-dev libssl-dev ninja-build zlib1g-dev
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1

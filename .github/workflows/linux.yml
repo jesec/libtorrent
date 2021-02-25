@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: sudo apt install -y libc6-dev libssl-dev ninja-build zlib1g-dev
+      - run: sudo apt install -y build-essential libgtest-dev libssl-dev ninja-build zlib1g-dev
       - run: cmake -DCMAKE_INSTALL_PREFIX=install -GNinja .
       - run: ninja install
       - run: ninja test
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: sudo apt install -y libc6-dev
+      - run: sudo apt install -y build-essential
 
       - run: bazel coverage -s
       - run: cp -L bazel-testlogs/libtorrent_test/coverage.dat .
@@ -63,5 +63,5 @@ jobs:
         env:
           LLVM_VERSION: 11
 
-      - run: sudo apt install -y libc6-dev
+      - run: sudo apt install -y build-essential
       - run: bazel test --config=clang -s
