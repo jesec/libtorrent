@@ -4,7 +4,11 @@
 #include "torrent/tracker_list.h"
 #include "torrent/utils/timer.h"
 
-class tracker_list_test : public ::testing::Test {};
+class tracker_list_test : public ::testing::Test {
+public:
+  void SetUp() override;
+  void TearDown() override;
+};
 
 class TrackerTest : public torrent::Tracker {
 public:

@@ -55,13 +55,13 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
 void
 tracker_controller_test::SetUp() {
   ASSERT_TRUE(torrent::taskScheduler.empty());
-
   torrent::cachedTime = torrent::utils::timer::current();
 }
 
 void
 tracker_controller_test::TearDown() {
   torrent::taskScheduler.clear();
+  torrent::cachedTime = 0;
 }
 
 TEST_F(tracker_controller_test, test_basic) {

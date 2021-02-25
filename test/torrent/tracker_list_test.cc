@@ -83,6 +83,16 @@ TrackerTest::trigger_scrape() {
   return trigger_success();
 }
 
+void
+tracker_list_test::SetUp() {
+  torrent::cachedTime = torrent::utils::timer::current();
+}
+
+void
+tracker_list_test::TearDown() {
+  torrent::cachedTime = 0;
+}
+
 TEST_F(tracker_list_test, test_basic) {
   TRACKER_SETUP();
   TRACKER_INSERT(0, tracker_0);

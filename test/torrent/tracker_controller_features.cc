@@ -10,13 +10,13 @@
 void
 tracker_controller_features::SetUp() {
   ASSERT_TRUE(torrent::taskScheduler.empty());
-
   torrent::cachedTime = torrent::utils::timer::current();
 }
 
 void
 tracker_controller_features::TearDown() {
   torrent::taskScheduler.clear();
+  torrent::cachedTime = 0;
 }
 
 TEST_F(tracker_controller_features, test_requesting_basic) {

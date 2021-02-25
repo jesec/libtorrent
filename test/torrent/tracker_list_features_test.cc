@@ -10,12 +10,14 @@
 void
 tracker_list_features_test::SetUp() {
   ASSERT_TRUE(torrent::taskScheduler.empty());
-
   torrent::cachedTime = torrent::utils::timer::current();
 }
 
 void
-tracker_list_features_test::TearDown() {}
+tracker_list_features_test::TearDown() {
+  torrent::taskScheduler.clear();
+  torrent::cachedTime = 0;
+}
 
 TEST_F(tracker_list_features_test, test_new_peers) {
   TRACKER_SETUP();
