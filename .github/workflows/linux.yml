@@ -32,7 +32,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - run: sudo apt install -y libc6-dev
-      - run: bazel test -s
+
+      - run: bazel coverage -s
+      - run: cp -L bazel-testlogs/libtorrent_test/coverage.dat .
+
+      - uses: codecov/codecov-action@v1
 
   bazel-clang:
     runs-on: ubuntu-20.04
