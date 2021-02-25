@@ -65,8 +65,7 @@ struct mock_compare_map {
 
   static const T* get(const T* k) {
     auto itr = values.find(k);
-    CPPUNIT_ASSERT_MESSAGE("mock_compare_map get failed, not inserted",
-                           itr != values.end());
+    EXPECT_NE(itr, values.end()) << "mock_compare_map get failed, not inserted";
     return itr->second;
   }
 

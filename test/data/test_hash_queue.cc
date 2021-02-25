@@ -17,8 +17,6 @@
 #include "test/helpers/test_thread.h"
 #include "test/helpers/test_utils.h"
 
-CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_hash_queue, "data");
-
 typedef std::map<int, torrent::HashString> done_chunks_type;
 
 static void
@@ -50,26 +48,25 @@ static void
 do_nothing() {}
 
 void
-test_hash_queue::setUp() {
-  test_fixture::setUp();
+test_hash_queue::SetUp() {
+  test_fixture::SetUp();
 
-  CPPUNIT_ASSERT(torrent::taskScheduler.empty());
+  ASSERT_TRUE(torrent::taskScheduler.empty());
 
   torrent::Poll::slot_create_poll() = std::bind(&create_select_poll);
   signal(SIGUSR1, (sig_t)&do_nothing);
 }
 
 void
-test_hash_queue::tearDown() {
+test_hash_queue::TearDown() {
   torrent::taskScheduler.clear();
-  test_fixture::tearDown();
+  test_fixture::TearDown();
 }
 
 static void
 fill_queue() {}
 
-void
-test_hash_queue::test_single() {
+TEST_F(test_hash_queue, test_single) {
   SETUP_CHUNK_LIST();
   SETUP_THREAD();
   thread_disk->start_thread();
@@ -88,19 +85,19 @@ test_hash_queue::test_single() {
                                   std::placeholders::_1,
                                   std::placeholders::_2));
 
-  CPPUNIT_ASSERT(hash_queue->size() == 1);
-  CPPUNIT_ASSERT(hash_queue->front().handle().is_blocking());
-  CPPUNIT_ASSERT(hash_queue->front().handle().object() == &((*chunk_list)[0]));
+  ASSERT_TRUE(hash_queue->size() == 1);
+  ASSERT_TRUE(hash_queue->front().handle().is_blocking());
+  ASSERT_TRUE(hash_queue->front().handle().object() == &((*chunk_list)[0]));
 
   hash_queue->work();
 
-  CPPUNIT_ASSERT(wait_for_true(
+  ASSERT_TRUE(wait_for_true(
     std::bind(&check_for_chunk_done, hash_queue, &done_chunks, 0)));
-  CPPUNIT_ASSERT(done_chunks[0] == hash_for_index(0));
+  ASSERT_TRUE(done_chunks[0] == hash_for_index(0));
 
   // chunk_list->release(&handle_0);
 
-  CPPUNIT_ASSERT(thread_disk->hash_queue()->empty());
+  ASSERT_TRUE(thread_disk->hash_queue()->empty());
   delete hash_queue;
 
   thread_disk->stop_thread();
@@ -108,8 +105,7 @@ test_hash_queue::test_single() {
   CLEANUP_CHUNK_LIST();
 }
 
-void
-test_hash_queue::test_multiple() {
+TEST_F(test_hash_queue, test_multiple) {
   SETUP_CHUNK_LIST();
   SETUP_THREAD();
   thread_disk->start_thread();
@@ -127,18 +123,18 @@ test_hash_queue::test_multiple() {
                                     std::placeholders::_1,
                                     std::placeholders::_2));
 
-    CPPUNIT_ASSERT(hash_queue->size() == i + 1);
-    CPPUNIT_ASSERT(hash_queue->back().handle().is_blocking());
-    CPPUNIT_ASSERT(hash_queue->back().handle().object() == &((*chunk_list)[i]));
+    ASSERT_TRUE(hash_queue->size() == i + 1);
+    ASSERT_TRUE(hash_queue->back().handle().is_blocking());
+    ASSERT_TRUE(hash_queue->back().handle().object() == &((*chunk_list)[i]));
   }
 
   for (unsigned int i = 0; i < 20; i++) {
-    CPPUNIT_ASSERT(wait_for_true(
+    ASSERT_TRUE(wait_for_true(
       std::bind(&check_for_chunk_done, hash_queue, &done_chunks, i)));
-    CPPUNIT_ASSERT(done_chunks[i] == hash_for_index(i));
+    ASSERT_TRUE(done_chunks[i] == hash_for_index(i));
   }
 
-  CPPUNIT_ASSERT(thread_disk->hash_queue()->empty());
+  ASSERT_TRUE(thread_disk->hash_queue()->empty());
   delete hash_queue;
 
   thread_disk->stop_thread();
@@ -146,8 +142,7 @@ test_hash_queue::test_multiple() {
   CLEANUP_CHUNK_LIST();
 }
 
-void
-test_hash_queue::test_erase() {
+TEST_F(test_hash_queue, test_erase) {
   SETUP_CHUNK_LIST();
   SETUP_THREAD();
 
@@ -165,21 +160,20 @@ test_hash_queue::test_erase() {
                                     std::placeholders::_1,
                                     std::placeholders::_2));
 
-    CPPUNIT_ASSERT(hash_queue->size() == i + 1);
+    ASSERT_TRUE(hash_queue->size() == i + 1);
   }
 
   hash_queue->remove(NULL);
-  CPPUNIT_ASSERT(hash_queue->empty());
+  ASSERT_TRUE(hash_queue->empty());
 
-  CPPUNIT_ASSERT(thread_disk->hash_queue()->empty());
+  ASSERT_TRUE(thread_disk->hash_queue()->empty());
   delete hash_queue;
   delete thread_disk;
 
   CLEANUP_CHUNK_LIST();
 }
 
-void
-test_hash_queue::test_erase_stress() {
+TEST_F(test_hash_queue, test_erase_stress) {
   SETUP_CHUNK_LIST();
   SETUP_THREAD();
   thread_disk->start_thread();
@@ -200,14 +194,14 @@ test_hash_queue::test_erase_stress() {
                   std::placeholders::_1,
                   std::placeholders::_2));
 
-      CPPUNIT_ASSERT(hash_queue->size() == i + 1);
+      ASSERT_TRUE(hash_queue->size() == i + 1);
     }
 
     hash_queue->remove(NULL);
-    CPPUNIT_ASSERT(hash_queue->empty());
+    ASSERT_TRUE(hash_queue->empty());
   }
 
-  CPPUNIT_ASSERT(thread_disk->hash_queue()->empty());
+  ASSERT_TRUE(thread_disk->hash_queue()->empty());
   delete hash_queue;
 
   thread_disk->stop_thread();

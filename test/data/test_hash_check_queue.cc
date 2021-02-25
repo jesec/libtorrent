@@ -15,8 +15,6 @@
 #include "test/helpers/test_thread.h"
 #include "test/helpers/test_utils.h"
 
-CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_hash_check_queue, "data");
-
 std::mutex done_chunks_lock;
 
 static void
@@ -78,16 +76,15 @@ static void
 do_nothing() {}
 
 void
-test_hash_check_queue::setUp() {
-  test_fixture::setUp();
+test_hash_check_queue::SetUp() {
+  test_fixture::SetUp();
 
   torrent::Poll::slot_create_poll() = []() { return create_select_poll(); };
 
   signal(SIGUSR1, (sig_t)&do_nothing);
 }
 
-void
-test_hash_check_queue::test_single() {
+TEST_F(test_hash_check_queue, test_single) {
   SETUP_CHUNK_LIST();
   torrent::HashCheckQueue hash_queue;
 
@@ -103,14 +100,14 @@ test_hash_check_queue::test_single() {
 
   hash_queue.push_back(new torrent::HashChunk(handle_0));
 
-  CPPUNIT_ASSERT(hash_queue.size() == 1);
-  CPPUNIT_ASSERT(hash_queue.front()->handle().is_blocking());
-  CPPUNIT_ASSERT(hash_queue.front()->handle().object() == &((*chunk_list)[0]));
+  ASSERT_TRUE(hash_queue.size() == 1);
+  ASSERT_TRUE(hash_queue.front()->handle().is_blocking());
+  ASSERT_TRUE(hash_queue.front()->handle().object() == &((*chunk_list)[0]));
 
   hash_queue.perform();
 
-  CPPUNIT_ASSERT(done_chunks.find(0) != done_chunks.end());
-  CPPUNIT_ASSERT(done_chunks[0] == hash_for_index(0));
+  ASSERT_TRUE(done_chunks.find(0) != done_chunks.end());
+  ASSERT_TRUE(done_chunks[0] == hash_for_index(0));
 
   // Should not be needed... Also verify that HashChunk gets deleted.
   chunk_list->release(&handle_0);
@@ -118,8 +115,7 @@ test_hash_check_queue::test_single() {
   CLEANUP_CHUNK_LIST();
 }
 
-void
-test_hash_check_queue::test_multiple() {
+TEST_F(test_hash_check_queue, test_multiple) {
   SETUP_CHUNK_LIST();
   torrent::HashCheckQueue hash_queue;
 
@@ -137,16 +133,16 @@ test_hash_check_queue::test_multiple() {
 
     hash_queue.push_back(new torrent::HashChunk(handles.back()));
 
-    CPPUNIT_ASSERT(hash_queue.size() == i + 1);
-    CPPUNIT_ASSERT(hash_queue.back()->handle().is_blocking());
-    CPPUNIT_ASSERT(hash_queue.back()->handle().object() == &((*chunk_list)[i]));
+    ASSERT_TRUE(hash_queue.size() == i + 1);
+    ASSERT_TRUE(hash_queue.back()->handle().is_blocking());
+    ASSERT_TRUE(hash_queue.back()->handle().object() == &((*chunk_list)[i]));
   }
 
   hash_queue.perform();
 
   for (unsigned int i = 0; i < 20; i++) {
-    CPPUNIT_ASSERT(done_chunks.find(i) != done_chunks.end());
-    CPPUNIT_ASSERT(done_chunks[i] == hash_for_index(i));
+    ASSERT_TRUE(done_chunks.find(i) != done_chunks.end());
+    ASSERT_TRUE(done_chunks[i] == hash_for_index(i));
 
     // Should not be needed...
     chunk_list->release(&handles[i]);
@@ -155,8 +151,7 @@ test_hash_check_queue::test_multiple() {
   CLEANUP_CHUNK_LIST();
 }
 
-void
-test_hash_check_queue::test_erase() {
+TEST_F(test_hash_check_queue, test_erase) {
   // SETUP_CHUNK_LIST();
   // torrent::HashCheckQueue hash_queue;
 
@@ -171,17 +166,17 @@ test_hash_check_queue::test_erase() {
 
   //   hash_queue.push_back(new torrent::HashChunk(handles.back()));
 
-  //   CPPUNIT_ASSERT(hash_queue.size() == i + 1);
-  //   CPPUNIT_ASSERT(hash_queue.back()->handle().is_blocking());
-  //   CPPUNIT_ASSERT(hash_queue.back()->handle().object() ==
+  //   ASSERT_TRUE(hash_queue.size() == i + 1);
+  //   ASSERT_TRUE(hash_queue.back()->handle().is_blocking());
+  //   ASSERT_TRUE(hash_queue.back()->handle().object() ==
   //   &((*chunk_list)[i]));
   // }
 
   // hash_queue.perform();
 
   // for (unsigned int i = 0; i < 20; i++) {
-  //   CPPUNIT_ASSERT(done_chunks.find(i) != done_chunks.end());
-  //   CPPUNIT_ASSERT(done_chunks[i] == hash_for_index(i));
+  //   ASSERT_TRUE(done_chunks.find(i) != done_chunks.end());
+  //   ASSERT_TRUE(done_chunks[i] == hash_for_index(i));
 
   //   // Should not be needed...
   //   chunk_list->release(&handles[i]);
@@ -190,8 +185,7 @@ test_hash_check_queue::test_erase() {
   // CLEANUP_CHUNK_LIST();
 }
 
-void
-test_hash_check_queue::test_thread() {
+TEST_F(test_hash_check_queue, test_thread) {
   SETUP_CHUNK_LIST();
   SETUP_THREAD();
   thread_disk->start_thread();
@@ -216,7 +210,7 @@ test_hash_check_queue::test_thread() {
     hash_queue->push_back(new torrent::HashChunk(handle_0));
     thread_disk->interrupt();
 
-    CPPUNIT_ASSERT(wait_for_true([&done_chunks] {
+    ASSERT_TRUE(wait_for_true([&done_chunks] {
       return verify_hash(&done_chunks, 0, hash_for_index(0));
     }));
     chunk_list->release(&handle_0);

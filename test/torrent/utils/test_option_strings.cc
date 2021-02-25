@@ -4,19 +4,15 @@
 
 #include "test/torrent/utils/test_option_strings.h"
 
-CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_option_strings, "torrent/utils");
-
 #define TEST_ENTRY(group, name, value)                                         \
   {                                                                            \
     lt_log_print(torrent::LOG_MOCK_CALLS, "option_string: %s", name);          \
     std::string result(torrent::option_as_string(torrent::group, value));      \
-    CPPUNIT_ASSERT_MESSAGE("Not found '" + result + "'", result == name);      \
-    CPPUNIT_ASSERT(torrent::option_find_string(torrent::group, name) ==        \
-                   value);                                                     \
+    ASSERT_TRUE(result == name) << "Not found '" + result + "'";               \
+    ASSERT_TRUE(torrent::option_find_string(torrent::group, name) == value);   \
   }
 
-void
-test_option_strings::test_entries() {
+TEST_F(test_option_strings, test_entries) {
   TEST_ENTRY(
     OPTION_CONNECTION_TYPE, "leech", torrent::Download::CONNECTION_LEECH);
   TEST_ENTRY(

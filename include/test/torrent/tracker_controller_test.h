@@ -1,71 +1,11 @@
-#include <cppunit/extensions/HelperMacros.h>
+#include <gtest/gtest.h>
 
 #include "torrent/tracker_controller.h"
 
-class tracker_controller_test : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(tracker_controller_test);
-
-  CPPUNIT_TEST(test_basic);
-  CPPUNIT_TEST(test_enable);
-  CPPUNIT_TEST(test_requesting);
-  CPPUNIT_TEST(test_timeout);
-
-  CPPUNIT_TEST(test_single_success);
-  CPPUNIT_TEST(test_single_failure);
-  CPPUNIT_TEST(test_single_disable);
-
-  CPPUNIT_TEST(test_send_start);
-  CPPUNIT_TEST(test_send_stop_normal);
-  CPPUNIT_TEST(test_send_completed_normal);
-  CPPUNIT_TEST(test_send_update_normal);
-  CPPUNIT_TEST(test_send_update_failure);
-  CPPUNIT_TEST(test_send_task_timeout);
-  CPPUNIT_TEST(test_send_close_on_enable);
-
-  CPPUNIT_TEST(test_multiple_success);
-  CPPUNIT_TEST(test_multiple_failure);
-  CPPUNIT_TEST(test_multiple_cycle);
-  CPPUNIT_TEST(test_multiple_cycle_second_group);
-  CPPUNIT_TEST(test_multiple_send_stop);
-
-  CPPUNIT_TEST(test_timeout_lacking_usable);
-  CPPUNIT_TEST(test_disable_tracker);
-  CPPUNIT_TEST(test_new_peers);
-
-  CPPUNIT_TEST_SUITE_END();
-
+class tracker_controller_test : public ::testing::Test {
 public:
-  void setUp();
-  void tearDown();
-
-  void test_basic();
-  void test_enable();
-  void test_disable();
-  void test_requesting();
-  void test_timeout();
-
-  void test_single_success();
-  void test_single_failure();
-  void test_single_disable();
-
-  void test_send_start();
-  void test_send_stop_normal();
-  void test_send_completed_normal();
-  void test_send_update_normal();
-  void test_send_update_failure();
-  void test_send_task_timeout();
-  void test_send_close_on_enable();
-
-  void test_multiple_success();
-  void test_multiple_failure();
-  void test_multiple_cycle();
-  void test_multiple_cycle_second_group();
-  void test_multiple_send_stop();
-  void test_multiple_send_update();
-
-  void test_timeout_lacking_usable();
-  void test_disable_tracker();
-  void test_new_peers();
+  void SetUp() override;
+  void TearDown() override;
 };
 
 #define TRACKER_CONTROLLER_SETUP()                                             \
@@ -113,28 +53,28 @@ public:
   TRACKER_INSERT(0, tracker_0_0);                                              \
                                                                                \
   tracker_controller.enable();                                                 \
-  CPPUNIT_ASSERT(                                                              \
+  ASSERT_TRUE(                                                                 \
     !(tracker_controller.flags() & torrent::TrackerController::mask_send));
 
 #define TEST_SINGLE_END(succeeded, failed)                                     \
   tracker_controller.disable();                                                \
-  CPPUNIT_ASSERT(!tracker_list.has_active());                                  \
-  CPPUNIT_ASSERT(success_counter == succeeded &&                               \
-                 failure_counter == failure_counter);
+  ASSERT_TRUE(!tracker_list.has_active());                                     \
+  ASSERT_TRUE(success_counter == succeeded &&                                  \
+              failure_counter == failure_counter);
 
 #define TEST_SEND_SINGLE_BEGIN(event_name)                                     \
   tracker_controller.send_##event_name##_event();                              \
-  CPPUNIT_ASSERT(                                                              \
+  ASSERT_TRUE(                                                                 \
     (tracker_controller.flags() & torrent::TrackerController::mask_send) ==    \
     torrent::TrackerController::flag_send_##event_name);                       \
                                                                                \
-  CPPUNIT_ASSERT(tracker_controller.is_active());                              \
-  CPPUNIT_ASSERT(tracker_controller.tracker_list()->count_active() == 1);
+  ASSERT_TRUE(tracker_controller.is_active());                                 \
+  ASSERT_TRUE(tracker_controller.tracker_list()->count_active() == 1);
 
 #define TEST_SEND_SINGLE_END(succeeded, failed)                                \
   TEST_SINGLE_END(succeeded, failed)                                           \
-  CPPUNIT_ASSERT(tracker_controller.seconds_to_next_timeout() == 0);           \
-  // CPPUNIT_ASSERT(tracker_controller.seconds_to_promicious_mode() != 0);
+  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() == 0);              \
+  // ASSERT_TRUE(tracker_controller.seconds_to_promicious_mode() != 0);
 
 #define TEST_MULTI3_BEGIN()                                                    \
   TRACKER_CONTROLLER_SETUP();                                                  \
@@ -145,7 +85,7 @@ public:
   TRACKER_INSERT(3, tracker_3_0);                                              \
                                                                                \
   tracker_controller.enable();                                                 \
-  CPPUNIT_ASSERT(                                                              \
+  ASSERT_TRUE(                                                                 \
     !(tracker_controller.flags() & torrent::TrackerController::mask_send));
 
 #define TEST_GROUP_BEGIN()                                                     \
@@ -158,19 +98,18 @@ public:
   TRACKER_INSERT(2, tracker_2_0);                                              \
                                                                                \
   tracker_controller.enable();                                                 \
-  CPPUNIT_ASSERT(                                                              \
+  ASSERT_TRUE(                                                                 \
     !(tracker_controller.flags() & torrent::TrackerController::mask_send));
 
 #define TEST_MULTIPLE_END(succeeded, failed)                                   \
   tracker_controller.disable();                                                \
-  CPPUNIT_ASSERT(!tracker_list.has_active());                                  \
-  CPPUNIT_ASSERT(success_counter == succeeded && failure_counter == failed);
+  ASSERT_TRUE(!tracker_list.has_active());                                     \
+  ASSERT_TRUE(success_counter == succeeded && failure_counter == failed);
 
 #define TEST_GOTO_NEXT_SCRAPE(assumed_scrape)                                  \
-  CPPUNIT_ASSERT(tracker_controller.task_scrape()->is_queued());               \
-  CPPUNIT_ASSERT(assumed_scrape ==                                             \
-                 tracker_controller.seconds_to_next_scrape());                 \
-  CPPUNIT_ASSERT(                                                              \
+  ASSERT_TRUE(tracker_controller.task_scrape()->is_queued());                  \
+  ASSERT_TRUE(assumed_scrape == tracker_controller.seconds_to_next_scrape());  \
+  ASSERT_TRUE(                                                                 \
     test_goto_next_timeout(&tracker_controller, assumed_scrape, true));
 
 bool

@@ -1,5 +1,6 @@
-#include <cppunit/extensions/HelperMacros.h>
 #include <sstream>
+
+#include <gtest/gtest.h>
 
 #include "torrent/object_stream.h"
 
@@ -12,7 +13,7 @@ create_bencode(const char* str) {
 
   stream >> obj;
 
-  CPPUNIT_ASSERT(!stream.fail());
+  EXPECT_EQ(stream.fail(), false);
   return obj;
 }
 
@@ -21,7 +22,7 @@ create_bencode_c(const char* str) {
   torrent::Object obj;
   const char*     last = str + strlen(str);
 
-  CPPUNIT_ASSERT(object_read_bencode_c(str, last, &obj) == last);
+  EXPECT_EQ(object_read_bencode_c(str, last, &obj), last);
   return obj;
 }
 
@@ -30,7 +31,7 @@ create_bencode_c(const char* str) {
 //   torrent::Object obj;
 //   const char* last = str + strlen(str);
 
-//   CPPUNIT_ASSERT(object_read_bencode_skip_c(str, last) == last);
+//   ASSERT_TRUE(object_read_bencode_skip_c(str, last) == last);
 //   return torrent::raw_bencode(str, std::distance(str, last));
 // }
 
@@ -39,7 +40,7 @@ create_bencode_c(const char* str) {
 //   torrent::Object obj;
 //   const char* last = str + strlen(str);
 
-//   CPPUNIT_ASSERT(object_read_bencode_skip_c(str, last) == last);
+//   ASSERT_TRUE(object_read_bencode_skip_c(str, last) == last);
 //   return torrent::raw_bencode(str, std::distance(str, last));
 // }
 

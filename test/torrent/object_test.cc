@@ -5,8 +5,6 @@
 #include "test/torrent/object_test.h"
 #include "test/torrent/object_test_utils.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION(ObjectTest);
-
 void
 object_test_return_void() {}
 
@@ -21,8 +19,7 @@ object_test_return_void() {}
 //   Slot m_slot;
 // }
 
-void
-ObjectTest::test_basic() {
+TEST_F(ObjectTest, test_basic) {
   // std::cout << "sizeof(torrent::Object) = " << sizeof(torrent::Object) <<
   // std::endl; std::cout << "sizeof(torrent::Object::list_type) = " <<
   // sizeof(torrent::Object::list_type) << std::endl; std::cout <<
@@ -32,8 +29,7 @@ ObjectTest::test_basic() {
   //   torrent::Object obj_void(object_test_return_void());
 }
 
-void
-ObjectTest::test_flags() {
+TEST_F(ObjectTest, test_flags) {
   torrent::Object objectFlagsValue   = torrent::Object(int64_t());
   torrent::Object objectNoFlagsEmpty = torrent::Object();
   torrent::Object objectNoFlagsValue = torrent::Object(int64_t());
@@ -41,21 +37,19 @@ ObjectTest::test_flags() {
   objectFlagsValue.set_flags(torrent::Object::flag_static_data |
                              torrent::Object::flag_session_data);
 
-  CPPUNIT_ASSERT(objectNoFlagsEmpty.flags() == 0);
-  CPPUNIT_ASSERT(objectNoFlagsValue.flags() == 0);
-  CPPUNIT_ASSERT(objectFlagsValue.flags() &
-                   torrent::Object::flag_session_data &&
-                 objectFlagsValue.flags() & torrent::Object::flag_static_data);
+  ASSERT_TRUE(objectNoFlagsEmpty.flags() == 0);
+  ASSERT_TRUE(objectNoFlagsValue.flags() == 0);
+  ASSERT_TRUE(objectFlagsValue.flags() & torrent::Object::flag_session_data &&
+              objectFlagsValue.flags() & torrent::Object::flag_static_data);
 
   objectFlagsValue.unset_flags(torrent::Object::flag_session_data);
 
-  CPPUNIT_ASSERT(
+  ASSERT_TRUE(
     !(objectFlagsValue.flags() & torrent::Object::flag_session_data) &&
     objectFlagsValue.flags() & torrent::Object::flag_static_data);
 }
 
-void
-ObjectTest::test_merge() {}
+TEST_F(ObjectTest, test_merge) {}
 
 #define TEST_VALUE_A  "i10e"
 #define TEST_VALUE_B  "i20e"
@@ -112,55 +106,51 @@ swap_compare_dict_key(const char* left_key,
   return true;
 }
 
-void
-ObjectTest::test_swap_and_move() {
-  CPPUNIT_ASSERT(swap_compare(TEST_VALUE_A, TEST_VALUE_B));
-  CPPUNIT_ASSERT(swap_compare(TEST_STRING_A, TEST_STRING_B));
-  CPPUNIT_ASSERT(swap_compare(TEST_MAP_A, TEST_MAP_B));
-  CPPUNIT_ASSERT(swap_compare(TEST_LIST_A, TEST_LIST_B));
+TEST_F(ObjectTest, test_swap_and_move) {
+  ASSERT_TRUE(swap_compare(TEST_VALUE_A, TEST_VALUE_B));
+  ASSERT_TRUE(swap_compare(TEST_STRING_A, TEST_STRING_B));
+  ASSERT_TRUE(swap_compare(TEST_MAP_A, TEST_MAP_B));
+  ASSERT_TRUE(swap_compare(TEST_LIST_A, TEST_LIST_B));
 
-  CPPUNIT_ASSERT(swap_compare(TEST_VALUE_A, TEST_STRING_B));
-  CPPUNIT_ASSERT(swap_compare(TEST_STRING_A, TEST_MAP_B));
-  CPPUNIT_ASSERT(swap_compare(TEST_MAP_A, TEST_LIST_B));
-  CPPUNIT_ASSERT(swap_compare(TEST_LIST_A, TEST_VALUE_B));
+  ASSERT_TRUE(swap_compare(TEST_VALUE_A, TEST_STRING_B));
+  ASSERT_TRUE(swap_compare(TEST_STRING_A, TEST_MAP_B));
+  ASSERT_TRUE(swap_compare(TEST_MAP_A, TEST_LIST_B));
+  ASSERT_TRUE(swap_compare(TEST_LIST_A, TEST_VALUE_B));
 
-  CPPUNIT_ASSERT(swap_compare("i1e", TEST_VALUE_A));
-  CPPUNIT_ASSERT(swap_compare("i1e", TEST_MAP_A));
-  CPPUNIT_ASSERT(swap_compare("i1e", TEST_LIST_A));
+  ASSERT_TRUE(swap_compare("i1e", TEST_VALUE_A));
+  ASSERT_TRUE(swap_compare("i1e", TEST_MAP_A));
+  ASSERT_TRUE(swap_compare("i1e", TEST_LIST_A));
 
-  CPPUNIT_ASSERT(swap_compare_dict_key("a", TEST_VALUE_A, "b", TEST_STRING_B));
-  CPPUNIT_ASSERT(swap_compare_dict_key("a", TEST_STRING_A, "b", TEST_STRING_B));
+  ASSERT_TRUE(swap_compare_dict_key("a", TEST_VALUE_A, "b", TEST_STRING_B));
+  ASSERT_TRUE(swap_compare_dict_key("a", TEST_STRING_A, "b", TEST_STRING_B));
 }
 
-void
-ObjectTest::test_create_normal() {
+TEST_F(ObjectTest, test_create_normal) {
   torrent::Object obj;
 
-  CPPUNIT_ASSERT(
+  ASSERT_TRUE(
     torrent::object_create_normal(create_bencode_raw_bencode_c("i45e"))
       .as_value() == 45);
-  CPPUNIT_ASSERT(
+  ASSERT_TRUE(
     torrent::object_create_normal(create_bencode_raw_bencode_c("4:test"))
       .as_string() == "test");
-  CPPUNIT_ASSERT(
+  ASSERT_TRUE(
     torrent::object_create_normal(create_bencode_raw_bencode_c("li5ee"))
       .as_list()
       .front()
       .as_value() == 5);
-  CPPUNIT_ASSERT(
+  ASSERT_TRUE(
     torrent::object_create_normal(create_bencode_raw_bencode_c("d1:ai6ee"))
       .as_map()["a"]
       .as_value() == 6);
 
-  CPPUNIT_ASSERT(
-    torrent::object_create_normal(create_bencode_raw_string_c("test"))
-      .as_string() == "test");
-  CPPUNIT_ASSERT(
-    torrent::object_create_normal(create_bencode_raw_list_c("i5ei6e"))
-      .as_list()
-      .back()
-      .as_value() == 6);
-  CPPUNIT_ASSERT(
+  ASSERT_TRUE(torrent::object_create_normal(create_bencode_raw_string_c("test"))
+                .as_string() == "test");
+  ASSERT_TRUE(torrent::object_create_normal(create_bencode_raw_list_c("i5ei6e"))
+                .as_list()
+                .back()
+                .as_value() == 6);
+  ASSERT_TRUE(
     torrent::object_create_normal(create_bencode_raw_map_c("1:ai2e1:bi3e"))
       .as_map()["b"]
       .as_value() == 3);

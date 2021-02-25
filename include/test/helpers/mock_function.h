@@ -1,13 +1,14 @@
 #ifndef LIBTORRENT_HELPERS_MOCK_FUNCTION_H
 #define LIBTORRENT_HELPERS_MOCK_FUNCTION_H
 
-#include <cppunit/extensions/HelperMacros.h>
 #include <functional>
 #include <map>
 #include <string>
 #include <tuple>
 #include <type_traits>
 #include <utility>
+
+#include <gtest/gtest.h>
 
 #include "test/helpers/mock_compare.h"
 
@@ -129,16 +130,15 @@ mock_call_direct(const std::string& name, R fn(Args...), Args... args)
   typedef mock_function_type<R, Args...> mock_type;
 
   auto itr = mock_type::type::functions.find(reinterpret_cast<void*>(fn));
-  CPPUNIT_ASSERT_MESSAGE(
-    ("mock_call expected function calls exhausted by '" + name + "'").c_str(),
-    itr != mock_type::type::functions.end());
+  EXPECT_NE(itr, mock_type::type::functions.end())
+    << ("mock_call expected function calls exhausted by '" + name + "'")
+         .c_str();
 
   auto mismatch_arg = mock_type::compare_expected(itr->second.front(), args...);
-  CPPUNIT_ASSERT_MESSAGE(("mock_call expected function call argument " +
-                          std::to_string(mismatch_arg) + " mismatch for '" +
-                          name + "'")
-                           .c_str(),
-                         mismatch_arg == 0);
+  EXPECT_EQ(mismatch_arg, 0)
+    << ("mock_call expected function call argument " +
+        std::to_string(mismatch_arg) + " mismatch for '" + name + "'")
+         .c_str();
 
   return mock_type::ret_erase(reinterpret_cast<void*>(fn));
 }

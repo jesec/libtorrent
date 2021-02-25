@@ -1,19 +1,6 @@
 #include "test/helpers/test_fixture.h"
 
-class test_chunk_list : public test_fixture {
-  CPPUNIT_TEST_SUITE(test_chunk_list);
-
-  CPPUNIT_TEST(test_basic);
-  CPPUNIT_TEST(test_get_release);
-  CPPUNIT_TEST(test_blocking);
-
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void test_basic();
-  void test_get_release();
-  void test_blocking();
-};
+class test_chunk_list : public test_fixture {};
 
 #include "data/chunk_list.h"
 

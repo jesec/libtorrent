@@ -1,5 +1,6 @@
-#include <cppunit/extensions/HelperMacros.h>
 #include <unistd.h>
+
+#include <gtest/gtest.h>
 
 #include "thread_disk.h"
 #include "torrent/exceptions.h"
@@ -51,7 +52,7 @@ test_thread::call_events() {
 }
 
 thread_management_type::thread_management_type() {
-  CPPUNIT_ASSERT(torrent::thread_base::trylock_global_lock());
+  EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
 }
 
 thread_management_type::~thread_management_type() {

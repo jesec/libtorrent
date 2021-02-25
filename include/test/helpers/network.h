@@ -1,9 +1,10 @@
 #ifndef LIBTORRENT_HELPER_NETWORK_H
 #define LIBTORRENT_HELPER_NETWORK_H
 
-#include <cppunit/extensions/HelperMacros.h>
 #include <functional>
 #include <string>
+
+#include <gtest/gtest.h>
 
 #include "torrent/net/address_info.h"
 
@@ -116,9 +117,9 @@ wrap_ai_get_first_sa(const char*     nodename,
                      const addrinfo* hints    = nullptr) {
   auto sa = torrent::ai_get_first_sa(nodename, servname, hints);
 
-  CPPUNIT_ASSERT_MESSAGE(
-    ("wrap_ai_get_first_sa: nodename:'" + std::string(nodename) + "'").c_str(),
-    sa != nullptr);
+  EXPECT_NE(sa, nullptr) << ("wrap_ai_get_first_sa: nodename:'" +
+                             std::string(nodename) + "'")
+                              .c_str();
   return sa;
 }
 
@@ -128,9 +129,9 @@ wrap_ai_get_first_c_sa(const char*     nodename,
                        const addrinfo* hints    = nullptr) {
   auto sa = torrent::ai_get_first_sa(nodename, servname, hints);
 
-  CPPUNIT_ASSERT_MESSAGE(
-    ("wrap_ai_get_first_sa: nodename:'" + std::string(nodename) + "'").c_str(),
-    sa != nullptr);
+  EXPECT_TRUE(sa != nullptr)
+    << ("wrap_ai_get_first_sa: nodename:'" + std::string(nodename) + "'")
+         .c_str();
   return torrent::c_sa_unique_ptr(sa.release());
 }
 

@@ -1,54 +1,10 @@
-#include <cppunit/extensions/HelperMacros.h>
+#include <gtest/gtest.h>
 
 #include "torrent/tracker.h"
 #include "torrent/tracker_list.h"
 #include "torrent/utils/timer.h"
 
-class tracker_list_test : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(tracker_list_test);
-  CPPUNIT_TEST(test_basic);
-  CPPUNIT_TEST(test_enable);
-  CPPUNIT_TEST(test_close);
-
-  CPPUNIT_TEST(test_tracker_flags);
-  CPPUNIT_TEST(test_find_url);
-  CPPUNIT_TEST(test_can_scrape);
-
-  CPPUNIT_TEST(test_single_success);
-  CPPUNIT_TEST(test_single_failure);
-  CPPUNIT_TEST(test_single_closing);
-
-  CPPUNIT_TEST(test_multiple_success);
-
-  CPPUNIT_TEST(test_scrape_success);
-  CPPUNIT_TEST(test_scrape_failure);
-
-  CPPUNIT_TEST(test_has_active);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void setUp() {}
-  void tearDown() {}
-
-  void test_basic();
-  void test_enable();
-  void test_close();
-
-  void test_tracker_flags();
-  void test_find_url();
-  void test_can_scrape();
-
-  void test_single_success();
-  void test_single_failure();
-  void test_single_closing();
-
-  void test_multiple_success();
-
-  void test_scrape_success();
-  void test_scrape_failure();
-
-  void test_has_active();
-};
+class tracker_list_test : public ::testing::Test {};
 
 class TrackerTest : public torrent::Tracker {
 public:
@@ -174,6 +130,16 @@ check_has_active_in_group(const torrent::TrackerList* tracker_list,
                           const char*                 states,
                           bool                        scrape);
 
+inline bool
+check_tracker_is_busy(torrent::Tracker* tracker, char state) {
+  return state == '0' || tracker->is_busy();
+}
+
+inline bool
+check_tracker_is_not_busy(torrent::Tracker* tracker, char state) {
+  return state == '1' || !tracker->is_busy();
+}
+
 #define TRACKER_SETUP()                                                        \
   torrent::TrackerList tracker_list;                                           \
   int                  success_counter        = 0;                             \
@@ -194,8 +160,8 @@ check_has_active_in_group(const torrent::TrackerList* tracker_list,
   tracker_list.insert(group, name);
 
 #define TEST_TRACKER_IS_BUSY(tracker, state)                                   \
-  CPPUNIT_ASSERT(state == '0' || tracker->is_busy());                          \
-  CPPUNIT_ASSERT(state == '1' || !tracker->is_busy());
+  ASSERT_PRED2(check_tracker_is_busy, tracker, state);                         \
+  ASSERT_PRED2(check_tracker_is_busy, tracker, state);
 
 #define TEST_MULTI3_IS_BUSY(original, rearranged)                              \
   TEST_TRACKER_IS_BUSY(tracker_0_0, original[0]);                              \

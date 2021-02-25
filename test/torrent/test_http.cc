@@ -4,8 +4,6 @@
 
 #include "test/torrent/test_http.h"
 
-CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_http, "torrent");
-
 #define HTTP_SETUP()                                                           \
   bool http_destroyed   = false;                                               \
   bool stream_destroyed = false;                                               \
@@ -90,64 +88,60 @@ increment_value(int* value) {
   (*value)++;
 }
 
-void
-test_http::test_basic() {
+TEST_F(test_http, test_basic) {
   torrent::Http::slot_factory() = std::bind(&create_test_http);
 
   torrent::Http*     http        = torrent::Http::slot_factory()();
   std::stringstream* http_stream = new std::stringstream;
 
   http->set_url("http://example.com");
-  CPPUNIT_ASSERT(http->url() == "http://example.com");
+  ASSERT_TRUE(http->url() == "http://example.com");
 
-  CPPUNIT_ASSERT(http->stream() == NULL);
+  ASSERT_TRUE(http->stream() == NULL);
   http->set_stream(http_stream);
-  CPPUNIT_ASSERT(http->stream() == http_stream);
+  ASSERT_TRUE(http->stream() == http_stream);
 
-  CPPUNIT_ASSERT(http->timeout() == 0);
+  ASSERT_TRUE(http->timeout() == 0);
   http->set_timeout(666);
-  CPPUNIT_ASSERT(http->timeout() == 666);
+  ASSERT_TRUE(http->timeout() == 666);
 
   delete http;
   delete http_stream;
 }
 
-void
-test_http::test_done() {
+TEST_F(test_http, test_done) {
   HTTP_SETUP();
   http->start();
 
-  CPPUNIT_ASSERT(test_http->trigger_signal_done());
+  ASSERT_TRUE(test_http->trigger_signal_done());
 
   // Check that we didn't delete...
 
-  CPPUNIT_ASSERT(done_counter == 1 && failed_counter == 0);
+  ASSERT_TRUE(done_counter == 1 && failed_counter == 0);
 }
 
-void
-test_http::test_failure() {
+TEST_F(test_http, test_failure) {
   HTTP_SETUP();
   http->start();
 
-  CPPUNIT_ASSERT(test_http->trigger_signal_failed());
+  ASSERT_TRUE(test_http->trigger_signal_failed());
 
   // Check that we didn't delete...
 
-  CPPUNIT_ASSERT(done_counter == 0 && failed_counter == 1);
+  ASSERT_TRUE(done_counter == 0 && failed_counter == 1);
 }
 
-void
-test_http::test_delete_on_done() {
+TEST_F(test_http, test_delete_on_done) {
   HTTP_SETUP();
   http->start();
   http->set_delete_stream();
 
-  CPPUNIT_ASSERT(!stream_destroyed);
-  CPPUNIT_ASSERT(!http_destroyed);
-  CPPUNIT_ASSERT(test_http->trigger_signal_done());
-  CPPUNIT_ASSERT(stream_destroyed);
-  CPPUNIT_ASSERT(!http_destroyed);
-  CPPUNIT_ASSERT(http->stream() == NULL);
+  ASSERT_TRUE(!stream_destroyed);
+  ASSERT_TRUE(!http_destroyed);
+  ASSERT_TRUE(test_http->trigger_signal_done());
+  ASSERT_TRUE(stream_destroyed);
+  ASSERT_TRUE(!http_destroyed);
+  ASSERT_TRUE(http->stream() == NULL);
 
   stream_destroyed = false;
   http_stream      = new StringStream(&stream_destroyed);
@@ -156,25 +150,24 @@ test_http::test_delete_on_done() {
   http->start();
   http->set_delete_self();
 
-  CPPUNIT_ASSERT(!stream_destroyed);
-  CPPUNIT_ASSERT(!http_destroyed);
-  CPPUNIT_ASSERT(test_http->trigger_signal_done());
-  CPPUNIT_ASSERT(stream_destroyed);
-  CPPUNIT_ASSERT(http_destroyed);
+  ASSERT_TRUE(!stream_destroyed);
+  ASSERT_TRUE(!http_destroyed);
+  ASSERT_TRUE(test_http->trigger_signal_done());
+  ASSERT_TRUE(stream_destroyed);
+  ASSERT_TRUE(http_destroyed);
 }
 
-void
-test_http::test_delete_on_failure() {
+TEST_F(test_http, test_delete_on_failure) {
   HTTP_SETUP();
   http->start();
   http->set_delete_stream();
 
-  CPPUNIT_ASSERT(!stream_destroyed);
-  CPPUNIT_ASSERT(!http_destroyed);
-  CPPUNIT_ASSERT(test_http->trigger_signal_failed());
-  CPPUNIT_ASSERT(stream_destroyed);
-  CPPUNIT_ASSERT(!http_destroyed);
-  CPPUNIT_ASSERT(http->stream() == NULL);
+  ASSERT_TRUE(!stream_destroyed);
+  ASSERT_TRUE(!http_destroyed);
+  ASSERT_TRUE(test_http->trigger_signal_failed());
+  ASSERT_TRUE(stream_destroyed);
+  ASSERT_TRUE(!http_destroyed);
+  ASSERT_TRUE(http->stream() == NULL);
 
   stream_destroyed = false;
   http_stream      = new StringStream(&stream_destroyed);
@@ -183,9 +176,9 @@ test_http::test_delete_on_failure() {
   http->start();
   http->set_delete_self();
 
-  CPPUNIT_ASSERT(!stream_destroyed);
-  CPPUNIT_ASSERT(!http_destroyed);
-  CPPUNIT_ASSERT(test_http->trigger_signal_failed());
-  CPPUNIT_ASSERT(stream_destroyed);
-  CPPUNIT_ASSERT(http_destroyed);
+  ASSERT_TRUE(!stream_destroyed);
+  ASSERT_TRUE(!http_destroyed);
+  ASSERT_TRUE(test_http->trigger_signal_failed());
+  ASSERT_TRUE(stream_destroyed);
+  ASSERT_TRUE(http_destroyed);
 }

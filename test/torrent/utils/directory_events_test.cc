@@ -5,13 +5,10 @@
 
 #include "test/torrent/utils/directory_events_test.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION(utils_directory_events_test);
+void
+utils_directory_events_test::SetUp() {}
 
 void
-utils_directory_events_test::setUp() {}
+utils_directory_events_test::TearDown() {}
 
-void
-utils_directory_events_test::tearDown() {}
-
-void
-utils_directory_events_test::test_basic() {}
+TEST_F(utils_directory_events_test, test_basic) {}

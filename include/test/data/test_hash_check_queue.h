@@ -7,24 +7,8 @@
 #include "torrent/hash_string.h"
 
 class test_hash_check_queue : public test_fixture {
-  CPPUNIT_TEST_SUITE(test_hash_check_queue);
-
-  CPPUNIT_TEST(test_single);
-  CPPUNIT_TEST(test_multiple);
-  CPPUNIT_TEST(test_erase);
-
-  CPPUNIT_TEST(test_thread);
-
-  CPPUNIT_TEST_SUITE_END();
-
 public:
-  void setUp();
-
-  void test_single();
-  void test_multiple();
-  void test_erase();
-
-  void test_thread();
+  void SetUp() override;
 };
 
 typedef std::map<int, torrent::HashString> done_chunks_type;

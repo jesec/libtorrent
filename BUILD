@@ -89,14 +89,9 @@ cc_test(
     srcs = glob(["test/**/*.cc"]) + ["//:included_headers"],
     copts = COPTS,
     includes = ["include"],
-    linkopts = LINKOPTS + select({
-        "//:macos": [],
-        "//conditions:default": ["-lcppunit"],
-    }),
-    deps = ["//:torrent"] + select({
-        "//:macos": [
-            "@cppunit",
-        ],
-        "//conditions:default": [],
-    }),
+    linkopts = LINKOPTS,
+    deps = [
+        "//:torrent",
+        "@gtest",
+    ],
 )

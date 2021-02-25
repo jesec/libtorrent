@@ -74,6 +74,6 @@ struct thread_management_type {
   thread_disk->init_thread();
 
 #define CLEANUP_THREAD()                                                       \
-  CPPUNIT_ASSERT(wait_for_true(                                                \
+  ASSERT_TRUE(wait_for_true(                                                   \
     std::bind(&torrent::thread_base::is_inactive, thread_disk)));              \
   delete thread_disk;

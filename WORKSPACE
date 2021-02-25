@@ -8,21 +8,11 @@ load("//:libtorrent_deps.bzl", "libtorrent_deps")
 
 libtorrent_deps()
 
-# MacOS workaround
-_MACOS_CPPUNIT = """
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-cc_library(
-  name = "cppunit",
-  srcs = ["lib/libcppunit.dylib"],
-  hdrs = glob(["include/cppunit/**"]),
-  includes = ["include"],
-  visibility = ["//visibility:public"],
-)
-"""
-
-new_local_repository(
-    name = "cppunit",
-    build_file_content = _MACOS_CPPUNIT,
-    path = "/usr/local/opt/cppunit",
+http_archive(
+    name = "gtest",
+    sha256 = "3519a051b20f0dd3a58e1dedd391a3cbd27eb70189afb1185dc4eaefe111211f",
+    strip_prefix = "googletest-1de637fbdd4ab0051229707f855eee76f5a3d5da",
+    urls = ["https://github.com/google/googletest/archive/1de637fbdd4ab0051229707f855eee76f5a3d5da.zip"],
 )

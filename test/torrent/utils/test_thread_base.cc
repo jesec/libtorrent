@@ -11,8 +11,6 @@
 #include "test/helpers/test_thread.h"
 #include "test/helpers/test_utils.h"
 
-CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_thread_base, "torrent/utils");
-
 #define TEST_BEGIN(name)                                                       \
   lt_log_print(torrent::LOG_MOCK_CALLS, "thread_base: %s", name);
 
@@ -22,105 +20,101 @@ throw_shutdown_exception() {
 }
 
 void
-test_thread_base::tearDown() {
-  CPPUNIT_ASSERT(torrent::thread_base::trylock_global_lock());
+test_thread_base::TearDown() {
+  EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
   torrent::thread_base::release_global_lock();
-  test_fixture::tearDown();
+  test_fixture::TearDown();
 }
 
-void
-test_thread_base::test_basic() {
+TEST_F(test_thread_base, test_basic) {
   test_thread* thread = new test_thread;
 
-  CPPUNIT_ASSERT(thread->flags() == 0);
+  ASSERT_TRUE(thread->flags() == 0);
 
-  CPPUNIT_ASSERT(!thread->is_active());
-  CPPUNIT_ASSERT(thread->global_queue_size() == 0);
-  CPPUNIT_ASSERT(thread->poll() == NULL);
+  ASSERT_TRUE(!thread->is_active());
+  ASSERT_TRUE(thread->global_queue_size() == 0);
+  ASSERT_TRUE(thread->poll() == NULL);
 
   // Check active...
 
   delete thread;
 }
 
-void
-test_thread_base::test_lifecycle() {
+TEST_F(test_thread_base, test_lifecycle) {
   test_thread* thread = new test_thread;
 
-  CPPUNIT_ASSERT(thread->state() == torrent::thread_base::STATE_UNKNOWN);
-  CPPUNIT_ASSERT(thread->test_state() == test_thread::TEST_NONE);
+  ASSERT_TRUE(thread->state() == torrent::thread_base::STATE_UNKNOWN);
+  ASSERT_TRUE(thread->test_state() == test_thread::TEST_NONE);
 
   thread->init_thread();
-  CPPUNIT_ASSERT(thread->state() == torrent::thread_base::STATE_INITIALIZED);
-  CPPUNIT_ASSERT(thread->is_initialized());
-  CPPUNIT_ASSERT(thread->test_state() == test_thread::TEST_PRE_START);
+  ASSERT_TRUE(thread->state() == torrent::thread_base::STATE_INITIALIZED);
+  ASSERT_TRUE(thread->is_initialized());
+  ASSERT_TRUE(thread->test_state() == test_thread::TEST_PRE_START);
 
   thread->set_pre_stop();
-  CPPUNIT_ASSERT(!wait_for_true(std::bind(
+  ASSERT_TRUE(!wait_for_true(std::bind(
     &test_thread::is_test_state, thread, test_thread::TEST_PRE_STOP)));
 
   thread->start_thread();
-  CPPUNIT_ASSERT(wait_for_true(
+  ASSERT_TRUE(wait_for_true(
     std::bind(&test_thread::is_state, thread, test_thread::STATE_ACTIVE)));
-  CPPUNIT_ASSERT(thread->is_active());
-  CPPUNIT_ASSERT(wait_for_true(std::bind(
+  ASSERT_TRUE(thread->is_active());
+  ASSERT_TRUE(wait_for_true(std::bind(
     &test_thread::is_test_state, thread, test_thread::TEST_PRE_STOP)));
 
   thread->stop_thread();
-  CPPUNIT_ASSERT(wait_for_true(
+  ASSERT_TRUE(wait_for_true(
     std::bind(&test_thread::is_state, thread, test_thread::STATE_INACTIVE)));
-  CPPUNIT_ASSERT(thread->is_inactive());
+  ASSERT_TRUE(thread->is_inactive());
 
   delete thread;
 }
 
-void
-test_thread_base::test_global_lock_basic() {
+TEST_F(test_thread_base, test_global_lock_basic) {
   test_thread* thread = new test_thread;
 
   thread->init_thread();
   thread->start_thread();
 
-  CPPUNIT_ASSERT(torrent::thread_base::global_queue_size() == 0);
+  ASSERT_TRUE(torrent::thread_base::global_queue_size() == 0);
 
   // Acquire main thread...
-  CPPUNIT_ASSERT(torrent::thread_base::trylock_global_lock());
-  CPPUNIT_ASSERT(!torrent::thread_base::trylock_global_lock());
+  EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
+  EXPECT_TRUE(!torrent::thread_base::trylock_global_lock());
 
   torrent::thread_base::release_global_lock();
-  CPPUNIT_ASSERT(torrent::thread_base::trylock_global_lock());
-  CPPUNIT_ASSERT(!torrent::thread_base::trylock_global_lock());
+  EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
+  EXPECT_TRUE(!torrent::thread_base::trylock_global_lock());
 
   torrent::thread_base::release_global_lock();
   torrent::thread_base::acquire_global_lock();
-  CPPUNIT_ASSERT(!torrent::thread_base::trylock_global_lock());
+  EXPECT_TRUE(!torrent::thread_base::trylock_global_lock());
 
   thread->set_acquire_global();
-  CPPUNIT_ASSERT(!wait_for_true(std::bind(
+  ASSERT_TRUE(!wait_for_true(std::bind(
     &test_thread::is_test_flags, thread, test_thread::test_flag_has_global)));
 
   torrent::thread_base::release_global_lock();
-  CPPUNIT_ASSERT(wait_for_true(std::bind(
+  ASSERT_TRUE(wait_for_true(std::bind(
     &test_thread::is_test_flags, thread, test_thread::test_flag_has_global)));
 
-  CPPUNIT_ASSERT(!torrent::thread_base::trylock_global_lock());
+  ASSERT_TRUE(!torrent::thread_base::trylock_global_lock());
   torrent::thread_base::release_global_lock();
-  CPPUNIT_ASSERT(torrent::thread_base::trylock_global_lock());
+  EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
 
   // Test waive (loop).
 
-  CPPUNIT_ASSERT(torrent::thread_base::global_queue_size() == 0);
+  ASSERT_TRUE(torrent::thread_base::global_queue_size() == 0);
 
   torrent::thread_base::release_global_lock();
   thread->stop_thread();
-  CPPUNIT_ASSERT(wait_for_true(
+  ASSERT_TRUE(wait_for_true(
     std::bind(&test_thread::is_state, thread, test_thread::STATE_INACTIVE)));
 
   delete thread;
 }
 
-void
-test_thread_base::test_interrupt() {
+TEST_F(test_thread_base, test_interrupt) {
   test_thread* thread = new test_thread;
   thread->set_test_flag(test_thread::test_flag_long_timeout);
 
@@ -137,28 +131,27 @@ test_thread_base::test_interrupt() {
     thread->interrupt();
 
     // Wait for flag to clear.
-    CPPUNIT_ASSERT(wait_for_true(std::bind(&test_thread::is_not_test_flags,
-                                           thread,
-                                           test_thread::test_flag_do_work)));
+    ASSERT_TRUE(wait_for_true(std::bind(&test_thread::is_not_test_flags,
+                                        thread,
+                                        test_thread::test_flag_do_work)));
   }
 
   thread->stop_thread();
-  CPPUNIT_ASSERT(wait_for_true(
+  ASSERT_TRUE(wait_for_true(
     std::bind(&test_thread::is_state, thread, test_thread::STATE_INACTIVE)));
 
   delete thread;
 }
 
-void
-test_thread_base::test_stop() {
+TEST_F(test_thread_base, test_stop) {
   {
     TEST_BEGIN("trylock global lock");
-    CPPUNIT_ASSERT(torrent::thread_base::trylock_global_lock());
+    EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
     // torrent::thread_base::acquire_global_lock();
   };
 
   for (int i = 0; i < 20; i++) {
-    CPPUNIT_ASSERT(!torrent::thread_base::trylock_global_lock());
+    EXPECT_TRUE(!torrent::thread_base::trylock_global_lock());
 
     test_thread* thread = new test_thread;
     thread->set_test_flag(test_thread::test_flag_do_work);
@@ -172,7 +165,7 @@ test_thread_base::test_stop() {
     {
       TEST_BEGIN("stop and delete thread");
       thread->stop_thread_wait();
-      CPPUNIT_ASSERT(thread->is_inactive());
+      ASSERT_TRUE(thread->is_inactive());
 
       delete thread;
     }

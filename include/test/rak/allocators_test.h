@@ -1,19 +1,11 @@
-#include <cppunit/extensions/HelperMacros.h>
 #include <vector>
+
+#include <gtest/gtest.h>
 
 #include "torrent/utils/allocators.h"
 
-class AllocatorsTest : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(AllocatorsTest);
-  CPPUNIT_TEST(testAlignment);
-  CPPUNIT_TEST_SUITE_END();
-
+class AllocatorsTest : public ::testing::Test {
 public:
   typedef std::vector<char, torrent::utils::cacheline_allocator<char>>
     aligned_vector_type;
-
-  void setUp() {}
-  void tearDown() {}
-
-  void testAlignment();
 };

@@ -182,7 +182,7 @@ inline void
 thread_base::waive_global_lock() {
   m_global.lock.unlock();
 
-  // Do we need to sleep here? Make a CppUnit test for this.
+  // Do we need to sleep here? Make a test for this.
   acquire_global_lock();
 }
 

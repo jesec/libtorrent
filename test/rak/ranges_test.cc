@@ -2,8 +2,6 @@
 
 #include "test/rak/ranges_test.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION(RangesTest);
-
 template<typename Type>
 bool
 verify_ranges(const torrent::ranges<Type>& ranges) {
@@ -30,49 +28,46 @@ verify_ranges(const torrent::ranges<Type>& ranges) {
   return true;
 }
 
-void
-RangesTest::test_basic() {}
+TEST_F(RangesTest, test_basic) {}
 
-void
-RangesTest::test_intersect() {
+TEST_F(RangesTest, test_intersect) {
   torrent::ranges<int> range;
 
-  CPPUNIT_ASSERT(verify_ranges(range));
+  ASSERT_TRUE(verify_ranges(range));
 
-  CPPUNIT_ASSERT(range.intersect_distance(0, 0) == 0);
-  CPPUNIT_ASSERT(range.intersect_distance(0, 10) == 0);
+  ASSERT_TRUE(range.intersect_distance(0, 0) == 0);
+  ASSERT_TRUE(range.intersect_distance(0, 10) == 0);
 
   range.insert(0, 5);
 
-  CPPUNIT_ASSERT(verify_ranges(range));
+  ASSERT_TRUE(verify_ranges(range));
 
-  CPPUNIT_ASSERT(range.intersect_distance(0, 5) == 5);
-  CPPUNIT_ASSERT(range.intersect_distance(0, 10) == 5);
-  CPPUNIT_ASSERT(range.intersect_distance(-5, 5) == 5);
-  CPPUNIT_ASSERT(range.intersect_distance(-5, 10) == 5);
+  ASSERT_TRUE(range.intersect_distance(0, 5) == 5);
+  ASSERT_TRUE(range.intersect_distance(0, 10) == 5);
+  ASSERT_TRUE(range.intersect_distance(-5, 5) == 5);
+  ASSERT_TRUE(range.intersect_distance(-5, 10) == 5);
 
-  CPPUNIT_ASSERT(range.intersect_distance(2, 2) == 0);
-  CPPUNIT_ASSERT(range.intersect_distance(1, 4) == 3);
-  CPPUNIT_ASSERT(range.intersect_distance(1, 10) == 4);
-  CPPUNIT_ASSERT(range.intersect_distance(-5, 4) == 4);
+  ASSERT_TRUE(range.intersect_distance(2, 2) == 0);
+  ASSERT_TRUE(range.intersect_distance(1, 4) == 3);
+  ASSERT_TRUE(range.intersect_distance(1, 10) == 4);
+  ASSERT_TRUE(range.intersect_distance(-5, 4) == 4);
 
   range.insert(10, 15);
 
-  CPPUNIT_ASSERT(verify_ranges(range));
+  ASSERT_TRUE(verify_ranges(range));
 
-  CPPUNIT_ASSERT(range.intersect_distance(0, 15) == 10);
-  CPPUNIT_ASSERT(range.intersect_distance(0, 20) == 10);
-  CPPUNIT_ASSERT(range.intersect_distance(-5, 15) == 10);
-  CPPUNIT_ASSERT(range.intersect_distance(-5, 20) == 10);
+  ASSERT_TRUE(range.intersect_distance(0, 15) == 10);
+  ASSERT_TRUE(range.intersect_distance(0, 20) == 10);
+  ASSERT_TRUE(range.intersect_distance(-5, 15) == 10);
+  ASSERT_TRUE(range.intersect_distance(-5, 20) == 10);
 
-  CPPUNIT_ASSERT(range.intersect_distance(2, 12) == 5);
-  CPPUNIT_ASSERT(range.intersect_distance(1, 14) == 8);
-  CPPUNIT_ASSERT(range.intersect_distance(1, 20) == 9);
-  CPPUNIT_ASSERT(range.intersect_distance(-5, 14) == 9);
+  ASSERT_TRUE(range.intersect_distance(2, 12) == 5);
+  ASSERT_TRUE(range.intersect_distance(1, 14) == 8);
+  ASSERT_TRUE(range.intersect_distance(1, 20) == 9);
+  ASSERT_TRUE(range.intersect_distance(-5, 14) == 9);
 }
 
-void
-RangesTest::test_create_union() {
+TEST_F(RangesTest, test_create_union) {
   torrent::ranges<int> range_1l;
   torrent::ranges<int> range_1r;
 
@@ -81,22 +76,22 @@ RangesTest::test_create_union() {
   // Empty:
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
-  CPPUNIT_ASSERT(verify_ranges(range_1u));
-  CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 20) == 0);
+  ASSERT_TRUE(verify_ranges(range_1u));
+  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 0);
 
   range_1l.insert(0, 5);
 
   // Left one entry:
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
-  CPPUNIT_ASSERT(verify_ranges(range_1u));
-  CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 20) == 5);
+  ASSERT_TRUE(verify_ranges(range_1u));
+  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 5);
 
   // Right one entry:
   range_1u = torrent::ranges<int>::create_union(range_1r, range_1l);
 
-  CPPUNIT_ASSERT(verify_ranges(range_1u));
-  CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 20) == 5);
+  ASSERT_TRUE(verify_ranges(range_1u));
+  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 5);
 
   range_1r.insert(10, 15);
 
@@ -106,8 +101,8 @@ RangesTest::test_create_union() {
   //  std::cout << "range_1u.intersect_distance(-5, 20) = " <<
   //  range_1u.intersect_distance(-5, 20) << std::endl;
 
-  CPPUNIT_ASSERT(verify_ranges(range_1u));
-  CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 20) == 10);
+  ASSERT_TRUE(verify_ranges(range_1u));
+  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 10);
 
   range_1r.insert(4, 6);
 
@@ -117,16 +112,16 @@ RangesTest::test_create_union() {
   //  std::cout << "range_1u.intersect_distance(-5, 20) = " <<
   //  range_1u.intersect_distance(-5, 20) << std::endl;
 
-  CPPUNIT_ASSERT(verify_ranges(range_1u));
-  CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 20) == 11);
+  ASSERT_TRUE(verify_ranges(range_1u));
+  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 11);
 
   range_1r.insert(9, 10);
 
   // Boundary:
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
-  CPPUNIT_ASSERT(verify_ranges(range_1u));
-  CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 20) == 12);
+  ASSERT_TRUE(verify_ranges(range_1u));
+  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 12);
 
   // Trailing ranges left.
   range_1l.insert(25, 30);
@@ -134,8 +129,8 @@ RangesTest::test_create_union() {
 
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
-  CPPUNIT_ASSERT(verify_ranges(range_1u));
-  CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 50) == 22);
+  ASSERT_TRUE(verify_ranges(range_1u));
+  ASSERT_TRUE(range_1u.intersect_distance(-5, 50) == 22);
 
   // Trailing ranges right.
   range_1r.insert(37, 45);
@@ -143,6 +138,6 @@ RangesTest::test_create_union() {
 
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
-  CPPUNIT_ASSERT(verify_ranges(range_1u));
-  CPPUNIT_ASSERT(range_1u.intersect_distance(-5, 60) == 32);
+  ASSERT_TRUE(verify_ranges(range_1u));
+  ASSERT_TRUE(range_1u.intersect_distance(-5, 60) == 32);
 }

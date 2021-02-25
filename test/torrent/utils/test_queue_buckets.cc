@@ -3,8 +3,6 @@
 
 #include "test/torrent/utils/test_queue_buckets.h"
 
-CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(test_queue_buckets, "torrent/utils");
-
 struct test_constants {
   static constexpr int bucket_count = 2;
 
@@ -70,47 +68,46 @@ struct test_queue_bucket_compare {
     buckets.push_back(1, s_0 + i);
 
 #define VERIFY_QUEUE_SIZES(s_0, s_1)                                           \
-  CPPUNIT_ASSERT(buckets.queue_size(0) == s_0);                                \
-  CPPUNIT_ASSERT(buckets.queue_size(1) == s_1);
+  ASSERT_TRUE(buckets.queue_size(0) == s_0);                                   \
+  ASSERT_TRUE(buckets.queue_size(1) == s_1);
 
 #ifdef LT_INSTRUMENTATION
 #define VERIFY_INSTRUMENTATION(a_0, m_0, r_0, t_0, a_1, m_1, r_1, t_1)         \
-  CPPUNIT_ASSERT(torrent::instrumentation_values                               \
-                   [test_constants::instrumentation_added[0]] == a_0);         \
-  CPPUNIT_ASSERT(torrent::instrumentation_values                               \
-                   [test_constants::instrumentation_moved[0]] == m_0);         \
-  CPPUNIT_ASSERT(torrent::instrumentation_values                               \
-                   [test_constants::instrumentation_removed[0]] == r_0);       \
-  CPPUNIT_ASSERT(torrent::instrumentation_values                               \
-                   [test_constants::instrumentation_total[0]] == t_0);         \
-  CPPUNIT_ASSERT(torrent::instrumentation_values                               \
-                   [test_constants::instrumentation_added[1]] == a_1);         \
-  CPPUNIT_ASSERT(torrent::instrumentation_values                               \
-                   [test_constants::instrumentation_moved[1]] == m_1);         \
-  CPPUNIT_ASSERT(torrent::instrumentation_values                               \
-                   [test_constants::instrumentation_removed[1]] == r_1);       \
-  CPPUNIT_ASSERT(torrent::instrumentation_values                               \
-                   [test_constants::instrumentation_total[1]] == t_1);
+  ASSERT_TRUE(torrent::instrumentation_values                                  \
+                [test_constants::instrumentation_added[0]] == a_0);            \
+  ASSERT_TRUE(torrent::instrumentation_values                                  \
+                [test_constants::instrumentation_moved[0]] == m_0);            \
+  ASSERT_TRUE(torrent::instrumentation_values                                  \
+                [test_constants::instrumentation_removed[0]] == r_0);          \
+  ASSERT_TRUE(torrent::instrumentation_values                                  \
+                [test_constants::instrumentation_total[0]] == t_0);            \
+  ASSERT_TRUE(torrent::instrumentation_values                                  \
+                [test_constants::instrumentation_added[1]] == a_1);            \
+  ASSERT_TRUE(torrent::instrumentation_values                                  \
+                [test_constants::instrumentation_moved[1]] == m_1);            \
+  ASSERT_TRUE(torrent::instrumentation_values                                  \
+                [test_constants::instrumentation_removed[1]] == r_1);          \
+  ASSERT_TRUE(torrent::instrumentation_values                                  \
+                [test_constants::instrumentation_total[1]] == t_1);
 #else
 #define VERIFY_INSTRUMENTATION(a_0, m_0, r_0, t_0, a_1, m_1, r_1, t_1) (void)0
 #endif
 
 #define VERIFY_ITEMS_DESTROYED(count)                                          \
-  CPPUNIT_ASSERT(items_destroyed == count);                                    \
+  ASSERT_TRUE(items_destroyed == count);                                       \
   items_destroyed = 0;
 
 //
 // Basic tests:
 //
 
-void
-test_queue_buckets::test_basic() {
+TEST_F(test_queue_buckets, test_basic) {
   torrent::instrumentation_initialize();
 
   buckets_type buckets;
 
   VERIFY_QUEUE_SIZES(0, 0);
-  CPPUNIT_ASSERT(buckets.empty());
+  ASSERT_TRUE(buckets.empty());
 
   buckets.push_front(0, int());
   VERIFY_QUEUE_SIZES(1, 0);
@@ -118,7 +115,7 @@ test_queue_buckets::test_basic() {
   VERIFY_QUEUE_SIZES(2, 0);
   VERIFY_INSTRUMENTATION(2, 0, 0, 2, 0, 0, 0, 0);
 
-  CPPUNIT_ASSERT(!buckets.empty());
+  ASSERT_TRUE(!buckets.empty());
 
   buckets.push_front(1, int());
   VERIFY_QUEUE_SIZES(2, 1);
@@ -126,7 +123,7 @@ test_queue_buckets::test_basic() {
   VERIFY_QUEUE_SIZES(2, 2);
   VERIFY_INSTRUMENTATION(2, 0, 0, 2, 2, 0, 0, 2);
 
-  CPPUNIT_ASSERT(!buckets.empty());
+  ASSERT_TRUE(!buckets.empty());
 
   buckets.pop_front(0);
   VERIFY_QUEUE_SIZES(1, 2);
@@ -134,7 +131,7 @@ test_queue_buckets::test_basic() {
   VERIFY_QUEUE_SIZES(0, 2);
   VERIFY_INSTRUMENTATION(2, 0, 2, 0, 2, 0, 0, 2);
 
-  CPPUNIT_ASSERT(!buckets.empty());
+  ASSERT_TRUE(!buckets.empty());
 
   buckets.pop_front(1);
   VERIFY_QUEUE_SIZES(0, 1);
@@ -142,11 +139,10 @@ test_queue_buckets::test_basic() {
   VERIFY_QUEUE_SIZES(0, 0);
   VERIFY_INSTRUMENTATION(2, 0, 2, 0, 2, 0, 2, 0);
 
-  CPPUNIT_ASSERT(buckets.empty());
+  ASSERT_TRUE(buckets.empty());
 }
 
-void
-test_queue_buckets::test_erase() {
+TEST_F(test_queue_buckets, test_erase) {
   items_destroyed = 0;
   torrent::instrumentation_initialize();
 
@@ -180,8 +176,7 @@ bucket_queue_find_in_any(const buckets_type& buckets, int value) {
                                               test_queue_bucket_compare(value));
 }
 
-void
-test_queue_buckets::test_find() {
+TEST_F(test_queue_buckets, test_find) {
   items_destroyed = 0;
   torrent::instrumentation_initialize();
 
@@ -189,24 +184,19 @@ test_queue_buckets::test_find() {
 
   FILL_BUCKETS(10, 5);
 
-  CPPUNIT_ASSERT(bucket_queue_find_in_queue(buckets, 0, 0) == buckets.begin(0));
-  CPPUNIT_ASSERT(bucket_queue_find_in_queue(buckets, 0, 10) == buckets.end(0));
-  CPPUNIT_ASSERT(bucket_queue_find_in_queue(buckets, 1, 10) ==
-                 buckets.begin(1));
+  ASSERT_TRUE(bucket_queue_find_in_queue(buckets, 0, 0) == buckets.begin(0));
+  ASSERT_TRUE(bucket_queue_find_in_queue(buckets, 0, 10) == buckets.end(0));
+  ASSERT_TRUE(bucket_queue_find_in_queue(buckets, 1, 10) == buckets.begin(1));
 
-  CPPUNIT_ASSERT(bucket_queue_find_in_any(buckets, 0).first == 0);
-  CPPUNIT_ASSERT(bucket_queue_find_in_any(buckets, 0).second ==
-                 buckets.begin(0));
-  CPPUNIT_ASSERT(bucket_queue_find_in_any(buckets, 10).first == 1);
-  CPPUNIT_ASSERT(bucket_queue_find_in_any(buckets, 10).second ==
-                 buckets.begin(1));
-  CPPUNIT_ASSERT(bucket_queue_find_in_any(buckets, 20).first == 2);
-  CPPUNIT_ASSERT(bucket_queue_find_in_any(buckets, 20).second ==
-                 buckets.end(1));
+  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 0).first == 0);
+  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 0).second == buckets.begin(0));
+  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 10).first == 1);
+  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 10).second == buckets.begin(1));
+  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 20).first == 2);
+  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 20).second == buckets.end(1));
 }
 
-void
-test_queue_buckets::test_destroy_range() {
+TEST_F(test_queue_buckets, test_destroy_range) {
   items_destroyed = 0;
   torrent::instrumentation_initialize();
 
@@ -228,8 +218,7 @@ test_queue_buckets::test_destroy_range() {
   VERIFY_INSTRUMENTATION(10, 0, 4, 6, 5, 0, 5, 0);
 }
 
-void
-test_queue_buckets::test_move_range() {
+TEST_F(test_queue_buckets, test_move_range) {
   items_destroyed = 0;
   torrent::instrumentation_initialize();
 

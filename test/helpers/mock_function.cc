@@ -10,9 +10,9 @@
 #include "test/helpers/mock_function.h"
 
 #define MOCK_CLEANUP_MAP(MOCK_FUNC)                                            \
-  CPPUNIT_ASSERT_MESSAGE(                                                      \
-    "expected mock function calls not completed for '" #MOCK_FUNC "'",         \
-    mock_cleanup_map(&MOCK_FUNC) || ignore_assert);
+  ASSERT_TRUE(mock_cleanup_map(&MOCK_FUNC) || ignore_assert)                   \
+    << "expected mock function calls not completed for '" #MOCK_FUNC "'";
+
 #define MOCK_LOG(log_fmt, ...)                                                 \
   lt_log_print(torrent::LOG_MOCK_CALLS, "%s: " log_fmt, __func__, __VA_ARGS__);
 

@@ -7,8 +7,6 @@
 #include "test/torrent/object_stream_test.h"
 #include "test/torrent/object_test_utils.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION(ObjectStreamTest);
-
 static const char* ordered_bencode =
   "d1:ei0e4:ipv44:XXXX4:ipv616:XXXXXXXXXXXXXXXX1:md11:upload_onlyi3e12:ut_"
   "holepunchi4e11:ut_metadatai2e6:ut_pexi1ee13:metadata_sizei15408e1:"
@@ -20,32 +18,29 @@ static const char* unordered_bencode =
 
 static const char* string_bencode = "32:aaaaaaaabbbbbbbbccccccccdddddddd";
 
-void
-ObjectStreamTest::testInputOrdered() {
+TEST_F(ObjectStreamTest, testInputOrdered) {
   torrent::Object orderedObj   = create_bencode(ordered_bencode);
   torrent::Object unorderedObj = create_bencode(unordered_bencode);
 
-  CPPUNIT_ASSERT(!(orderedObj.flags() & torrent::Object::flag_unordered));
-  CPPUNIT_ASSERT(unorderedObj.flags() & torrent::Object::flag_unordered);
+  ASSERT_TRUE(!(orderedObj.flags() & torrent::Object::flag_unordered));
+  ASSERT_TRUE(unorderedObj.flags() & torrent::Object::flag_unordered);
 }
 
-void
-ObjectStreamTest::testInputNullKey() {
+TEST_F(ObjectStreamTest, testInputNullKey) {
   torrent::Object obj = create_bencode("d0:i1e5:filesi2ee");
 
-  CPPUNIT_ASSERT(!(obj.flags() & torrent::Object::flag_unordered));
+  ASSERT_TRUE(!(obj.flags() & torrent::Object::flag_unordered));
 }
 
-void
-ObjectStreamTest::testOutputMask() {
+TEST_F(ObjectStreamTest, testOutputMask) {
   torrent::Object normalObj = create_bencode("d1:ai1e1:bi2e1:ci3ee");
 
-  CPPUNIT_ASSERT(compare_bencode(normalObj, "d1:ai1e1:bi2e1:ci3ee"));
+  ASSERT_TRUE(compare_bencode(normalObj, "d1:ai1e1:bi2e1:ci3ee"));
 
   normalObj.get_key("b").set_flags(torrent::Object::flag_session_data);
   normalObj.get_key("c").set_flags(torrent::Object::flag_static_data);
 
-  CPPUNIT_ASSERT(compare_bencode(
+  ASSERT_TRUE(compare_bencode(
     normalObj, "d1:ai1e1:ci3ee", torrent::Object::flag_session_data));
 }
 
@@ -60,8 +55,7 @@ object_write_to_invalidate(void*, torrent::object_buffer_t buffer) {
   return torrent::object_buffer_t(buffer.second, buffer.second);
 }
 
-void
-ObjectStreamTest::testBuffer() {
+TEST_F(ObjectStreamTest, testBuffer) {
   char                     raw_buffer[16];
   torrent::object_buffer_t buffer(raw_buffer, raw_buffer + 16);
 
@@ -72,19 +66,18 @@ ObjectStreamTest::testBuffer() {
 
 static const char* single_level_bencode = "d1:ai1e1:bi2e1:cl1:ai1e1:bi2eee";
 
-void
-ObjectStreamTest::testReadBencodeC() {
+TEST_F(ObjectStreamTest, testReadBencodeC) {
   torrent::Object orderedObj   = create_bencode_c(ordered_bencode);
   torrent::Object unorderedObj = create_bencode_c(unordered_bencode);
 
-  CPPUNIT_ASSERT(!(orderedObj.flags() & torrent::Object::flag_unordered));
-  CPPUNIT_ASSERT(unorderedObj.flags() & torrent::Object::flag_unordered);
-  CPPUNIT_ASSERT(compare_bencode(orderedObj, ordered_bencode));
+  ASSERT_TRUE(!(orderedObj.flags() & torrent::Object::flag_unordered));
+  ASSERT_TRUE(unorderedObj.flags() & torrent::Object::flag_unordered);
+  ASSERT_TRUE(compare_bencode(orderedObj, ordered_bencode));
 
   //  torrent::Object single_level = create_bencode_c(single_level_bencode);
   torrent::Object single_level = create_bencode_c(single_level_bencode);
 
-  CPPUNIT_ASSERT(compare_bencode(single_level, single_level_bencode));
+  ASSERT_TRUE(compare_bencode(single_level, single_level_bencode));
 }
 
 bool
@@ -132,88 +125,85 @@ object_stream_read_skip_catch(const char* input) {
   }
 }
 
-void
-ObjectStreamTest::test_read_skip() {
-  CPPUNIT_ASSERT(object_stream_read_skip("i0e"));
-  CPPUNIT_ASSERT(object_stream_read_skip("i9999e"));
-  CPPUNIT_ASSERT(object_stream_read_skip("i-1e"));
-  CPPUNIT_ASSERT(object_stream_read_skip("i-9999e"));
+TEST_F(ObjectStreamTest, test_read_skip) {
+  ASSERT_TRUE(object_stream_read_skip("i0e"));
+  ASSERT_TRUE(object_stream_read_skip("i9999e"));
+  ASSERT_TRUE(object_stream_read_skip("i-1e"));
+  ASSERT_TRUE(object_stream_read_skip("i-9999e"));
 
-  CPPUNIT_ASSERT(object_stream_read_skip("0:"));
-  CPPUNIT_ASSERT(object_stream_read_skip("4:test"));
+  ASSERT_TRUE(object_stream_read_skip("0:"));
+  ASSERT_TRUE(object_stream_read_skip("4:test"));
 
-  CPPUNIT_ASSERT(object_stream_read_skip("le"));
-  CPPUNIT_ASSERT(object_stream_read_skip("li1ee"));
-  CPPUNIT_ASSERT(object_stream_read_skip("llee"));
-  CPPUNIT_ASSERT(object_stream_read_skip("ll1:a1:bel1:c1:dee"));
+  ASSERT_TRUE(object_stream_read_skip("le"));
+  ASSERT_TRUE(object_stream_read_skip("li1ee"));
+  ASSERT_TRUE(object_stream_read_skip("llee"));
+  ASSERT_TRUE(object_stream_read_skip("ll1:a1:bel1:c1:dee"));
 
-  CPPUNIT_ASSERT(object_stream_read_skip("de"));
-  CPPUNIT_ASSERT(object_stream_read_skip("d1:ai1e1:b1:xe"));
-  CPPUNIT_ASSERT(object_stream_read_skip("d1:ali1eee"));
-  CPPUNIT_ASSERT(object_stream_read_skip("d1:ad1:bi1eee"));
+  ASSERT_TRUE(object_stream_read_skip("de"));
+  ASSERT_TRUE(object_stream_read_skip("d1:ai1e1:b1:xe"));
+  ASSERT_TRUE(object_stream_read_skip("d1:ali1eee"));
+  ASSERT_TRUE(object_stream_read_skip("d1:ad1:bi1eee"));
 
-  CPPUNIT_ASSERT(object_stream_read_skip("d1:md6:ut_pexi0eee"));
+  ASSERT_TRUE(object_stream_read_skip("d1:md6:ut_pexi0eee"));
 }
 
-void
-ObjectStreamTest::test_read_skip_invalid() {
-  CPPUNIT_ASSERT(object_stream_read_skip_catch(""));
-  CPPUNIT_ASSERT(object_stream_read_skip_catch("i"));
-  CPPUNIT_ASSERT(object_stream_read_skip_catch("1"));
-  CPPUNIT_ASSERT(object_stream_read_skip_catch("d"));
+TEST_F(ObjectStreamTest, test_read_skip_invalid) {
+  ASSERT_TRUE(object_stream_read_skip_catch(""));
+  ASSERT_TRUE(object_stream_read_skip_catch("i"));
+  ASSERT_TRUE(object_stream_read_skip_catch("1"));
+  ASSERT_TRUE(object_stream_read_skip_catch("d"));
 
-  CPPUNIT_ASSERT(object_stream_read_skip_catch("i-0e"));
-  CPPUNIT_ASSERT(object_stream_read_skip_catch("i--1e"));
-  CPPUNIT_ASSERT(object_stream_read_skip_catch("-1"));
-  CPPUNIT_ASSERT(object_stream_read_skip_catch("-1a"));
+  ASSERT_TRUE(object_stream_read_skip_catch("i-0e"));
+  ASSERT_TRUE(object_stream_read_skip_catch("i--1e"));
+  ASSERT_TRUE(object_stream_read_skip_catch("-1"));
+  ASSERT_TRUE(object_stream_read_skip_catch("-1a"));
 
-  CPPUNIT_ASSERT(object_stream_read_skip_catch("llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"
-                                               "llllllll"));
+  ASSERT_TRUE(object_stream_read_skip_catch("llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"
+                                            "llllllll"));
 }
 
-void
-ObjectStreamTest::test_write() {
+TEST_F(ObjectStreamTest, test_write) {
   torrent::Object obj;
 
-  CPPUNIT_ASSERT(object_write_bencode(torrent::Object(), ""));
-  CPPUNIT_ASSERT(object_write_bencode(torrent::Object((int64_t)0), "i0e"));
-  CPPUNIT_ASSERT(object_write_bencode(torrent::Object((int64_t)1), "i1e"));
-  CPPUNIT_ASSERT(object_write_bencode(torrent::Object((int64_t)-1), "i-1e"));
-  CPPUNIT_ASSERT(object_write_bencode(torrent::Object(INT64_C(123456789012345)),
-                                      "i123456789012345e"));
-  CPPUNIT_ASSERT(object_write_bencode(
-    torrent::Object(INT64_C(-123456789012345)), "i-123456789012345e"));
+  ASSERT_TRUE(object_write_bencode(torrent::Object(), ""));
+  ASSERT_TRUE(object_write_bencode(torrent::Object((int64_t)0), "i0e"));
+  ASSERT_TRUE(object_write_bencode(torrent::Object((int64_t)1), "i1e"));
+  ASSERT_TRUE(object_write_bencode(torrent::Object((int64_t)-1), "i-1e"));
+  ASSERT_TRUE(object_write_bencode(torrent::Object(INT64_C(123456789012345)),
+                                   "i123456789012345e"));
+  ASSERT_TRUE(object_write_bencode(torrent::Object(INT64_C(-123456789012345)),
+                                   "i-123456789012345e"));
 
-  CPPUNIT_ASSERT(object_write_bencode(torrent::Object("test"), "4:test"));
-  CPPUNIT_ASSERT(object_write_bencode(torrent::Object::create_list(), "le"));
-  CPPUNIT_ASSERT(object_write_bencode(torrent::Object::create_map(), "de"));
+  ASSERT_TRUE(object_write_bencode(torrent::Object("test"), "4:test"));
+  ASSERT_TRUE(object_write_bencode(torrent::Object::create_list(), "le"));
+  ASSERT_TRUE(object_write_bencode(torrent::Object::create_map(), "de"));
 
   obj               = torrent::Object::create_map();
   obj.as_map()["a"] = (int64_t)1;
-  CPPUNIT_ASSERT(object_write_bencode(obj, "d1:ai1ee"));
+  ASSERT_TRUE(object_write_bencode(obj, "d1:ai1ee"));
 
   obj.as_map()["b"] = "test";
-  CPPUNIT_ASSERT(object_write_bencode(obj, "d1:ai1e1:b4:teste"));
+  ASSERT_TRUE(object_write_bencode(obj, "d1:ai1e1:b4:teste"));
 
   obj.as_map()["c"] = torrent::Object::create_list();
   obj.as_map()["c"].as_list().push_back("foo");
-  CPPUNIT_ASSERT(object_write_bencode(obj, "d1:ai1e1:b4:test1:cl3:fooee"));
+  ASSERT_TRUE(object_write_bencode(obj, "d1:ai1e1:b4:test1:cl3:fooee"));
 
   obj.as_map()["c"].as_list().push_back(torrent::Object());
   obj.as_map()["d"] = torrent::Object();
-  CPPUNIT_ASSERT(object_write_bencode(obj, "d1:ai1e1:b4:test1:cl3:fooee"));
+  ASSERT_TRUE(object_write_bencode(obj, "d1:ai1e1:b4:test1:cl3:fooee"));
 }
