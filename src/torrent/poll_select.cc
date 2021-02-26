@@ -12,7 +12,7 @@
 #include "torrent/exceptions.h"
 #include "torrent/poll_select.h"
 #include "torrent/torrent.h"
-#include "torrent/utils/allocators.h"
+#include "torrent/utils/cacheline.h"
 #include "torrent/utils/error_number.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/thread_base.h"
@@ -26,6 +26,12 @@
                __VA_ARGS__);
 
 namespace torrent {
+
+typedef struct lt_cacheline_aligned {
+  torrent::SocketSet lt_cacheline_aligned readSet;
+  torrent::SocketSet lt_cacheline_aligned writeSet;
+  torrent::SocketSet lt_cacheline_aligned exceptSet;
+} set_block_type;
 
 Poll::slot_poll Poll::m_slot_create_poll;
 
@@ -101,25 +107,17 @@ PollSelect::create(int maxOpenSockets) {
     throw internal_error(
       "PollSelect::set_open_max(...) received an invalid value");
 
+  PollSelect* p = new PollSelect;
+
   // Just a temp hack, make some special template function for this...
   //
   // Also consider how portable this is for specialized C++
   // allocators.
-  struct block_type {
-    PollSelect t1;
-    SocketSet  t2;
-    SocketSet  t3;
-    SocketSet  t4;
-  };
+  set_block_type* block = new set_block_type;
 
-  utils::cacheline_allocator<Block*> cl_alloc;
-  block_type*                        block = new (cl_alloc) block_type;
-
-  PollSelect* p = new (&block->t1) PollSelect;
-
-  p->m_readSet   = new (&block->t2) SocketSet;
-  p->m_writeSet  = new (&block->t3) SocketSet;
-  p->m_exceptSet = new (&block->t4) SocketSet;
+  p->m_readSet   = &block->readSet;
+  p->m_writeSet  = &block->writeSet;
+  p->m_exceptSet = &block->exceptSet;
 
   p->m_readSet->reserve(maxOpenSockets);
   p->m_writeSet->reserve(maxOpenSockets);
@@ -133,7 +131,7 @@ PollSelect::~PollSelect() {
   m_writeSet->prepare();
   m_exceptSet->prepare();
 
-  m_readSet = m_writeSet = m_exceptSet = nullptr;
+  delete reinterpret_cast<set_block_type*>(m_readSet);
 }
 
 uint32_t
