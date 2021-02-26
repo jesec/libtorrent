@@ -24,7 +24,7 @@ transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
   // std::cout << "list_completed:" << index << " found: " << (itr !=
   // transfer_list->end()) << std::endl;
 
-  ASSERT_TRUE(itr != transfer_list->end());
+  ASSERT_NE(itr, transfer_list->end());
 
   transfer_list->erase(itr);
 }
@@ -74,7 +74,9 @@ transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
   const torrent::Piece* piece_1 = request_list->delegate();                    \
   const torrent::Piece* piece_2 = request_list->delegate();                    \
   const torrent::Piece* piece_3 = request_list->delegate();                    \
-  ASSERT_TRUE(piece_1&& piece_2&& piece_3);
+  ASSERT_TRUE(piece_1);                                                        \
+  ASSERT_TRUE(piece_2);                                                        \
+  ASSERT_TRUE(piece_3);
 
 #define CLEANUP_ALL(fpc_prefix)                                                \
   CLEANUP_PEER_CHUNKS();                                                       \
@@ -88,21 +90,21 @@ transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
 //
 
 #define VERIFY_QUEUE_SIZES(s_0, s_1, s_2, s_3)                                 \
-  ASSERT_TRUE(request_list->queued_size() == s_0);                             \
-  ASSERT_TRUE(request_list->unordered_size() == s_1);                          \
-  ASSERT_TRUE(request_list->stalled_size() == s_2);                            \
-  ASSERT_TRUE(request_list->choked_size() == s_3);
+  ASSERT_EQ(request_list->queued_size(), s_0);                                 \
+  ASSERT_EQ(request_list->unordered_size(), s_1);                              \
+  ASSERT_EQ(request_list->stalled_size(), s_2);                                \
+  ASSERT_EQ(request_list->choked_size(), s_3);
 
 #define VERIFY_PIECE_IS_LEADER(piece)                                          \
-  ASSERT_TRUE(request_list->transfer() != NULL);                               \
+  ASSERT_NE(request_list->transfer(), nullptr);                                \
   ASSERT_TRUE(request_list->transfer()->is_leader());                          \
-  ASSERT_TRUE(request_list->transfer()->peer_info() != NULL);                  \
-  ASSERT_TRUE(request_list->transfer()->peer_info() == peer_info);
+  ASSERT_NE(request_list->transfer()->peer_info(), nullptr);                   \
+  ASSERT_EQ(request_list->transfer()->peer_info(), peer_info);
 
 #define VERIFY_TRANSFER_COUNTER(transfer, count)                               \
-  ASSERT_TRUE(transfer != NULL);                                               \
-  ASSERT_TRUE(transfer->peer_info() != NULL);                                  \
-  ASSERT_TRUE(transfer->peer_info()->transfer_counter() == count);
+  ASSERT_NE(transfer, nullptr);                                                \
+  ASSERT_NE(transfer->peer_info(), nullptr);                                   \
+  ASSERT_EQ(transfer->peer_info()->transfer_counter(), count);
 
 #define SET_CACHED_TIME(seconds)                                               \
   torrent::cachedTime = torrent::utils::timer::from_seconds(1000 + seconds);   \
@@ -123,15 +125,15 @@ basic_find_peer_chunk(torrent::PeerChunks*, bool) {
 TEST_F(TestRequestList, test_basic) {
   SETUP_ALL(basic);
 
-  ASSERT_TRUE(!request_list->is_downloading());
-  ASSERT_TRUE(!request_list->is_interested_in_active());
+  ASSERT_FALSE(request_list->is_downloading());
+  ASSERT_FALSE(request_list->is_interested_in_active());
 
   VERIFY_QUEUE_SIZES(0, 0, 0, 0);
 
-  ASSERT_TRUE(request_list->calculate_pipe_size(1024 * 0) == 2);
-  ASSERT_TRUE(request_list->calculate_pipe_size(1024 * 10) == 12);
+  ASSERT_EQ(request_list->calculate_pipe_size(1024 * 0), 2);
+  ASSERT_EQ(request_list->calculate_pipe_size(1024 * 10), 12);
 
-  ASSERT_TRUE(request_list->transfer() == NULL);
+  ASSERT_EQ(request_list->transfer(), nullptr);
 
   CLEANUP_ALL();
 }
@@ -155,7 +157,7 @@ TEST_F(TestRequestList, test_single_request) {
 
   request_list->finished();
 
-  ASSERT_TRUE(peer_info->transfer_counter() == 0);
+  ASSERT_EQ(peer_info->transfer_counter(), 0);
 
   CLEANUP_ALL();
 }
@@ -175,7 +177,7 @@ TEST_F(TestRequestList, test_single_canceled) {
 
   request_list->transfer()->adjust_position(piece->length() / 2);
 
-  ASSERT_TRUE(!request_list->transfer()->is_finished());
+  ASSERT_FALSE(request_list->transfer()->is_finished());
 
   request_list->skipped();
 
@@ -185,7 +187,7 @@ TEST_F(TestRequestList, test_single_canceled) {
   // TODO: We need to have a way of clearing disowned transfers, then
   // make transfer list delete Block's(?) with those before dtor...
 
-  ASSERT_TRUE(peer_info->transfer_counter() == 0);
+  ASSERT_EQ(peer_info->transfer_counter(), 0);
 
   CLEAR_TRANSFERS();
   CLEANUP_ALL();

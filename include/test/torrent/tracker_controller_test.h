@@ -53,28 +53,28 @@ public:
   TRACKER_INSERT(0, tracker_0_0);                                              \
                                                                                \
   tracker_controller.enable();                                                 \
-  ASSERT_TRUE(                                                                 \
-    !(tracker_controller.flags() & torrent::TrackerController::mask_send));
+  ASSERT_FALSE(tracker_controller.flags() &                                    \
+               torrent::TrackerController::mask_send);
 
 #define TEST_SINGLE_END(succeeded, failed)                                     \
   tracker_controller.disable();                                                \
-  ASSERT_TRUE(!tracker_list.has_active());                                     \
-  ASSERT_TRUE(success_counter == succeeded &&                                  \
-              failure_counter == failure_counter);
+  ASSERT_FALSE(tracker_list.has_active());                                     \
+  ASSERT_EQ(success_counter, succeeded);                                       \
+  ASSERT_EQ(failure_counter, failure_counter);
 
 #define TEST_SEND_SINGLE_BEGIN(event_name)                                     \
   tracker_controller.send_##event_name##_event();                              \
-  ASSERT_TRUE(                                                                 \
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) ==    \
-    torrent::TrackerController::flag_send_##event_name);                       \
+  ASSERT_EQ(tracker_controller.flags() &                                       \
+              torrent::TrackerController::mask_send,                           \
+            torrent::TrackerController::flag_send_##event_name);               \
                                                                                \
   ASSERT_TRUE(tracker_controller.is_active());                                 \
-  ASSERT_TRUE(tracker_controller.tracker_list()->count_active() == 1);
+  ASSERT_EQ(tracker_controller.tracker_list()->count_active(), 1);
 
 #define TEST_SEND_SINGLE_END(succeeded, failed)                                \
   TEST_SINGLE_END(succeeded, failed)                                           \
-  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() == 0);              \
-  // ASSERT_TRUE(tracker_controller.seconds_to_promicious_mode() != 0);
+  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(), 0);                  \
+  // ASSERT_NE(tracker_controller.seconds_to_promicious_mode(), 0);
 
 #define TEST_MULTI3_BEGIN()                                                    \
   TRACKER_CONTROLLER_SETUP();                                                  \
@@ -85,8 +85,8 @@ public:
   TRACKER_INSERT(3, tracker_3_0);                                              \
                                                                                \
   tracker_controller.enable();                                                 \
-  ASSERT_TRUE(                                                                 \
-    !(tracker_controller.flags() & torrent::TrackerController::mask_send));
+  ASSERT_FALSE(tracker_controller.flags() &                                    \
+               torrent::TrackerController::mask_send);
 
 #define TEST_GROUP_BEGIN()                                                     \
   TRACKER_CONTROLLER_SETUP();                                                  \
@@ -98,17 +98,18 @@ public:
   TRACKER_INSERT(2, tracker_2_0);                                              \
                                                                                \
   tracker_controller.enable();                                                 \
-  ASSERT_TRUE(                                                                 \
-    !(tracker_controller.flags() & torrent::TrackerController::mask_send));
+  ASSERT_FALSE(tracker_controller.flags() &                                    \
+               torrent::TrackerController::mask_send);
 
 #define TEST_MULTIPLE_END(succeeded, failed)                                   \
   tracker_controller.disable();                                                \
-  ASSERT_TRUE(!tracker_list.has_active());                                     \
-  ASSERT_TRUE(success_counter == succeeded && failure_counter == failed);
+  ASSERT_FALSE(tracker_list.has_active());                                     \
+  ASSERT_EQ(success_counter, succeeded);                                       \
+  ASSERT_EQ(failure_counter, failed);
 
 #define TEST_GOTO_NEXT_SCRAPE(assumed_scrape)                                  \
   ASSERT_TRUE(tracker_controller.task_scrape()->is_queued());                  \
-  ASSERT_TRUE(assumed_scrape == tracker_controller.seconds_to_next_scrape());  \
+  ASSERT_EQ(assumed_scrape, tracker_controller.seconds_to_next_scrape());      \
   ASSERT_TRUE(                                                                 \
     test_goto_next_timeout(&tracker_controller, assumed_scrape, true));
 

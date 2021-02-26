@@ -68,8 +68,8 @@ struct test_queue_bucket_compare {
     buckets.push_back(1, s_0 + i);
 
 #define VERIFY_QUEUE_SIZES(s_0, s_1)                                           \
-  ASSERT_TRUE(buckets.queue_size(0) == s_0);                                   \
-  ASSERT_TRUE(buckets.queue_size(1) == s_1);
+  ASSERT_EQ(buckets.queue_size(0), s_0);                                       \
+  ASSERT_EQ(buckets.queue_size(1), s_1);
 
 #ifdef LT_INSTRUMENTATION
 #define VERIFY_INSTRUMENTATION(a_0, m_0, r_0, t_0, a_1, m_1, r_1, t_1)         \
@@ -94,7 +94,7 @@ struct test_queue_bucket_compare {
 #endif
 
 #define VERIFY_ITEMS_DESTROYED(count)                                          \
-  ASSERT_TRUE(items_destroyed == count);                                       \
+  ASSERT_EQ(items_destroyed, count);                                           \
   items_destroyed = 0;
 
 //
@@ -115,7 +115,7 @@ TEST_F(test_queue_buckets, test_basic) {
   VERIFY_QUEUE_SIZES(2, 0);
   VERIFY_INSTRUMENTATION(2, 0, 0, 2, 0, 0, 0, 0);
 
-  ASSERT_TRUE(!buckets.empty());
+  ASSERT_FALSE(buckets.empty());
 
   buckets.push_front(1, int());
   VERIFY_QUEUE_SIZES(2, 1);
@@ -123,7 +123,7 @@ TEST_F(test_queue_buckets, test_basic) {
   VERIFY_QUEUE_SIZES(2, 2);
   VERIFY_INSTRUMENTATION(2, 0, 0, 2, 2, 0, 0, 2);
 
-  ASSERT_TRUE(!buckets.empty());
+  ASSERT_FALSE(buckets.empty());
 
   buckets.pop_front(0);
   VERIFY_QUEUE_SIZES(1, 2);
@@ -131,7 +131,7 @@ TEST_F(test_queue_buckets, test_basic) {
   VERIFY_QUEUE_SIZES(0, 2);
   VERIFY_INSTRUMENTATION(2, 0, 2, 0, 2, 0, 0, 2);
 
-  ASSERT_TRUE(!buckets.empty());
+  ASSERT_FALSE(buckets.empty());
 
   buckets.pop_front(1);
   VERIFY_QUEUE_SIZES(0, 1);
@@ -184,16 +184,16 @@ TEST_F(test_queue_buckets, test_find) {
 
   FILL_BUCKETS(10, 5);
 
-  ASSERT_TRUE(bucket_queue_find_in_queue(buckets, 0, 0) == buckets.begin(0));
-  ASSERT_TRUE(bucket_queue_find_in_queue(buckets, 0, 10) == buckets.end(0));
-  ASSERT_TRUE(bucket_queue_find_in_queue(buckets, 1, 10) == buckets.begin(1));
+  ASSERT_EQ(bucket_queue_find_in_queue(buckets, 0, 0), buckets.begin(0));
+  ASSERT_EQ(bucket_queue_find_in_queue(buckets, 0, 10), buckets.end(0));
+  ASSERT_EQ(bucket_queue_find_in_queue(buckets, 1, 10), buckets.begin(1));
 
-  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 0).first == 0);
-  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 0).second == buckets.begin(0));
-  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 10).first == 1);
-  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 10).second == buckets.begin(1));
-  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 20).first == 2);
-  ASSERT_TRUE(bucket_queue_find_in_any(buckets, 20).second == buckets.end(1));
+  ASSERT_EQ(bucket_queue_find_in_any(buckets, 0).first, 0);
+  ASSERT_EQ(bucket_queue_find_in_any(buckets, 0).second, buckets.begin(0));
+  ASSERT_EQ(bucket_queue_find_in_any(buckets, 10).first, 1);
+  ASSERT_EQ(bucket_queue_find_in_any(buckets, 10).second, buckets.begin(1));
+  ASSERT_EQ(bucket_queue_find_in_any(buckets, 20).first, 2);
+  ASSERT_EQ(bucket_queue_find_in_any(buckets, 20).second, buckets.end(1));
 }
 
 TEST_F(test_queue_buckets, test_destroy_range) {

@@ -24,7 +24,7 @@ chunk_done(torrent::ChunkList*  chunk_list,
            done_chunks_type*    done_chunks,
            torrent::ChunkHandle handle,
            const char*          hash_value) {
-  if (hash_value != NULL)
+  if (hash_value != nullptr)
     (*done_chunks)[handle.index()] =
       *torrent::HashString::cast_from(hash_value);
 
@@ -78,22 +78,22 @@ TEST_F(test_hash_queue, test_single) {
   torrent::ChunkHandle handle_0 =
     chunk_list->get(0, torrent::ChunkList::get_blocking);
   hash_queue->push_back(handle_0,
-                        NULL,
+                        nullptr,
                         std::bind(&chunk_done,
                                   chunk_list,
                                   &done_chunks,
                                   std::placeholders::_1,
                                   std::placeholders::_2));
 
-  ASSERT_TRUE(hash_queue->size() == 1);
+  ASSERT_EQ(hash_queue->size(), 1);
   ASSERT_TRUE(hash_queue->front().handle().is_blocking());
-  ASSERT_TRUE(hash_queue->front().handle().object() == &((*chunk_list)[0]));
+  ASSERT_EQ(hash_queue->front().handle().object(), &((*chunk_list)[0]));
 
   hash_queue->work();
 
   ASSERT_TRUE(wait_for_true(
     std::bind(&check_for_chunk_done, hash_queue, &done_chunks, 0)));
-  ASSERT_TRUE(done_chunks[0] == hash_for_index(0));
+  ASSERT_EQ(done_chunks[0], hash_for_index(0));
 
   // chunk_list->release(&handle_0);
 
@@ -116,22 +116,22 @@ TEST_F(test_hash_queue, test_multiple) {
 
   for (unsigned int i = 0; i < 20; i++) {
     hash_queue->push_back(chunk_list->get(i, torrent::ChunkList::get_blocking),
-                          NULL,
+                          nullptr,
                           std::bind(&chunk_done,
                                     chunk_list,
                                     &done_chunks,
                                     std::placeholders::_1,
                                     std::placeholders::_2));
 
-    ASSERT_TRUE(hash_queue->size() == i + 1);
+    ASSERT_EQ(hash_queue->size(), i + 1);
     ASSERT_TRUE(hash_queue->back().handle().is_blocking());
-    ASSERT_TRUE(hash_queue->back().handle().object() == &((*chunk_list)[i]));
+    ASSERT_EQ(hash_queue->back().handle().object(), &((*chunk_list)[i]));
   }
 
   for (unsigned int i = 0; i < 20; i++) {
     ASSERT_TRUE(wait_for_true(
       std::bind(&check_for_chunk_done, hash_queue, &done_chunks, i)));
-    ASSERT_TRUE(done_chunks[i] == hash_for_index(i));
+    ASSERT_EQ(done_chunks[i], hash_for_index(i));
   }
 
   ASSERT_TRUE(thread_disk->hash_queue()->empty());
@@ -153,17 +153,17 @@ TEST_F(test_hash_queue, test_erase) {
 
   for (unsigned int i = 0; i < 20; i++) {
     hash_queue->push_back(chunk_list->get(i, torrent::ChunkList::get_blocking),
-                          NULL,
+                          nullptr,
                           std::bind(&chunk_done,
                                     chunk_list,
                                     &done_chunks,
                                     std::placeholders::_1,
                                     std::placeholders::_2));
 
-    ASSERT_TRUE(hash_queue->size() == i + 1);
+    ASSERT_EQ(hash_queue->size(), i + 1);
   }
 
-  hash_queue->remove(NULL);
+  hash_queue->remove(nullptr);
   ASSERT_TRUE(hash_queue->empty());
 
   ASSERT_TRUE(thread_disk->hash_queue()->empty());
@@ -187,17 +187,17 @@ TEST_F(test_hash_queue, test_erase_stress) {
     for (unsigned int i = 0; i < 20; i++) {
       hash_queue->push_back(
         chunk_list->get(i, torrent::ChunkList::get_blocking),
-        NULL,
+        nullptr,
         std::bind(&chunk_done,
                   chunk_list,
                   &done_chunks,
                   std::placeholders::_1,
                   std::placeholders::_2));
 
-      ASSERT_TRUE(hash_queue->size() == i + 1);
+      ASSERT_EQ(hash_queue->size(), i + 1);
     }
 
-    hash_queue->remove(NULL);
+    hash_queue->remove(nullptr);
     ASSERT_TRUE(hash_queue->empty());
   }
 

@@ -28,7 +28,7 @@ typedef std::unique_ptr<torrent::socket_listen, test_sl_deleter>
 
 #define TEST_SL_ASSERT_OPEN(_sap_bind, _sap_result, _flags)                    \
   TEST_SL_ASSERT_OPEN_PORT(_sap_bind, _sap_result, 5000, 5009, 5005, _flags);  \
-  ASSERT_TRUE(sl->socket_address_port() == 5005);
+  ASSERT_EQ(sl->socket_address_port(), 5005);
 
 #define TEST_SL_ASSERT_OPEN_PORT(                                              \
   _sap_bind, _sap_result, _first_port, _last_port, _itr_port, _flags)          \
@@ -54,10 +54,10 @@ typedef std::unique_ptr<torrent::socket_listen, test_sl_deleter>
   ASSERT_TRUE(torrent::sa_equal(sl->socket_address(), _sap_result.get()));
 
 #define TEST_SL_ASSERT_CLOSED()                                                \
-  ASSERT_TRUE(!sl->is_open());                                                 \
-  ASSERT_TRUE(sl->file_descriptor() == -1);                                    \
-  ASSERT_TRUE(sl->socket_address() == nullptr);                                \
-  ASSERT_TRUE(sl->socket_address_port() == 0);
+  ASSERT_FALSE(sl->is_open());                                                 \
+  ASSERT_EQ(sl->file_descriptor(), -1);                                        \
+  ASSERT_EQ(sl->socket_address(), nullptr);                                    \
+  ASSERT_EQ(sl->socket_address_port(), 0);
 
 #define TEST_SL_CLOSE(_fd)                                                     \
   mock_expect(&torrent::fd__close, 0, _fd);                                    \
@@ -644,9 +644,11 @@ TEST_F(test_socket_listen, test_accept) {
           torrent::fd_sap_tuple{ accept_fd, std::move(sap) });
       });
 
-    // ASSERT_TRUE(accepted_connections.size() > 0 &&
-    // torrent::fd_sap_equal(accepted_connections[0],
-    // torrent::fd_sap_tuple{2000, torrent::sap_copy(sin6_1_5100)}));
+    // ASSERT_GT(accepted_connections.size(), 0);
+    // ASSERT_PRED2(
+    //   torrent::fd_sap_equal,
+    //   accepted_connections[0],
+    //   (torrent::fd_sap_tuple{ 2000, torrent::sap_copy(sin6_1_5100) }));
 
     TEST_SL_CLOSE(1000);
   };

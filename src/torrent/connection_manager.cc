@@ -31,7 +31,7 @@ resolve_host(const char*                                         host,
     if (manager->main_thread_main()->is_current())
       thread_base::acquire_global_lock();
 
-    slot(NULL, err);
+    slot(nullptr, err);
     return nullptr;
   }
 

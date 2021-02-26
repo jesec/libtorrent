@@ -67,10 +67,10 @@ TEST_F(ObjectStaticMapTest, test_basics) {
   test_map[key_s_a] = std::string("a");
   test_map[key_s_b] = std::string("b");
 
-  ASSERT_TRUE(test_map[key_v_a].as_value() == 1);
-  ASSERT_TRUE(test_map[key_v_b].as_value() == 2);
-  ASSERT_TRUE(test_map[key_s_a].as_string() == "a");
-  ASSERT_TRUE(test_map[key_s_b].as_string() == "b");
+  ASSERT_EQ(test_map[key_v_a].as_value(), 1);
+  ASSERT_EQ(test_map[key_v_b].as_value(), 2);
+  ASSERT_EQ(test_map[key_s_a].as_string(), "a");
+  ASSERT_EQ(test_map[key_s_b].as_string(), "b");
 }
 
 TEST_F(ObjectStaticMapTest, test_write) {
@@ -94,7 +94,7 @@ TEST_F(ObjectStaticMapTest, test_write) {
 
   torrent::object_buffer_t result = torrent::static_map_write_bencode_c(
     torrent::object_write_to_buffer,
-    NULL,
+    nullptr,
     std::make_pair(buffer, buffer + sizeof(buffer)),
     test_map);
 
@@ -135,12 +135,12 @@ TEST_F(ObjectStaticMapTest, test_read) {
   test_map_2_type test_map;
 
   ASSERT_TRUE(static_map_read_bencode(test_map, test_read_bencode));
-  ASSERT_TRUE(test_map[key_2_d_x_y].as_value() == 3);
-  ASSERT_TRUE(test_map[key_2_d_x_z].as_list().size() == 2);
-  ASSERT_TRUE(test_map[key_2_l_x_1].as_value() == 1);
-  ASSERT_TRUE(test_map[key_2_l_x_2].as_value() == 2);
-  ASSERT_TRUE(test_map[key_2_s_a].as_string() == "a");
-  ASSERT_TRUE(test_map[key_2_v_a].as_value() == 2);
+  ASSERT_EQ(test_map[key_2_d_x_y].as_value(), 3);
+  ASSERT_EQ(test_map[key_2_d_x_z].as_list().size(), 2);
+  ASSERT_EQ(test_map[key_2_l_x_1].as_value(), 1);
+  ASSERT_EQ(test_map[key_2_l_x_2].as_value(), 2);
+  ASSERT_EQ(test_map[key_2_s_a].as_string(), "a");
+  ASSERT_EQ(test_map[key_2_v_a].as_value(), 2);
 
   test_map_2_type test_skip_map;
 
@@ -185,7 +185,7 @@ static_map_write_bencode(map_type map, const char* original) {
     char  buffer[1023];
     char* last = torrent::static_map_write_bencode_c(
                    &torrent::object_write_to_buffer,
-                   NULL,
+                   nullptr,
                    torrent::object_buffer_t(buffer, buffer + 1024),
                    map)
                    .first;
@@ -270,10 +270,10 @@ TEST_F(ObjectStaticMapTest, test_read_single) {
   test_single_type map_incomplete;
 
   ASSERT_TRUE(static_map_read_bencode(map_normal, "d1:bi1ee"));
-  ASSERT_TRUE(map_normal[key_single_a].as_value() == 1);
+  ASSERT_EQ(map_normal[key_single_a].as_value(), 1);
 
   ASSERT_TRUE(static_map_read_bencode(map_skip, "d1:ai0e1:bi1e1:ci2ee"));
-  ASSERT_TRUE(map_skip[key_single_a].as_value() == 1);
+  ASSERT_EQ(map_skip[key_single_a].as_value(), 1);
 
   ASSERT_TRUE(static_map_read_bencode_exception(map_incomplete, "d"));
   ASSERT_TRUE(static_map_read_bencode_exception(map_incomplete, "d1:b"));
@@ -331,7 +331,7 @@ TEST_F(ObjectStaticMapTest, test_read_multiple) {
   test_multiple_type map_normal;
 
   ASSERT_TRUE(static_map_read_bencode(map_normal, "d1:ai1ee"));
-  ASSERT_TRUE(map_normal[key_multiple_a].as_value() == 1);
+  ASSERT_EQ(map_normal[key_multiple_a].as_value(), 1);
   ASSERT_TRUE(map_normal[key_multiple_b].is_empty());
   ASSERT_TRUE(map_normal[key_multiple_c].is_empty());
 
@@ -339,22 +339,22 @@ TEST_F(ObjectStaticMapTest, test_read_multiple) {
   ASSERT_TRUE(static_map_read_bencode(map_normal, "d1:ci3ee"));
   ASSERT_TRUE(map_normal[key_multiple_a].is_empty());
   ASSERT_TRUE(map_normal[key_multiple_b].is_empty());
-  ASSERT_TRUE(map_normal[key_multiple_c].as_value() == 3);
+  ASSERT_EQ(map_normal[key_multiple_c].as_value(), 3);
 
   map_normal = test_multiple_type();
   ASSERT_TRUE(static_map_read_bencode(map_normal, "d1:ai1e1:ci3ee"));
-  ASSERT_TRUE(map_normal[key_multiple_a].as_value() == 1);
+  ASSERT_EQ(map_normal[key_multiple_a].as_value(), 1);
   ASSERT_TRUE(map_normal[key_multiple_b].is_empty());
-  ASSERT_TRUE(map_normal[key_multiple_c].as_value() == 3);
+  ASSERT_EQ(map_normal[key_multiple_c].as_value(), 3);
 
   map_normal = test_multiple_type();
   ASSERT_TRUE(static_map_read_bencode(map_normal, "d1:ai1e1:bi2e1:ci3ee"));
-  ASSERT_TRUE(map_normal[key_multiple_a].as_value() == 1);
+  ASSERT_EQ(map_normal[key_multiple_a].as_value(), 1);
   //   ASSERT_TRUE(map_normal[key_multiple_b].as_raw_bencode().as_raw_value().size()
   //   == 1);
   //   ASSERT_TRUE(map_normal[key_multiple_b].as_raw_bencode().as_raw_value().data()[0]
   //   == '2');
-  ASSERT_TRUE(map_normal[key_multiple_c].as_value() == 3);
+  ASSERT_EQ(map_normal[key_multiple_c].as_value(), 3);
 }
 
 TEST_F(ObjectStaticMapTest, test_read_dict) {
@@ -367,7 +367,7 @@ TEST_F(ObjectStaticMapTest, test_read_dict) {
   ASSERT_TRUE(map_normal[key_dict_a_b].is_empty());
 
   ASSERT_TRUE(static_map_read_bencode(map_normal, "d1:ad1:bi1eee"));
-  ASSERT_TRUE(map_normal[key_dict_a_b].as_value() == 1);
+  ASSERT_EQ(map_normal[key_dict_a_b].as_value(), 1);
 }
 
 TEST_F(ObjectStaticMapTest, test_write_empty) {

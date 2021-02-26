@@ -93,7 +93,7 @@ public:
   using container_type = Queue;
 
   queue_pop_iterator()
-    : m_queue(NULL) {}
+    : m_queue(nullptr) {}
   queue_pop_iterator(Queue* q, Compare c)
     : m_queue(q)
     , m_compare(c) {}

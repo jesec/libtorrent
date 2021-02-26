@@ -8,8 +8,8 @@
   {                                                                            \
     lt_log_print(torrent::LOG_MOCK_CALLS, "option_string: %s", name);          \
     std::string result(torrent::option_as_string(torrent::group, value));      \
-    ASSERT_TRUE(result == name) << "Not found '" + result + "'";               \
-    ASSERT_TRUE(torrent::option_find_string(torrent::group, name) == value);   \
+    ASSERT_EQ(result, name) << "Not found '" + result + "'";                   \
+    ASSERT_EQ(torrent::option_find_string(torrent::group, name), value);       \
   }
 
 TEST_F(test_option_strings, test_entries) {

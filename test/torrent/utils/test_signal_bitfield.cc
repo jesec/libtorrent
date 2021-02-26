@@ -52,8 +52,8 @@ verify_did_internal_error(const std::function<unsigned int()>& func,
 TEST_F(test_signal_bitfield, test_basic) {
   SETUP_SIGNAL_BITFIELD();
 
-  ASSERT_TRUE(torrent::signal_bitfield::max_size ==
-              sizeof(torrent::signal_bitfield::bitfield_type) * 8);
+  ASSERT_EQ(torrent::signal_bitfield::max_size,
+            sizeof(torrent::signal_bitfield::bitfield_type) * 8);
 
   SIGNAL_BITFIELD_DID_INTERNAL_ERROR(torrent::signal_bitfield::slot_type(),
                                      true);
@@ -75,15 +75,15 @@ TEST_F(test_signal_bitfield, test_single) {
                 std::bind(&mark_index, &marked_bitfield, 0)) == 0);
 
   signal_bitfield.signal(0);
-  ASSERT_TRUE(marked_bitfield == 0x0);
+  ASSERT_EQ(marked_bitfield, 0x0);
 
   signal_bitfield.work();
-  ASSERT_TRUE(marked_bitfield == 0x1);
+  ASSERT_EQ(marked_bitfield, 0x1);
 
   marked_bitfield = 0;
 
   signal_bitfield.work();
-  ASSERT_TRUE(marked_bitfield == 0x0);
+  ASSERT_EQ(marked_bitfield, 0x0);
 }
 
 TEST_F(test_signal_bitfield, test_multiple) {
@@ -95,16 +95,16 @@ TEST_F(test_signal_bitfield, test_multiple) {
 
   signal_bitfield.signal(2);
   signal_bitfield.signal(31);
-  ASSERT_TRUE(marked_bitfield == 0x0);
+  ASSERT_EQ(marked_bitfield, 0x0);
 
   signal_bitfield.work();
-  ASSERT_TRUE(marked_bitfield ==
-              (((unsigned int)1 << 2) | ((unsigned int)1 << 31)));
+  ASSERT_EQ(marked_bitfield,
+            (((unsigned int)1 << 2) | ((unsigned int)1 << 31)));
 
   marked_bitfield = 0;
 
   signal_bitfield.work();
-  ASSERT_TRUE(marked_bitfield == 0x0);
+  ASSERT_EQ(marked_bitfield, 0x0);
 }
 
 TEST_F(test_signal_bitfield, test_threaded) {

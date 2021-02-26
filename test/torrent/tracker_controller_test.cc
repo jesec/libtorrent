@@ -65,11 +65,11 @@ tracker_controller_test::TearDown() {
 }
 
 TEST_F(tracker_controller_test, test_basic) {
-  torrent::TrackerController tracker_controller(NULL);
+  torrent::TrackerController tracker_controller(nullptr);
 
-  ASSERT_TRUE(tracker_controller.flags() == 0);
-  ASSERT_TRUE(!tracker_controller.is_active());
-  ASSERT_TRUE(!tracker_controller.is_requesting());
+  ASSERT_EQ(tracker_controller.flags(), 0);
+  ASSERT_FALSE(tracker_controller.is_active());
+  ASSERT_FALSE(tracker_controller.is_requesting());
 }
 
 TEST_F(tracker_controller_test, test_enable) {
@@ -79,7 +79,7 @@ TEST_F(tracker_controller_test, test_enable) {
   tracker_controller.enable();
 
   ASSERT_TRUE(tracker_controller.is_active());
-  ASSERT_TRUE(!tracker_controller.is_requesting());
+  ASSERT_FALSE(tracker_controller.is_requesting());
 }
 
 TEST_F(tracker_controller_test, test_requesting) {
@@ -95,23 +95,23 @@ TEST_F(tracker_controller_test, test_requesting) {
   tracker_controller.stop_requesting();
 
   ASSERT_TRUE(tracker_controller.is_active());
-  ASSERT_TRUE(!tracker_controller.is_requesting());
+  ASSERT_FALSE(tracker_controller.is_requesting());
 }
 
 TEST_F(tracker_controller_test, test_timeout) {
   TRACKER_CONTROLLER_SETUP();
   TRACKER_INSERT(0, tracker_0_0);
 
-  ASSERT_TRUE(enabled_counter == 1);
-  ASSERT_TRUE(!tracker_0_0->is_busy());
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
+  ASSERT_EQ(enabled_counter, 1);
+  ASSERT_FALSE(tracker_0_0->is_busy());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
 
   tracker_controller.enable();
 
   torrent::utils::priority_queue_perform(&torrent::taskScheduler,
                                          torrent::cachedTime);
 
-  ASSERT_TRUE(timeout_counter == 1);
+  ASSERT_EQ(timeout_counter, 1);
   TEST_SINGLE_END(0, 0);
 }
 
@@ -121,7 +121,8 @@ TEST_F(tracker_controller_test, test_single_success) {
   tracker_list.send_state_idx(0, 1);
   ASSERT_TRUE(tracker_0_0->trigger_success());
 
-  ASSERT_TRUE(success_counter == 1 && failure_counter == 0);
+  ASSERT_EQ(success_counter, 1);
+  ASSERT_EQ(failure_counter, 0);
 
   tracker_list.send_state_idx(0, 2);
   ASSERT_TRUE(tracker_0_0->trigger_failure());
@@ -167,22 +168,21 @@ TEST_F(tracker_controller_test, test_send_start) {
   TEST_SINGLE_BEGIN();
   TEST_SEND_SINGLE_BEGIN(start);
 
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
 
   ASSERT_TRUE(tracker_0_0->is_busy());
-  ASSERT_TRUE(tracker_0_0->requesting_state() ==
-              torrent::Tracker::EVENT_STARTED);
+  ASSERT_EQ(tracker_0_0->requesting_state(), torrent::Tracker::EVENT_STARTED);
 
   ASSERT_TRUE(tracker_0_0->trigger_success());
-  ASSERT_TRUE(
-    !(tracker_controller.flags() & torrent::TrackerController::mask_send));
+  ASSERT_FALSE(tracker_controller.flags() &
+               torrent::TrackerController::mask_send);
 
-  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() != 0);
+  ASSERT_NE(tracker_controller.seconds_to_next_timeout(), 0);
 
   tracker_controller.send_start_event();
   tracker_controller.disable();
 
-  ASSERT_TRUE(!tracker_0_0->is_busy());
+  ASSERT_FALSE(tracker_0_0->is_busy());
 
   TEST_SEND_SINGLE_END(1, 0);
 }
@@ -195,15 +195,14 @@ TEST_F(tracker_controller_test, test_send_stop_normal) {
   ASSERT_TRUE(tracker_0_0->trigger_success());
 
   tracker_controller.send_stop_event();
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) ==
-    torrent::TrackerController::flag_send_stop);
+  ASSERT_EQ(tracker_controller.flags() & torrent::TrackerController::mask_send,
+            torrent::TrackerController::flag_send_stop);
 
-  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() == 0);
+  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(), 0);
 
   ASSERT_TRUE(tracker_0_0->trigger_success());
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) == 0);
+  ASSERT_EQ(tracker_controller.flags() & torrent::TrackerController::mask_send,
+            0);
 
   tracker_controller.send_stop_event();
   tracker_controller.disable();
@@ -224,15 +223,14 @@ TEST_F(tracker_controller_test, test_send_completed_normal) {
   ASSERT_TRUE(tracker_0_0->trigger_success());
 
   tracker_controller.send_completed_event();
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) ==
-    torrent::TrackerController::flag_send_completed);
+  ASSERT_EQ(tracker_controller.flags() & torrent::TrackerController::mask_send,
+            torrent::TrackerController::flag_send_completed);
 
-  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() == 0);
+  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(), 0);
 
   ASSERT_TRUE(tracker_0_0->trigger_success());
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) == 0);
+  ASSERT_EQ(tracker_controller.flags() & torrent::TrackerController::mask_send,
+            0);
 
   tracker_controller.send_completed_event();
   tracker_controller.disable();
@@ -247,12 +245,11 @@ TEST_F(tracker_controller_test, test_send_update_normal) {
   TEST_SINGLE_BEGIN();
   TEST_SEND_SINGLE_BEGIN(update);
 
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) ==
-    torrent::TrackerController::flag_send_update);
+  ASSERT_EQ(tracker_controller.flags() & torrent::TrackerController::mask_send,
+            torrent::TrackerController::flag_send_update);
 
   ASSERT_TRUE(tracker_controller.task_timeout()->is_queued());
-  ASSERT_TRUE(tracker_0_0->latest_event() == torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_0_0->latest_event(), torrent::Tracker::EVENT_NONE);
 
   ASSERT_TRUE(tracker_0_0->trigger_success());
 
@@ -294,9 +291,9 @@ TEST_F(tracker_controller_test, test_send_close_on_enable) {
 
   tracker_controller.enable();
 
-  ASSERT_TRUE(!tracker_0->is_busy());
-  ASSERT_TRUE(!tracker_1->is_busy());
-  ASSERT_TRUE(!tracker_2->is_busy());
+  ASSERT_FALSE(tracker_0->is_busy());
+  ASSERT_FALSE(tracker_1->is_busy());
+  ASSERT_FALSE(tracker_2->is_busy());
   ASSERT_TRUE(tracker_3->is_busy());
 }
 
@@ -322,8 +319,8 @@ TEST_F(tracker_controller_test, test_multiple_success) {
 
   ASSERT_TRUE(tracker_0_0->trigger_success());
 
-  ASSERT_TRUE(!tracker_list.has_active());
-  ASSERT_TRUE(tracker_0_0->success_counter() == 3);
+  ASSERT_FALSE(tracker_list.has_active());
+  ASSERT_EQ(tracker_0_0->success_counter(), 3);
 
   TEST_MULTIPLE_END(3, 0);
 }
@@ -333,7 +330,7 @@ TEST_F(tracker_controller_test, test_multiple_failure) {
   TEST_SEND_SINGLE_BEGIN(update);
 
   ASSERT_TRUE(tracker_0_0->trigger_failure());
-  ASSERT_TRUE(!tracker_controller.is_failure_mode());
+  ASSERT_FALSE(tracker_controller.is_failure_mode());
 
   TEST_MULTI3_IS_BUSY("01000", "01000");
   ASSERT_TRUE(tracker_0_1->trigger_failure());
@@ -349,7 +346,7 @@ TEST_F(tracker_controller_test, test_multiple_failure) {
   TEST_MULTI3_IS_BUSY("01000", "01000");
   ASSERT_TRUE(tracker_0_1->trigger_failure());
 
-  ASSERT_TRUE(!tracker_controller.is_failure_mode());
+  ASSERT_FALSE(tracker_controller.is_failure_mode());
   TEST_MULTI3_IS_BUSY("00100", "00100");
   ASSERT_TRUE(tracker_1_0->trigger_failure());
   ASSERT_TRUE(tracker_controller.is_failure_mode());
@@ -373,7 +370,7 @@ TEST_F(tracker_controller_test, test_multiple_failure) {
   ASSERT_PRED3(test_goto_next_timeout, &tracker_controller, 5, false);
   TEST_MULTI3_IS_BUSY("00100", "00100");
   ASSERT_TRUE(tracker_1_0->trigger_success());
-  ASSERT_TRUE(!tracker_controller.is_failure_mode());
+  ASSERT_FALSE(tracker_controller.is_failure_mode());
 
   // ASSERT_PRED3(test_goto_next_timeout,
   //              &tracker_controller,
@@ -381,7 +378,7 @@ TEST_F(tracker_controller_test, test_multiple_failure) {
   // TEST_MULTI3_IS_BUSY("01000", "10000");
   // ASSERT_TRUE(tracker_0_1->trigger_success());
 
-  ASSERT_TRUE(tracker_list.count_active() == 0);
+  ASSERT_EQ(tracker_list.count_active(), 0);
   TEST_MULTIPLE_END(2, 7);
 }
 
@@ -391,7 +388,7 @@ TEST_F(tracker_controller_test, test_multiple_cycle) {
 
   ASSERT_TRUE(tracker_0_0->trigger_failure());
   ASSERT_TRUE(tracker_0_1->trigger_success());
-  ASSERT_TRUE(tracker_list.front() == tracker_0_1);
+  ASSERT_EQ(tracker_list.front(), tracker_0_1);
 
   ASSERT_PRED3(test_goto_next_timeout,
                &tracker_controller,
@@ -401,7 +398,7 @@ TEST_F(tracker_controller_test, test_multiple_cycle) {
   TEST_MULTI3_IS_BUSY("01000", "10000");
   ASSERT_TRUE(tracker_0_1->trigger_success());
 
-  ASSERT_TRUE(tracker_list.count_active() == 0);
+  ASSERT_EQ(tracker_list.count_active(), 0);
   TEST_MULTIPLE_END(2, 1);
 }
 
@@ -413,11 +410,11 @@ TEST_F(tracker_controller_test, test_multiple_cycle_second_group) {
   ASSERT_TRUE(tracker_0_1->trigger_failure());
   ASSERT_TRUE(tracker_1_0->trigger_success());
 
-  ASSERT_TRUE(tracker_list[0] == tracker_0_0);
-  ASSERT_TRUE(tracker_list[1] == tracker_0_1);
-  ASSERT_TRUE(tracker_list[2] == tracker_1_0);
-  ASSERT_TRUE(tracker_list[3] == tracker_2_0);
-  ASSERT_TRUE(tracker_list[4] == tracker_3_0);
+  ASSERT_EQ(tracker_list[0], tracker_0_0);
+  ASSERT_EQ(tracker_list[1], tracker_0_1);
+  ASSERT_EQ(tracker_list[2], tracker_1_0);
+  ASSERT_EQ(tracker_list[3], tracker_2_0);
+  ASSERT_EQ(tracker_list[4], tracker_3_0);
 
   TEST_MULTIPLE_END(1, 2);
 }
@@ -432,33 +429,31 @@ TEST_F(tracker_controller_test, test_multiple_send_stop) {
   ASSERT_TRUE(tracker_0_1->trigger_success());
   ASSERT_TRUE(tracker_2_0->trigger_success());
   ASSERT_TRUE(tracker_3_0->trigger_success());
-  ASSERT_TRUE(tracker_list.count_active() == 0);
+  ASSERT_EQ(tracker_list.count_active(), 0);
 
   tracker_controller.send_stop_event();
-  ASSERT_TRUE(tracker_list.count_active() == 3);
+  ASSERT_EQ(tracker_list.count_active(), 3);
 
   TEST_MULTI3_IS_BUSY("01011", "10011");
   ASSERT_TRUE(tracker_0_1->trigger_success());
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) !=
-    torrent::TrackerController::flag_send_stop);
+  ASSERT_NE(tracker_controller.flags() & torrent::TrackerController::mask_send,
+            torrent::TrackerController::flag_send_stop);
   ASSERT_TRUE(tracker_2_0->trigger_success());
   ASSERT_TRUE(tracker_3_0->trigger_success());
 
-  ASSERT_TRUE(tracker_list.count_active() == 0);
+  ASSERT_EQ(tracker_list.count_active(), 0);
 
   tracker_controller.send_stop_event();
   tracker_controller.disable();
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) ==
-    torrent::TrackerController::flag_send_stop);
+  ASSERT_EQ(tracker_controller.flags() & torrent::TrackerController::mask_send,
+            torrent::TrackerController::flag_send_stop);
   TEST_MULTI3_IS_BUSY("01011", "10011");
 
   tracker_controller.enable(
     torrent::TrackerController::enable_dont_reset_stats);
   TEST_MULTI3_IS_BUSY("00000", "00000");
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) == 0);
+  ASSERT_EQ(tracker_controller.flags() & torrent::TrackerController::mask_send,
+            0);
 
   tracker_controller.send_stop_event();
   TEST_MULTI3_IS_BUSY("01011", "10011");
@@ -466,8 +461,8 @@ TEST_F(tracker_controller_test, test_multiple_send_stop) {
   tracker_controller.disable();
   tracker_controller.enable();
   TEST_MULTI3_IS_BUSY("00000", "00000");
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::mask_send) == 0);
+  ASSERT_EQ(tracker_controller.flags() & torrent::TrackerController::mask_send,
+            0);
 
   tracker_controller.send_stop_event();
   TEST_MULTI3_IS_BUSY("00000", "00000");
@@ -519,22 +514,23 @@ TEST_F(tracker_controller_test, test_timeout_lacking_usable) {
   ASSERT_PRED3(test_goto_next_timeout, &tracker_controller, 0, false);
 
   TEST_MULTI3_IS_BUSY("00000", "00000");
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
 
   tracker_1_0->enable();
 
   ASSERT_TRUE(tracker_controller.task_timeout()->is_queued());
-  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() == 0);
+  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(), 0);
 
   ASSERT_PRED3(test_goto_next_timeout, &tracker_controller, 0, false);
 
   TEST_MULTI3_IS_BUSY("00100", "00100");
 
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
   tracker_3_0->enable();
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
 
-  ASSERT_TRUE(enabled_counter == 5 + 2 && disabled_counter == 5);
+  ASSERT_EQ(enabled_counter, 5 + 2);
+  ASSERT_EQ(disabled_counter, 5);
   TEST_MULTIPLE_END(0, 0);
 }
 
@@ -547,7 +543,7 @@ TEST_F(tracker_controller_test, test_disable_tracker) {
 
   tracker_0_0->disable();
 
-  ASSERT_TRUE(!tracker_0_0->is_busy());
+  ASSERT_FALSE(tracker_0_0->is_busy());
   ASSERT_TRUE(tracker_controller.task_timeout()->is_queued());
 
   TEST_SINGLE_END(0, 0);
@@ -560,13 +556,13 @@ TEST_F(tracker_controller_test, test_new_peers) {
   tracker_list.send_state_idx(0, torrent::Tracker::EVENT_NONE);
 
   ASSERT_TRUE(tracker_0->trigger_success(10));
-  ASSERT_TRUE(tracker_0->latest_new_peers() == 10);
+  ASSERT_EQ(tracker_0->latest_new_peers(), 10);
 
   tracker_controller.enable();
 
   ASSERT_PRED3(test_goto_next_timeout, &tracker_controller, 0, false);
   ASSERT_TRUE(tracker_0->trigger_success(20));
-  ASSERT_TRUE(tracker_0->latest_new_peers() == 20);
+  ASSERT_EQ(tracker_0->latest_new_peers(), 20);
 }
 
 // Add new function for finding the first tracker that will time out,

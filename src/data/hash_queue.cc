@@ -128,7 +128,7 @@ HashQueue::remove(HashQueueNode::id_type id) {
               m_done_chunks_lock.unlock();
             }
 
-            node.slot_done()(*hash_chunk->chunk(), NULL);
+            node.slot_done()(*hash_chunk->chunk(), nullptr);
             node.clear();
 
             return true;

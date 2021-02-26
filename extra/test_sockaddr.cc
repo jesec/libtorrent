@@ -26,7 +26,7 @@ lookup_address(const char* name) {
     return false;
   }
 
-  for (torrent::utils::address_info* itr = result; itr != NULL;
+  for (torrent::utils::address_info* itr = result; itr != nullptr;
        itr                               = itr->next()) {
     std::cout << "Flags: " << itr->flags() << std::endl;
     std::cout << "Family: " << itr->family() << std::endl;

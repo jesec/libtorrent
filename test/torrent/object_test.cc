@@ -37,16 +37,16 @@ TEST_F(ObjectTest, test_flags) {
   objectFlagsValue.set_flags(torrent::Object::flag_static_data |
                              torrent::Object::flag_session_data);
 
-  ASSERT_TRUE(objectNoFlagsEmpty.flags() == 0);
-  ASSERT_TRUE(objectNoFlagsValue.flags() == 0);
-  ASSERT_TRUE(objectFlagsValue.flags() & torrent::Object::flag_session_data &&
-              objectFlagsValue.flags() & torrent::Object::flag_static_data);
+  ASSERT_EQ(objectNoFlagsEmpty.flags(), 0);
+  ASSERT_EQ(objectNoFlagsValue.flags(), 0);
+
+  ASSERT_TRUE(objectFlagsValue.flags() & torrent::Object::flag_session_data);
+  ASSERT_TRUE(objectFlagsValue.flags() & torrent::Object::flag_static_data);
 
   objectFlagsValue.unset_flags(torrent::Object::flag_session_data);
 
-  ASSERT_TRUE(
-    !(objectFlagsValue.flags() & torrent::Object::flag_session_data) &&
-    objectFlagsValue.flags() & torrent::Object::flag_static_data);
+  ASSERT_FALSE(objectFlagsValue.flags() & torrent::Object::flag_session_data);
+  ASSERT_TRUE(objectFlagsValue.flags() & torrent::Object::flag_static_data);
 }
 
 TEST_F(ObjectTest, test_merge) {}
@@ -128,30 +128,35 @@ TEST_F(ObjectTest, test_swap_and_move) {
 TEST_F(ObjectTest, test_create_normal) {
   torrent::Object obj;
 
-  ASSERT_TRUE(
-    torrent::object_create_normal(create_bencode_raw_bencode_c("i45e"))
-      .as_value() == 45);
-  ASSERT_TRUE(
+  ASSERT_EQ(torrent::object_create_normal(create_bencode_raw_bencode_c("i45e"))
+              .as_value(),
+            45);
+  ASSERT_EQ(
     torrent::object_create_normal(create_bencode_raw_bencode_c("4:test"))
-      .as_string() == "test");
-  ASSERT_TRUE(
-    torrent::object_create_normal(create_bencode_raw_bencode_c("li5ee"))
-      .as_list()
-      .front()
-      .as_value() == 5);
-  ASSERT_TRUE(
+      .as_string(),
+    "test");
+  ASSERT_EQ(torrent::object_create_normal(create_bencode_raw_bencode_c("li5ee"))
+              .as_list()
+              .front()
+              .as_value(),
+            5);
+  ASSERT_EQ(
     torrent::object_create_normal(create_bencode_raw_bencode_c("d1:ai6ee"))
       .as_map()["a"]
-      .as_value() == 6);
+      .as_value(),
+    6);
 
-  ASSERT_TRUE(torrent::object_create_normal(create_bencode_raw_string_c("test"))
-                .as_string() == "test");
-  ASSERT_TRUE(torrent::object_create_normal(create_bencode_raw_list_c("i5ei6e"))
-                .as_list()
-                .back()
-                .as_value() == 6);
-  ASSERT_TRUE(
+  ASSERT_EQ(torrent::object_create_normal(create_bencode_raw_string_c("test"))
+              .as_string(),
+            "test");
+  ASSERT_EQ(torrent::object_create_normal(create_bencode_raw_list_c("i5ei6e"))
+              .as_list()
+              .back()
+              .as_value(),
+            6);
+  ASSERT_EQ(
     torrent::object_create_normal(create_bencode_raw_map_c("1:ai2e1:bi3e"))
       .as_map()["b"]
-      .as_value() == 3);
+      .as_value(),
+    3);
 }

@@ -35,36 +35,36 @@ TEST_F(RangesTest, test_intersect) {
 
   ASSERT_TRUE(verify_ranges(range));
 
-  ASSERT_TRUE(range.intersect_distance(0, 0) == 0);
-  ASSERT_TRUE(range.intersect_distance(0, 10) == 0);
+  ASSERT_EQ(range.intersect_distance(0, 0), 0);
+  ASSERT_EQ(range.intersect_distance(0, 10), 0);
 
   range.insert(0, 5);
 
   ASSERT_TRUE(verify_ranges(range));
 
-  ASSERT_TRUE(range.intersect_distance(0, 5) == 5);
-  ASSERT_TRUE(range.intersect_distance(0, 10) == 5);
-  ASSERT_TRUE(range.intersect_distance(-5, 5) == 5);
-  ASSERT_TRUE(range.intersect_distance(-5, 10) == 5);
+  ASSERT_EQ(range.intersect_distance(0, 5), 5);
+  ASSERT_EQ(range.intersect_distance(0, 10), 5);
+  ASSERT_EQ(range.intersect_distance(-5, 5), 5);
+  ASSERT_EQ(range.intersect_distance(-5, 10), 5);
 
-  ASSERT_TRUE(range.intersect_distance(2, 2) == 0);
-  ASSERT_TRUE(range.intersect_distance(1, 4) == 3);
-  ASSERT_TRUE(range.intersect_distance(1, 10) == 4);
-  ASSERT_TRUE(range.intersect_distance(-5, 4) == 4);
+  ASSERT_EQ(range.intersect_distance(2, 2), 0);
+  ASSERT_EQ(range.intersect_distance(1, 4), 3);
+  ASSERT_EQ(range.intersect_distance(1, 10), 4);
+  ASSERT_EQ(range.intersect_distance(-5, 4), 4);
 
   range.insert(10, 15);
 
   ASSERT_TRUE(verify_ranges(range));
 
-  ASSERT_TRUE(range.intersect_distance(0, 15) == 10);
-  ASSERT_TRUE(range.intersect_distance(0, 20) == 10);
-  ASSERT_TRUE(range.intersect_distance(-5, 15) == 10);
-  ASSERT_TRUE(range.intersect_distance(-5, 20) == 10);
+  ASSERT_EQ(range.intersect_distance(0, 15), 10);
+  ASSERT_EQ(range.intersect_distance(0, 20), 10);
+  ASSERT_EQ(range.intersect_distance(-5, 15), 10);
+  ASSERT_EQ(range.intersect_distance(-5, 20), 10);
 
-  ASSERT_TRUE(range.intersect_distance(2, 12) == 5);
-  ASSERT_TRUE(range.intersect_distance(1, 14) == 8);
-  ASSERT_TRUE(range.intersect_distance(1, 20) == 9);
-  ASSERT_TRUE(range.intersect_distance(-5, 14) == 9);
+  ASSERT_EQ(range.intersect_distance(2, 12), 5);
+  ASSERT_EQ(range.intersect_distance(1, 14), 8);
+  ASSERT_EQ(range.intersect_distance(1, 20), 9);
+  ASSERT_EQ(range.intersect_distance(-5, 14), 9);
 }
 
 TEST_F(RangesTest, test_create_union) {
@@ -77,7 +77,7 @@ TEST_F(RangesTest, test_create_union) {
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
   ASSERT_TRUE(verify_ranges(range_1u));
-  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 0);
+  ASSERT_EQ(range_1u.intersect_distance(-5, 20), 0);
 
   range_1l.insert(0, 5);
 
@@ -85,13 +85,13 @@ TEST_F(RangesTest, test_create_union) {
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
   ASSERT_TRUE(verify_ranges(range_1u));
-  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 5);
+  ASSERT_EQ(range_1u.intersect_distance(-5, 20), 5);
 
   // Right one entry:
   range_1u = torrent::ranges<int>::create_union(range_1r, range_1l);
 
   ASSERT_TRUE(verify_ranges(range_1u));
-  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 5);
+  ASSERT_EQ(range_1u.intersect_distance(-5, 20), 5);
 
   range_1r.insert(10, 15);
 
@@ -102,7 +102,7 @@ TEST_F(RangesTest, test_create_union) {
   //  range_1u.intersect_distance(-5, 20) << std::endl;
 
   ASSERT_TRUE(verify_ranges(range_1u));
-  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 10);
+  ASSERT_EQ(range_1u.intersect_distance(-5, 20), 10);
 
   range_1r.insert(4, 6);
 
@@ -113,7 +113,7 @@ TEST_F(RangesTest, test_create_union) {
   //  range_1u.intersect_distance(-5, 20) << std::endl;
 
   ASSERT_TRUE(verify_ranges(range_1u));
-  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 11);
+  ASSERT_EQ(range_1u.intersect_distance(-5, 20), 11);
 
   range_1r.insert(9, 10);
 
@@ -121,7 +121,7 @@ TEST_F(RangesTest, test_create_union) {
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
   ASSERT_TRUE(verify_ranges(range_1u));
-  ASSERT_TRUE(range_1u.intersect_distance(-5, 20) == 12);
+  ASSERT_EQ(range_1u.intersect_distance(-5, 20), 12);
 
   // Trailing ranges left.
   range_1l.insert(25, 30);
@@ -130,7 +130,7 @@ TEST_F(RangesTest, test_create_union) {
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
   ASSERT_TRUE(verify_ranges(range_1u));
-  ASSERT_TRUE(range_1u.intersect_distance(-5, 50) == 22);
+  ASSERT_EQ(range_1u.intersect_distance(-5, 50), 22);
 
   // Trailing ranges right.
   range_1r.insert(37, 45);
@@ -139,5 +139,5 @@ TEST_F(RangesTest, test_create_union) {
   range_1u = torrent::ranges<int>::create_union(range_1l, range_1r);
 
   ASSERT_TRUE(verify_ranges(range_1u));
-  ASSERT_TRUE(range_1u.intersect_distance(-5, 60) == 32);
+  ASSERT_EQ(range_1u.intersect_distance(-5, 60), 32);
 }

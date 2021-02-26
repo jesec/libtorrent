@@ -29,11 +29,11 @@ test_thread_base::TearDown() {
 TEST_F(test_thread_base, test_basic) {
   test_thread* thread = new test_thread;
 
-  ASSERT_TRUE(thread->flags() == 0);
+  ASSERT_EQ(thread->flags(), 0);
 
-  ASSERT_TRUE(!thread->is_active());
-  ASSERT_TRUE(thread->global_queue_size() == 0);
-  ASSERT_TRUE(thread->poll() == NULL);
+  ASSERT_FALSE(thread->is_active());
+  ASSERT_EQ(thread->global_queue_size(), 0);
+  ASSERT_EQ(thread->poll(), nullptr);
 
   // Check active...
 
@@ -43,16 +43,16 @@ TEST_F(test_thread_base, test_basic) {
 TEST_F(test_thread_base, test_lifecycle) {
   test_thread* thread = new test_thread;
 
-  ASSERT_TRUE(thread->state() == torrent::thread_base::STATE_UNKNOWN);
-  ASSERT_TRUE(thread->test_state() == test_thread::TEST_NONE);
+  ASSERT_EQ(thread->state(), torrent::thread_base::STATE_UNKNOWN);
+  ASSERT_EQ(thread->test_state(), test_thread::TEST_NONE);
 
   thread->init_thread();
-  ASSERT_TRUE(thread->state() == torrent::thread_base::STATE_INITIALIZED);
+  ASSERT_EQ(thread->state(), torrent::thread_base::STATE_INITIALIZED);
   ASSERT_TRUE(thread->is_initialized());
-  ASSERT_TRUE(thread->test_state() == test_thread::TEST_PRE_START);
+  ASSERT_EQ(thread->test_state(), test_thread::TEST_PRE_START);
 
   thread->set_pre_stop();
-  ASSERT_TRUE(!wait_for_true(std::bind(
+  ASSERT_FALSE(wait_for_true(std::bind(
     &test_thread::is_test_state, thread, test_thread::TEST_PRE_STOP)));
 
   thread->start_thread();
@@ -76,35 +76,35 @@ TEST_F(test_thread_base, test_global_lock_basic) {
   thread->init_thread();
   thread->start_thread();
 
-  ASSERT_TRUE(torrent::thread_base::global_queue_size() == 0);
+  ASSERT_EQ(torrent::thread_base::global_queue_size(), 0);
 
   // Acquire main thread...
-  EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
-  EXPECT_TRUE(!torrent::thread_base::trylock_global_lock());
+  ASSERT_TRUE(torrent::thread_base::trylock_global_lock());
+  ASSERT_FALSE(torrent::thread_base::trylock_global_lock());
 
   torrent::thread_base::release_global_lock();
-  EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
-  EXPECT_TRUE(!torrent::thread_base::trylock_global_lock());
+  ASSERT_TRUE(torrent::thread_base::trylock_global_lock());
+  ASSERT_FALSE(torrent::thread_base::trylock_global_lock());
 
   torrent::thread_base::release_global_lock();
   torrent::thread_base::acquire_global_lock();
-  EXPECT_TRUE(!torrent::thread_base::trylock_global_lock());
+  ASSERT_FALSE(torrent::thread_base::trylock_global_lock());
 
   thread->set_acquire_global();
-  ASSERT_TRUE(!wait_for_true(std::bind(
+  ASSERT_FALSE(wait_for_true(std::bind(
     &test_thread::is_test_flags, thread, test_thread::test_flag_has_global)));
 
   torrent::thread_base::release_global_lock();
   ASSERT_TRUE(wait_for_true(std::bind(
     &test_thread::is_test_flags, thread, test_thread::test_flag_has_global)));
 
-  ASSERT_TRUE(!torrent::thread_base::trylock_global_lock());
+  ASSERT_FALSE(torrent::thread_base::trylock_global_lock());
   torrent::thread_base::release_global_lock();
-  EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
+  ASSERT_TRUE(torrent::thread_base::trylock_global_lock());
 
   // Test waive (loop).
 
-  ASSERT_TRUE(torrent::thread_base::global_queue_size() == 0);
+  ASSERT_EQ(torrent::thread_base::global_queue_size(), 0);
 
   torrent::thread_base::release_global_lock();
   thread->stop_thread();

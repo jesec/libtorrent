@@ -29,18 +29,18 @@ create_bencode_c(const char* str) {
 // torrent::Object
 // create_bencode_raw_bencode_c(const char* str) {
 //   torrent::Object obj;
-//   const char* last = str + strlen(str);
+//   const char*     last = str + strlen(str);
 
-//   ASSERT_TRUE(object_read_bencode_skip_c(str, last) == last);
+//   ASSERT_EQ(object_read_bencode_skip_c(str, last), last);
 //   return torrent::raw_bencode(str, std::distance(str, last));
 // }
 
 // torrent::Object
 // create_bencode_raw_list_c(const char* str) {
 //   torrent::Object obj;
-//   const char* last = str + strlen(str);
+//   const char*     last = str + strlen(str);
 
-//   ASSERT_TRUE(object_read_bencode_skip_c(str, last) == last);
+//   ASSERT_EQ(object_read_bencode_skip_c(str, last), last);
 //   return torrent::raw_bencode(str, std::distance(str, last));
 // }
 

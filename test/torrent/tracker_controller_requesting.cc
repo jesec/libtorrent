@@ -31,22 +31,25 @@ do_test_hammering_basic(bool     success1,
     tracker_0_0->set_new_min_interval(min_interval);
 
   ASSERT_TRUE(tracker_0_0->is_busy());
-  ASSERT_TRUE(success1 ? tracker_0_0->trigger_success()
-                       : tracker_0_0->trigger_failure());
+  if (success1) {
+    ASSERT_TRUE(tracker_0_0->trigger_success());
+  } else {
+    ASSERT_TRUE(tracker_0_0->trigger_failure());
+  }
 
-  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() ==
-              tracker_0_0->normal_interval());
-  ASSERT_TRUE(!(tracker_controller.flags() &
+  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(),
+            tracker_0_0->normal_interval());
+  ASSERT_FALSE((tracker_controller.flags() &
                 torrent::TrackerController::flag_promiscuous_mode));
 
   tracker_controller.start_requesting();
 
-  ASSERT_TRUE(!tracker_0_0->is_busy());
+  ASSERT_FALSE(tracker_0_0->is_busy());
   ASSERT_TRUE(test_goto_next_timeout(&tracker_controller, 0));
-  ASSERT_TRUE(!tracker_0_0->is_busy());
+  ASSERT_FALSE(tracker_0_0->is_busy());
 
-  ASSERT_TRUE(
-    (tracker_controller.flags() & torrent::TrackerController::flag_requesting));
+  ASSERT_TRUE(tracker_controller.flags() &
+              torrent::TrackerController::flag_requesting);
   ASSERT_TRUE(
     test_goto_next_timeout(&tracker_controller, tracker_0_0->min_interval()));
 
@@ -68,8 +71,11 @@ do_test_hammering_basic(bool     success1,
   tracker_controller.stop_requesting();
 
   ASSERT_TRUE(tracker_0_0->is_busy());
-  ASSERT_TRUE(success3 ? tracker_0_0->trigger_success()
-                       : tracker_0_0->trigger_failure());
+  if (success3) {
+    ASSERT_TRUE(tracker_0_0->trigger_success());
+  } else {
+    ASSERT_TRUE(tracker_0_0->trigger_failure());
+  }
 
   TEST_SINGLE_END(success1 + success2 + success3,
                   !success1 + !success2 + !success3);
@@ -118,12 +124,15 @@ do_test_hammering_multi3(bool     success1,
     tracker_0_0->set_new_min_interval(min_interval);
 
   TEST_MULTI3_IS_BUSY("10000", "10000");
-  ASSERT_TRUE(success1 ? tracker_0_0->trigger_success()
-                       : tracker_0_0->trigger_failure());
+  if (success1) {
+    ASSERT_TRUE(tracker_0_0->trigger_success());
+  } else {
+    ASSERT_TRUE(tracker_0_0->trigger_failure());
+  }
 
-  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() ==
-              tracker_0_0->normal_interval());
-  ASSERT_TRUE(!(tracker_controller.flags() &
+  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(),
+            tracker_0_0->normal_interval());
+  ASSERT_FALSE((tracker_controller.flags() &
                 torrent::TrackerController::flag_promiscuous_mode));
 
   tracker_controller.start_requesting();
@@ -132,10 +141,11 @@ do_test_hammering_multi3(bool     success1,
   ASSERT_TRUE(test_goto_next_timeout(&tracker_controller, 0));
   TEST_MULTI3_IS_BUSY("00111", "00111");
 
-  if (success2)
+  if (success2) {
     ASSERT_TRUE(tracker_2_0->trigger_success());
-  else
+  } else {
     ASSERT_TRUE(tracker_2_0->trigger_failure());
+  }
 
   ASSERT_TRUE(test_goto_next_timeout(&tracker_controller, 30));
   TEST_MULTI3_IS_BUSY("00101", "00101");
@@ -178,8 +188,11 @@ do_test_hammering_multi3(bool     success1,
   tracker_controller.stop_requesting();
 
   TEST_MULTI3_IS_BUSY(next_is_busy, next_is_busy);
-  ASSERT_TRUE(success3 ? tracker_0_0->trigger_success()
-                       : tracker_0_0->trigger_failure());
+  if (success3) {
+    ASSERT_TRUE(tracker_0_0->trigger_success());
+  } else {
+    ASSERT_TRUE(tracker_0_0->trigger_failure());
+  }
 
   TEST_MULTIPLE_END(success1 + 2 * success2 + success3,
                     !success1 + 2 * !success2 + !success3);

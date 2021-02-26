@@ -35,7 +35,7 @@ class TestHttp : public torrent::Http {
 public:
   static constexpr int flag_active = 0x1;
 
-  TestHttp(bool* destroyed = NULL)
+  TestHttp(bool* destroyed = nullptr)
     : m_flags(0)
     , m_destroyed(destroyed) {}
   virtual ~TestHttp() {
@@ -95,15 +95,15 @@ TEST_F(test_http, test_basic) {
   std::stringstream* http_stream = new std::stringstream;
 
   http->set_url("http://example.com");
-  ASSERT_TRUE(http->url() == "http://example.com");
+  ASSERT_EQ(http->url(), "http://example.com");
 
-  ASSERT_TRUE(http->stream() == NULL);
+  ASSERT_EQ(http->stream(), nullptr);
   http->set_stream(http_stream);
-  ASSERT_TRUE(http->stream() == http_stream);
+  ASSERT_EQ(http->stream(), http_stream);
 
-  ASSERT_TRUE(http->timeout() == 0);
+  ASSERT_EQ(http->timeout(), 0);
   http->set_timeout(666);
-  ASSERT_TRUE(http->timeout() == 666);
+  ASSERT_EQ(http->timeout(), 666);
 
   delete http;
   delete http_stream;
@@ -117,7 +117,8 @@ TEST_F(test_http, test_done) {
 
   // Check that we didn't delete...
 
-  ASSERT_TRUE(done_counter == 1 && failed_counter == 0);
+  ASSERT_EQ(done_counter, 1);
+  ASSERT_EQ(failed_counter, 0);
 }
 
 TEST_F(test_http, test_failure) {
@@ -128,7 +129,8 @@ TEST_F(test_http, test_failure) {
 
   // Check that we didn't delete...
 
-  ASSERT_TRUE(done_counter == 0 && failed_counter == 1);
+  ASSERT_EQ(done_counter, 0);
+  ASSERT_EQ(failed_counter, 1);
 }
 
 TEST_F(test_http, test_delete_on_done) {
@@ -136,12 +138,12 @@ TEST_F(test_http, test_delete_on_done) {
   http->start();
   http->set_delete_stream();
 
-  ASSERT_TRUE(!stream_destroyed);
-  ASSERT_TRUE(!http_destroyed);
+  ASSERT_FALSE(stream_destroyed);
+  ASSERT_FALSE(http_destroyed);
   ASSERT_TRUE(test_http->trigger_signal_done());
   ASSERT_TRUE(stream_destroyed);
-  ASSERT_TRUE(!http_destroyed);
-  ASSERT_TRUE(http->stream() == NULL);
+  ASSERT_FALSE(http_destroyed);
+  ASSERT_EQ(http->stream(), nullptr);
 
   stream_destroyed = false;
   http_stream      = new StringStream(&stream_destroyed);
@@ -150,8 +152,8 @@ TEST_F(test_http, test_delete_on_done) {
   http->start();
   http->set_delete_self();
 
-  ASSERT_TRUE(!stream_destroyed);
-  ASSERT_TRUE(!http_destroyed);
+  ASSERT_FALSE(stream_destroyed);
+  ASSERT_FALSE(http_destroyed);
   ASSERT_TRUE(test_http->trigger_signal_done());
   ASSERT_TRUE(stream_destroyed);
   ASSERT_TRUE(http_destroyed);
@@ -162,12 +164,12 @@ TEST_F(test_http, test_delete_on_failure) {
   http->start();
   http->set_delete_stream();
 
-  ASSERT_TRUE(!stream_destroyed);
-  ASSERT_TRUE(!http_destroyed);
+  ASSERT_FALSE(stream_destroyed);
+  ASSERT_FALSE(http_destroyed);
   ASSERT_TRUE(test_http->trigger_signal_failed());
   ASSERT_TRUE(stream_destroyed);
-  ASSERT_TRUE(!http_destroyed);
-  ASSERT_TRUE(http->stream() == NULL);
+  ASSERT_FALSE(http_destroyed);
+  ASSERT_EQ(http->stream(), nullptr);
 
   stream_destroyed = false;
   http_stream      = new StringStream(&stream_destroyed);
@@ -176,8 +178,8 @@ TEST_F(test_http, test_delete_on_failure) {
   http->start();
   http->set_delete_self();
 
-  ASSERT_TRUE(!stream_destroyed);
-  ASSERT_TRUE(!http_destroyed);
+  ASSERT_FALSE(stream_destroyed);
+  ASSERT_FALSE(http_destroyed);
   ASSERT_TRUE(test_http->trigger_signal_failed());
   ASSERT_TRUE(stream_destroyed);
   ASSERT_TRUE(http_destroyed);

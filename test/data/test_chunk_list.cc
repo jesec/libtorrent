@@ -25,8 +25,9 @@ func_create_chunk(uint32_t index, int) {
                                         torrent::MemoryChunk::prot_read,
                                         0));
 
-  if (chunk == NULL)
-    throw torrent::internal_error("func_create_chunk() failed: chunk == NULL.");
+  if (chunk == nullptr)
+    throw torrent::internal_error(
+      "func_create_chunk() failed: chunk == nullptr.");
 
   return chunk;
 }
@@ -43,69 +44,69 @@ TEST_F(test_chunk_list, test_basic) {
   torrent::ChunkManager chunk_manager;
   torrent::ChunkList    chunk_list;
 
-  ASSERT_TRUE(chunk_list.flags() == 0);
-  ASSERT_TRUE(chunk_list.chunk_size() == 0);
+  ASSERT_EQ(chunk_list.flags(), 0);
+  ASSERT_EQ(chunk_list.chunk_size(), 0);
 
   chunk_list.set_chunk_size(1 << 16);
   chunk_list.set_manager(&chunk_manager);
   chunk_list.resize(32);
 
-  ASSERT_TRUE(chunk_list.size() == 32);
-  ASSERT_TRUE(chunk_list.chunk_size() == (1 << 16));
+  ASSERT_EQ(chunk_list.size(), 32);
+  ASSERT_EQ(chunk_list.chunk_size(), (1 << 16));
 
   for (unsigned int i = 0; i < 32; i++)
-    ASSERT_TRUE(chunk_list[i].index() == i);
+    ASSERT_EQ(chunk_list[i].index(), i);
 }
 
 TEST_F(test_chunk_list, test_get_release) {
   SETUP_CHUNK_LIST();
 
-  ASSERT_TRUE(!(*chunk_list)[0].is_valid());
+  ASSERT_FALSE((*chunk_list)[0].is_valid());
 
   torrent::ChunkHandle handle_0 = chunk_list->get(0);
 
-  ASSERT_TRUE(handle_0.object() != NULL);
-  ASSERT_TRUE(handle_0.object()->index() == 0);
-  ASSERT_TRUE(handle_0.index() == 0);
-  ASSERT_TRUE(!handle_0.is_writable());
-  ASSERT_TRUE(!handle_0.is_blocking());
+  ASSERT_NE(handle_0.object(), nullptr);
+  ASSERT_EQ(handle_0.object()->index(), 0);
+  ASSERT_EQ(handle_0.index(), 0);
+  ASSERT_FALSE(handle_0.is_writable());
+  ASSERT_FALSE(handle_0.is_blocking());
 
   ASSERT_TRUE((*chunk_list)[0].is_valid());
-  ASSERT_TRUE((*chunk_list)[0].references() == 1);
-  ASSERT_TRUE((*chunk_list)[0].writable() == 0);
-  ASSERT_TRUE((*chunk_list)[0].blocking() == 0);
+  ASSERT_EQ((*chunk_list)[0].references(), 1);
+  ASSERT_EQ((*chunk_list)[0].writable(), 0);
+  ASSERT_EQ((*chunk_list)[0].blocking(), 0);
 
   chunk_list->release(&handle_0);
 
   torrent::ChunkHandle handle_1 =
     chunk_list->get(1, torrent::ChunkList::get_writable);
 
-  ASSERT_TRUE(handle_1.object() != NULL);
-  ASSERT_TRUE(handle_1.object()->index() == 1);
-  ASSERT_TRUE(handle_1.index() == 1);
+  ASSERT_NE(handle_1.object(), nullptr);
+  ASSERT_EQ(handle_1.object()->index(), 1);
+  ASSERT_EQ(handle_1.index(), 1);
   ASSERT_TRUE(handle_1.is_writable());
-  ASSERT_TRUE(!handle_1.is_blocking());
+  ASSERT_FALSE(handle_1.is_blocking());
 
   ASSERT_TRUE((*chunk_list)[1].is_valid());
-  ASSERT_TRUE((*chunk_list)[1].references() == 1);
-  ASSERT_TRUE((*chunk_list)[1].writable() == 1);
-  ASSERT_TRUE((*chunk_list)[1].blocking() == 0);
+  ASSERT_EQ((*chunk_list)[1].references(), 1);
+  ASSERT_EQ((*chunk_list)[1].writable(), 1);
+  ASSERT_EQ((*chunk_list)[1].blocking(), 0);
 
   chunk_list->release(&handle_1);
 
   torrent::ChunkHandle handle_2 =
     chunk_list->get(2, torrent::ChunkList::get_blocking);
 
-  ASSERT_TRUE(handle_2.object() != NULL);
-  ASSERT_TRUE(handle_2.object()->index() == 2);
-  ASSERT_TRUE(handle_2.index() == 2);
-  ASSERT_TRUE(!handle_2.is_writable());
+  ASSERT_NE(handle_2.object(), nullptr);
+  ASSERT_EQ(handle_2.object()->index(), 2);
+  ASSERT_EQ(handle_2.index(), 2);
+  ASSERT_FALSE(handle_2.is_writable());
   ASSERT_TRUE(handle_2.is_blocking());
 
   ASSERT_TRUE((*chunk_list)[2].is_valid());
-  ASSERT_TRUE((*chunk_list)[2].references() == 1);
-  ASSERT_TRUE((*chunk_list)[2].writable() == 0);
-  ASSERT_TRUE((*chunk_list)[2].blocking() == 1);
+  ASSERT_EQ((*chunk_list)[2].references(), 1);
+  ASSERT_EQ((*chunk_list)[2].writable(), 0);
+  ASSERT_EQ((*chunk_list)[2].blocking(), 1);
 
   chunk_list->release(&handle_2);
 
@@ -129,9 +130,9 @@ TEST_F(test_chunk_list, test_blocking) {
 
   torrent::ChunkHandle handle_0_rw = chunk_list->get(
     0, torrent::ChunkList::get_writable | torrent::ChunkList::get_nonblock);
-  ASSERT_TRUE(!handle_0_rw.is_valid());
-  ASSERT_TRUE(handle_0_rw.error_number() ==
-              std::errc::resource_unavailable_try_again);
+  ASSERT_FALSE(handle_0_rw.is_valid());
+  ASSERT_EQ(handle_0_rw.error_number(),
+            std::errc::resource_unavailable_try_again);
 
   chunk_list->release(&handle_0_ro);
 

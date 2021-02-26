@@ -22,14 +22,14 @@ TEST_F(ObjectStreamTest, testInputOrdered) {
   torrent::Object orderedObj   = create_bencode(ordered_bencode);
   torrent::Object unorderedObj = create_bencode(unordered_bencode);
 
-  ASSERT_TRUE(!(orderedObj.flags() & torrent::Object::flag_unordered));
+  ASSERT_FALSE((orderedObj.flags() & torrent::Object::flag_unordered));
   ASSERT_TRUE(unorderedObj.flags() & torrent::Object::flag_unordered);
 }
 
 TEST_F(ObjectStreamTest, testInputNullKey) {
   torrent::Object obj = create_bencode("d0:i1e5:filesi2ee");
 
-  ASSERT_TRUE(!(obj.flags() & torrent::Object::flag_unordered));
+  ASSERT_FALSE((obj.flags() & torrent::Object::flag_unordered));
 }
 
 TEST_F(ObjectStreamTest, testOutputMask) {
@@ -61,7 +61,7 @@ TEST_F(ObjectStreamTest, testBuffer) {
 
   torrent::Object obj = create_bencode(string_bencode);
 
-  object_write_bencode_c(&object_write_to_invalidate, NULL, buffer, &obj);
+  object_write_bencode_c(&object_write_to_invalidate, nullptr, buffer, &obj);
 }
 
 static const char* single_level_bencode = "d1:ai1e1:bi2e1:cl1:ai1e1:bi2eee";
@@ -70,7 +70,7 @@ TEST_F(ObjectStreamTest, testReadBencodeC) {
   torrent::Object orderedObj   = create_bencode_c(ordered_bencode);
   torrent::Object unorderedObj = create_bencode_c(unordered_bencode);
 
-  ASSERT_TRUE(!(orderedObj.flags() & torrent::Object::flag_unordered));
+  ASSERT_FALSE((orderedObj.flags() & torrent::Object::flag_unordered));
   ASSERT_TRUE(unorderedObj.flags() & torrent::Object::flag_unordered);
   ASSERT_TRUE(compare_bencode(orderedObj, ordered_bencode));
 

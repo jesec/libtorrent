@@ -18,9 +18,9 @@ test_print_uri_state(const torrent::utils::uri_state& state) {
 TEST_F(test_uri_parser, test_basic) {
   torrent::utils::uri_state state;
 
-  ASSERT_TRUE(state.state == torrent::utils::uri_state::state_empty);
-  ASSERT_TRUE(state.state != torrent::utils::uri_state::state_valid);
-  ASSERT_TRUE(state.state != torrent::utils::uri_state::state_invalid);
+  ASSERT_EQ(state.state, torrent::utils::uri_state::state_empty);
+  ASSERT_NE(state.state, torrent::utils::uri_state::state_valid);
+  ASSERT_NE(state.state, torrent::utils::uri_state::state_invalid);
 }
 
 #define MAGNET_BASIC "magnet:?xt=urn:sha1:YNCKHTQCWBTRNJIV4WNAE52SJUQCZO5C"
@@ -32,13 +32,13 @@ TEST_F(test_uri_parser, test_basic_magnet) {
 
   test_print_uri_state(state);
 
-  ASSERT_TRUE(state.state == torrent::utils::uri_state::state_valid);
+  ASSERT_EQ(state.state, torrent::utils::uri_state::state_valid);
 
-  ASSERT_TRUE(state.uri == MAGNET_BASIC);
-  ASSERT_TRUE(state.scheme == "magnet");
-  ASSERT_TRUE(state.resource == "");
-  ASSERT_TRUE(state.query == "xt=urn:sha1:YNCKHTQCWBTRNJIV4WNAE52SJUQCZO5C");
-  ASSERT_TRUE(state.fragment == "");
+  ASSERT_EQ(state.uri, MAGNET_BASIC);
+  ASSERT_EQ(state.scheme, "magnet");
+  ASSERT_EQ(state.resource, "");
+  ASSERT_EQ(state.query, "xt=urn:sha1:YNCKHTQCWBTRNJIV4WNAE52SJUQCZO5C");
+  ASSERT_EQ(state.fragment, "");
 }
 
 #define QUERY_MAGNET_QUERY                                                     \
@@ -58,30 +58,29 @@ TEST_F(test_uri_parser, test_query_magnet) {
 
   test_print_uri_state(state);
 
-  ASSERT_TRUE(state.state == torrent::utils::uri_state::state_valid);
+  ASSERT_EQ(state.state, torrent::utils::uri_state::state_valid);
 
-  ASSERT_TRUE(state.uri == QUERY_MAGNET);
-  ASSERT_TRUE(state.scheme == "magnet");
-  ASSERT_TRUE(state.resource == "");
-  ASSERT_TRUE(state.query == QUERY_MAGNET_QUERY);
-  ASSERT_TRUE(state.fragment == "");
+  ASSERT_EQ(state.uri, QUERY_MAGNET);
+  ASSERT_EQ(state.scheme, "magnet");
+  ASSERT_EQ(state.resource, "");
+  ASSERT_EQ(state.query, QUERY_MAGNET_QUERY);
+  ASSERT_EQ(state.fragment, "");
 
   uri_parse_query_str(state.query, query_state);
 
   for (const auto& element : query_state.elements)
     lt_log_print(torrent::LOG_MOCK_CALLS, "query_element: %s", element.c_str());
 
-  ASSERT_TRUE(query_state.state ==
-              torrent::utils::uri_query_state::state_valid);
+  ASSERT_EQ(query_state.state, torrent::utils::uri_query_state::state_valid);
 
-  ASSERT_TRUE(query_state.elements.size() == 5);
-  ASSERT_TRUE(query_state.elements.at(0) ==
-              "xt=urn:ed2k:31D6CFE0D16AE931B73C59D7E0C089C0");
-  ASSERT_TRUE(query_state.elements.at(1) == "xl=0");
-  ASSERT_TRUE(query_state.elements.at(2) == "dn=zero_len.fil");
-  ASSERT_TRUE(query_state.elements.at(3) ==
-              "xt=urn:bitprint:3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ."
-              "LWPNACQDBZRYXW3VHJVCJ64QBZNGHOHHHZWCLNQ");
-  ASSERT_TRUE(query_state.elements.at(4) ==
-              "xt=urn:md5:D41D8CD98F00B204E9800998ECF8427E");
+  ASSERT_EQ(query_state.elements.size(), 5);
+  ASSERT_EQ(query_state.elements.at(0),
+            "xt=urn:ed2k:31D6CFE0D16AE931B73C59D7E0C089C0");
+  ASSERT_EQ(query_state.elements.at(1), "xl=0");
+  ASSERT_EQ(query_state.elements.at(2), "dn=zero_len.fil");
+  ASSERT_EQ(query_state.elements.at(3),
+            "xt=urn:bitprint:3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ."
+            "LWPNACQDBZRYXW3VHJVCJ64QBZNGHOHHHZWCLNQ");
+  ASSERT_EQ(query_state.elements.at(4),
+            "xt=urn:md5:D41D8CD98F00B204E9800998ECF8427E");
 }

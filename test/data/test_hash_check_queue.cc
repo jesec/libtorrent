@@ -100,14 +100,14 @@ TEST_F(test_hash_check_queue, test_single) {
 
   hash_queue.push_back(new torrent::HashChunk(handle_0));
 
-  ASSERT_TRUE(hash_queue.size() == 1);
+  ASSERT_EQ(hash_queue.size(), 1);
   ASSERT_TRUE(hash_queue.front()->handle().is_blocking());
-  ASSERT_TRUE(hash_queue.front()->handle().object() == &((*chunk_list)[0]));
+  ASSERT_EQ(hash_queue.front()->handle().object(), &((*chunk_list)[0]));
 
   hash_queue.perform();
 
-  ASSERT_TRUE(done_chunks.find(0) != done_chunks.end());
-  ASSERT_TRUE(done_chunks[0] == hash_for_index(0));
+  ASSERT_NE(done_chunks.find(0), done_chunks.end());
+  ASSERT_EQ(done_chunks[0], hash_for_index(0));
 
   // Should not be needed... Also verify that HashChunk gets deleted.
   chunk_list->release(&handle_0);
@@ -133,16 +133,16 @@ TEST_F(test_hash_check_queue, test_multiple) {
 
     hash_queue.push_back(new torrent::HashChunk(handles.back()));
 
-    ASSERT_TRUE(hash_queue.size() == i + 1);
+    ASSERT_EQ(hash_queue.size(), i + 1);
     ASSERT_TRUE(hash_queue.back()->handle().is_blocking());
-    ASSERT_TRUE(hash_queue.back()->handle().object() == &((*chunk_list)[i]));
+    ASSERT_EQ(hash_queue.back()->handle().object(), &((*chunk_list)[i]));
   }
 
   hash_queue.perform();
 
   for (unsigned int i = 0; i < 20; i++) {
-    ASSERT_TRUE(done_chunks.find(i) != done_chunks.end());
-    ASSERT_TRUE(done_chunks[i] == hash_for_index(i));
+    ASSERT_NE(done_chunks.find(i), done_chunks.end());
+    ASSERT_EQ(done_chunks[i], hash_for_index(i));
 
     // Should not be needed...
     chunk_list->release(&handles[i]);
@@ -156,8 +156,8 @@ TEST_F(test_hash_check_queue, test_erase) {
   // torrent::HashCheckQueue hash_queue;
 
   // done_chunks_type done_chunks;
-  // hash_queue.slot_chunk_done() = std::bind(&chunk_done, &done_chunks,
-  // std::placeholders::_1, std::placeholders::_2);
+  // hash_queue.slot_chunk_done() = std::bind(
+  //   &chunk_done, &done_chunks, std::placeholders::_1, std::placeholders::_2);
 
   // handle_list handles;
 
@@ -166,17 +166,16 @@ TEST_F(test_hash_check_queue, test_erase) {
 
   //   hash_queue.push_back(new torrent::HashChunk(handles.back()));
 
-  //   ASSERT_TRUE(hash_queue.size() == i + 1);
+  //   ASSERT_EQ(hash_queue.size(), i + 1);
   //   ASSERT_TRUE(hash_queue.back()->handle().is_blocking());
-  //   ASSERT_TRUE(hash_queue.back()->handle().object() ==
-  //   &((*chunk_list)[i]));
+  //   ASSERT_EQ(hash_queue.back()->handle().object(), &((*chunk_list)[i]));
   // }
 
   // hash_queue.perform();
 
   // for (unsigned int i = 0; i < 20; i++) {
-  //   ASSERT_TRUE(done_chunks.find(i) != done_chunks.end());
-  //   ASSERT_TRUE(done_chunks[i] == hash_for_index(i));
+  //   ASSERT_NE(done_chunks.find(i), done_chunks.end());
+  //   ASSERT_EQ(done_chunks[i], hash_for_index(i));
 
   //   // Should not be needed...
   //   chunk_list->release(&handles[i]);

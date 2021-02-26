@@ -65,7 +65,7 @@ TEST_F(tracker_controller_features, test_requesting_timeout) {
   TEST_MULTI3_IS_BUSY("10111", "10111");
 
   ASSERT_TRUE(tracker_0_0->trigger_failure());
-  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() == 5);
+  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(), 5);
   // ASSERT_TRUE(tracker_0_1->trigger_failure());
   ASSERT_TRUE(tracker_1_0->trigger_failure());
   ASSERT_TRUE(tracker_2_0->trigger_failure());
@@ -77,9 +77,9 @@ TEST_F(tracker_controller_features, test_requesting_timeout) {
   ASSERT_TRUE(test_goto_next_timeout(&tracker_controller, 5));
   TEST_MULTI3_IS_BUSY("01111", "01111");
 
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
   ASSERT_TRUE(tracker_0_1->trigger_success());
-  ASSERT_TRUE(tracker_controller.seconds_to_next_timeout() == 30);
+  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(), 30);
 
   TEST_MULTIPLE_END(1, 4);
 }
@@ -92,16 +92,16 @@ TEST_F(tracker_controller_features, test_promiscious_timeout) {
 
   TEST_MULTI3_IS_BUSY("10111", "10111");
 
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
 
   ASSERT_TRUE(tracker_0_0->trigger_success());
-  ASSERT_TRUE(!(tracker_controller.flags() &
+  ASSERT_FALSE((tracker_controller.flags() &
                 torrent::TrackerController::flag_promiscuous_mode));
 
   // ASSERT_TRUE(tracker_0_1->trigger_success());
   ASSERT_TRUE(tracker_1_0->trigger_success());
   ASSERT_TRUE(tracker_2_0->trigger_success());
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
 
   ASSERT_TRUE(tracker_3_0->trigger_success());
   ASSERT_TRUE(test_goto_next_timeout(&tracker_controller,
@@ -138,7 +138,7 @@ TEST_F(tracker_controller_features, test_promiscious_failed) {
 
   ASSERT_TRUE(tracker_0_0->trigger_failure());
 
-  ASSERT_TRUE(!tracker_list.has_active());
+  ASSERT_FALSE(tracker_list.has_active());
   ASSERT_TRUE(tracker_controller.task_timeout()->is_queued());
 
   TEST_MULTIPLE_END(0, 7);
@@ -148,7 +148,7 @@ TEST_F(tracker_controller_features, test_scrape_basic) {
   TEST_GROUP_BEGIN();
   tracker_controller.disable();
 
-  ASSERT_TRUE(!tracker_controller.task_scrape()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_scrape()->is_queued());
   tracker_0_1->set_can_scrape();
   tracker_0_2->set_can_scrape();
   tracker_2_0->set_can_scrape();
@@ -156,31 +156,31 @@ TEST_F(tracker_controller_features, test_scrape_basic) {
   tracker_controller.scrape_request(0);
 
   TEST_GROUP_IS_BUSY("000000", "000000");
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
   ASSERT_TRUE(tracker_controller.task_scrape()->is_queued());
-  ASSERT_TRUE(tracker_0_1->latest_event() == torrent::Tracker::EVENT_NONE);
-  ASSERT_TRUE(tracker_0_2->latest_event() == torrent::Tracker::EVENT_NONE);
-  ASSERT_TRUE(tracker_2_0->latest_event() == torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_0_1->latest_event(), torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_0_2->latest_event(), torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_2_0->latest_event(), torrent::Tracker::EVENT_NONE);
 
   TEST_GOTO_NEXT_SCRAPE(0);
 
   TEST_GROUP_IS_BUSY("010001", "010001");
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
-  ASSERT_TRUE(!tracker_controller.task_scrape()->is_queued());
-  ASSERT_TRUE(tracker_0_1->latest_event() == torrent::Tracker::EVENT_SCRAPE);
-  ASSERT_TRUE(tracker_0_2->latest_event() == torrent::Tracker::EVENT_NONE);
-  ASSERT_TRUE(tracker_2_0->latest_event() == torrent::Tracker::EVENT_SCRAPE);
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_scrape()->is_queued());
+  ASSERT_EQ(tracker_0_1->latest_event(), torrent::Tracker::EVENT_SCRAPE);
+  ASSERT_EQ(tracker_0_2->latest_event(), torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_2_0->latest_event(), torrent::Tracker::EVENT_SCRAPE);
 
   ASSERT_TRUE(tracker_0_1->trigger_scrape());
   ASSERT_TRUE(tracker_2_0->trigger_scrape());
 
   TEST_GROUP_IS_BUSY("000000", "000000");
-  ASSERT_TRUE(!tracker_controller.task_timeout()->is_queued());
-  ASSERT_TRUE(!tracker_controller.task_scrape()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_timeout()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_scrape()->is_queued());
 
-  ASSERT_TRUE(tracker_0_1->scrape_time_last() != 0);
-  ASSERT_TRUE(tracker_0_2->scrape_time_last() == 0);
-  ASSERT_TRUE(tracker_2_0->scrape_time_last() != 0);
+  ASSERT_NE(tracker_0_1->scrape_time_last(), 0);
+  ASSERT_EQ(tracker_0_2->scrape_time_last(), 0);
+  ASSERT_NE(tracker_2_0->scrape_time_last(), 0);
 
   TEST_MULTIPLE_END(0, 0);
 }
@@ -195,16 +195,16 @@ TEST_F(tracker_controller_features, test_scrape_priority) {
 
   TEST_GOTO_NEXT_SCRAPE(0);
   ASSERT_TRUE(tracker_0_0->is_busy());
-  ASSERT_TRUE(tracker_0_0->latest_event() == torrent::Tracker::EVENT_SCRAPE);
+  ASSERT_EQ(tracker_0_0->latest_event(), torrent::Tracker::EVENT_SCRAPE);
 
   // Check the other event types too?
   tracker_controller.send_update_event();
 
   ASSERT_TRUE(tracker_0_0->is_busy());
-  ASSERT_TRUE(tracker_0_0->latest_event() == torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_0_0->latest_event(), torrent::Tracker::EVENT_NONE);
 
   ASSERT_TRUE(tracker_controller.task_timeout()->is_queued());
-  ASSERT_TRUE(!tracker_controller.task_scrape()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_scrape()->is_queued());
 
   tracker_0_0->trigger_success();
 
@@ -219,12 +219,12 @@ TEST_F(tracker_controller_features, test_scrape_priority) {
   TEST_GOTO_NEXT_SCRAPE(0);
 
   ASSERT_TRUE(tracker_0_0->is_busy());
-  ASSERT_TRUE(tracker_0_0->latest_event() == torrent::Tracker::EVENT_SCRAPE);
+  ASSERT_EQ(tracker_0_0->latest_event(), torrent::Tracker::EVENT_SCRAPE);
 
   ASSERT_TRUE(test_goto_next_timeout(&tracker_controller, 1));
 
   ASSERT_TRUE(tracker_0_0->is_busy());
-  ASSERT_TRUE(tracker_0_0->latest_event() == torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_0_0->latest_event(), torrent::Tracker::EVENT_NONE);
 
   TEST_SINGLE_END(2, 0);
 }
@@ -279,18 +279,18 @@ TEST_F(tracker_controller_features, test_groups_scrape) {
   tracker_1_1->set_can_scrape();
   tracker_2_0->set_can_scrape();
 
-  ASSERT_TRUE(!tracker_controller.task_scrape()->is_queued());
+  ASSERT_FALSE(tracker_controller.task_scrape()->is_queued());
 
   tracker_controller.scrape_request(0);
 
   TEST_GROUP_IS_BUSY("000000", "000000");
   TEST_GOTO_NEXT_SCRAPE(0);
-  ASSERT_TRUE(tracker_0_0->latest_event() == torrent::Tracker::EVENT_SCRAPE);
-  ASSERT_TRUE(tracker_0_1->latest_event() == torrent::Tracker::EVENT_NONE);
-  ASSERT_TRUE(tracker_0_2->latest_event() == torrent::Tracker::EVENT_NONE);
-  ASSERT_TRUE(tracker_1_0->latest_event() == torrent::Tracker::EVENT_SCRAPE);
-  ASSERT_TRUE(tracker_1_1->latest_event() == torrent::Tracker::EVENT_NONE);
-  ASSERT_TRUE(tracker_2_0->latest_event() == torrent::Tracker::EVENT_SCRAPE);
+  ASSERT_EQ(tracker_0_0->latest_event(), torrent::Tracker::EVENT_SCRAPE);
+  ASSERT_EQ(tracker_0_1->latest_event(), torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_0_2->latest_event(), torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_1_0->latest_event(), torrent::Tracker::EVENT_SCRAPE);
+  ASSERT_EQ(tracker_1_1->latest_event(), torrent::Tracker::EVENT_NONE);
+  ASSERT_EQ(tracker_2_0->latest_event(), torrent::Tracker::EVENT_SCRAPE);
 
   TEST_GROUP_IS_BUSY("100101", "100101");
   ASSERT_TRUE(tracker_0_0->trigger_scrape());
