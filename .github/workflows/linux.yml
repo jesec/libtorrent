@@ -33,7 +33,7 @@ jobs:
 
       - run: sudo apt install -y build-essential
 
-      - run: bazel coverage -s
+      - run: bazel coverage -s libtorrent_test
       - run: cp -L bazel-testlogs/libtorrent_test/coverage.dat .
 
       - uses: codecov/codecov-action@v1
@@ -64,4 +64,4 @@ jobs:
           LLVM_VERSION: 11
 
       - run: sudo apt install -y build-essential
-      - run: bazel test --config=clang -s
+      - run: bazel test --config=clang -s libtorrent_test

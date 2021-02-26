@@ -42,6 +42,7 @@ scripts/lt*.m4
 
 # Editor poo #
 ##############
+.cache
 .vscode
 .#*
 \#*#
