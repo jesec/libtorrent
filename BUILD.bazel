@@ -92,6 +92,6 @@ cc_test(
     linkopts = LINKOPTS,
     deps = [
         "//:torrent",
-        "@gtest",
+        "@com_google_googletest//:gtest",
     ],
 )
