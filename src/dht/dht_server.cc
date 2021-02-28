@@ -664,7 +664,6 @@ DhtServer::add_transaction(DhtTransaction* transaction, int priority) {
 
     // Give up after trying all possible IDs. This should never happen.
     if (id == rnd) {
-      delete transaction;
       return -1;
     }
 
