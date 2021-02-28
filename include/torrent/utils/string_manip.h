@@ -149,7 +149,7 @@ hexchar_to_value(char c) {
   if (c >= '0' && c <= '9')
     return c - '0';
 
-  else if (c >= 'A' && c <= 'F')
+  else if (c >= 'A' && c <= 'Z')
     return 10 + c - 'A';
 
   else

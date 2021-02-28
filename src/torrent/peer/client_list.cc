@@ -251,8 +251,8 @@ ClientList::insert_helper(ClientInfo::id_type type,
 bool
 ClientList::retrieve_id(ClientInfo* dest, const HashString& id) const {
   if (id[0] == '-' && id[7] == '-' && std::isalpha(id[1]) &&
-      std::isalpha(id[2]) && std::isxdigit(id[3]) && std::isxdigit(id[4]) &&
-      std::isxdigit(id[5]) && std::isxdigit(id[6])) {
+      std::isalpha(id[2]) && std::isalnum(id[3]) && std::isalnum(id[4]) &&
+      std::isalnum(id[5]) && std::isalnum(id[6])) {
     dest->set_type(ClientInfo::TYPE_AZUREUS);
 
     dest->mutable_key()[0] = id[1];
@@ -262,8 +262,8 @@ ClientList::retrieve_id(ClientInfo* dest, const HashString& id) const {
       dest->mutable_version()[i] = dest->mutable_upper_version()[i] =
         utils::hexchar_to_value(id[3 + i]);
 
-  } else if (std::isalpha(id[0]) && id[4] == '-' && std::isxdigit(id[1]) &&
-             std::isxdigit(id[2]) && std::isxdigit(id[3])) {
+  } else if (std::isalpha(id[0]) && id[4] == '-' && std::isalnum(id[1]) &&
+             std::isalnum(id[2]) && std::isalnum(id[3])) {
     dest->set_type(ClientInfo::TYPE_COMPACT);
 
     dest->mutable_key()[0] = id[0];
