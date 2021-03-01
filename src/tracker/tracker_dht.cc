@@ -34,8 +34,7 @@ TrackerDht::TrackerDht(TrackerList* parent, const std::string& url, int flags)
 }
 
 TrackerDht::~TrackerDht() {
-  if (is_busy())
-    manager->dht_manager()->router()->cancel_announce(nullptr, this);
+  close();
 }
 
 bool
@@ -56,10 +55,6 @@ TrackerDht::send_state(int state) {
 
   if (is_busy()) {
     manager->dht_manager()->router()->cancel_announce(m_parent->info(), this);
-
-    if (is_busy())
-      throw internal_error(
-        "TrackerDht::send_state cancel_announce did not cancel announce.");
   }
 
   m_latest_event = state;
@@ -80,8 +75,10 @@ TrackerDht::send_state(int state) {
 
 void
 TrackerDht::close() {
-  if (is_busy())
+  if (is_busy()) {
     manager->dht_manager()->router()->cancel_announce(m_parent->info(), this);
+    m_state = state_idle;
+  }
 }
 
 void
@@ -96,17 +93,11 @@ TrackerDht::type() const {
 
 void
 TrackerDht::receive_peers(raw_list peers) {
-  if (!is_busy())
-    throw internal_error("TrackerDht::receive_peers called while not busy.");
-
   m_peers.parse_address_bencode(peers);
 }
 
 void
 TrackerDht::receive_success() {
-  if (!is_busy())
-    throw internal_error("TrackerDht::receive_success called while not busy.");
-
   m_state = state_idle;
   m_parent->receive_success(this, &m_peers);
   m_peers.clear();
@@ -114,9 +105,6 @@ TrackerDht::receive_success() {
 
 void
 TrackerDht::receive_failed(const char* msg) {
-  if (!is_busy())
-    throw internal_error("TrackerDht::receive_failed called while not busy.");
-
   m_state = state_idle;
   m_parent->receive_failed(this, msg);
   m_peers.clear();
@@ -124,18 +112,12 @@ TrackerDht::receive_failed(const char* msg) {
 
 void
 TrackerDht::receive_progress(int replied, int contacted) {
-  if (!is_busy())
-    throw internal_error("TrackerDht::receive_status called while not busy.");
-
   m_replied   = replied;
   m_contacted = contacted;
 }
 
 void
 TrackerDht::get_status(char* buffer, int length) {
-  if (!is_busy())
-    throw internal_error("TrackerDht::get_status called while not busy.");
-
   snprintf(buffer,
            length,
            "[%s: %d/%d nodes replied]",
