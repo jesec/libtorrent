@@ -45,6 +45,14 @@ DownloadWrapper::DownloadWrapper()
     data()->call_download_done();
   };
 
+  m_main->delay_download_active().slot() = [this]() {
+    data()->call_download_active();
+  };
+
+  m_main->delay_download_inactive().slot() = [this]() {
+    data()->call_download_inactive();
+  };
+
   m_main->delay_partially_done().slot() = [this]() {
     data()->call_partially_done();
   };
@@ -134,6 +142,8 @@ DownloadWrapper::close() {
 
   // Should this perhaps be in stop?
   priority_queue_erase(&taskScheduler, &m_main->delay_download_done());
+  priority_queue_erase(&taskScheduler, &m_main->delay_download_active());
+  priority_queue_erase(&taskScheduler, &m_main->delay_download_inactive());
   priority_queue_erase(&taskScheduler, &m_main->delay_partially_done());
   priority_queue_erase(&taskScheduler, &m_main->delay_partially_restarted());
 }

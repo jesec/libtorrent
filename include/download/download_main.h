@@ -171,12 +171,43 @@ public:
 
   void receive_do_peer_exchange();
 
+  void receive_first_peer_connected() {
+    priority_queue_erase(&taskScheduler, &delay_download_inactive());
+    priority_queue_erase(&taskScheduler, &delay_download_active());
+
+    // Emit the event 2 seconds after the first peer connected
+    // to disqualify momentary peer connection
+    priority_queue_insert(
+      &taskScheduler,
+      &delay_download_active(),
+      (cachedTime + utils::timer::from_seconds(2)).round_seconds());
+  };
+
+  void receive_last_peer_disconnected() {
+    const auto& active_queued = delay_download_active().is_queued();
+
+    priority_queue_erase(&taskScheduler, &delay_download_active());
+    priority_queue_erase(&taskScheduler, &delay_download_inactive());
+
+    // Disqualify the event if the active event is still in the queue
+    if (!active_queued) {
+      priority_queue_insert(
+        &taskScheduler, &delay_download_inactive(), cachedTime);
+    }
+  }
+
   void do_peer_exchange();
 
   void update_endgame();
 
   utils::priority_item& delay_download_done() {
     return m_delay_download_done;
+  }
+  utils::priority_item& delay_download_active() {
+    return m_delay_download_active;
+  }
+  utils::priority_item& delay_download_inactive() {
+    return m_delay_download_inactive;
   }
   utils::priority_item& delay_partially_done() {
     return m_delay_partially_done;
@@ -233,6 +264,8 @@ private:
   SlotHashCheckAdd    m_slotHashCheckAdd;
 
   utils::priority_item m_delay_download_done;
+  utils::priority_item m_delay_download_active;
+  utils::priority_item m_delay_download_inactive;
   utils::priority_item m_delay_partially_done;
   utils::priority_item m_delay_partially_restarted;
 

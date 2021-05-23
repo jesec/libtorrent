@@ -62,6 +62,12 @@ public:
   slot_void& slot_download_done() const {
     return m_slot_download_done;
   }
+  slot_void& slot_download_active() const {
+    return m_slot_download_active;
+  }
+  slot_void& slot_download_inactive() const {
+    return m_slot_download_inactive;
+  }
   slot_void& slot_partially_done() const {
     return m_slot_partially_done;
   }
@@ -108,6 +114,14 @@ protected:
     if (m_slot_download_done)
       m_slot_download_done();
   }
+  void call_download_active() {
+    if (m_slot_download_active)
+      m_slot_download_active();
+  }
+  void call_download_inactive() {
+    if (m_slot_download_inactive)
+      m_slot_download_inactive();
+  }
   void call_partially_done() {
     if (m_slot_partially_done)
       m_slot_partially_done();
@@ -134,6 +148,8 @@ private:
 
   mutable slot_void              m_slot_initial_hash;
   mutable slot_void              m_slot_download_done;
+  mutable slot_void              m_slot_download_active;
+  mutable slot_void              m_slot_download_inactive;
   mutable slot_void              m_slot_partially_done;
   mutable slot_void              m_slot_partially_restarted;
   mutable slot_chunk_list_node_p m_slot_chunk_done;
