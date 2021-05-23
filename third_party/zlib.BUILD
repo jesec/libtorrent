@@ -10,6 +10,7 @@ filegroup(
 cmake_external(
     name = "zlib",
     cache_entries = {
+        "CMAKE_POSITION_INDEPENDENT_CODE": "on",
         "ZLIB_COMPAT": "on",
         "ZLIB_ENABLE_TESTS": "off",
     },
