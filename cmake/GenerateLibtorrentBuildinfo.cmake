@@ -22,7 +22,7 @@ file(APPEND ${BUILDINFO_H}
      "/* 4 byte client and version identifier for DHT */\n")
 file(APPEND ${BUILDINFO_H} "#define LT_PEER_VERSION \"lt\\x0D\\x80\"\n\n")
 
-if(LT_INSTRUMENTATION)
+if(USE_INSTRUMENTATION)
   file(APPEND ${BUILDINFO_H} "/* Enable instrumentation */\n")
   file(APPEND ${BUILDINFO_H} "#define LT_INSTRUMENTATION 1\n\n")
 endif()

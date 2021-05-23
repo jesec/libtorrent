@@ -18,9 +18,8 @@ set(INTERFACE_VERSION
 option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so)" ON)
 option(BUILD_TESTS "Build test suite (libtorrent_test)" ON)
 option(BUILDINFO_ONLY "Generate buildinfo.h only" OFF)
-option(LT_INSTRUMENTATION "Enable instrumentation" OFF)
-option(USE_ALIGNED "Require byte alignment" OFF)
 option(USE_EXTRA_DEBUG "Enable extra debugging checks" OFF)
+option(USE_INSTRUMENTATION "Enable instrumentation" OFF)
 
 # Include CMake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
