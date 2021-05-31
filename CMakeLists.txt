@@ -15,11 +15,13 @@ set(INTERFACE_VERSION
     ${INTERFACE_CURRENT}.${INTERFACE_REVISION}.${INTERFACE_AGE})
 
 # Options
+include(CMakeDependentOption)
 option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so)" ON)
 option(BUILD_TESTS "Build test suite (libtorrent_test)" ON)
 option(BUILDINFO_ONLY "Generate buildinfo.h only" OFF)
 option(USE_EXTRA_DEBUG "Enable extra debugging checks" OFF)
 option(USE_INSTRUMENTATION "Enable instrumentation" OFF)
+cmake_dependent_option(DISCOVER_TESTS "Discover ctest entries from gtest" ON BUILD_TESTS OFF)
 
 # Include CMake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -103,8 +105,10 @@ if(NOT BUILDINFO_ONLY)
       file(GLOB_RECURSE LIBTORRENT_TEST_SRCS "${PROJECT_SOURCE_DIR}/test/*.cc")
       add_executable(libtorrent_test ${LIBTORRENT_TEST_SRCS})
       target_link_libraries(libtorrent_test torrent ${GTEST_LIBRARIES})
-      if (NOT CMAKE_SKIP_BUILD_RPATH)
+      if (DISCOVER_TESTS AND NOT CMAKE_SKIP_BUILD_RPATH)
         gtest_discover_tests(libtorrent_test)
+      else()
+        add_test(NAME libtorrent_test COMMAND libtorrent_test)
       endif()
     endif()
   endif()
