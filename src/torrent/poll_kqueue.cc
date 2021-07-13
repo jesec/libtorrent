@@ -178,8 +178,8 @@ PollKQueue::poll_select(int msec) {
   // a low number, using ::poll() here would perform better.
   //
   // This kinda assumes fd_set's internal type is int.
-  int     readBuffer[m_fd + 1];
-  fd_set* readSet = (fd_set*)&readBuffer;
+  auto    readBuffer = new int[m_fd + 1];
+  fd_set* readSet    = (fd_set*)&readBuffer;
 
   std::memset(readBuffer, 0, m_fd + 1);
   FD_SET(0, readSet);
@@ -196,6 +196,8 @@ PollKQueue::poll_select(int msec) {
     m_events[m_waitingEvents].flags  = 0;
     m_waitingEvents++;
   }
+
+  delete[] readBuffer;
 
   return nfds;
 }
