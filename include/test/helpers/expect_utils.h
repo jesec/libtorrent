@@ -1,5 +1,5 @@
-#ifndef LIBTORRENT_HELPER_EXPECT_UTILS_H
-#define LIBTORRENT_HELPER_EXPECT_UTILS_H
+#ifndef LIBTORRENT_TEST_HELPERS_EXPECT_UTILS_H
+#define LIBTORRENT_TEST_HELPERS_EXPECT_UTILS_H
 
 #include "test/helpers/mock_function.h"
 #include "torrent/utils/random.h"

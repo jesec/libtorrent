@@ -59,6 +59,8 @@ scripts/lt*.m4
 # Logs and databases #
 ######################
 test_log.*
+!test_log.cc
+!test_log.h
 *.log
 
 # OS generated files #

@@ -9,80 +9,23 @@
 #include "torrent/poll_select.h"
 #include "utils/sha1.h"
 
-#include "test/data/test_chunk_list.h"
-#include "test/data/test_hash_check_queue.h"
+#include "test/helpers/chunk.h"
+#include "test/helpers/fixture.h"
+#include "test/helpers/thread.h"
+#include "test/helpers/utils.h"
 
-#include "test/helpers/test_thread.h"
-#include "test/helpers/test_utils.h"
+class test_hash_check_queue : public test_fixture {
+public:
+  void SetUp() {
+    test_fixture::SetUp();
 
-std::mutex done_chunks_lock;
+    torrent::Poll::slot_create_poll() = []() { return create_select_poll(); };
 
-static void
-chunk_done(done_chunks_type*          done_chunks,
-           torrent::HashChunk*        hash_chunk,
-           const torrent::HashString& hash_value) {
-  std::lock_guard lk(done_chunks_lock);
-  (*done_chunks)[hash_chunk->handle().index()] = hash_value;
-}
+    signal(SIGUSR1, (sig_t)&do_nothing);
+  };
+};
 
-torrent::HashString
-hash_for_index(uint32_t index) {
-  char buffer[10];
-  std::memset(buffer, index, 10);
-
-  torrent::Sha1       sha1;
-  torrent::HashString hash;
-  sha1.init();
-  sha1.update(buffer, 10);
-  sha1.final_c(hash.data());
-
-  return hash;
-}
-
-bool
-verify_hash(const done_chunks_type*    done_chunks,
-            int                        index,
-            const torrent::HashString& hash) {
-  done_chunks_lock.lock();
-
-  done_chunks_type::const_iterator itr = done_chunks->find(index);
-
-  if (itr == done_chunks->end()) {
-    done_chunks_lock.unlock();
-    return false;
-  }
-
-  bool matches = itr->second == hash;
-  done_chunks_lock.unlock();
-
-  if (!matches) {
-    // std::cout << "chunk compare: " << index << " "
-    //           << torrent::hash_string_to_hex_str(itr->second) << ' ' <<
-    //           torrent::hash_string_to_hex_str(hash) << ' '
-    //           << (itr != done_chunks->end() && itr->second == hash)
-    //           << std::endl;
-    throw torrent::internal_error("Could not verify hash...");
-  }
-
-  return true;
-}
-
-static torrent::Poll*
-create_select_poll() {
-  return torrent::PollSelect::create(256);
-}
-
-static void
-do_nothing() {}
-
-void
-test_hash_check_queue::SetUp() {
-  test_fixture::SetUp();
-
-  torrent::Poll::slot_create_poll() = []() { return create_select_poll(); };
-
-  signal(SIGUSR1, (sig_t)&do_nothing);
-}
+typedef std::vector<torrent::ChunkHandle> handle_list;
 
 TEST_F(test_hash_check_queue, test_single) {
   SETUP_CHUNK_LIST();

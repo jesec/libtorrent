@@ -84,9 +84,11 @@ cc_library(
     ],
 )
 
-cc_test(
-    name = "libtorrent_test",
-    srcs = glob(["test/**/*.cc"]) + ["//:included_headers"],
+cc_library(
+    name = "test_common",
+    srcs = ["test/main.cc"] + glob([
+        "test/helpers/*.cc",
+    ]),
     copts = COPTS,
     includes = ["include"],
     linkopts = LINKOPTS,
@@ -94,4 +96,24 @@ cc_test(
         "//:torrent",
         "@com_google_googletest//:gtest",
     ],
+)
+
+[cc_test(
+    name = "%s" % t.split("/")[-1][:-3],
+    srcs = [
+        t,
+        "//:included_headers",
+    ],
+    copts = COPTS,
+    includes = ["include"],
+    linkopts = LINKOPTS,
+    tags = ["libtorrent_test"],
+    deps = ["//:test_common"],
+) for t in glob([
+    "test/**/test_*.cc",
+])]
+
+test_suite(
+    name = "libtorrent_test",
+    tags = ["libtorrent_test"],
 )

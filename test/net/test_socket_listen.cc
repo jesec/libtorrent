@@ -3,13 +3,13 @@
 #include "torrent/exceptions.h"
 #include "torrent/utils/log.h"
 
-#include "test/net/test_socket_listen.h"
-
 #include "test/helpers/expect_fd.h"
 #include "test/helpers/expect_utils.h"
+#include "test/helpers/fixture.h"
 #include "test/helpers/mock_function.h"
 #include "test/helpers/network.h"
 
+class test_socket_listen : public test_fixture {};
 struct test_sl_deleter {
   void operator()(torrent::socket_listen* sl) const {
     if (!sl->is_open())

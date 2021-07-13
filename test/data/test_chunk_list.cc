@@ -2,43 +2,10 @@
 #include "torrent/exceptions.h"
 #include "torrent/utils/error_number.h"
 
-#include "test/data/test_chunk_list.h"
+#include "test/helpers/chunk.h"
+#include "test/helpers/fixture.h"
 
-torrent::Chunk*
-func_create_chunk(uint32_t index, int) {
-  // Do proper handling of prot_flags...
-  char* memory_part1 = (char*)mmap(
-    NULL, 10, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
-
-  if (memory_part1 == MAP_FAILED)
-    throw torrent::internal_error(
-      "func_create_chunk() failed: " +
-      torrent::utils::error_number::current().message());
-
-  std::memset(memory_part1, index, 10);
-
-  torrent::Chunk* chunk = new torrent::Chunk();
-  chunk->push_back(torrent::ChunkPart::MAPPED_MMAP,
-                   torrent::MemoryChunk(memory_part1,
-                                        memory_part1,
-                                        memory_part1 + 10,
-                                        torrent::MemoryChunk::prot_read,
-                                        0));
-
-  if (chunk == nullptr)
-    throw torrent::internal_error(
-      "func_create_chunk() failed: chunk == nullptr.");
-
-  return chunk;
-}
-
-uint64_t
-func_free_diskspace(torrent::ChunkList*) {
-  return 0;
-}
-
-void
-func_storage_error(torrent::ChunkList*, const std::string&) {}
+class test_chunk_list : public test_fixture {};
 
 TEST_F(test_chunk_list, test_basic) {
   torrent::ChunkManager chunk_manager;

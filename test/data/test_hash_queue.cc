@@ -8,28 +8,30 @@
 #include "torrent/chunk_manager.h"
 #include "torrent/exceptions.h"
 #include "torrent/hash_string.h"
-#include "torrent/poll_select.h"
 
-#include "test/data/test_chunk_list.h"
-#include "test/data/test_hash_check_queue.h"
-#include "test/data/test_hash_queue.h"
+#include "test/helpers/chunk.h"
+#include "test/helpers/fixture.h"
+#include "test/helpers/thread.h"
+#include "test/helpers/utils.h"
 
-#include "test/helpers/test_thread.h"
-#include "test/helpers/test_utils.h"
+class test_hash_queue : public test_fixture {
+public:
+  void SetUp() {
+    test_fixture::SetUp();
+
+    ASSERT_TRUE(torrent::taskScheduler.empty());
+
+    torrent::Poll::slot_create_poll() = std::bind(&create_select_poll);
+    signal(SIGUSR1, (sig_t)&do_nothing);
+  };
+
+  void TearDown() {
+    torrent::taskScheduler.clear();
+    test_fixture::TearDown();
+  };
+};
 
 typedef std::map<int, torrent::HashString> done_chunks_type;
-
-static void
-chunk_done(torrent::ChunkList*  chunk_list,
-           done_chunks_type*    done_chunks,
-           torrent::ChunkHandle handle,
-           const char*          hash_value) {
-  if (hash_value != nullptr)
-    (*done_chunks)[handle.index()] =
-      *torrent::HashString::cast_from(hash_value);
-
-  chunk_list->release(&handle);
-}
 
 bool
 check_for_chunk_done(torrent::HashQueue* hash_queue,
@@ -37,30 +39,6 @@ check_for_chunk_done(torrent::HashQueue* hash_queue,
                      int                 index) {
   hash_queue->work();
   return done_chunks->find(index) != done_chunks->end();
-}
-
-static torrent::Poll*
-create_select_poll() {
-  return torrent::PollSelect::create(256);
-}
-
-static void
-do_nothing() {}
-
-void
-test_hash_queue::SetUp() {
-  test_fixture::SetUp();
-
-  ASSERT_TRUE(torrent::taskScheduler.empty());
-
-  torrent::Poll::slot_create_poll() = std::bind(&create_select_poll);
-  signal(SIGUSR1, (sig_t)&do_nothing);
-}
-
-void
-test_hash_queue::TearDown() {
-  torrent::taskScheduler.clear();
-  test_fixture::TearDown();
 }
 
 static void
@@ -79,11 +57,11 @@ TEST_F(test_hash_queue, test_single) {
     chunk_list->get(0, torrent::ChunkList::get_blocking);
   hash_queue->push_back(handle_0,
                         nullptr,
-                        std::bind(&chunk_done,
-                                  chunk_list,
-                                  &done_chunks,
-                                  std::placeholders::_1,
-                                  std::placeholders::_2));
+                        [chunk_list, &done_chunks](torrent::ChunkHandle handle,
+                                                   const char* hash_value) {
+                          chunk_done(
+                            chunk_list, &done_chunks, handle, hash_value);
+                        });
 
   ASSERT_EQ(hash_queue->size(), 1);
   ASSERT_TRUE(hash_queue->front().handle().is_blocking());
@@ -115,13 +93,13 @@ TEST_F(test_hash_queue, test_multiple) {
   hash_queue->slot_has_work()    = std::bind(&fill_queue);
 
   for (unsigned int i = 0; i < 20; i++) {
-    hash_queue->push_back(chunk_list->get(i, torrent::ChunkList::get_blocking),
-                          nullptr,
-                          std::bind(&chunk_done,
-                                    chunk_list,
-                                    &done_chunks,
-                                    std::placeholders::_1,
-                                    std::placeholders::_2));
+    hash_queue->push_back(
+      chunk_list->get(i, torrent::ChunkList::get_blocking),
+      nullptr,
+      [chunk_list, &done_chunks](torrent::ChunkHandle handle,
+                                 const char*          hash_value) {
+        chunk_done(chunk_list, &done_chunks, handle, hash_value);
+      });
 
     ASSERT_EQ(hash_queue->size(), i + 1);
     ASSERT_TRUE(hash_queue->back().handle().is_blocking());
@@ -152,13 +130,13 @@ TEST_F(test_hash_queue, test_erase) {
   done_chunks_type done_chunks;
 
   for (unsigned int i = 0; i < 20; i++) {
-    hash_queue->push_back(chunk_list->get(i, torrent::ChunkList::get_blocking),
-                          nullptr,
-                          std::bind(&chunk_done,
-                                    chunk_list,
-                                    &done_chunks,
-                                    std::placeholders::_1,
-                                    std::placeholders::_2));
+    hash_queue->push_back(
+      chunk_list->get(i, torrent::ChunkList::get_blocking),
+      nullptr,
+      [chunk_list, &done_chunks](torrent::ChunkHandle handle,
+                                 const char*          hash_value) {
+        chunk_done(chunk_list, &done_chunks, handle, hash_value);
+      });
 
     ASSERT_EQ(hash_queue->size(), i + 1);
   }
@@ -188,11 +166,10 @@ TEST_F(test_hash_queue, test_erase_stress) {
       hash_queue->push_back(
         chunk_list->get(i, torrent::ChunkList::get_blocking),
         nullptr,
-        std::bind(&chunk_done,
-                  chunk_list,
-                  &done_chunks,
-                  std::placeholders::_1,
-                  std::placeholders::_2));
+        [chunk_list, &done_chunks](torrent::ChunkHandle handle,
+                                   const char*          hash_value) {
+          chunk_done(chunk_list, &done_chunks, handle, hash_value);
+        });
 
       ASSERT_EQ(hash_queue->size(), i + 1);
     }

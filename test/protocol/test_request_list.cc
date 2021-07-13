@@ -1,3 +1,5 @@
+#include <gtest/gtest.h>
+
 #include "download/delegator.h"
 #include "protocol/peer_chunks.h"
 #include "protocol/request_list.h"
@@ -5,7 +7,7 @@
 #include "torrent/peer/peer_info.h"
 #include "torrent/utils/socket_address.h"
 
-#include "test/protocol/test_request_list.h"
+class TestRequestList : public ::testing::Test {};
 
 static uint32_t
 chunk_index_size(uint32_t) {
@@ -33,8 +35,8 @@ transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
 #define SETUP_DELEGATOR(fpc_prefix)                                            \
   torrent::Delegator* delegator = new torrent::Delegator;                      \
   delegator->slot_chunk_find()  = std::bind(&fpc_prefix##_find_peer_chunk,     \
-                                           std::placeholders::_1,             \
-                                           std::placeholders::_2);            \
+                                            std::placeholders::_1,             \
+                                            std::placeholders::_2);            \
   delegator->slot_chunk_size() =                                               \
     std::bind(&chunk_index_size, std::placeholders::_1);                       \
   delegator->transfer_list()->slot_canceled() =                                \

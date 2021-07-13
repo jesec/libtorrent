@@ -2,7 +2,9 @@
 
 #include "torrent/http.h"
 
-#include "test/torrent/test_http.h"
+#include "test/helpers/fixture.h"
+
+class test_http : public test_fixture {};
 
 #define HTTP_SETUP()                                                           \
   bool http_destroyed   = false;                                               \

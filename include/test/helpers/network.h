@@ -1,5 +1,5 @@
-#ifndef LIBTORRENT_HELPER_NETWORK_H
-#define LIBTORRENT_HELPER_NETWORK_H
+#ifndef LIBTORRENT_TEST_HELPERS_NETWORK_H
+#define LIBTORRENT_TEST_HELPERS_NETWORK_H
 
 #include <functional>
 #include <string>
