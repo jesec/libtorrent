@@ -38,10 +38,10 @@ TEST_F(test_hash_check_queue, test_single) {
       return chunk_done(&done_chunks, hash_chunk, hash_value);
     };
 
-  torrent::ChunkHandle handle_0 =
-    chunk_list->get(0, torrent::ChunkList::get_blocking);
+  auto handle_0 = chunk_list->get(0, torrent::ChunkList::get_blocking);
+  auto chunk_0  = new torrent::HashChunk(handle_0);
 
-  hash_queue.push_back(new torrent::HashChunk(handle_0));
+  hash_queue.push_back(chunk_0);
 
   ASSERT_EQ(hash_queue.size(), 1);
   ASSERT_TRUE(hash_queue.front()->handle().is_blocking());
@@ -54,6 +54,8 @@ TEST_F(test_hash_check_queue, test_single) {
 
   // Should not be needed... Also verify that HashChunk gets deleted.
   chunk_list->release(&handle_0);
+
+  delete chunk_0;
 
   CLEANUP_CHUNK_LIST();
 }
@@ -69,12 +71,16 @@ TEST_F(test_hash_check_queue, test_multiple) {
       return chunk_done(&done_chunks, hash_chunk, hash_value);
     };
 
-  handle_list handles;
+  handle_list                      handles;
+  std::vector<torrent::HashChunk*> chunks;
 
   for (unsigned int i = 0; i < 20; i++) {
-    handles.push_back(chunk_list->get(i, torrent::ChunkList::get_blocking));
+    auto handle = chunk_list->get(i, torrent::ChunkList::get_blocking);
+    auto chunk  = new torrent::HashChunk(handle);
 
-    hash_queue.push_back(new torrent::HashChunk(handles.back()));
+    handles.push_back(handle);
+    chunks.push_back(chunk);
+    hash_queue.push_back(chunk);
 
     ASSERT_EQ(hash_queue.size(), i + 1);
     ASSERT_TRUE(hash_queue.back()->handle().is_blocking());
@@ -89,6 +95,8 @@ TEST_F(test_hash_check_queue, test_multiple) {
 
     // Should not be needed...
     chunk_list->release(&handles[i]);
+
+    delete chunks[i];
   }
 
   CLEANUP_CHUNK_LIST();
@@ -146,16 +154,18 @@ TEST_F(test_hash_check_queue, test_thread) {
     done_chunks.erase(0);
     done_chunks_lock.unlock();
 
-    torrent::ChunkHandle handle_0 =
-      chunk_list->get(0, torrent::ChunkList::get_blocking);
+    auto handle_0 = chunk_list->get(0, torrent::ChunkList::get_blocking);
+    auto chunk_0  = new torrent::HashChunk(handle_0);
 
-    hash_queue->push_back(new torrent::HashChunk(handle_0));
+    hash_queue->push_back(chunk_0);
     thread_disk->interrupt();
 
     ASSERT_TRUE(wait_for_true([&done_chunks] {
       return verify_hash(&done_chunks, 0, hash_for_index(0));
     }));
     chunk_list->release(&handle_0);
+
+    delete chunk_0;
   }
 
   thread_disk->stop_thread();

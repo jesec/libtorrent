@@ -23,6 +23,7 @@ public:
 
 TEST_F(tracker_list_features_test, test_new_peers) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
 
   ASSERT_EQ(tracker_0->latest_new_peers(), 0);
@@ -41,6 +42,8 @@ TEST_F(tracker_list_features_test, test_new_peers) {
   tracker_list.clear_stats();
   ASSERT_EQ(tracker_0->latest_new_peers(), 0);
   ASSERT_EQ(tracker_0->latest_sum_peers(), 0);
+
+  TRACKER_TEARDOWN();
 }
 
 // test last_connect timer.
@@ -49,6 +52,7 @@ TEST_F(tracker_list_features_test, test_new_peers) {
 
 TEST_F(tracker_list_features_test, test_has_active) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0_0);
   TRACKER_INSERT(0, tracker_0_1);
   TRACKER_INSERT(1, tracker_1_0);
@@ -82,10 +86,13 @@ TEST_F(tracker_list_features_test, test_has_active) {
   tracker_list.send_scrape(tracker_1_0);
   ASSERT_TRUE(tracker_list.has_active());
   ASSERT_FALSE(tracker_list.has_active_not_scrape());
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_features_test, test_find_next_to_request) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
   TRACKER_INSERT(0, tracker_1);
   TRACKER_INSERT(0, tracker_2);
@@ -131,10 +138,13 @@ TEST_F(tracker_list_features_test, test_find_next_to_request) {
     1, torrent::cachedTime.seconds() - (tracker_1->normal_interval() - 1));
   ASSERT_EQ(tracker_list.find_next_to_request(tracker_list.begin()),
             tracker_list.begin() + 1);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_features_test, test_find_next_to_request_groups) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
   TRACKER_INSERT(0, tracker_1);
   TRACKER_INSERT(1, tracker_2);
@@ -158,10 +168,13 @@ TEST_F(tracker_list_features_test, test_find_next_to_request_groups) {
   tracker_1->set_failed(0, torrent::cachedTime.seconds() - 0);
   ASSERT_EQ(tracker_list.find_next_to_request(tracker_list.begin()),
             tracker_list.begin() + 1);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_features_test, test_count_active) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0_0);
   TRACKER_INSERT(0, tracker_0_1);
   TRACKER_INSERT(1, tracker_1_0);
@@ -188,6 +201,8 @@ TEST_F(tracker_list_features_test, test_count_active) {
 
   tracker_1_0->trigger_success();
   ASSERT_EQ(tracker_list.count_active(), 0);
+
+  TRACKER_TEARDOWN();
 }
 
 // Add separate functions for sending state to multiple trackers...
@@ -208,6 +223,7 @@ verify_did_internal_error(const std::function<void()>& func,
 
 TEST_F(tracker_list_features_test, test_request_safeguard) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_1);
   TRACKER_INSERT(0, tracker_2);
   TRACKER_INSERT(0, tracker_3);
@@ -268,4 +284,6 @@ TEST_F(tracker_list_features_test, test_request_safeguard) {
     std::bind(&torrent::TrackerList::send_state, &tracker_list, tracker_3, 1),
     true));
   ASSERT_TRUE(tracker_3->trigger_success());
+
+  TRACKER_TEARDOWN();
 }

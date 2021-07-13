@@ -57,6 +57,7 @@ TEST_F(tracker_controller_test, test_requesting) {
 
 TEST_F(tracker_controller_test, test_timeout) {
   TRACKER_CONTROLLER_SETUP();
+
   TRACKER_INSERT(0, tracker_0_0);
 
   ASSERT_EQ(enabled_counter, 1);
@@ -70,6 +71,8 @@ TEST_F(tracker_controller_test, test_timeout) {
 
   ASSERT_EQ(timeout_counter, 1);
   TEST_SINGLE_END(0, 0);
+
+  TRACKER_CONTROLLER_TEARDOWN();
 }
 
 TEST_F(tracker_controller_test, test_single_success) {
@@ -236,6 +239,7 @@ TEST_F(tracker_controller_test, test_send_task_timeout) {
 
 TEST_F(tracker_controller_test, test_send_close_on_enable) {
   TRACKER_CONTROLLER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
   TRACKER_INSERT(0, tracker_1);
   TRACKER_INSERT(0, tracker_2);
@@ -252,6 +256,8 @@ TEST_F(tracker_controller_test, test_send_close_on_enable) {
   ASSERT_FALSE(tracker_1->is_busy());
   ASSERT_FALSE(tracker_2->is_busy());
   ASSERT_TRUE(tracker_3->is_busy());
+
+  TRACKER_CONTROLLER_TEARDOWN();
 }
 
 TEST_F(tracker_controller_test, test_multiple_success) {
@@ -508,6 +514,7 @@ TEST_F(tracker_controller_test, test_disable_tracker) {
 
 TEST_F(tracker_controller_test, test_new_peers) {
   TRACKER_CONTROLLER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
 
   tracker_list.send_state_idx(0, torrent::Tracker::EVENT_NONE);
@@ -520,6 +527,8 @@ TEST_F(tracker_controller_test, test_new_peers) {
   ASSERT_PRED3(test_goto_next_timeout, &tracker_controller, 0, false);
   ASSERT_TRUE(tracker_0->trigger_success(20));
   ASSERT_EQ(tracker_0->latest_new_peers(), 20);
+
+  TRACKER_CONTROLLER_TEARDOWN();
 }
 
 // Add new function for finding the first tracker that will time out,

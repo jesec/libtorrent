@@ -33,6 +33,7 @@ http_factory() {
 
 TEST_F(tracker_list_test, test_basic) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
 
   ASSERT_EQ(tracker_0, tracker_list[0]);
@@ -41,10 +42,13 @@ TEST_F(tracker_list_test, test_basic) {
   ASSERT_EQ(
     std::distance(tracker_list.begin_group(0), tracker_list.end_group(0)), 1);
   ASSERT_NE(tracker_list.find_usable(tracker_list.begin()), tracker_list.end());
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_enable) {
   TRACKER_SETUP();
+
   int enabled_counter  = 0;
   int disabled_counter = 0;
 
@@ -79,10 +83,13 @@ TEST_F(tracker_list_test, test_enable) {
   tracker_1->enable();
   ASSERT_EQ(enabled_counter, 4);
   ASSERT_EQ(disabled_counter, 2);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_close) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
   TRACKER_INSERT(0, tracker_1);
   TRACKER_INSERT(0, tracker_2);
@@ -125,12 +132,15 @@ TEST_F(tracker_list_test, test_close) {
   ASSERT_FALSE(tracker_1->is_busy());
   ASSERT_FALSE(tracker_2->is_busy());
   ASSERT_TRUE(tracker_3->is_busy());
+
+  TRACKER_TEARDOWN();
 }
 
 // Test clear.
 
 TEST_F(tracker_list_test, test_tracker_flags) {
   TRACKER_SETUP();
+
   tracker_list.insert(0, new TrackerTest(&tracker_list, ""));
   tracker_list.insert(0, new TrackerTest(&tracker_list, "", 0));
   tracker_list.insert(
@@ -154,6 +164,8 @@ TEST_F(tracker_list_test, test_tracker_flags) {
   ASSERT_EQ(tracker_list[4]->flags() & torrent::Tracker::mask_base_flags,
             torrent::Tracker::flag_enabled |
               torrent::Tracker::flag_extra_tracker);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_find_url) {
@@ -173,10 +185,13 @@ TEST_F(tracker_list_test, test_find_url) {
 
   ASSERT_NE(tracker_list.find_url("http://3"), tracker_list.end());
   ASSERT_EQ(*tracker_list.find_url("http://3"), tracker_list[2]);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_can_scrape) {
   TRACKER_SETUP();
+
   torrent::Http::slot_factory() = std::bind(&http_factory);
 
   tracker_list.insert_url(0, "http://example.com/announce");
@@ -210,10 +225,13 @@ TEST_F(tracker_list_test, test_can_scrape) {
   tracker_list.insert_url(0, "http://example.com/x%064announce");
   ASSERT_FALSE(tracker_list.back()->flags() &
                torrent::Tracker::flag_can_scrape);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_single_success) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
 
   ASSERT_FALSE(tracker_0->is_busy());
@@ -242,10 +260,13 @@ TEST_F(tracker_list_test, test_single_success) {
   ASSERT_EQ(failure_counter, 0);
   ASSERT_EQ(tracker_0->success_counter(), 1);
   ASSERT_EQ(tracker_0->failed_counter(), 0);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_single_failure) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
 
   tracker_list.send_state_idx(0, 1);
@@ -267,10 +288,13 @@ TEST_F(tracker_list_test, test_single_failure) {
   ASSERT_EQ(failure_counter, 1);
   ASSERT_EQ(tracker_0->success_counter(), 1);
   ASSERT_EQ(tracker_0->failed_counter(), 0);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_single_closing) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
 
   ASSERT_FALSE(tracker_0->is_open());
@@ -290,10 +314,13 @@ TEST_F(tracker_list_test, test_single_closing) {
   ASSERT_FALSE(tracker_0->is_open());
   ASSERT_EQ(tracker_0->success_counter(), 0);
   ASSERT_EQ(tracker_0->failed_counter(), 0);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_multiple_success) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0_0);
   TRACKER_INSERT(0, tracker_0_1);
   TRACKER_INSERT(1, tracker_1_0);
@@ -342,10 +369,13 @@ TEST_F(tracker_list_test, test_multiple_success) {
 
   ASSERT_EQ(success_counter, 3);
   ASSERT_EQ(failure_counter, 0);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_scrape_success) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
 
   tracker_0->set_can_scrape();
@@ -372,10 +402,13 @@ TEST_F(tracker_list_test, test_scrape_success) {
   ASSERT_EQ(tracker_0->success_counter(), 0);
   ASSERT_EQ(tracker_0->failed_counter(), 0);
   ASSERT_EQ(tracker_0->scrape_counter(), 1);
+
+  TRACKER_TEARDOWN();
 }
 
 TEST_F(tracker_list_test, test_scrape_failure) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
 
   tracker_0->set_can_scrape();
@@ -395,6 +428,8 @@ TEST_F(tracker_list_test, test_scrape_failure) {
   ASSERT_EQ(tracker_0->success_counter(), 0);
   ASSERT_EQ(tracker_0->failed_counter(), 0);
   ASSERT_EQ(tracker_0->scrape_counter(), 0);
+
+  TRACKER_TEARDOWN();
 }
 
 bool
@@ -419,6 +454,7 @@ check_has_active_in_group(const torrent::TrackerList* tracker_list,
 
 TEST_F(tracker_list_test, test_has_active) {
   TRACKER_SETUP();
+
   TRACKER_INSERT(0, tracker_0);
   TRACKER_INSERT(0, tracker_1);
   TRACKER_INSERT(1, tracker_2);
@@ -480,4 +516,6 @@ TEST_F(tracker_list_test, test_has_active) {
   ASSERT_FALSE(tracker_list.has_active_not_scrape());
   ASSERT_TRUE(check_has_active_in_group(&tracker_list, "000000", false));
   ASSERT_TRUE(check_has_active_in_group(&tracker_list, "000000", true));
+
+  TRACKER_TEARDOWN();
 }

@@ -19,7 +19,11 @@ class test_http : public test_fixture {};
                                                                                \
   http->set_stream(http_stream);                                               \
   http->signal_done().push_back(std::bind(&increment_value, &done_counter));   \
-  http->signal_failed().push_back(std::bind(&increment_value, &failed_counter));
+  http->signal_failed().push_back(std::bind(&increment_value, &failed_counter))
+
+#define HTTP_TEARDOWN()                                                        \
+  delete test_http;                                                            \
+  delete http_stream
 
 class StringStream : public std::stringstream {
 public:
@@ -113,6 +117,7 @@ TEST_F(test_http, test_basic) {
 
 TEST_F(test_http, test_done) {
   HTTP_SETUP();
+
   http->start();
 
   ASSERT_TRUE(test_http->trigger_signal_done());
@@ -121,10 +126,13 @@ TEST_F(test_http, test_done) {
 
   ASSERT_EQ(done_counter, 1);
   ASSERT_EQ(failed_counter, 0);
+
+  HTTP_TEARDOWN();
 }
 
 TEST_F(test_http, test_failure) {
   HTTP_SETUP();
+
   http->start();
 
   ASSERT_TRUE(test_http->trigger_signal_failed());
@@ -133,6 +141,8 @@ TEST_F(test_http, test_failure) {
 
   ASSERT_EQ(done_counter, 0);
   ASSERT_EQ(failed_counter, 1);
+
+  HTTP_TEARDOWN();
 }
 
 TEST_F(test_http, test_delete_on_done) {

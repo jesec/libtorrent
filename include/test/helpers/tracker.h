@@ -153,15 +153,17 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
   tracker_list.slot_scrape_success() =                                         \
     std::bind(&increment_value_void, &scrape_success_counter);                 \
   tracker_list.slot_scrape_failure() =                                         \
-    std::bind(&increment_value_void, &scrape_failure_counter);
+    std::bind(&increment_value_void, &scrape_failure_counter)
+
+#define TRACKER_TEARDOWN() tracker_list.clear()
 
 #define TRACKER_INSERT(group, name)                                            \
   TrackerTest* name = new TrackerTest(&tracker_list, "");                      \
-  tracker_list.insert(group, name);
+  tracker_list.insert(group, name)
 
 #define TEST_TRACKER_IS_BUSY(tracker, state)                                   \
   ASSERT_PRED2(check_tracker_is_busy, tracker, state);                         \
-  ASSERT_PRED2(check_tracker_is_busy, tracker, state);
+  ASSERT_PRED2(check_tracker_is_busy, tracker, state)
 
 #define TEST_MULTI3_IS_BUSY(original, rearranged)                              \
   TEST_TRACKER_IS_BUSY(tracker_0_0, original[0]);                              \
@@ -173,7 +175,7 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
   TEST_TRACKER_IS_BUSY(tracker_list[1], rearranged[1]);                        \
   TEST_TRACKER_IS_BUSY(tracker_list[2], rearranged[2]);                        \
   TEST_TRACKER_IS_BUSY(tracker_list[3], rearranged[3]);                        \
-  TEST_TRACKER_IS_BUSY(tracker_list[4], rearranged[4]);
+  TEST_TRACKER_IS_BUSY(tracker_list[4], rearranged[4])
 
 #define TEST_GROUP_IS_BUSY(original, rearranged)                               \
   TEST_TRACKER_IS_BUSY(tracker_0_0, original[0]);                              \
@@ -187,7 +189,7 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
   TEST_TRACKER_IS_BUSY(tracker_list[2], rearranged[2]);                        \
   TEST_TRACKER_IS_BUSY(tracker_list[3], rearranged[3]);                        \
   TEST_TRACKER_IS_BUSY(tracker_list[4], rearranged[4]);                        \
-  TEST_TRACKER_IS_BUSY(tracker_list[5], rearranged[5]);
+  TEST_TRACKER_IS_BUSY(tracker_list[5], rearranged[5])
 
 #define TEST_TRACKERS_IS_BUSY_5(original, rearranged)                          \
   TEST_TRACKER_IS_BUSY(tracker_0, original[0]);                                \
@@ -199,7 +201,7 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
   TEST_TRACKER_IS_BUSY(tracker_list[1], rearranged[1]);                        \
   TEST_TRACKER_IS_BUSY(tracker_list[2], rearranged[2]);                        \
   TEST_TRACKER_IS_BUSY(tracker_list[3], rearranged[3]);                        \
-  TEST_TRACKER_IS_BUSY(tracker_list[4], rearranged[4]);
+  TEST_TRACKER_IS_BUSY(tracker_list[4], rearranged[4])
 
 #define TRACKER_CONTROLLER_SETUP()                                             \
   torrent::TrackerList       tracker_list;                                     \
@@ -239,7 +241,9 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
   tracker_list.slot_tracker_disabled() =                                       \
     std::bind(&torrent::TrackerController::receive_tracker_disabled,           \
               &tracker_controller,                                             \
-              std::placeholders::_1);
+              std::placeholders::_1)
+
+#define TRACKER_CONTROLLER_TEARDOWN() tracker_list.clear()
 
 #define TEST_SINGLE_BEGIN()                                                    \
   TRACKER_CONTROLLER_SETUP();                                                  \
@@ -247,13 +251,14 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
                                                                                \
   tracker_controller.enable();                                                 \
   ASSERT_FALSE(tracker_controller.flags() &                                    \
-               torrent::TrackerController::mask_send);
+               torrent::TrackerController::mask_send)
 
 #define TEST_SINGLE_END(succeeded, failed)                                     \
   tracker_controller.disable();                                                \
   ASSERT_FALSE(tracker_list.has_active());                                     \
   ASSERT_EQ(success_counter, succeeded);                                       \
-  ASSERT_EQ(failure_counter, failure_counter);
+  ASSERT_EQ(failure_counter, failure_counter);                                 \
+  TRACKER_CONTROLLER_TEARDOWN()
 
 #define TEST_SEND_SINGLE_BEGIN(event_name)                                     \
   tracker_controller.send_##event_name##_event();                              \
@@ -262,12 +267,11 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
             torrent::TrackerController::flag_send_##event_name);               \
                                                                                \
   ASSERT_TRUE(tracker_controller.is_active());                                 \
-  ASSERT_EQ(tracker_controller.tracker_list()->count_active(), 1);
+  ASSERT_EQ(tracker_controller.tracker_list()->count_active(), 1)
 
 #define TEST_SEND_SINGLE_END(succeeded, failed)                                \
-  TEST_SINGLE_END(succeeded, failed)                                           \
-  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(), 0);                  \
-  // ASSERT_NE(tracker_controller.seconds_to_promicious_mode(), 0);
+  TEST_SINGLE_END(succeeded, failed);                                          \
+  ASSERT_EQ(tracker_controller.seconds_to_next_timeout(), 0)
 
 #define TEST_MULTI3_BEGIN()                                                    \
   TRACKER_CONTROLLER_SETUP();                                                  \
@@ -279,7 +283,7 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
                                                                                \
   tracker_controller.enable();                                                 \
   ASSERT_FALSE(tracker_controller.flags() &                                    \
-               torrent::TrackerController::mask_send);
+               torrent::TrackerController::mask_send)
 
 #define TEST_GROUP_BEGIN()                                                     \
   TRACKER_CONTROLLER_SETUP();                                                  \
@@ -292,16 +296,16 @@ test_goto_next_timeout(torrent::TrackerController* tracker_controller,
                                                                                \
   tracker_controller.enable();                                                 \
   ASSERT_FALSE(tracker_controller.flags() &                                    \
-               torrent::TrackerController::mask_send);
+               torrent::TrackerController::mask_send)
 
 #define TEST_MULTIPLE_END(succeeded, failed)                                   \
   tracker_controller.disable();                                                \
   ASSERT_FALSE(tracker_list.has_active());                                     \
   ASSERT_EQ(success_counter, succeeded);                                       \
-  ASSERT_EQ(failure_counter, failed);
+  ASSERT_EQ(failure_counter, failed);                                          \
+  TRACKER_CONTROLLER_TEARDOWN()
 
 #define TEST_GOTO_NEXT_SCRAPE(assumed_scrape)                                  \
   ASSERT_TRUE(tracker_controller.task_scrape()->is_queued());                  \
   ASSERT_EQ(assumed_scrape, tracker_controller.seconds_to_next_scrape());      \
-  ASSERT_TRUE(                                                                 \
-    test_goto_next_timeout(&tracker_controller, assumed_scrape, true));
+  ASSERT_TRUE(test_goto_next_timeout(&tracker_controller, assumed_scrape, true))
