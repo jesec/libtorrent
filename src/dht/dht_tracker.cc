@@ -3,6 +3,7 @@
 
 #include "dht/dht_tracker.h"
 #include "torrent/object.h"
+#include "torrent/utils/random.h"
 
 namespace torrent {
 
@@ -48,16 +49,14 @@ DhtTracker::get_peers(unsigned int maxPeers) {
   if (sizeof(BencodeAddress) != 8)
     throw internal_error("DhtTracker::BencodeAddress is packed incorrectly.");
 
-  PeerList::iterator first = m_peers.begin();
-  PeerList::iterator last  = m_peers.end();
+  auto first = m_peers.begin();
+  auto last  = m_peers.end();
 
   // If we have more than max_peers, randomly return block of peers.
   // The peers in overlapping blocks get picked twice as often, but
   // that's better than returning fewer peers.
   if (m_peers.size() > maxPeers) {
-    unsigned int blocks = (m_peers.size() + maxPeers - 1) / maxPeers;
-
-    first += (random() % blocks) * (m_peers.size() - maxPeers) / (blocks - 1);
+    first += random_uniform_size(0, m_peers.size() - maxPeers - 1);
     last = first + maxPeers;
   }
 

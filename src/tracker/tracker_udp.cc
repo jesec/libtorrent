@@ -17,6 +17,7 @@
 #include "torrent/utils/error_number.h"
 #include "torrent/utils/log.h"
 #include "torrent/utils/option_strings.h"
+#include "torrent/utils/random.h"
 #include "torrent/utils/uri_parser.h"
 #include "tracker/tracker_udp.h"
 
@@ -325,7 +326,7 @@ TrackerUdp::prepare_connect_input() {
   m_writeBuffer->reset();
   m_writeBuffer->write_64(m_connectionId = magic_connection_id);
   m_writeBuffer->write_32(m_action = 0);
-  m_writeBuffer->write_32(m_transactionId = random());
+  m_writeBuffer->write_32(m_transactionId = random_uint32());
 
   LT_LOG_TRACKER_DUMP(DEBUG,
                       m_writeBuffer->begin(),
@@ -342,7 +343,7 @@ TrackerUdp::prepare_announce_input() {
 
   m_writeBuffer->write_64(m_connectionId);
   m_writeBuffer->write_32(m_action = 1);
-  m_writeBuffer->write_32(m_transactionId = random());
+  m_writeBuffer->write_32(m_transactionId = random_uint32());
 
   m_writeBuffer->write_range(info->hash().begin(), info->hash().end());
   m_writeBuffer->write_range(info->local_id().begin(), info->local_id().end());

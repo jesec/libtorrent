@@ -4,7 +4,6 @@
 #ifndef LIBTORRENT_BLOCK_H
 #define LIBTORRENT_BLOCK_H
 
-#include <cstdlib>
 #include <torrent/common.h>
 #include <torrent/data/block_transfer.h>
 #include <vector>

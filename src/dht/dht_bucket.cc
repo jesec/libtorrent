@@ -6,6 +6,7 @@
 #include "dht/dht_bucket.h"
 #include "dht/dht_node.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/random.h"
 
 namespace torrent {
 
@@ -109,11 +110,9 @@ DhtBucket::get_mid_point(HashString* middle) const {
 
 void
 DhtBucket::get_random_id(HashString* rand_id) const {
-
   // Generate a random ID between m_begin and m_end.
-  // Since m_end - m_begin = 2^n - 1, we can do a bitwise AND operation.
   for (unsigned int i = 0; i < (*rand_id).size(); i++)
-    (*rand_id)[i] = m_begin[i] + (random() & (m_end[i] - m_begin[i]));
+    (*rand_id)[i] = random_uniform_char(m_begin[i], m_end[i]);
 
 #ifdef LT_USE_EXTRA_DEBUG
   if (!is_in_range(*rand_id))

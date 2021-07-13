@@ -7,7 +7,6 @@
 #ifndef LIBTORRENT_UTILS_PATH_H
 #define LIBTORRENT_UTILS_PATH_H
 
-#include <cstdlib>
 #include <string>
 
 namespace torrent {

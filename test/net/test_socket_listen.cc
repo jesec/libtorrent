@@ -2,9 +2,9 @@
 
 #include "torrent/exceptions.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/random.h"
 
 #include "test/helpers/expect_fd.h"
-#include "test/helpers/expect_utils.h"
 #include "test/helpers/fixture.h"
 #include "test/helpers/mock_function.h"
 #include "test/helpers/network.h"
@@ -43,13 +43,6 @@ typedef std::unique_ptr<torrent::socket_listen, test_sl_deleter>
   expect_event_open_re(0);                                                     \
   ASSERT_TRUE(                                                                 \
     sl->open_sequential(_sap_bind, _first_port, _last_port, _flags));          \
-  ASSERT_TRUE(sl->is_open());                                                  \
-  ASSERT_TRUE(torrent::sa_equal(sl->socket_address(), _sap_result.get()));
-
-#define TEST_SL_ASSERT_OPEN_RANDOMIZE(                                         \
-  _sap_bind, _sap_result, _first_port, _last_port, _flags)                     \
-  expect_event_open_re(0);                                                     \
-  ASSERT_TRUE(sl->open_randomize(_sap_bind, _first_port, _last_port, _flags)); \
   ASSERT_TRUE(sl->is_open());                                                  \
   ASSERT_TRUE(torrent::sa_equal(sl->socket_address(), _sap_result.get()));
 
@@ -609,18 +602,10 @@ TEST_F(test_socket_listen, test_open_sequential) {
 }
 
 TEST_F(test_socket_listen, test_open_randomize) {
-  {
-    TEST_SL_BEGIN("sin6_any, stream");
-    expect_random_uniform_uint16(5005, 5000, 5010);
-    expect_fd_inet6_tcp(1000);
-    expect_fd_bind_listen(1000, c_sin6_any_5005);
-    TEST_SL_ASSERT_OPEN_RANDOMIZE(torrent::sap_copy(sin6_any),
-                                  c_sin6_any_5005,
-                                  5000,
-                                  5010,
-                                  torrent::fd_flag_stream);
-    TEST_SL_CLOSE(1000);
-  };
+  for (int i = 0; i < 50; ++i) {
+    const auto& p = torrent::random_uniform_uint16(5000, 5010);
+    EXPECT_TRUE(p >= 5000 && p <= 5010);
+  }
 }
 
 // deal with reuse error

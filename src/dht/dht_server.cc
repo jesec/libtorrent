@@ -20,6 +20,7 @@
 #include "torrent/poll.h"
 #include "torrent/throttle.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/random.h"
 #include "tracker/tracker_dht.h"
 
 #define LT_LOG_THIS(log_fmt, ...)                                              \
@@ -651,8 +652,8 @@ DhtServer::add_transaction(DhtTransaction* transaction, int priority) {
   // next unused one. Since normally only one or two transactions will be active
   // per node, a collision is extremely unlikely, and a linear search for the
   // first open one is the most efficient.
-  unsigned int rnd = (uint8_t)random();
-  unsigned int id  = rnd;
+  auto rnd = random_uint8();
+  auto id  = rnd;
 
   transaction_itr insertItr = m_transactions.lower_bound(transaction->key(rnd));
 

@@ -2,11 +2,11 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <algorithm>
-#include <cstdlib>
 #include <iterator>
 
 #include "download/available_list.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/random.h"
 
 namespace torrent {
 
@@ -16,7 +16,7 @@ AvailableList::pop_random() {
     throw internal_error(
       "AvailableList::pop_random() called on an empty container");
 
-  size_type idx = random() % size();
+  size_type idx = random_uniform_size(0, size() - 1);
 
   value_type tmp   = *(begin() + idx);
   *(begin() + idx) = back();

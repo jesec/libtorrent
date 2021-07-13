@@ -161,8 +161,8 @@ private:
   bool m_networkUp;
 
   // Secret keys used for generating announce tokens.
-  int m_curToken;
-  int m_prevToken;
+  int32_t m_curToken;
+  int32_t m_prevToken;
 };
 
 inline raw_string

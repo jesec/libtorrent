@@ -17,6 +17,7 @@
 #include "torrent/poll.h"
 #include "torrent/throttle.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/random.h"
 #include "utils/diffie_hellman.h"
 
 #define LT_LOG(log_fmt, ...)                                                   \
@@ -1093,10 +1094,10 @@ Handshake::prepare_key_plus_pad() {
   m_encryption.key()->store_pub_key(m_writeBuffer.end(), 96);
   m_writeBuffer.move_end(96);
 
-  int   length = random() % enc_pad_size;
+  auto  length = random_uniform_uint32(0, enc_pad_size - 1);
   char* pad    = static_cast<char*>(malloc(length * sizeof(char)));
 
-  std::generate_n(pad, length, &::random);
+  std::generate_n(pad, length, &random_char);
   m_writeBuffer.write_len(pad, length);
 
   free(pad);

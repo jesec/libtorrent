@@ -2,7 +2,6 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <algorithm>
-#include <cstdlib>
 #include <functional>
 #include <numeric>
 
@@ -12,6 +11,7 @@
 #include "torrent/peer/choke_status.h"
 #include "torrent/peer/connection_list.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/random.h"
 
 namespace torrent {
 
@@ -550,7 +550,7 @@ choke_manager_allocate_slots(choke_queue::iterator     first,
   // total weight. This will ensure that aggregated over time we
   // spread the unchokes equally according to the weight table.
   if (weightTotal != 0 && unchoke != 0) {
-    uint32_t     start = ::random() % weightTotal;
+    auto         start = random_uniform_uint32(0, weightTotal - 1);
     unsigned int itr   = 0;
 
     for (;; itr++) {
@@ -735,9 +735,10 @@ calculate_upload_unchoke(choke_queue::iterator first,
     } else {
       // This will be our optimistic unchoke queue, should be
       // semi-random. Give lower weights to known stingy peers.
-      int order = 1 + first->connection->peer_info()->is_preferred();
+      uint32_t order = 1 + first->connection->peer_info()->is_preferred();
 
-      first->weight = order * choke_queue::order_base + ::random() % (1 << 10);
+      first->weight = order * choke_queue::order_base +
+                      random_uniform_uint32(0, (1 << 10) - 1);
     }
 
     first++;
@@ -763,9 +764,11 @@ void
 calculate_upload_unchoke_seed(choke_queue::iterator first,
                               choke_queue::iterator last) {
   while (first != last) {
-    int order = first->connection->peer_info()->is_preferred();
+    uint32_t order = first->connection->peer_info()->is_preferred();
 
-    first->weight = order * choke_queue::order_base + ::random() % (1 << 10);
+    first->weight =
+      order * choke_queue::order_base + random_uniform_uint32(0, (1 << 10) - 1);
+
     first++;
   }
 }
@@ -833,7 +836,7 @@ calculate_unchoke_upload_leech_experimental(choke_queue::iterator first,
       // else if (<peer is stingy>)
       //   base /= 8;
 
-      first->weight = ::random() % base;
+      first->weight = random_uniform_uint32(0, base - 1);
     }
 
     first++;

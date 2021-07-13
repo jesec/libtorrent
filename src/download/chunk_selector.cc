@@ -2,12 +2,12 @@
 // Copyright (C) 2005-2011, Jari Sundell <jaris@ifi.uio.no>
 
 #include <algorithm>
-#include <cstdlib>
 
 #include "download/chunk_selector.h"
 #include "download/chunk_statistics.h"
 #include "protocol/peer_chunks.h"
 #include "torrent/exceptions.h"
+#include "torrent/utils/random.h"
 
 namespace torrent {
 
@@ -51,7 +51,7 @@ ChunkSelector::update_priorities() {
     if (m_sequential) {
       m_position = 0;
     } else {
-      m_position = random() % size();
+      m_position = random_uniform_size(0, size() - 1);
     }
   }
 
@@ -76,8 +76,8 @@ ChunkSelector::find(PeerChunks* pc, bool) {
     // Randomize position on average every 16 chunks to prevent
     // inefficient distribution with a slow seed and fast peers
     // all arriving at the same position.
-    if ((random() & 63) == 0) {
-      m_position = random() % size();
+    if ((random_int64() & 63) == 0) {
+      m_position = random_uniform_size(0, size() - 1);
       queue->clear();
     }
   }

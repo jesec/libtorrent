@@ -37,9 +37,6 @@ mock_clear(bool ignore_assert) {
   MOCK_CLEANUP_MAP(torrent::poll_event_remove_write);
   MOCK_CLEANUP_MAP(torrent::poll_event_remove_error);
 
-  MOCK_CLEANUP_MAP(torrent::random_uniform_uint16);
-  MOCK_CLEANUP_MAP(torrent::random_uniform_uint32);
-
   mock_compare_map<torrent::Event>::values.clear();
 }
 
@@ -190,24 +187,6 @@ void
 poll_event_remove_error(Event* event) {
   MOCK_LOG("fd:%i type_name:%s", event->file_descriptor(), event->type_name());
   return mock_call<void>(__func__, &torrent::poll_event_remove_error, event);
-}
-
-//
-// Mock functions for 'torrent/utils/random.h':
-//
-
-uint16_t
-random_uniform_uint16(uint16_t min, uint16_t max) {
-  MOCK_LOG("min:%" PRIu16 " max:%" PRIu16, min, max);
-  return mock_call<uint16_t>(
-    __func__, &torrent::random_uniform_uint16, min, max);
-}
-
-uint32_t
-random_uniform_uint32(uint32_t min, uint32_t max) {
-  MOCK_LOG("min:%" PRIu32 " max:%" PRIu32, min, max);
-  return mock_call<uint32_t>(
-    __func__, &torrent::random_uniform_uint32, min, max);
 }
 
 } // namespace torrent

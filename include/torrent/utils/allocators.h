@@ -7,7 +7,6 @@
 #define LIBTORRENT_UTILS_ALLOCATORS_H
 
 #include <cstddef>
-#include <cstdlib>
 #include <limits>
 #include <sys/types.h>
 

@@ -5,7 +5,6 @@
 #define LIBTORRENT_DATA_CHUNK_LIST_NODE_H
 
 #include <cinttypes>
-#include <cstdlib>
 
 #include "torrent/utils/cacheline.h"
 #include "torrent/utils/timer.h"

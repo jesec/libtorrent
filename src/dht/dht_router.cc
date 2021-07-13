@@ -3,6 +3,7 @@
 
 #include "torrent/buildinfo.h"
 
+#include <array>
 #include <sstream>
 
 #include "dht/dht_bucket.h"
@@ -15,6 +16,7 @@
 #include "torrent/download_info.h"
 #include "torrent/exceptions.h"
 #include "torrent/utils/log.h"
+#include "torrent/utils/random.h"
 #include "utils/sha1.h"
 
 #define LT_LOG_THIS(log_fmt, ...)                                              \
@@ -31,8 +33,8 @@ DhtRouter::DhtRouter(const Object& cache, const utils::socket_address* sa)
   m_server(this)
   , m_contacts(nullptr)
   , m_numRefresh(0)
-  , m_curToken(random())
-  , m_prevToken(random()) {
+  , m_curToken(random_int32())
+  , m_prevToken(random_int32()) {
 
   HashString ones_id;
 
@@ -48,14 +50,15 @@ DhtRouter::DhtRouter(const Object& cache, const utils::socket_address* sa)
     assign(id.c_str());
 
   } else {
-    long buffer[size_data];
+    auto buffer = std::array<int64_t, size_data>();
 
-    for (long* itr = buffer; itr != buffer + size_data; ++itr)
-      *itr = random();
+    for (auto& e : buffer) {
+      e = random_int64();
+    }
 
     Sha1 sha;
     sha.init();
-    sha.update(buffer, sizeof(buffer));
+    sha.update(buffer.data(), buffer.size());
     sha.final_c(data());
   }
 
@@ -448,7 +451,7 @@ DhtRouter::receive_timeout() {
     (cachedTime + utils::timer::from_seconds(timeout_update)).round_seconds());
 
   m_prevToken = m_curToken;
-  m_curToken  = random();
+  m_curToken  = random_int32();
 
   // Do some periodic accounting, refreshing buckets and marking
   // bad nodes.
@@ -665,7 +668,7 @@ DhtRouter::bootstrap() {
     return;
 
   DhtBucketList::iterator itr = m_routingTable.begin();
-  std::advance(itr, random() % m_routingTable.size());
+  std::advance(itr, random_uniform_size(0, m_routingTable.size() - 1));
 
   if (itr->second != bucket() && itr != m_routingTable.end())
     bootstrap_bucket(itr->second);
