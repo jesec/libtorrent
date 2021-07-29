@@ -33,10 +33,11 @@ jobs:
 
       - run: sudo apt install -y build-essential
 
-      - run: bazel coverage -s libtorrent_test
-      - run: cp -L bazel-testlogs/libtorrent_test/coverage.dat .
+      - run: bazel coverage --instrument_test_targets --collect_code_coverage --combined_report=lcov -s libtorrent_test
 
       - uses: codecov/codecov-action@v1
+        with:
+          directory: ./bazel-out/_coverage
 
   bazel-clang:
     runs-on: ubuntu-20.04
