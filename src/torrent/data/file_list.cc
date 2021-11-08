@@ -411,7 +411,7 @@ FileList::open(int flags) {
         throw storage_error("Duplicate filename found.");
 
       if (entry->size_bytes() > m_maxFileSize)
-        throw storage_error("File exceedes the configured max file size.");
+        throw storage_error("File exceeds the configured max file size.");
 
       if (entry->path()->empty())
         throw storage_error("Empty filename is not allowed.");
@@ -556,6 +556,21 @@ FileList::open_file(File* node, const Path& lastPath, int flags) {
     // suitable errno for all cases.
     utils::error_number::set_global(std::errc::is_a_directory);
     return false;
+  }
+
+  // Resize on open and iteration of file list if user wants the space for
+  // the whole torrent allocated at once. prot_write triggers the resize().
+  if (node->has_flags(File::flag_fallocate_all) &&
+      !node->is_previously_created() && node->priority() != PRIORITY_OFF) {
+    if (!node->prepare(MemoryChunk::prot_read, 0)) {
+      return false;
+    }
+
+    if (!node->is_correct_size() && node->is_resize_queued()) {
+      return node->prepare(MemoryChunk::prot_write, 0);
+    }
+
+    return true;
   }
 
   return node->prepare(MemoryChunk::prot_read, 0);

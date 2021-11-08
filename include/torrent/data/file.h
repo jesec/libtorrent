@@ -20,10 +20,11 @@ public:
   static constexpr int flag_create_queued      = (1 << 1);
   static constexpr int flag_resize_queued      = (1 << 2);
   static constexpr int flag_fallocate          = (1 << 3);
-  static constexpr int flag_previously_created = (1 << 4);
+  static constexpr int flag_fallocate_all      = (1 << 4);
+  static constexpr int flag_previously_created = (1 << 5);
 
-  static constexpr int flag_prioritize_first = (1 << 5);
-  static constexpr int flag_prioritize_last  = (1 << 6);
+  static constexpr int flag_prioritize_first = (1 << 6);
+  static constexpr int flag_prioritize_last  = (1 << 7);
 
   File();
   ~File();
@@ -205,15 +206,15 @@ File::is_valid_position(uint64_t p) const {
 inline void
 File::set_flags(int flags) {
   set_flags_protected(flags & (flag_create_queued | flag_resize_queued |
-                               flag_fallocate | flag_prioritize_first |
-                               flag_prioritize_last));
+                               flag_fallocate | flag_fallocate_all |
+                               flag_prioritize_first | flag_prioritize_last));
 }
 
 inline void
 File::unset_flags(int flags) {
   unset_flags_protected(flags & (flag_create_queued | flag_resize_queued |
-                                 flag_fallocate | flag_prioritize_first |
-                                 flag_prioritize_last));
+                                 flag_fallocate | flag_fallocate_all |
+                                 flag_prioritize_first | flag_prioritize_last));
 }
 
 inline void

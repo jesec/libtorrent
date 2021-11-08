@@ -27,15 +27,14 @@ class LIBTORRENT_EXPORT Download {
 public:
   static constexpr uint32_t numwanted_diabled = ~uint32_t();
 
-  // Start and open flags can be stored in the same integer, same for
-  // stop and close flags.
-  static constexpr int open_enable_fallocate = (1 << 0);
+  static constexpr int open_enable_fallocate     = (1 << 0);
+  static constexpr int open_enable_fallocate_all = (1 << 1);
 
-  static constexpr int start_no_create     = (1 << 1);
-  static constexpr int start_keep_baseline = (1 << 2);
-  static constexpr int start_skip_tracker  = (1 << 3);
+  static constexpr int start_no_create     = (1 << 2);
+  static constexpr int start_keep_baseline = (1 << 3);
+  static constexpr int start_skip_tracker  = (1 << 4);
 
-  static constexpr int stop_skip_tracker = (1 << 0);
+  static constexpr int stop_skip_tracker = (1 << 5);
 
   Download(DownloadWrapper* d = nullptr)
     : m_ptr(d) {}
