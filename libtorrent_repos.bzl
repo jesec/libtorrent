@@ -7,19 +7,18 @@ def libtorrent_repos():
     maybe(
         http_archive,
         name = "boringssl",
-        sha256 = "7160f2f15c880b0da2dac61fb6496a26a9903881f35e77131cafdebad14163ac",
-        strip_prefix = "boringssl-1285d5305ad69ceb519de76cd74e743aed1efd89",
-        urls = ["https://github.com/google/boringssl/archive/1285d5305ad69ceb519de76cd74e743aed1efd89.zip"],
-        patches = ["@libtorrent//:third_party/boringssl.patch"],
+        sha256 = "e1244899f918bc2bcec9786e6e1d177762dd7d365d91480b901190a137ddac9c",
+        strip_prefix = "boringssl-90b4312e825491f059f976ce3152edbe278eaec4",
+        urls = ["https://github.com/google/boringssl/archive/90b4312e825491f059f976ce3152edbe278eaec4.zip"],
     )
 
     maybe(
         http_archive,
         name = "zlib",
         build_file = "@libtorrent//:third_party/zlib.BUILD",
-        sha256 = "eca3fe72aea7036c31d00ca120493923c4d5b99fe02e6d3322f7c88dbdcd0085",
-        strip_prefix = "zlib-ng-2.0.5",
-        urls = ["https://github.com/zlib-ng/zlib-ng/archive/refs/tags/2.0.5.tar.gz"],
+        sha256 = "8258b75a72303b661a238047cb348203d88d9dddf85d480ed885f375916fcab6",
+        strip_prefix = "zlib-ng-2.0.6",
+        urls = ["https://github.com/zlib-ng/zlib-ng/archive/refs/tags/2.0.6.tar.gz"],
     )
 
     maybe(
