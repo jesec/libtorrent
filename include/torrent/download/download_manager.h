@@ -4,8 +4,11 @@
 #ifndef LIBTORRENT_DOWNLOAD_MANAGER_H
 #define LIBTORRENT_DOWNLOAD_MANAGER_H
 
-#include <torrent/common.h>
+#include <unordered_map>
 #include <vector>
+
+#include <torrent/common.h>
+#include <torrent/hash_string.h>
 
 namespace torrent {
 
@@ -58,6 +61,10 @@ public:
   iterator erase(DownloadWrapper* d) LIBTORRENT_NO_EXPORT;
 
   void clear() LIBTORRENT_NO_EXPORT;
+
+private:
+  std::unordered_map<HashString, size_type>  lookup_cache;
+  std::unordered_map<HashString, HashString> obfuscated_to_hash;
 };
 
 } // namespace torrent
