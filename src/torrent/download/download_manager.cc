@@ -37,9 +37,7 @@ DownloadManager::clear() {
 
 DownloadManager::iterator
 DownloadManager::find(const std::string& hash) {
-  return std::find_if(begin(), end(), [hash](DownloadWrapper* wrapper) {
-    return *HashString::cast_from(hash) == wrapper->info()->hash();
-  });
+  return find(*HashString::cast_from(hash));
 }
 
 DownloadManager::iterator
