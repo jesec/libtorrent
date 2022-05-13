@@ -400,7 +400,7 @@ ProtocolExtension::send_metadata_piece(size_t piece) {
     object_write_to_buffer,
     nullptr,
     object_buffer_t(buffer, buffer + metadataSize),
-    &(*manager->download_manager()->find(m_download->info()))
+    &(*manager->download_manager()->find(m_download->info()->hash()))
        ->bencode()
        ->get_key("info"));
 

@@ -285,7 +285,8 @@ DownloadMain::initial_seeding_done(PeerConnectionBase* pcb) {
   }
 
   // Switch to normal seeding.
-  DownloadManager::iterator itr = manager->download_manager()->find(m_info);
+  DownloadManager::iterator itr =
+    manager->download_manager()->find(m_info->hash());
   (*itr)->set_connection_type(Download::CONNECTION_SEED);
   m_connectionList->slot_new_connection(&createPeerConnectionSeed);
 

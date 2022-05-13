@@ -49,20 +49,6 @@ DownloadManager::find(const HashString& hash) {
   });
 }
 
-DownloadManager::iterator
-DownloadManager::find(DownloadInfo* info) {
-  return std::find_if(begin(), end(), [info](DownloadWrapper* wrapper) {
-    return info == wrapper->info();
-  });
-}
-
-DownloadManager::iterator
-DownloadManager::find_chunk_list(ChunkList* cl) {
-  return std::find_if(begin(), end(), [cl](DownloadWrapper* wrapper) {
-    return cl == wrapper->chunk_list();
-  });
-}
-
 DownloadMain*
 DownloadManager::find_main(const char* hash) {
   iterator itr = std::find_if(begin(), end(), [hash](DownloadWrapper* wrapper) {

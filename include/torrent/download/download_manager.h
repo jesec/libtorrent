@@ -47,8 +47,6 @@ public:
   iterator find(const HashString& hash);
   iterator find(DownloadInfo* info);
 
-  iterator find_chunk_list(ChunkList* cl);
-
   DownloadMain* find_main(const char* hash);
   DownloadMain* find_main_obfuscated(const char* hash);
 
