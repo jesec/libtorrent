@@ -15,12 +15,9 @@ private:
   void OnTestPartResult(
     const ::testing::TestPartResult& test_part_result) override {
     if (test_part_result.failed()) {
-      std::for_each(m_current_log_buffer->begin(),
-                    m_current_log_buffer->end(),
-                    [](const torrent::log_entry& entry) {
-                      std::cout << entry.timestamp << ' ' << entry.message
-                                << '\n';
-                    });
+      for (const auto& entry : *m_current_log_buffer) {
+        std::cout << entry.timestamp << ' ' << entry.message << '\n';
+      }
     }
   }
 

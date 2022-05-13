@@ -71,7 +71,10 @@ PeerList::~PeerList() {
                 size(),
                 m_available_list->size());
 
-  std::for_each(begin(), end(), [](const value_type& v) { delete v.second; });
+  for (const auto& [address, peerInfo] : *this) {
+    delete peerInfo;
+  }
+
   base_type::clear();
 
   m_info = nullptr;

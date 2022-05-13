@@ -48,9 +48,10 @@ HandshakeManager::size_info(DownloadMain* info) const {
 
 void
 HandshakeManager::clear() {
-  std::for_each(base_type::begin(), base_type::end(), [](Handshake* h) {
-    return handshake_manager_delete_handshake(h);
-  });
+  for (const auto& handshake : *this) {
+    handshake_manager_delete_handshake(handshake);
+  }
+
   base_type::clear();
 }
 

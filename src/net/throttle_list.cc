@@ -73,7 +73,10 @@ ThrottleList::disable() {
   m_unallocatedQuota       = 0;
   m_unusedUnthrottledQuota = 0;
 
-  std::for_each(begin(), end(), std::mem_fn(&ThrottleNode::clear_quota));
+  for (const auto& node : *this) {
+    node->clear_quota();
+  }
+
   std::for_each(m_splitActive, end(), std::mem_fn(&ThrottleNode::activate));
 
   m_splitActive = end();

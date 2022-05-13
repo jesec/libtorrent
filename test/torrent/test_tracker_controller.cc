@@ -469,9 +469,10 @@ TEST_F(tracker_controller_test, test_multiple_send_update) {
 TEST_F(tracker_controller_test, test_timeout_lacking_usable) {
   TEST_MULTI3_BEGIN();
 
-  std::for_each(tracker_list.begin(),
-                tracker_list.end(),
-                std::mem_fn(&torrent::Tracker::disable));
+  for (const auto& tracker : tracker_list) {
+    tracker->disable();
+  }
+
   ASSERT_TRUE(tracker_controller.task_timeout()->is_queued());
 
   ASSERT_PRED3(test_goto_next_timeout, &tracker_controller, 0, false);

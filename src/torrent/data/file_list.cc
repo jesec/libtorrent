@@ -50,7 +50,9 @@ FileList::~FileList() {
   // Can we skip close()?
   close();
 
-  std::for_each(begin(), end(), [](File* f) { delete f; });
+  for (const auto& file : *this) {
+    delete file;
+  }
 
   base_type::clear();
   m_torrentSize = 0;

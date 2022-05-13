@@ -30,9 +30,9 @@ SocketSet::_replace_with_last(size_type idx) {
 
 void
 SocketSet::prepare() {
-  std::for_each(m_erased.begin(), m_erased.end(), [this](size_type idx) {
-    return _replace_with_last(idx);
-  });
+  for (const auto& idx : m_erased) {
+    _replace_with_last(idx);
+  }
 
   m_erased.clear();
 }

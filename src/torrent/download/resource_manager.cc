@@ -402,8 +402,9 @@ ResourceManager::total_weight() const {
   // TODO: This doesn't take into account inactive downloads.
   unsigned int result = 0;
 
-  std::for_each(
-    begin(), end(), [&result](value_type v) { result += v.priority(); });
+  for (const auto& entry : *this) {
+    result += entry.priority();
+  }
 
   return result;
 }

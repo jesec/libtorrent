@@ -110,12 +110,13 @@ DhtServer::DhtServer(DhtRouter* router)
 DhtServer::~DhtServer() {
   stop();
 
-  std::for_each(m_highQueue.begin(),
-                m_highQueue.end(),
-                [](DhtTransactionPacket* p) { delete p; });
-  std::for_each(m_lowQueue.begin(),
-                m_lowQueue.end(),
-                [](DhtTransactionPacket* p) { delete p; });
+  for (const auto& packet : m_highQueue) {
+    delete packet;
+  }
+
+  for (const auto& packet : m_lowQueue) {
+    delete packet;
+  }
 
   manager->connection_manager()->dec_socket_count();
 }

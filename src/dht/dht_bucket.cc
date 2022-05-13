@@ -140,10 +140,13 @@ DhtBucket::split(const HashString& id) {
   // delete them from this one.
   iterator split = std::partition(
     begin(), end(), [this](DhtNode* n) { return n->is_in_range(this); });
+
   other->insert(other->end(), split, end());
-  std::for_each(other->begin(), other->end(), [other](DhtNode* n) {
-    return n->set_bucket(other);
-  });
+
+  for (const auto& node : *other) {
+    node->set_bucket(other);
+  }
+
   erase(split, end());
 
   other->set_time(m_lastChanged);

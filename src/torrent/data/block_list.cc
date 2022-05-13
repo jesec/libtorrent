@@ -57,8 +57,13 @@ BlockList::do_all_failed() {
   set_attempt(0);
 
   // Clear leaders when we want to redownload the chunk.
-  std::for_each(begin(), end(), [](Block& p) { return p.failed_leader(); });
-  std::for_each(begin(), end(), [](Block& p) { return p.retry_transfer(); });
+  for (auto& block : *this) {
+    block.failed_leader();
+  }
+
+  for (auto& block : *this) {
+    block.retry_transfer();
+  }
 }
 
 } // namespace torrent

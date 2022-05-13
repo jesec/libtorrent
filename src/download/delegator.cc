@@ -87,19 +87,18 @@ Delegator::delegate(PeerChunks* peerChunks, int affinity) {
   uint16_t overlapped = 5;
 
   // TODO: Should this ensure we don't download pieces that are priority off?
-  std::for_each(m_transfers.begin(),
-                m_transfers.end(),
-                [this, &target, &overlapped, peerChunks](BlockList* d) {
-                  Block* tmp;
+  for (const auto& blockList : m_transfers) {
+    Block* tmp;
 
-                  if (!peerChunks->bitfield()->get(d->index()) ||
-                      d->priority() == PRIORITY_OFF ||
-                      (tmp = delegate_aggressive(
-                         d, &overlapped, peerChunks->peer_info())) == nullptr)
-                    return;
+    if (!peerChunks->bitfield()->get(blockList->index()) ||
+        blockList->priority() == PRIORITY_OFF ||
+        (tmp = delegate_aggressive(
+           blockList, &overlapped, peerChunks->peer_info())) == nullptr) {
+      continue;
+    }
 
-                  target = tmp;
-                });
+    target = tmp;
+  }
 
   return target ? target->insert(peerChunks->peer_info()) : nullptr;
 }

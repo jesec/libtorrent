@@ -46,7 +46,9 @@ Chunk::is_all_valid() const {
 
 void
 Chunk::clear() {
-  std::for_each(begin(), end(), std::mem_fn(&ChunkPart::clear));
+  for (auto& part : *this) {
+    part.clear();
+  }
 
   m_chunkSize = 0;
   m_prot      = ~0;

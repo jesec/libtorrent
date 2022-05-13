@@ -70,9 +70,10 @@ TrackerList::count_usable() const {
 
 void
 TrackerList::close_all_excluding(int event_bitmap) {
-  for (auto& tracker : *this) {
-    if ((event_bitmap & (1 << tracker->latest_event())))
+  for (const auto& tracker : *this) {
+    if ((event_bitmap & (1 << tracker->latest_event()))) {
       continue;
+    }
 
     tracker->close();
   }
@@ -80,21 +81,27 @@ TrackerList::close_all_excluding(int event_bitmap) {
 
 void
 TrackerList::disown_all_including(int event_bitmap) {
-  for (auto& tracker : *this) {
-    if ((event_bitmap & (1 << tracker->latest_event())))
+  for (const auto& tracker : *this) {
+    if ((event_bitmap & (1 << tracker->latest_event()))) {
       tracker->disown();
+    }
   }
 }
 
 void
 TrackerList::clear() {
-  std::for_each(begin(), end(), [](Tracker* t) { delete t; });
+  for (const auto& tracker : *this) {
+    delete tracker;
+  }
+
   base_type::clear();
 }
 
 void
 TrackerList::clear_stats() {
-  std::for_each(begin(), end(), std::mem_fn(&Tracker::clear_stats));
+  for (const auto& tracker : *this) {
+    tracker->clear_stats();
+  }
 }
 
 void

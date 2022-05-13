@@ -106,33 +106,33 @@ log_update_child_cache(int index) {
 
 void
 log_rebuild_cache() {
-  std::for_each(log_groups.begin(),
-                log_groups.end(),
-                std::mem_fn(&log_group::clear_cached_outputs));
+  for (auto& log_group : log_groups) {
+    log_group.clear_cached_outputs();
+  }
 
   for (int i = 0; i < LOG_GROUP_MAX_SIZE; i++)
     log_update_child_cache(i);
 
   // Clear the cache...
-  std::for_each(
-    log_cache.begin(), log_cache.end(), std::mem_fn(&log_cache_entry::clear));
+  for (auto& entry : log_cache) {
+    entry.clear();
+  }
+
   log_cache.clear();
 
-  for (int idx = 0, last = log_groups.size(); idx != last; idx++) {
-    const log_group::outputs_type& use_outputs =
-      log_groups[idx].cached_outputs();
+  for (auto& log_group : log_groups) {
+    const log_group::outputs_type& use_outputs = log_group.cached_outputs();
 
     if (use_outputs == 0) {
-      log_groups[idx].set_cached(nullptr, nullptr);
+      log_group.set_cached(nullptr, nullptr);
       continue;
     }
 
-    log_cache_list::iterator cache_itr =
-      std::find_if(log_cache.begin(),
-                   log_cache.end(),
-                   [use_outputs](const log_cache_entry& entry) {
-                     return entry.equal_outputs(use_outputs);
-                   });
+    auto cache_itr = std::find_if(log_cache.begin(),
+                                  log_cache.end(),
+                                  [use_outputs](const log_cache_entry& entry) {
+                                    return entry.equal_outputs(use_outputs);
+                                  });
 
     if (cache_itr == log_cache.end()) {
       cache_itr          = log_cache.insert(log_cache.end(), log_cache_entry());
@@ -147,7 +147,7 @@ log_rebuild_cache() {
       }
     }
 
-    log_groups[idx].set_cached(cache_itr->cache_first, cache_itr->cache_last);
+    log_group.set_cached(cache_itr->cache_first, cache_itr->cache_last);
   }
 }
 
@@ -274,8 +274,10 @@ log_cleanup() {
   log_outputs.clear();
   log_children.clear();
 
-  std::for_each(
-    log_cache.begin(), log_cache.end(), std::mem_fn(&log_cache_entry::clear));
+  for (auto& e : log_cache) {
+    e.clear();
+  }
+
   log_cache.clear();
 }
 

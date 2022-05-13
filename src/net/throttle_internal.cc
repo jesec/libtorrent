@@ -32,19 +32,19 @@ ThrottleInternal::~ThrottleInternal() {
   if (is_root())
     priority_queue_erase(&taskScheduler, &m_taskTick);
 
-  std::for_each(
-    m_slaveList.begin(), m_slaveList.end(), [](ThrottleInternal* t) {
-      delete t->throttle_list();
-      delete t;
-    });
+  for (const auto& t : m_slaveList) {
+    delete t->throttle_list();
+    delete t;
+  }
 }
 
 void
 ThrottleInternal::enable() {
   m_throttleList->enable();
-  std::for_each(m_slaveList.begin(),
-                m_slaveList.end(),
-                std::mem_fn(&ThrottleInternal::enable));
+
+  for (const auto& t : m_slaveList) {
+    t->enable();
+  }
 
   if (is_root()) {
     // We need to start the ticks, and make sure we set timeLastTick
@@ -57,9 +57,10 @@ ThrottleInternal::enable() {
 void
 ThrottleInternal::disable() {
   m_throttleList->disable();
-  std::for_each(m_slaveList.begin(),
-                m_slaveList.end(),
-                std::mem_fn(&ThrottleInternal::disable));
+
+  for (const auto& t : m_slaveList) {
+    t->disable();
+  }
 
   if (is_root())
     priority_queue_erase(&taskScheduler, &m_taskTick);

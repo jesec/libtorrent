@@ -31,7 +31,9 @@ ConnectionList::ConnectionList(DownloadMain* download)
 
 void
 ConnectionList::clear() {
-  std::for_each(begin(), end(), [](Peer* p) { delete p->m_ptr(); });
+  for (const auto& peer : *this) {
+    delete peer->m_ptr();
+  }
 
   base_type::clear();
 

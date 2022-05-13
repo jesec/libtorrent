@@ -62,7 +62,7 @@ public:
   reverse_iterator reverse_max_element();
 
 private:
-  BlockFailed(const BlockFailed&) = delete;
+  BlockFailed(const BlockFailed&)    = delete;
   void operator=(const BlockFailed&) = delete;
 
   static void delete_entry(value_type e) {
@@ -76,9 +76,9 @@ private:
 };
 
 inline BlockFailed::~BlockFailed() {
-  std::for_each(begin(), end(), [](std::pair<char*, uint32_t> p) {
-    return delete_entry(p);
-  });
+  for (const auto& p : *this) {
+    delete_entry(p);
+  }
 }
 
 inline BlockFailed::iterator

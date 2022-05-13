@@ -39,9 +39,13 @@ TransferList::find(uint32_t index) const {
 
 void
 TransferList::clear() {
-  std::for_each(
-    begin(), end(), [this](BlockList* b) { m_slot_canceled(b->index()); });
-  std::for_each(begin(), end(), [](BlockList* l) { delete l; });
+  for (const auto& blockList : *this) {
+    m_slot_canceled(blockList->index());
+  }
+
+  for (const auto& blockList : *this) {
+    delete blockList;
+  }
 
   base_type::clear();
 }
@@ -52,7 +56,7 @@ TransferList::insert(const Piece& piece, uint32_t blockSize) {
     throw internal_error("Delegator::new_chunk(...) received an index that is "
                          "already delegated.");
 
-  BlockList* blockList = new BlockList(piece, blockSize);
+  auto blockList = new BlockList(piece, blockSize);
 
   m_slot_queued(piece.index());
 
@@ -248,13 +252,17 @@ TransferList::mark_failed_peers(BlockList* blockList, Chunk* chunk) {
                    block.failed_list()->end(),
                    transfer_list_compare_data(chunk, block.piece())));
 
-    for (const auto& transfer : *block.transfers())
+    for (const auto& transfer : *block.transfers()) {
       if (transfer->failed_index() != block.failed_list()->current() &&
-          transfer->failed_index() != ~uint32_t())
+          transfer->failed_index() != ~uint32_t()) {
         badPeers.insert(transfer->peer_info());
+      }
+    }
   }
 
-  std::for_each(badPeers.begin(), badPeers.end(), m_slot_corrupt);
+  for (const auto& peer : badPeers) {
+    m_slot_corrupt(peer);
+  }
 }
 
 // Copy the stored data to the chunk from the failed entries with

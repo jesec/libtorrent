@@ -154,47 +154,45 @@ DownloadConstructor::parse_tracker(const Object& b) {
   const Object::list_type* announce_list = nullptr;
 
   if (b.has_key_list("announce-list") &&
-
       // Some torrent makers create empty/invalid 'announce-list'
       // entries while still having valid 'announce'.
       !(announce_list = &b.get_key_list("announce-list"))->empty() &&
       std::find_if(announce_list->begin(),
                    announce_list->end(),
-                   std::mem_fn(&Object::is_list)) != announce_list->end())
-
-    std::for_each(announce_list->begin(),
-                  announce_list->end(),
-                  [this](const Object& o) { return add_tracker_group(o); });
-
-  else if (b.has_key("announce"))
+                   std::mem_fn(&Object::is_list)) != announce_list->end()) {
+    for (const auto& group : *announce_list) {
+      add_tracker_group(group);
+    }
+  } else if (b.has_key("announce")) {
     add_tracker_single(b.get_key("announce"), 0);
-
-  else if (!manager->dht_manager()->is_valid() ||
-           m_download->info()->is_private())
+  } else if (!manager->dht_manager()->is_valid() ||
+             m_download->info()->is_private()) {
     throw bencode_error("Could not find any trackers");
+  }
 
-  if (manager->dht_manager()->is_valid() && !m_download->info()->is_private())
+  if (manager->dht_manager()->is_valid() && !m_download->info()->is_private()) {
     m_download->main()->tracker_list()->insert_url(
       m_download->main()->tracker_list()->size_group(), "dht://");
+  }
 
-  if (manager->dht_manager()->is_valid() && b.has_key_list("nodes"))
-    std::for_each(b.get_key_list("nodes").begin(),
-                  b.get_key_list("nodes").end(),
-                  [this](const Object& o) { return add_dht_node(o); });
+  if (manager->dht_manager()->is_valid() && b.has_key_list("nodes")) {
+    for (const auto& node : b.get_key_list("nodes")) {
+      add_dht_node(node);
+    }
+  }
 
   m_download->main()->tracker_list()->randomize_group_entries();
 }
 
 void
-DownloadConstructor::add_tracker_group(const Object& b) {
-  if (!b.is_list())
+DownloadConstructor::add_tracker_group(const Object& group) {
+  if (!group.is_list())
     throw bencode_error("Tracker group list not a list");
 
-  std::for_each(
-    b.as_list().begin(), b.as_list().end(), [this](const Object& o) {
-      return add_tracker_single(
-        o, m_download->main()->tracker_list()->size_group());
-    });
+  for (const auto& tracker : group.as_list()) {
+    add_tracker_single(tracker,
+                       m_download->main()->tracker_list()->size_group());
+  }
 }
 
 void

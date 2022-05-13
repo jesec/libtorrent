@@ -34,16 +34,16 @@ Block::~Block() {
   m_leader = nullptr;
   m_state  = STATE_INVALID;
 
-  std::for_each(
-    m_queued.begin(), m_queued.end(), [this](BlockTransfer* transfer) {
-      return invalidate_transfer(transfer);
-    });
+  for (const auto& transfer : m_queued) {
+    invalidate_transfer(transfer);
+  }
+
   m_queued.clear();
 
-  std::for_each(
-    m_transfers.begin(), m_transfers.end(), [this](BlockTransfer* transfer) {
-      return invalidate_transfer(transfer);
-    });
+  for (const auto& transfer : m_transfers) {
+    invalidate_transfer(transfer);
+  }
+
   m_transfers.clear();
 
   if (m_notStalled != 0) {
@@ -225,10 +225,10 @@ Block::completed(BlockTransfer* transfer) {
   // Block::transfering(...). But that would propably not be correct
   // as we want to trigger cancel messages from here, as hash fail is
   // a rare occurrence.
-  std::for_each(
-    m_queued.begin(), m_queued.end(), [this](BlockTransfer* transfer) {
-      return invalidate_transfer(transfer);
-    });
+  for (const auto& transfer : m_queued) {
+    invalidate_transfer(transfer);
+  }
+
   m_queued.clear();
 
   // We need to invalidate those unfinished and keep the one that
