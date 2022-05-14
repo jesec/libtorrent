@@ -36,6 +36,10 @@ DownloadManager::erase(DownloadWrapper* d) {
 
 void
 DownloadManager::clear() {
+  for (const auto& d : *this) {
+    delete d;
+  }
+
   base_type::clear();
   lookup_cache.clear();
   obfuscated_to_hash.clear();
