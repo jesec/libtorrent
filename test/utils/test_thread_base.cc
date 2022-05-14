@@ -12,7 +12,7 @@
 
 class test_thread_base : public test_fixture {
 public:
-  void TearDown() {
+  void TearDown() override {
     EXPECT_TRUE(torrent::thread_base::trylock_global_lock());
     torrent::thread_base::release_global_lock();
     test_fixture::TearDown();
@@ -28,54 +28,48 @@ throw_shutdown_exception() {
 }
 
 TEST_F(test_thread_base, test_basic) {
-  test_thread* thread = new test_thread;
+  test_thread thread;
 
-  ASSERT_EQ(thread->flags(), 0);
+  ASSERT_EQ(thread.flags(), 0);
 
-  ASSERT_FALSE(thread->is_active());
-  ASSERT_EQ(thread->global_queue_size(), 0);
-  ASSERT_EQ(thread->poll(), nullptr);
-
-  // Check active...
-
-  delete thread;
+  ASSERT_FALSE(thread.is_active());
+  ASSERT_EQ(thread.global_queue_size(), 0);
+  ASSERT_EQ(thread.poll(), nullptr);
 }
 
 TEST_F(test_thread_base, test_lifecycle) {
-  test_thread* thread = new test_thread;
+  test_thread thread;
 
-  ASSERT_EQ(thread->state(), torrent::thread_base::STATE_UNKNOWN);
-  ASSERT_EQ(thread->test_state(), test_thread::TEST_NONE);
+  ASSERT_EQ(thread.state(), torrent::thread_base::STATE_UNKNOWN);
+  ASSERT_EQ(thread.test_state(), test_thread::TEST_NONE);
 
-  thread->init_thread();
-  ASSERT_EQ(thread->state(), torrent::thread_base::STATE_INITIALIZED);
-  ASSERT_TRUE(thread->is_initialized());
-  ASSERT_EQ(thread->test_state(), test_thread::TEST_PRE_START);
+  thread.init_thread();
+  ASSERT_EQ(thread.state(), torrent::thread_base::STATE_INITIALIZED);
+  ASSERT_TRUE(thread.is_initialized());
+  ASSERT_EQ(thread.test_state(), test_thread::TEST_PRE_START);
 
-  thread->set_pre_stop();
-  ASSERT_FALSE(wait_for_true(std::bind(
-    &test_thread::is_test_state, thread, test_thread::TEST_PRE_STOP)));
+  thread.set_pre_stop();
+  ASSERT_FALSE(wait_for_true(
+    [&thread] { return thread.is_test_state(test_thread::TEST_PRE_STOP); }));
 
-  thread->start_thread();
+  thread.start_thread();
   ASSERT_TRUE(wait_for_true(
-    std::bind(&test_thread::is_state, thread, test_thread::STATE_ACTIVE)));
-  ASSERT_TRUE(thread->is_active());
-  ASSERT_TRUE(wait_for_true(std::bind(
-    &test_thread::is_test_state, thread, test_thread::TEST_PRE_STOP)));
-
-  thread->stop_thread();
+    [&thread] { return thread.is_state(test_thread::STATE_ACTIVE); }));
+  ASSERT_TRUE(thread.is_active());
   ASSERT_TRUE(wait_for_true(
-    std::bind(&test_thread::is_state, thread, test_thread::STATE_INACTIVE)));
-  ASSERT_TRUE(thread->is_inactive());
+    [&thread] { return thread.is_test_state(test_thread::TEST_PRE_STOP); }));
 
-  delete thread;
+  thread.stop_thread();
+  ASSERT_TRUE(wait_for_true(
+    [&thread] { return thread.is_state(test_thread::STATE_INACTIVE); }));
+  ASSERT_TRUE(thread.is_inactive());
 }
 
 TEST_F(test_thread_base, test_global_lock_basic) {
-  test_thread* thread = new test_thread;
+  test_thread thread;
 
-  thread->init_thread();
-  thread->start_thread();
+  thread.init_thread();
+  thread.start_thread();
 
   ASSERT_EQ(torrent::thread_base::global_queue_size(), 0);
 
@@ -91,13 +85,15 @@ TEST_F(test_thread_base, test_global_lock_basic) {
   torrent::thread_base::acquire_global_lock();
   ASSERT_FALSE(torrent::thread_base::trylock_global_lock());
 
-  thread->set_acquire_global();
-  ASSERT_FALSE(wait_for_true(std::bind(
-    &test_thread::is_test_flags, thread, test_thread::test_flag_has_global)));
+  thread.set_acquire_global();
+  ASSERT_FALSE(wait_for_true([&thread] {
+    return thread.is_test_flags(test_thread::test_flag_has_global);
+  }));
 
   torrent::thread_base::release_global_lock();
-  ASSERT_TRUE(wait_for_true(std::bind(
-    &test_thread::is_test_flags, thread, test_thread::test_flag_has_global)));
+  ASSERT_TRUE(wait_for_true([&thread] {
+    return thread.is_test_flags(test_thread::test_flag_has_global);
+  }));
 
   ASSERT_FALSE(torrent::thread_base::trylock_global_lock());
   torrent::thread_base::release_global_lock();
@@ -108,40 +104,36 @@ TEST_F(test_thread_base, test_global_lock_basic) {
   ASSERT_EQ(torrent::thread_base::global_queue_size(), 0);
 
   torrent::thread_base::release_global_lock();
-  thread->stop_thread();
+  thread.stop_thread();
   ASSERT_TRUE(wait_for_true(
-    std::bind(&test_thread::is_state, thread, test_thread::STATE_INACTIVE)));
-
-  delete thread;
+    [&thread] { return thread.is_state(test_thread::STATE_INACTIVE); }));
 }
 
 TEST_F(test_thread_base, test_interrupt) {
-  test_thread* thread = new test_thread;
-  thread->set_test_flag(test_thread::test_flag_long_timeout);
+  test_thread thread;
+  thread.set_test_flag(test_thread::test_flag_long_timeout);
 
-  thread->init_thread();
-  thread->start_thread();
+  thread.init_thread();
+  thread.start_thread();
 
   // Vary the various timeouts.
 
   for (int i = 0; i < 100; i++) {
-    thread->interrupt();
+    thread.interrupt();
     usleep(0);
 
-    thread->set_test_flag(test_thread::test_flag_do_work);
-    thread->interrupt();
+    thread.set_test_flag(test_thread::test_flag_do_work);
+    thread.interrupt();
 
     // Wait for flag to clear.
-    ASSERT_TRUE(wait_for_true(std::bind(&test_thread::is_not_test_flags,
-                                        thread,
-                                        test_thread::test_flag_do_work)));
+    ASSERT_TRUE(wait_for_true([&thread] {
+      return thread.is_not_test_flags(test_thread::test_flag_do_work);
+    }));
   }
 
-  thread->stop_thread();
+  thread.stop_thread();
   ASSERT_TRUE(wait_for_true(
-    std::bind(&test_thread::is_state, thread, test_thread::STATE_INACTIVE)));
-
-  delete thread;
+    [&thread] { return thread.is_state(test_thread::STATE_INACTIVE); }));
 }
 
 TEST_F(test_thread_base, test_stop) {
@@ -154,21 +146,19 @@ TEST_F(test_thread_base, test_stop) {
   for (int i = 0; i < 20; i++) {
     EXPECT_TRUE(!torrent::thread_base::trylock_global_lock());
 
-    test_thread* thread = new test_thread;
-    thread->set_test_flag(test_thread::test_flag_do_work);
+    test_thread thread;
+    thread.set_test_flag(test_thread::test_flag_do_work);
 
     {
       TEST_BEGIN("init and start thread");
-      thread->init_thread();
-      thread->start_thread();
+      thread.init_thread();
+      thread.start_thread();
     };
 
     {
       TEST_BEGIN("stop and delete thread");
-      thread->stop_thread_wait();
-      ASSERT_TRUE(thread->is_inactive());
-
-      delete thread;
+      thread.stop_thread_wait();
+      ASSERT_TRUE(thread.is_inactive());
     }
   }
 
