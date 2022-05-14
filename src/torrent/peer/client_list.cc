@@ -241,7 +241,7 @@ ClientList::insert_helper(ClientInfo::id_type type,
   std::memset(newKey, 0, ClientInfo::max_key_size);
   std::memcpy(newKey, key, ClientInfo::key_size(type));
 
-  iterator itr = insert(type, newKey, version, upperVersion);
+  auto itr = insert(type, newKey, version, upperVersion);
   itr->set_short_description(shortDescription);
 
   return itr;
@@ -324,10 +324,9 @@ ClientList::retrieve_id(ClientInfo* dest, const HashString& id) const {
     return false;
   }
 
-  const_iterator itr =
-    std::find_if(begin() + 1, end(), [dest](const ClientInfo& info) {
-      return ClientInfo::intersects(*dest, info);
-    });
+  auto itr = std::find_if(begin() + 1, end(), [dest](const ClientInfo& info) {
+    return ClientInfo::intersects(*dest, info);
+  });
 
   if (itr == end())
     dest->set_info(begin()->info());

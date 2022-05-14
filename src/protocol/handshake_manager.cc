@@ -57,7 +57,7 @@ HandshakeManager::clear() {
 
 void
 HandshakeManager::erase(Handshake* handshake) {
-  iterator itr = std::find(base_type::begin(), base_type::end(), handshake);
+  auto itr = std::find(base_type::begin(), base_type::end(), handshake);
 
   if (itr == base_type::end())
     throw internal_error(
@@ -77,7 +77,7 @@ HandshakeManager::find(const utils::socket_address& sa) {
 
 void
 HandshakeManager::erase_download(DownloadMain* info) {
-  iterator split =
+  auto split =
     std::partition(base_type::begin(), base_type::end(), [info](Handshake* h) {
       return info != h->download();
     });
@@ -101,7 +101,7 @@ HandshakeManager::add_incoming(SocketFd fd, const utils::socket_address& sa) {
 
   manager->connection_manager()->inc_socket_count();
 
-  Handshake* h = new Handshake(
+  auto h = new Handshake(
     fd, this, manager->connection_manager()->encryption_options());
   h->initialize_incoming(sa);
 
@@ -174,7 +174,7 @@ HandshakeManager::create_outgoing(const utils::socket_address& sa,
             message);
   manager->connection_manager()->inc_socket_count();
 
-  Handshake* handshake = new Handshake(fd, this, encryptionOptions);
+  auto handshake = new Handshake(fd, this, encryptionOptions);
   handshake->initialize_outgoing(sa, download, peerInfo);
 
   base_type::push_back(handshake);

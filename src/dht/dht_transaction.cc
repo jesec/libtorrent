@@ -38,8 +38,8 @@ DhtSearch::~DhtSearch() {
 
 bool
 DhtSearch::add_contact(const HashString& id, const utils::socket_address* sa) {
-  DhtNode* n     = new DhtNode(HashString(id.data()), sa);
-  bool     added = insert(std::make_pair(n, this)).second;
+  auto n     = new DhtNode(HashString(id.data()), sa);
+  bool added = insert(std::make_pair(n, this)).second;
 
   if (!added)
     delete n;
@@ -58,8 +58,7 @@ DhtSearch::add_contacts(const DhtBucket& contacts) {
   int needClosest = max_contacts - size();
   int needGood    = DhtBucket::num_nodes;
 
-  for (DhtBucket::const_iterator itr = chain.bucket()->begin();
-       needClosest > 0 || needGood > 0;
+  for (auto itr = chain.bucket()->begin(); needClosest > 0 || needGood > 0;
        ++itr) {
     while (itr == chain.bucket()->end()) {
       if (!chain.next())

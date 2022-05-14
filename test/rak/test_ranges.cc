@@ -9,8 +9,8 @@ class RangesTest : public ::testing::Test {};
 template<typename Type>
 bool
 verify_ranges(const torrent::ranges<Type>& ranges) {
-  typename torrent::ranges<Type>::const_iterator first = ranges.begin();
-  typename torrent::ranges<Type>::const_iterator last  = ranges.begin();
+  auto first = ranges.begin();
+  auto last  = ranges.begin();
 
   if (first == last)
     return true;

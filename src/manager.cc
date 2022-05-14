@@ -149,7 +149,7 @@ Manager::receive_tick() {
   // various limited resources, like sockets for handshakes, cycle the
   // group in reverse order.
   if (!m_downloadManager->empty()) {
-    DownloadManager::iterator split =
+    auto split =
       m_downloadManager->end() - m_ticks % m_downloadManager->size() - 1;
 
     std::for_each(split, m_downloadManager->end(), [this](DownloadWrapper* p) {

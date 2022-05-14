@@ -57,7 +57,7 @@ AvailableList::insert(AddressList* l) {
 
 void
 AvailableList::erase(const utils::socket_address& sa) {
-  iterator itr = std::find(begin(), end(), sa);
+  auto itr = std::find(begin(), end(), sa);
 
   if (itr != end()) {
     *itr = back();

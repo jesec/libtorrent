@@ -14,7 +14,7 @@ func_create_chunk(uint32_t index, int) {
 
   std::memset(memory_part1, index, 10);
 
-  torrent::Chunk* chunk = new torrent::Chunk();
+  auto chunk = new torrent::Chunk();
   chunk->push_back(torrent::ChunkPart::MAPPED_MMAP,
                    torrent::MemoryChunk(memory_part1,
                                         memory_part1,
@@ -77,7 +77,7 @@ verify_hash(const done_chunks_type*    done_chunks,
             const torrent::HashString& hash) {
   done_chunks_lock.lock();
 
-  done_chunks_type::const_iterator itr = done_chunks->find(index);
+  auto itr = done_chunks->find(index);
 
   if (itr == done_chunks->end()) {
     done_chunks_lock.unlock();

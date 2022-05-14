@@ -927,10 +927,9 @@ PeerConnectionBase::up_chunk_release() {
 
 void
 PeerConnectionBase::read_request_piece(const Piece& p) {
-  PeerChunks::piece_list_type::iterator itr =
-    std::find(m_peerChunks.upload_queue()->begin(),
-              m_peerChunks.upload_queue()->end(),
-              p);
+  auto itr = std::find(m_peerChunks.upload_queue()->begin(),
+                       m_peerChunks.upload_queue()->end(),
+                       p);
 
   if (m_upChoke.choked() || itr != m_peerChunks.upload_queue()->end() ||
       p.length() > (1 << 17)) {
@@ -954,10 +953,9 @@ PeerConnectionBase::read_request_piece(const Piece& p) {
 
 void
 PeerConnectionBase::read_cancel_piece(const Piece& p) {
-  PeerChunks::piece_list_type::iterator itr =
-    std::find(m_peerChunks.upload_queue()->begin(),
-              m_peerChunks.upload_queue()->end(),
-              p);
+  auto itr = std::find(m_peerChunks.upload_queue()->begin(),
+                       m_peerChunks.upload_queue()->end(),
+                       p);
 
   if (itr != m_peerChunks.upload_queue()->end()) {
     m_peerChunks.upload_queue()->erase(itr);

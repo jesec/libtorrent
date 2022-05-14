@@ -12,7 +12,7 @@ namespace torrent {
 Object&
 Object::get_key(const std::string& k) {
   check_throw(TYPE_MAP);
-  map_type::iterator itr = _map().find(k);
+  auto itr = _map().find(k);
 
   if (itr == _map().end())
     throw bencode_error("Object operator [" + k + "] could not find element");
@@ -23,7 +23,7 @@ Object::get_key(const std::string& k) {
 const Object&
 Object::get_key(const std::string& k) const {
   check_throw(TYPE_MAP);
-  map_type::const_iterator itr = _map().find(k);
+  auto itr = _map().find(k);
 
   if (itr == _map().end())
     throw bencode_error("Object operator [" + k + "] could not find element");
@@ -34,7 +34,7 @@ Object::get_key(const std::string& k) const {
 Object&
 Object::get_key(const char* k) {
   check_throw(TYPE_MAP);
-  map_type::iterator itr = _map().find(std::string(k));
+  auto itr = _map().find(std::string(k));
 
   if (itr == _map().end())
     throw bencode_error("Object operator [" + std::string(k) +
@@ -46,7 +46,7 @@ Object::get_key(const char* k) {
 const Object&
 Object::get_key(const char* k) const {
   check_throw(TYPE_MAP);
-  map_type::const_iterator itr = _map().find(std::string(k));
+  auto itr = _map().find(std::string(k));
 
   if (itr == _map().end())
     throw bencode_error("Object operator [" + std::string(k) +
@@ -110,11 +110,11 @@ Object::merge_copy(const Object& object,
     if (!is_map())
       *this = create_map();
 
-    map_type&          dest    = as_map();
-    map_type::iterator destItr = dest.begin();
+    map_type& dest    = as_map();
+    auto      destItr = dest.begin();
 
-    map_type::const_iterator srcItr  = object.as_map().begin();
-    map_type::const_iterator srcLast = object.as_map().end();
+    auto srcItr  = object.as_map().begin();
+    auto srcLast = object.as_map().end();
 
     while (srcItr != srcLast) {
       destItr = std::find_if(
@@ -208,8 +208,7 @@ object_create_normal(const raw_list& obj) {
   raw_list::iterator last  = obj.end();
 
   while (first != last) {
-    Object::list_iterator new_entry =
-      result.as_list().insert(result.as_list().end(), Object());
+    auto new_entry = result.as_list().insert(result.as_list().end(), Object());
 
     first = object_read_bencode_c(first, last, &*new_entry, 128);
 

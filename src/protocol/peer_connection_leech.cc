@@ -540,7 +540,7 @@ PeerConnection<type>::fill_write_buffer() {
   if (type == Download::CONNECTION_LEECH && !haveQueue->empty() &&
       m_peerChunks.have_timer() <= haveQueue->front().first &&
       m_up->can_write_have()) {
-    DownloadMain::have_queue_type::iterator last =
+    auto last =
       std::find_if(haveQueue->begin(),
                    haveQueue->end(),
                    [this](DownloadMain::have_queue_type::value_type v) {

@@ -38,9 +38,7 @@ verify_file_list(const FileList* fl) {
       (*fl->rbegin())->match_depth_next() != 0)
     throw internal_error("verify_file_list() 2.", fl->data()->hash());
 
-  for (FileList::const_iterator itr = fl->begin(), last = fl->end() - 1;
-       itr != last;
-       itr++)
+  for (auto itr = fl->begin(), last = fl->end() - 1; itr != last; itr++)
     if ((*itr)->match_depth_next() != (*(itr + 1))->match_depth_prev() ||
         (*itr)->match_depth_next() >= (*itr)->path()->size())
       throw internal_error("verify_file_list() 3.", fl->data()->hash());
@@ -199,7 +197,7 @@ FileList::split(iterator position, split_type* first, split_type* last) {
   base_type::insert(position, length - 1, nullptr);
   position = begin() + index;
 
-  iterator itr = position;
+  auto itr = position;
 
   while (first != last) {
     File* newFile = new File();
@@ -244,7 +242,7 @@ FileList::merge(iterator first, iterator last, const Path& path) {
   } else {
     newFile->set_offset((*first)->offset());
 
-    for (iterator itr = first; itr != last; ++itr) {
+    for (auto itr = first; itr != last; ++itr) {
       newFile->set_size_bytes(newFile->size_bytes() + (*itr)->size_bytes());
       delete *itr;
     }
@@ -301,9 +299,7 @@ FileList::make_all_paths() {
   Path        dummyPath;
   const Path* lastPath = &dummyPath;
 
-  for (iterator itr = begin(), last = end(); itr != last; ++itr) {
-    File* entry = *itr;
-
+  for (const auto& entry : *this) {
     // No need to create directories if the entry has already been
     // opened.
     if (entry->is_open())
@@ -312,8 +308,8 @@ FileList::make_all_paths() {
     if (entry->path()->empty())
       throw storage_error("Found an empty filename.");
 
-    Path::const_iterator lastPathItr   = lastPath->begin();
-    Path::const_iterator firstMismatch = entry->path()->begin();
+    auto lastPathItr   = lastPath->begin();
+    auto firstMismatch = entry->path()->begin();
 
     // Couldn't find a suitable stl algo, need to write my own.
     while (firstMismatch != entry->path()->end() &&
@@ -383,7 +379,7 @@ FileList::open(int flags) {
   Path     lastPath;
   path_set pathSet;
 
-  iterator itr = end();
+  auto itr = end();
 
   try {
     if (!(flags & open_no_create) && !make_root_path())
@@ -532,8 +528,8 @@ FileList::open_file(File* node, const Path& lastPath, int flags) {
   if (!(flags & open_no_create)) {
     const Path* path = node->path();
 
-    Path::const_iterator lastItr       = lastPath.begin();
-    Path::const_iterator firstMismatch = path->begin();
+    auto lastItr       = lastPath.begin();
+    auto firstMismatch = path->begin();
 
     // Couldn't find a suitable stl algo, need to write my own.
     while (firstMismatch != path->end() && lastItr != lastPath.end() &&
@@ -607,7 +603,7 @@ FileList::create_chunk(uint64_t offset, uint32_t length, int prot) {
 
   std::unique_ptr<Chunk> chunk(new Chunk);
 
-  for (iterator itr = std::find_if(
+  for (auto itr = std::find_if(
          begin(),
          end(),
          [offset](File* f) { return f->is_valid_position(offset); });
@@ -700,7 +696,7 @@ FileList::iterator
 FileList::inc_completed(iterator firstItr, uint32_t index) {
   firstItr = std::find_if(
     firstItr, end(), [index](File* f) { return index < f->range_second(); });
-  iterator lastItr = std::find_if(firstItr, end(), [index](File* f) {
+  auto lastItr = std::find_if(firstItr, end(), [index](File* f) {
     return (index + 1) < f->range_second();
   });
 
@@ -738,7 +734,7 @@ FileList::update_completed() {
     if (bitfield()->is_all_unset())
       return;
 
-    iterator entryItr = begin();
+    auto entryItr = begin();
 
     for (Bitfield::size_type index = 0; index < bitfield()->size_bits();
          ++index)

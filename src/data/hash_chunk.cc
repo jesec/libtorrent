@@ -21,7 +21,7 @@ HashChunk::perform(uint32_t length, bool force) {
   bool complete = l == length;
 
   while (l) {
-    Chunk::iterator node = m_chunk.chunk()->at_position(m_position);
+    auto node = m_chunk.chunk()->at_position(m_position);
 
     l -= perform_part(node, l);
   }
@@ -41,7 +41,7 @@ HashChunk::advise_willneed(uint32_t length) {
   uint32_t pos = m_position;
 
   while (length) {
-    Chunk::iterator itr = m_chunk.chunk()->at_position(pos);
+    auto itr = m_chunk.chunk()->at_position(pos);
 
     uint32_t l = std::min(length, remaining_part(itr, pos));
 

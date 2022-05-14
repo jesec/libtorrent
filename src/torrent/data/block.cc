@@ -62,8 +62,7 @@ Block::insert(PeerInfo* peerInfo) {
 
   m_notStalled++;
 
-  transfer_list_type::iterator itr =
-    m_queued.insert(m_queued.end(), new BlockTransfer());
+  auto itr = m_queued.insert(m_queued.end(), new BlockTransfer());
 
   (*itr)->set_peer_info(peerInfo);
   (*itr)->set_block(this);
@@ -88,8 +87,7 @@ Block::erase(BlockTransfer* transfer) {
   m_notStalled -= transfer->stall() == 0;
 
   if (transfer->is_queued()) {
-    transfer_list_type::iterator itr =
-      std::find(m_queued.begin(), m_queued.end(), transfer);
+    auto itr = std::find(m_queued.begin(), m_queued.end(), transfer);
 
     if (itr == m_queued.end())
       throw internal_error("Block::erase(...) Could not find transfer.");
@@ -97,8 +95,7 @@ Block::erase(BlockTransfer* transfer) {
     m_queued.erase(itr);
 
   } else if (!transfer->is_finished()) {
-    transfer_list_type::iterator itr =
-      std::find(m_transfers.begin(), m_transfers.end(), transfer);
+    auto itr = std::find(m_transfers.begin(), m_transfers.end(), transfer);
 
     if (itr == m_transfers.end())
       throw internal_error("Block::erase(...) Could not find transfer.");
@@ -120,14 +117,14 @@ Block::erase(BlockTransfer* transfer) {
       // Create a range containing transfers with
       // is_not_leader(). Erased transfer will end up in the back.
 
-      transfer_list_type::iterator first =
+      auto first =
         std::find_if(m_transfers.begin(),
                      m_transfers.end(),
                      std::not1(std::mem_fn(&BlockTransfer::is_leader)));
-      transfer_list_type::iterator last = std::stable_partition(
+      auto last = std::stable_partition(
         first, m_transfers.end(), std::mem_fn(&BlockTransfer::is_not_leader));
 
-      transfer_list_type::iterator newLeader =
+      auto newLeader =
         std::max_element(first, last, [](BlockTransfer* t1, BlockTransfer* t2) {
           return t1->position() < t2->position();
         });
@@ -162,8 +159,7 @@ Block::transfering(BlockTransfer* transfer) {
     throw internal_error(
       "Block::transfering(...) transfer->block() == nullptr.");
 
-  transfer_list_type::iterator itr =
-    std::find(m_queued.begin(), m_queued.end(), transfer);
+  auto itr = std::find(m_queued.begin(), m_queued.end(), transfer);
 
   if (itr == m_queued.end())
     throw internal_error("Block::transfering(...) not queued.");
@@ -366,7 +362,7 @@ Block::invalidate_transfer(BlockTransfer* transfer) {
 
 void
 Block::remove_erased_transfers() {
-  transfer_list_type::iterator split =
+  auto split =
     std::stable_partition(m_transfers.begin(),
                           m_transfers.end(),
                           std::not1(std::mem_fn(&BlockTransfer::is_erased)));
@@ -379,10 +375,9 @@ Block::remove_erased_transfers() {
 
 void
 Block::remove_non_leader_transfers() {
-  transfer_list_type::iterator split =
-    std::stable_partition(m_transfers.begin(),
-                          m_transfers.end(),
-                          std::mem_fn(&BlockTransfer::is_leader));
+  auto split = std::stable_partition(m_transfers.begin(),
+                                     m_transfers.end(),
+                                     std::mem_fn(&BlockTransfer::is_leader));
 
   std::for_each(split, m_transfers.end(), [this](BlockTransfer* transfer) {
     return invalidate_transfer(transfer);
@@ -392,7 +387,7 @@ Block::remove_non_leader_transfers() {
 
 BlockTransfer*
 Block::find_queued(const PeerInfo* p) {
-  transfer_list_type::iterator itr =
+  auto itr =
     std::find_if(m_queued.begin(), m_queued.end(), [p](BlockTransfer* t) {
       return p == t->peer_info();
     });
@@ -405,7 +400,7 @@ Block::find_queued(const PeerInfo* p) {
 
 const BlockTransfer*
 Block::find_queued(const PeerInfo* p) const {
-  transfer_list_type::const_iterator itr =
+  auto itr =
     std::find_if(m_queued.begin(), m_queued.end(), [p](BlockTransfer* t) {
       return p == t->peer_info();
     });
@@ -418,7 +413,7 @@ Block::find_queued(const PeerInfo* p) const {
 
 BlockTransfer*
 Block::find_transfer(const PeerInfo* p) {
-  transfer_list_type::iterator itr =
+  auto itr =
     std::find_if(m_transfers.begin(), m_transfers.end(), [p](BlockTransfer* t) {
       return p == t->peer_info();
     });
@@ -431,7 +426,7 @@ Block::find_transfer(const PeerInfo* p) {
 
 const BlockTransfer*
 Block::find_transfer(const PeerInfo* p) const {
-  transfer_list_type::const_iterator itr =
+  auto itr =
     std::find_if(m_transfers.begin(), m_transfers.end(), [p](BlockTransfer* t) {
       return p == t->peer_info();
     });

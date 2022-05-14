@@ -66,7 +66,7 @@ TEST_F(test_socket_address, test_make) {
   ASSERT_NE(sa_inet, nullptr);
   ASSERT_EQ(sa_inet->sa_family, AF_INET);
 
-  sockaddr_in* sin_inet = reinterpret_cast<sockaddr_in*>(sa_inet.get());
+  auto sin_inet = reinterpret_cast<sockaddr_in*>(sa_inet.get());
   ASSERT_EQ(sin_inet->sin_family, AF_INET);
   ASSERT_EQ(sin_inet->sin_port, 0);
   ASSERT_EQ(sin_inet->sin_addr.s_addr, in_addr().s_addr);
@@ -75,7 +75,7 @@ TEST_F(test_socket_address, test_make) {
   ASSERT_NE(sa_inet6, nullptr);
   ASSERT_EQ(sa_inet6->sa_family, AF_INET6);
 
-  sockaddr_in6* sin6_inet6 = reinterpret_cast<sockaddr_in6*>(sa_inet6.get());
+  auto sin6_inet6 = reinterpret_cast<sockaddr_in6*>(sa_inet6.get());
   ASSERT_EQ(sin6_inet6->sin6_family, AF_INET6);
   ASSERT_EQ(sin6_inet6->sin6_port, 0);
   ASSERT_EQ(sin6_inet6->sin6_flowinfo, 0);

@@ -107,13 +107,13 @@ PollSelect::create(int maxOpenSockets) {
     throw internal_error(
       "PollSelect::set_open_max(...) received an invalid value");
 
-  PollSelect* p = new PollSelect;
+  auto p = new PollSelect;
 
   // Just a temp hack, make some special template function for this...
   //
   // Also consider how portable this is for specialized C++
   // allocators.
-  set_block_type* block = new set_block_type;
+  auto block = new set_block_type;
 
   p->m_readSet   = &block->readSet;
   p->m_writeSet  = &block->writeSet;
@@ -189,7 +189,7 @@ unsigned int
 PollSelect::do_poll(int64_t timeout_usec, int flags) {
   unsigned int result = 0;
 
-  utils::timer timeout = utils::timer(timeout_usec);
+  auto timeout = utils::timer(timeout_usec);
 
   timeout += 10;
 
@@ -199,9 +199,9 @@ PollSelect::do_poll(int64_t timeout_usec, int flags) {
   char* write_set_buffer = static_cast<char*>(malloc(set_size * sizeof(char)));
   char* error_set_buffer = static_cast<char*>(malloc(set_size * sizeof(char)));
 
-  fd_set* read_set  = (fd_set*)read_set_buffer;
-  fd_set* write_set = (fd_set*)write_set_buffer;
-  fd_set* error_set = (fd_set*)error_set_buffer;
+  auto read_set  = (fd_set*)read_set_buffer;
+  auto write_set = (fd_set*)write_set_buffer;
+  auto error_set = (fd_set*)error_set_buffer;
 
   std::memset(read_set_buffer, 0, set_size);
   std::memset(write_set_buffer, 0, set_size);

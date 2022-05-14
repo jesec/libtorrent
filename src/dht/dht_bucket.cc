@@ -46,9 +46,9 @@ DhtBucket::add_node(DhtNode* n) {
 
 void
 DhtBucket::remove_node(DhtNode* n) {
-  iterator itr = std::find_if(begin(), end(), [n](DhtNode* curNode) {
-    return std::equal_to<DhtNode*>()(curNode, n);
-  });
+  auto itr = std::find_if(
+    begin(), end(), [n](DhtNode* curNode) { return curNode == n; });
+
   if (itr == end())
     throw internal_error(
       "DhtBucket::remove_node called for node not in bucket.");
@@ -81,10 +81,10 @@ DhtBucket::update() {
 
 DhtBucket::iterator
 DhtBucket::find_replacement_candidate(bool onlyOldest) {
-  iterator     oldest     = end();
+  auto         oldest     = end();
   unsigned int oldestTime = std::numeric_limits<unsigned int>::max();
 
-  for (iterator itr = begin(); itr != end(); ++itr) {
+  for (auto itr = begin(); itr != end(); ++itr) {
     if ((*itr)->is_bad() && !onlyOldest)
       return itr;
 
@@ -126,7 +126,7 @@ DhtBucket::split(const HashString& id) {
   HashString mid_range;
   get_mid_point(&mid_range);
 
-  DhtBucket* other = new DhtBucket(m_begin, mid_range);
+  auto other = new DhtBucket(m_begin, mid_range);
 
   // Set m_begin = mid_range + 1
   int carry = 1;
@@ -138,7 +138,7 @@ DhtBucket::split(const HashString& id) {
 
   // Move nodes over to other bucket if they fall in its range, then
   // delete them from this one.
-  iterator split = std::partition(
+  auto split = std::partition(
     begin(), end(), [this](DhtNode* n) { return n->is_in_range(this); });
 
   other->insert(other->end(), split, end());
@@ -182,16 +182,18 @@ DhtBucket::build_full_cache() {
   char* pos = m_fullCache;
 
   do {
-    for (const_iterator itr = chain.bucket()->begin();
-         itr != chain.bucket()->end() &&
-         pos < m_fullCache + sizeof(m_fullCache);
-         ++itr) {
-      if (!(*itr)->is_bad()) {
-        pos = (*itr)->store_compact(pos);
+    for (const auto& node : *this) {
+      if (pos >= m_fullCache + sizeof(m_fullCache)) {
+        break;
+      }
 
-        if (pos > m_fullCache + sizeof(m_fullCache))
+      if (!node->is_bad()) {
+        pos = node->store_compact(pos);
+
+        if (pos > m_fullCache + sizeof(m_fullCache)) {
           throw internal_error(
             "DhtRouter::store_closest_nodes wrote past buffer end.");
+        }
       }
     }
   } while (pos < m_fullCache + sizeof(m_fullCache) && chain.next() != nullptr);

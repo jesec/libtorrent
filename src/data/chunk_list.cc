@@ -61,8 +61,10 @@ ChunkList::resize(size_type to_size) {
 
   uint32_t index = 0;
 
-  for (iterator itr = begin(), last = end(); itr != last; ++itr, ++index)
-    itr->set_index(index);
+  for (auto& chunk : *this) {
+    chunk.set_index(index);
+    ++index;
+  }
 }
 
 void
@@ -321,7 +323,7 @@ ChunkList::sync_chunks(int flags) {
 
   uint32_t failed = 0;
 
-  for (Queue::iterator itr = split, last = m_queue.end(); itr != last; ++itr) {
+  for (auto itr = split, last = m_queue.end(); itr != last; ++itr) {
 
     // We can easily skip pieces by swap_iter, so there should be no
     // problem being selective about the ranges we sync.
@@ -428,8 +430,8 @@ ChunkList::partition_optimize(Queue::iterator first,
                               int             weight,
                               int             maxDistance,
                               bool            dontSkip) {
-  for (Queue::iterator itr = first; itr != last;) {
-    Queue::iterator range = seek_range(itr, last);
+  for (auto itr = first; itr != last;) {
+    auto range = seek_range(itr, last);
 
     bool required = std::any_of(
       itr, range, [this](ChunkListNode* node) { return check_node(node); });

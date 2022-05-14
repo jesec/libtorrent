@@ -133,7 +133,7 @@ Delegator::new_chunk(PeerChunks* pc, bool highPriority) {
   if (index == ~(uint32_t)0)
     return nullptr;
 
-  TransferList::iterator itr =
+  auto itr =
     m_transfers.insert(Piece(index, 0, m_slot_chunk_size(index)), block_size);
 
   (*itr)->set_by_seeder(pc->is_seeder());

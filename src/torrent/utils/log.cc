@@ -77,7 +77,7 @@ const char log_level_char[] = { 'C', 'E', 'W', 'N', 'I', 'D' };
 
 void
 log_update_child_cache(int index) {
-  log_child_list::const_iterator first = std::find_if(
+  auto first = std::find_if(
     log_children.begin(), log_children.end(), [index](std::pair<int, int> p) {
       return std::greater_equal<std::pair<int, int>>()(
         p, std::make_pair(index, 0));
@@ -283,8 +283,8 @@ log_cleanup() {
 
 log_output_list::iterator
 log_find_output_name(const char* name) {
-  log_output_list::iterator itr  = log_outputs.begin();
-  log_output_list::iterator last = log_outputs.end();
+  auto itr  = log_outputs.begin();
+  auto last = log_outputs.end();
 
   while (itr != last && itr->first != name)
     itr++;
@@ -300,7 +300,7 @@ log_open_output(const char* name, const log_slot& slot) {
     throw input_error("Cannot open more than 64 log output handlers.");
   }
 
-  log_output_list::iterator itr = log_find_output_name(name);
+  auto itr = log_find_output_name(name);
 
   if (itr == log_outputs.end()) {
     log_outputs.push_back(std::make_pair(name, slot));
@@ -317,7 +317,7 @@ void
 log_close_output(const char* name) {
   std::lock_guard lk(log_mutex);
 
-  log_output_list::iterator itr = log_find_output_name(name);
+  auto itr = log_find_output_name(name);
 
   if (itr != log_outputs.end())
     log_outputs.erase(itr);
@@ -327,8 +327,8 @@ void
 log_add_group_output(int group, const char* name) {
   std::lock_guard lk(log_mutex);
 
-  log_output_list::iterator itr   = log_find_output_name(name);
-  size_t                    index = std::distance(log_outputs.begin(), itr);
+  auto   itr   = log_find_output_name(name);
+  size_t index = std::distance(log_outputs.begin(), itr);
 
   if (itr == log_outputs.end()) {
     throw input_error("Log name not found.");

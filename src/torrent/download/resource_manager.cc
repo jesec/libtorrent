@@ -48,7 +48,7 @@ ResourceManager::iterator
 ResourceManager::insert(const resource_manager_entry& entry) {
   bool will_realloc = true; // size() == capacity();
 
-  iterator itr = base_type::insert(find_group_end(entry.group()), entry);
+  auto itr = base_type::insert(find_group_end(entry.group()), entry);
 
   DownloadMain* download = itr->download();
 
@@ -57,8 +57,7 @@ ResourceManager::insert(const resource_manager_entry& entry) {
   if (will_realloc) {
     update_group_iterators();
   } else {
-    choke_base_type::iterator group_itr =
-      choke_base_type::begin() + itr->group();
+    auto group_itr = choke_base_type::begin() + itr->group();
     (*group_itr)->set_last((*group_itr)->last() + 1);
 
     std::for_each(++group_itr,
@@ -80,8 +79,8 @@ ResourceManager::insert(const resource_manager_entry& entry) {
 
 void
 ResourceManager::update_group_iterators() {
-  base_type::iterator       entry_itr = base_type::begin();
-  choke_base_type::iterator group_itr = choke_base_type::begin();
+  auto entry_itr = base_type::begin();
+  auto group_itr = choke_base_type::begin();
 
   while (group_itr != choke_base_type::end()) {
     (*group_itr)->set_first(&*entry_itr);
@@ -105,7 +104,7 @@ ResourceManager::validate_group_iterators() noexcept(false) {
       }
     }
   } else {
-    base_type::iterator entry_itr = base_type::begin();
+    auto entry_itr = base_type::begin();
     for (auto group_itr = choke_base_type::begin();
          group_itr != choke_base_type::end();
          group_itr++) {
@@ -128,7 +127,7 @@ ResourceManager::validate_group_iterators() noexcept(false) {
 
 void
 ResourceManager::erase(DownloadMain* d) noexcept(false) {
-  iterator itr = std::find_if(
+  auto itr = std::find_if(
     begin(), end(), [d](value_type e) { return d == e.download(); });
 
   if (itr == end())
@@ -139,7 +138,7 @@ ResourceManager::erase(DownloadMain* d) noexcept(false) {
   choke_queue::move_connections(
     group_at(itr->group())->down_queue(), nullptr, d, d->down_group_entry());
 
-  choke_base_type::iterator group_itr = choke_base_type::begin() + itr->group();
+  auto group_itr = choke_base_type::begin() + itr->group();
 
   if (base_type::size() == 1) {
     std::for_each(group_itr, choke_base_type::end(), [](choke_group* cg) {
@@ -207,7 +206,7 @@ ResourceManager::find(DownloadMain* d) {
 
 ResourceManager::iterator
 ResourceManager::find_throw(DownloadMain* d) {
-  iterator itr = std::find_if(
+  auto itr = std::find_if(
     begin(), end(), [d](value_type e) { return d == e.download(); });
 
   if (itr == end())
@@ -232,10 +231,9 @@ ResourceManager::group_at(uint16_t grp) {
 
 choke_group*
 ResourceManager::group_at_name(const std::string& name) {
-  choke_base_type::iterator itr =
-    std::find_if(choke_base_type::begin(),
-                 choke_base_type::end(),
-                 [name](choke_group* g) { return name == g->name(); });
+  auto itr = std::find_if(choke_base_type::begin(),
+                          choke_base_type::end(),
+                          [name](choke_group* g) { return name == g->name(); });
 
   if (itr == choke_base_type::end())
     throw input_error("Choke group not found.");
@@ -245,10 +243,9 @@ ResourceManager::group_at_name(const std::string& name) {
 
 int
 ResourceManager::group_index_of(const std::string& name) {
-  choke_base_type::iterator itr =
-    std::find_if(choke_base_type::begin(),
-                 choke_base_type::end(),
-                 [name](choke_group* g) { return name == g->name(); });
+  auto itr = std::find_if(choke_base_type::begin(),
+                          choke_base_type::end(),
+                          [name](choke_group* g) { return name == g->name(); });
 
   if (itr == choke_base_type::end())
     throw input_error("Choke group not found.");
@@ -278,8 +275,8 @@ ResourceManager::set_group(iterator itr, uint16_t grp) {
                                 itr->download(),
                                 itr->download()->down_group_entry());
 
-  choke_base_type::iterator group_src = choke_base_type::begin() + itr->group();
-  choke_base_type::iterator group_dest = choke_base_type::begin() + grp;
+  auto group_src  = choke_base_type::begin() + itr->group();
+  auto group_dest = choke_base_type::begin() + grp;
 
   resource_manager_entry entry = *itr;
   entry.set_group(grp);
@@ -416,7 +413,7 @@ ResourceManager::balance_unchoked(unsigned int weight,
   int change = 0;
 
   if (max_unchoked == 0) {
-    choke_base_type::iterator group_itr = choke_base_type::begin();
+    auto group_itr = choke_base_type::begin();
 
     while (group_itr != choke_base_type::end()) {
       choke_queue* cm =
@@ -439,7 +436,7 @@ ResourceManager::balance_unchoked(unsigned int weight,
   // that won't work as they need to choke peers once their priority
   // is turned off.
 
-  choke_group** choke_groups =
+  auto choke_groups =
     static_cast<choke_group**>(malloc(group_size() * sizeof(choke_group*)));
   std::copy(choke_base_type::begin(), choke_base_type::end(), choke_groups);
 

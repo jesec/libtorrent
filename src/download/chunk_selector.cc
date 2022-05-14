@@ -204,7 +204,7 @@ ChunkSelector::search_linear(const Bitfield*                       bf,
                              const download_data::priority_ranges* ranges,
                              uint32_t                              first,
                              uint32_t                              last) {
-  download_data::priority_ranges::const_iterator itr = ranges->find(first);
+  auto itr = ranges->find(first);
 
   while (itr != ranges->end() && itr->first < last) {
 

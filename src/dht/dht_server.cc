@@ -203,7 +203,7 @@ DhtServer::reset_statistics() {
 void
 DhtServer::ping(const HashString& id, const utils::socket_address* sa) {
   // No point pinging a node that we're already contacting otherwise.
-  transaction_itr itr = m_transactions.lower_bound(DhtTransaction::key(sa, 0));
+  auto itr = m_transactions.lower_bound(DhtTransaction::key(sa, 0));
   if (itr == m_transactions.end() || !DhtTransaction::key_match(itr->first, sa))
     add_transaction(new DhtTransactionPing(id, sa), packet_prio_low);
 }
@@ -211,7 +211,7 @@ DhtServer::ping(const HashString& id, const utils::socket_address* sa) {
 // Contact nodes in given bucket and ask for their nodes closest to target.
 void
 DhtServer::find_node(const DhtBucket& contacts, const HashString& target) {
-  DhtSearch* search = new DhtSearch(HashString(target.data()), contacts);
+  auto search = new DhtSearch(HashString(target.data()), contacts);
 
   DhtSearch::const_accessor n;
   while ((n = search->get_contact()) != search->end())
@@ -226,7 +226,7 @@ void
 DhtServer::announce(const DhtBucket&  contacts,
                     const HashString& infoHash,
                     TrackerDht*       tracker) {
-  DhtAnnounce* announce = new DhtAnnounce(infoHash, tracker, contacts);
+  auto announce = new DhtAnnounce(infoHash, tracker, contacts);
 
   DhtSearch::const_accessor n;
   while ((n = announce->get_contact()) != announce->end())
@@ -241,12 +241,12 @@ DhtServer::announce(const DhtBucket&  contacts,
 
 void
 DhtServer::cancel_announce(DownloadInfo* info, const TrackerDht* tracker) {
-  transaction_itr itr = m_transactions.begin();
+  auto itr = m_transactions.begin();
 
   while (itr != m_transactions.end()) {
     if (itr->second->is_search() &&
         itr->second->as_search()->search()->is_announce()) {
-      DhtAnnounce* announce =
+      auto announce =
         static_cast<DhtAnnounce*>(itr->second->as_search()->search());
 
       if ((info == nullptr || announce->target() == info->hash()) &&
@@ -363,9 +363,8 @@ void
 DhtServer::process_response(const HashString&            id,
                             const utils::socket_address* sa,
                             const DhtMessage&            response) {
-  int transactionId = (unsigned char)response[key_t].as_raw_string().data()[0];
-  transaction_itr itr =
-    m_transactions.find(DhtTransaction::key(sa, transactionId));
+  int  transactionId = (unsigned char)response[key_t].as_raw_string().data()[0];
+  auto itr = m_transactions.find(DhtTransaction::key(sa, transactionId));
 
   // Response to a transaction we don't have in our table. At this point it's
   // impossible to tell whether it used to be a valid transaction but timed out
@@ -428,9 +427,8 @@ DhtServer::process_response(const HashString&            id,
 void
 DhtServer::process_error(const utils::socket_address* sa,
                          const DhtMessage&            error) {
-  int transactionId = (unsigned char)error[key_t].as_raw_string().data()[0];
-  transaction_itr itr =
-    m_transactions.find(DhtTransaction::key(sa, transactionId));
+  int  transactionId = (unsigned char)error[key_t].as_raw_string().data()[0];
+  auto itr = m_transactions.find(DhtTransaction::key(sa, transactionId));
 
   if (itr == m_transactions.end())
     return;
@@ -478,8 +476,7 @@ DhtServer::parse_find_node_reply(DhtTransactionSearch* transaction,
 void
 DhtServer::parse_get_peers_reply(DhtTransactionGetPeers* transaction,
                                  const DhtMessage&       response) {
-  DhtAnnounce* announce =
-    static_cast<DhtAnnounce*>(transaction->as_search()->search());
+  auto announce = static_cast<DhtAnnounce*>(transaction->as_search()->search());
 
   transaction->complete(true);
 
@@ -511,7 +508,7 @@ DhtServer::find_node_next(DhtTransactionSearch* transaction) {
   if (!transaction->search()->is_announce())
     return;
 
-  DhtAnnounce* announce = static_cast<DhtAnnounce*>(transaction->search());
+  auto announce = static_cast<DhtAnnounce*>(transaction->search());
   if (announce->complete()) {
     // We have found the 8 closest nodes to the info hash. Retrieve peers
     // from them and announce to them.
@@ -604,7 +601,7 @@ DhtServer::create_query(transaction_itr itr,
       break;
   }
 
-  DhtTransactionPacket* packet =
+  auto packet =
     new DhtTransactionPacket(transaction->address(), query, tID, transaction);
   transaction->set_packet(packet);
   add_packet(packet, priority);
@@ -656,7 +653,7 @@ DhtServer::add_transaction(DhtTransaction* transaction, int priority) {
   auto rnd = random_uint8();
   auto id  = rnd;
 
-  transaction_itr insertItr = m_transactions.lower_bound(transaction->key(rnd));
+  auto insertItr = m_transactions.lower_bound(transaction->key(rnd));
 
   // If key matches, keep trying successive IDs.
   while (insertItr != m_transactions.end() &&
@@ -916,7 +913,7 @@ DhtServer::process_queue(packet_queue& queue, uint32_t* quota) {
       // Couldn't write packet, maybe something wrong with node address or
       // routing, so mark node as bad.
       if (packet->has_transaction()) {
-        transaction_itr itr = m_transactions.find(transactionKey);
+        auto itr = m_transactions.find(transactionKey);
         if (itr == m_transactions.end())
           throw internal_error(
             "DhtServer::process_queue could not find transaction.");
@@ -927,7 +924,7 @@ DhtServer::process_queue(packet_queue& queue, uint32_t* quota) {
 
     if (packet->has_transaction()) {
       // here transaction can be already deleted by failed_transaction.
-      transaction_itr itr = m_transactions.find(transactionKey);
+      auto itr = m_transactions.find(transactionKey);
       if (itr != m_transactions.end())
         packet->transaction()->set_packet(nullptr);
     }
@@ -982,7 +979,7 @@ DhtServer::start_write() {
 
 void
 DhtServer::receive_timeout() {
-  transaction_itr itr = m_transactions.begin();
+  auto itr = m_transactions.begin();
   while (itr != m_transactions.end()) {
     if (itr->second->has_quick_timeout() &&
         itr->second->quick_timeout() < cachedTime.seconds()) {

@@ -21,7 +21,7 @@ transfer_list_void() {
 
 static void
 transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
-  torrent::TransferList::iterator itr = transfer_list->find(index);
+  auto itr = transfer_list->find(index);
 
   // std::cout << "list_completed:" << index << " found: " << (itr !=
   // transfer_list->end()) << std::endl;
@@ -35,8 +35,8 @@ transfer_list_completed(torrent::TransferList* transfer_list, uint32_t index) {
 #define SETUP_DELEGATOR(fpc_prefix)                                            \
   torrent::Delegator* delegator = new torrent::Delegator;                      \
   delegator->slot_chunk_find()  = std::bind(&fpc_prefix##_find_peer_chunk,     \
-                                            std::placeholders::_1,             \
-                                            std::placeholders::_2);            \
+                                           std::placeholders::_1,             \
+                                           std::placeholders::_2);            \
   delegator->slot_chunk_size() =                                               \
     std::bind(&chunk_index_size, std::placeholders::_1);                       \
   delegator->transfer_list()->slot_canceled() =                                \

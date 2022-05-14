@@ -209,7 +209,7 @@ DownloadConstructor::add_dht_node(const Object& b) {
   if (!b.is_list() || b.as_list().size() < 2)
     return;
 
-  Object::list_type::const_iterator el = b.as_list().begin();
+  auto el = b.as_list().begin();
 
   if (!el->is_string())
     return;
@@ -247,7 +247,7 @@ DownloadConstructor::parse_single_file(const Object& b, uint32_t chunkSize) {
   pathList.back().set_encoding(m_defaultEncoding);
   pathList.back().push_back(b.get_key_string("name"));
 
-  for (Object::map_const_iterator itr = b.as_map().begin();
+  for (auto itr = b.as_map().begin();
        (itr = std::find_if(
           itr, b.as_map().end(), download_constructor_is_single_path())) !=
        b.as_map().end();
@@ -272,12 +272,11 @@ DownloadConstructor::parse_multi_files(const Object& b, uint32_t chunkSize) {
   if (objectList.empty())
     throw input_error("Bad torrent file, entry has no files.");
 
-  int64_t                                     torrentSize = 0;
-  std::vector<FileList::split_type>           splitList(objectList.size());
-  std::vector<FileList::split_type>::iterator splitItr = splitList.begin();
+  int64_t                           torrentSize = 0;
+  std::vector<FileList::split_type> splitList(objectList.size());
+  auto                              splitItr = splitList.begin();
 
-  for (Object::list_const_iterator listItr  = objectList.begin(),
-                                   listLast = objectList.end();
+  for (auto listItr = objectList.begin(), listLast = objectList.end();
        listItr != listLast;
        ++listItr, ++splitItr) {
     std::list<Path> pathList;
@@ -286,8 +285,8 @@ DownloadConstructor::parse_multi_files(const Object& b, uint32_t chunkSize) {
       pathList.push_back(
         create_path(listItr->get_key_list("path"), m_defaultEncoding));
 
-    Object::map_const_iterator itr  = listItr->as_map().begin();
-    Object::map_const_iterator last = listItr->as_map().end();
+    auto itr  = listItr->as_map().begin();
+    auto last = listItr->as_map().end();
 
     while ((itr = std::find_if(
               itr, last, download_constructor_is_multi_path())) != last) {
@@ -342,13 +341,13 @@ DownloadConstructor::create_path(const Object::list_type& plist,
 
 inline Path
 DownloadConstructor::choose_path(std::list<Path>* pathList) {
-  std::list<Path>::iterator    pathFirst     = pathList->begin();
-  std::list<Path>::iterator    pathLast      = pathList->end();
-  EncodingList::const_iterator encodingFirst = m_encodingList->begin();
-  EncodingList::const_iterator encodingLast  = m_encodingList->end();
+  auto pathFirst     = pathList->begin();
+  auto pathLast      = pathList->end();
+  auto encodingFirst = m_encodingList->begin();
+  auto encodingLast  = m_encodingList->end();
 
   for (; encodingFirst != encodingLast; ++encodingFirst) {
-    std::list<Path>::iterator itr =
+    auto itr =
       std::find_if(pathFirst, pathLast, [encodingFirst](const Path& p) {
         return download_constructor_encoding_match()(p, encodingFirst->c_str());
       });

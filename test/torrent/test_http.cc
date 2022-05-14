@@ -97,8 +97,8 @@ increment_value(int* value) {
 TEST_F(test_http, test_basic) {
   torrent::Http::slot_factory() = std::bind(&create_test_http);
 
-  torrent::Http*     http        = torrent::Http::slot_factory()();
-  std::stringstream* http_stream = new std::stringstream;
+  auto http        = torrent::Http::slot_factory()();
+  auto http_stream = new std::stringstream;
 
   http->set_url("http://example.com");
   ASSERT_EQ(http->url(), "http://example.com");

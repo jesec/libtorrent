@@ -272,7 +272,7 @@ DownloadMain::initial_seeding_done(PeerConnectionBase* pcb) {
   // the connection list, so don't treat it as an error. Make sure to
   // catch close_connection() at the caller of new_peer(...) and just
   // close the filedesc before proceeding as normal.
-  ConnectionList::iterator pcb_itr =
+  auto pcb_itr =
     std::find(m_connectionList->begin(), m_connectionList->end(), pcb);
 
   if (pcb_itr != m_connectionList->end()) {
@@ -285,8 +285,7 @@ DownloadMain::initial_seeding_done(PeerConnectionBase* pcb) {
   }
 
   // Switch to normal seeding.
-  DownloadManager::iterator itr =
-    manager->download_manager()->find(m_info->hash());
+  auto itr = manager->download_manager()->find(m_info->hash());
   (*itr)->set_connection_type(Download::CONNECTION_SEED);
   m_connectionList->slot_new_connection(&createPeerConnectionSeed);
 

@@ -630,8 +630,7 @@ socket_address_inet6::pretty_address_str() const {
 
 inline socket_address
 socket_address_inet6::normalize_address() const {
-  const uint32_t* addr32 =
-    reinterpret_cast<const uint32_t*>(m_sockaddr.sin6_addr.s6_addr);
+  auto addr32 = reinterpret_cast<const uint32_t*>(m_sockaddr.sin6_addr.s6_addr);
   if (addr32[0] == 0 && addr32[1] == 0 && addr32[2] == htonl(0xffff)) {
     socket_address addr4;
     addr4.sa_inet()->set_family();

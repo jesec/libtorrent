@@ -399,8 +399,8 @@ TrackerList::iterator
 tracker_find_preferred(TrackerList::iterator first,
                        TrackerList::iterator last,
                        uint32_t*             next_timeout) {
-  TrackerList::iterator preferred           = last;
-  uint32_t              preferred_time_last = ~uint32_t();
+  auto     preferred           = last;
+  uint32_t preferred_time_last = ~uint32_t();
 
   for (; first != last; first++) {
     uint32_t tracker_timeout = tracker_next_timeout_promiscuous(*first);
@@ -431,7 +431,7 @@ TrackerController::do_timeout() {
   if ((m_flags & (flag_promiscuous_mode | flag_requesting))) {
     uint32_t next_timeout = ~uint32_t();
 
-    TrackerList::iterator itr = m_tracker_list->begin();
+    auto itr = m_tracker_list->begin();
 
     while (itr != m_tracker_list->end()) {
       uint32_t group = (*itr)->group();
@@ -441,9 +441,8 @@ TrackerController::do_timeout() {
         continue;
       }
 
-      TrackerList::iterator group_end =
-        m_tracker_list->end_group((*itr)->group());
-      TrackerList::iterator preferred = itr;
+      auto group_end = m_tracker_list->end_group((*itr)->group());
+      auto preferred = itr;
 
       if (!(*itr)->is_usable() || (*itr)->failed_counter()) {
         // The selected tracker in the group is either disabled or not
@@ -470,8 +469,7 @@ TrackerController::do_timeout() {
 
     // TODO: Send for start/completed also?
   } else {
-    TrackerList::iterator itr =
-      m_tracker_list->find_next_to_request(m_tracker_list->begin());
+    auto itr = m_tracker_list->find_next_to_request(m_tracker_list->begin());
 
     if (itr == m_tracker_list->end())
       return;
@@ -490,7 +488,7 @@ TrackerController::do_timeout() {
 
 void
 TrackerController::do_scrape() {
-  TrackerList::iterator itr = m_tracker_list->begin();
+  auto itr = m_tracker_list->begin();
 
   while (itr != m_tracker_list->end()) {
     uint32_t group = (*itr)->group();
@@ -500,8 +498,7 @@ TrackerController::do_scrape() {
       continue;
     }
 
-    TrackerList::iterator group_end =
-      m_tracker_list->end_group((*itr)->group());
+    auto group_end = m_tracker_list->end_group((*itr)->group());
 
     while (itr != group_end) {
       if ((*itr)->can_scrape() && (*itr)->is_usable()) {

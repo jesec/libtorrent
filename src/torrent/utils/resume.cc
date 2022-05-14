@@ -68,12 +68,11 @@ resume_load_progress(Download download, const Object& object) {
   if (!resume_load_bitfield(download, object))
     return;
 
-  Object::list_const_iterator filesItr = files.begin();
+  auto filesItr = files.begin();
 
   FileList* fileList = download.file_list();
 
-  for (FileList::iterator listItr  = fileList->begin(),
-                          listLast = fileList->end();
+  for (auto listItr = fileList->begin(), listLast = fileList->end();
        listItr != listLast;
        ++listItr, ++filesItr) {
     std::string  file_path  = (*listItr)->path()->as_string();
@@ -220,12 +219,11 @@ resume_save_progress(Download download, Object& object) {
   Object::list_type& files =
     object.insert_preserve_copy("files", Object::create_list())
       .first->second.as_list();
-  Object::list_iterator filesItr = files.begin();
+  auto filesItr = files.begin();
 
   FileList* fileList = download.file_list();
 
-  for (FileList::iterator listItr  = fileList->begin(),
-                          listLast = fileList->end();
+  for (auto listItr = fileList->begin(), listLast = fileList->end();
        listItr != listLast;
        ++listItr, ++filesItr) {
     unsigned int file_index = std::distance(fileList->begin(), listItr);
@@ -384,7 +382,7 @@ resume_save_uncertain_pieces(Download download, Object& object) {
 
   const TransferList::completed_list_type& completedList =
     download.transfer_list()->completed_list();
-  TransferList::completed_list_type::const_iterator itr =
+  auto itr =
     std::find_if(completedList.begin(),
                  completedList.end(),
                  [](const TransferList::completed_list_type::value_type& v) {
@@ -458,13 +456,12 @@ resume_load_file_priorities(Download download, const Object& object) {
 
   const Object::list_type& files = object.get_key_list("files");
 
-  Object::list_const_iterator filesItr  = files.begin();
-  Object::list_const_iterator filesLast = files.end();
+  auto filesItr  = files.begin();
+  auto filesLast = files.end();
 
   FileList* fileList = download.file_list();
 
-  for (FileList::iterator listItr  = fileList->begin(),
-                          listLast = fileList->end();
+  for (auto listItr = fileList->begin(), listLast = fileList->end();
        listItr != listLast;
        ++listItr, ++filesItr) {
     if (filesItr == filesLast)
@@ -486,12 +483,11 @@ resume_save_file_priorities(Download download, Object& object) {
   Object::list_type& files =
     object.insert_preserve_copy("files", Object::create_list())
       .first->second.as_list();
-  Object::list_iterator filesItr = files.begin();
+  auto filesItr = files.begin();
 
   FileList* fileList = download.file_list();
 
-  for (FileList::iterator listItr  = fileList->begin(),
-                          listLast = fileList->end();
+  for (auto listItr = fileList->begin(), listLast = fileList->end();
        listItr != listLast;
        ++listItr, ++filesItr) {
     if (filesItr == files.end())
@@ -545,9 +541,7 @@ resume_save_addresses(Download download, Object& object) {
   const PeerList* peerList = download.peer_list();
   Object&         dest     = object.insert_key("peers", Object::create_list());
 
-  for (PeerList::const_iterator itr = peerList->begin(), last = peerList->end();
-       itr != last;
-       ++itr) {
+  for (const auto& [address, info] : *peerList) {
     // Add some checks, like see if there's anything interesting to
     // save, etc. Or if we can reconnect to it at some later time.
     //
@@ -558,21 +552,20 @@ resume_save_addresses(Download download, Object& object) {
     Object& peer = dest.insert_back(Object::create_map());
 
     const utils::socket_address* sa =
-      utils::socket_address::cast_from(itr->second->socket_address());
+      utils::socket_address::cast_from(info->socket_address());
 
     if (sa->family() == utils::socket_address::af_inet)
       peer.insert_key(
         "inet",
         std::string(SocketAddressCompact(sa->sa_inet()->address_n(),
-                                         htons(itr->second->listen_port()))
+                                         htons(info->listen_port()))
                       .c_str(),
                     sizeof(SocketAddressCompact)));
 
-    peer.insert_key("failed", itr->second->failed_counter());
+    peer.insert_key("failed", info->failed_counter());
     peer.insert_key("last",
-                    itr->second->is_connected()
-                      ? cachedTime.seconds()
-                      : itr->second->last_connection());
+                    info->is_connected() ? cachedTime.seconds()
+                                         : info->last_connection());
   }
 }
 

@@ -51,8 +51,8 @@ thread_interrupt::create_pair() {
     throw internal_error("Could not create socket pair for thread_interrupt: " +
                          utils::error_number::current().message() + ".");
 
-  thread_interrupt* t1 = new thread_interrupt(fd1);
-  thread_interrupt* t2 = new thread_interrupt(fd2);
+  auto t1 = new thread_interrupt(fd1);
+  auto t2 = new thread_interrupt(fd2);
 
   t1->m_other = t2;
   t2->m_other = t1;

@@ -116,10 +116,9 @@ group_entry::connection_queued(PeerConnectionBase* pcb) {
 
 inline void
 group_entry::connection_choked(PeerConnectionBase* pcb) {
-  container_type::iterator itr =
-    std::find_if(m_unchoked.begin(),
-                 m_unchoked.end(),
-                 [pcb](weighted_connection c) { return c == pcb; });
+  auto itr = std::find_if(m_unchoked.begin(),
+                          m_unchoked.end(),
+                          [pcb](weighted_connection c) { return c == pcb; });
 
   // none_of
   if (itr == m_unchoked.end()) {
@@ -132,10 +131,9 @@ group_entry::connection_choked(PeerConnectionBase* pcb) {
 
 inline void
 group_entry::connection_unqueued(PeerConnectionBase* pcb) {
-  container_type::iterator itr =
-    std::find_if(m_queued.begin(),
-                 m_queued.end(),
-                 [pcb](weighted_connection c) { return c == pcb; });
+  auto itr = std::find_if(m_queued.begin(),
+                          m_queued.end(),
+                          [pcb](weighted_connection c) { return c == pcb; });
 
   // none_of
   if (itr == m_queued.end()) {

@@ -91,7 +91,7 @@ TransferList::finished(BlockTransfer* transfer) {
 
 void
 TransferList::hash_succeeded(uint32_t index, Chunk* chunk) {
-  iterator blockListItr = find(index);
+  auto blockListItr = find(index);
 
   if ((Block::size_type)std::count_if((*blockListItr)->begin(),
                                       (*blockListItr)->end(),
@@ -121,7 +121,7 @@ TransferList::hash_succeeded(uint32_t index, Chunk* chunk) {
   if (utils::timer(m_completedList.front().first) +
         utils::timer::from_minutes(60) <
       utils::timer::current()) {
-    completed_list_type::iterator itr =
+    auto itr =
       std::find_if(m_completedList.begin(),
                    m_completedList.end(),
                    [](completed_list_type::value_type v) {
@@ -151,7 +151,7 @@ struct transfer_list_compare_data {
 
 void
 TransferList::hash_failed(uint32_t index, Chunk* chunk) {
-  iterator blockListItr = find(index);
+  auto blockListItr = find(index);
 
   if (blockListItr == end())
     throw internal_error(
@@ -204,7 +204,7 @@ TransferList::update_failed(BlockList* blockList, Chunk* chunk) {
       block.set_failed_list(new BlockFailed());
     }
 
-    BlockFailed::iterator failedItr =
+    auto failedItr =
       std::find_if(block.failed_list()->begin(),
                    block.failed_list()->end(),
                    transfer_list_compare_data(chunk, block.piece()));
@@ -224,7 +224,7 @@ TransferList::update_failed(BlockList* blockList, Chunk* chunk) {
       // Increment promoted when the entry's reference count becomes
       // larger than others, but not if it previously was the largest.
 
-      BlockFailed::iterator maxItr = block.failed_list()->max_element();
+      auto maxItr = block.failed_list()->max_element();
 
       if (maxItr->second == failedItr->second &&
           maxItr != (block.failed_list()->reverse_max_element().base() - 1))
@@ -271,8 +271,7 @@ void
 TransferList::retry_most_popular(BlockList* blockList, Chunk* chunk) {
   for (auto& block : *blockList) {
 
-    BlockFailed::reverse_iterator failedItr =
-      block.failed_list()->reverse_max_element();
+    auto failedItr = block.failed_list()->reverse_max_element();
 
     if (failedItr == block.failed_list()->rend())
       throw internal_error(

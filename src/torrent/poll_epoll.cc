@@ -146,7 +146,7 @@ PollEPoll::perform() {
         thread_base::global_queue_size() != 0)
       thread_base::waive_global_lock();
 
-    Table::iterator evItr = m_table.begin() + itr->data.fd;
+    auto evItr = m_table.begin() + itr->data.fd;
 
     // Each branch must check for data.ptr != nullptr to allow the socket
     // to remove itself between the calls.
@@ -179,7 +179,7 @@ PollEPoll::perform() {
 
 unsigned int
 PollEPoll::do_poll(int64_t timeout_usec, int flags) {
-  utils::timer timeout = utils::timer(timeout_usec);
+  auto timeout = utils::timer(timeout_usec);
 
   timeout += 10;
 

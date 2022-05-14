@@ -140,7 +140,7 @@ ConnectionList::erase(Peer* p, int flags) {
 
 void
 ConnectionList::erase(PeerInfo* peerInfo, int flags) {
-  iterator itr = std::find(begin(), end(), peerInfo->connection());
+  auto itr = std::find(begin(), end(), peerInfo->connection());
 
   if (itr == end())
     return;
@@ -171,11 +171,10 @@ ConnectionList::erase_seeders() {
 
 void
 ConnectionList::disconnect_queued() {
-  for (queue_type::const_iterator itr  = m_disconnectQueue.begin(),
-                                  last = m_disconnectQueue.end();
+  for (auto itr = m_disconnectQueue.begin(), last = m_disconnectQueue.end();
        itr != last;
        itr++) {
-    ConnectionList::iterator conn_itr = find(m_disconnectQueue.back().c_str());
+    auto conn_itr = find(m_disconnectQueue.back().c_str());
 
     if (conn_itr != end())
       erase(conn_itr, 0);

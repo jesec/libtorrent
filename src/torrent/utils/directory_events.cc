@@ -92,10 +92,10 @@ directory_events::notify_on(const std::string& path,
     throw input_error("Call to inotify_add_watch(...) failed: " +
                       utils::error_number::current().message());
 
-  wd_list::iterator itr = m_wd_list.insert(m_wd_list.end(), watch_descriptor());
-  itr->descriptor       = result;
-  itr->path             = path + (*path.rbegin() != '/' ? "/" : "");
-  itr->slot             = slot;
+  auto itr        = m_wd_list.insert(m_wd_list.end(), watch_descriptor());
+  itr->descriptor = result;
+  itr->path       = path + (*path.rbegin() != '/' ? "/" : "");
+  itr->slot       = slot;
 }
 #else
 void
@@ -116,7 +116,7 @@ directory_events::event_read() {
   if ((size_t)result < sizeof(struct inotify_event))
     return;
 
-  struct inotify_event* event = (struct inotify_event*)buffer;
+  auto event = (struct inotify_event*)buffer;
 
   while (event + 1 <= (struct inotify_event*)(buffer + result)) {
     char* next_event = (char*)event + sizeof(struct inotify_event) + event->len;
@@ -124,12 +124,11 @@ directory_events::event_read() {
     if (event->len == 0 || next_event > buffer + 2048)
       return;
 
-    wd_list::const_iterator itr =
-      std::find_if(m_wd_list.begin(),
-                   m_wd_list.end(),
-                   [ewd = event->wd](const watch_descriptor& wd) {
-                     return wd.compare_desc(ewd);
-                   });
+    auto itr = std::find_if(m_wd_list.begin(),
+                            m_wd_list.end(),
+                            [ewd = event->wd](const watch_descriptor& wd) {
+                              return wd.compare_desc(ewd);
+                            });
 
     if (itr != m_wd_list.end()) {
       std::string sname(event->name);

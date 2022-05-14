@@ -152,7 +152,7 @@ TrackerList::iterator
 TrackerList::insert(unsigned int group, Tracker* tracker) {
   tracker->set_group(group);
 
-  iterator itr = base_type::insert(end_group(group), tracker);
+  auto itr = base_type::insert(end_group(group), tracker);
 
   if (m_slot_tracker_enabled)
     m_slot_tracker_enabled(tracker);
@@ -221,7 +221,7 @@ TrackerList::find_usable(const_iterator itr) const {
 
 TrackerList::iterator
 TrackerList::find_next_to_request(iterator itr) {
-  TrackerList::iterator preferred = itr =
+  auto preferred = itr =
     std::find_if(itr, end(), std::mem_fn(&Tracker::can_request_state));
 
   if (preferred == end() || (*preferred)->failed_counter() == 0)
@@ -265,8 +265,8 @@ TrackerList::size_group() const {
 
 void
 TrackerList::cycle_group(unsigned int group) {
-  iterator itr  = begin_group(group);
-  iterator prev = itr;
+  auto itr  = begin_group(group);
+  auto prev = itr;
 
   if (itr == end() || (*itr)->group() != group)
     return;
@@ -279,7 +279,7 @@ TrackerList::cycle_group(unsigned int group) {
 
 TrackerList::iterator
 TrackerList::promote(iterator itr) {
-  iterator first = begin_group((*itr)->group());
+  auto first = begin_group((*itr)->group());
 
   if (first == end())
     throw internal_error("torrent::TrackerList::promote(...) Could not find "
@@ -295,9 +295,9 @@ TrackerList::randomize_group_entries() {
   std::random_device rd;
   std::mt19937       g(rd());
 
-  iterator itr = begin();
+  auto itr = begin();
   while (itr != end()) {
-    iterator tmp = end_group((*itr)->group());
+    auto tmp = end_group((*itr)->group());
     std::shuffle(itr, tmp, g);
 
     itr = tmp;
@@ -306,7 +306,7 @@ TrackerList::randomize_group_entries() {
 
 void
 TrackerList::receive_success(Tracker* tb, AddressList* l) {
-  iterator itr = find(tb);
+  auto itr = find(tb);
 
   if (itr == end() || tb->is_busy())
     throw internal_error("TrackerList::receive_success(...) called but the "
@@ -332,7 +332,7 @@ TrackerList::receive_success(Tracker* tb, AddressList* l) {
 
 void
 TrackerList::receive_failed(Tracker* tb, const std::string& msg) {
-  iterator itr = find(tb);
+  auto itr = find(tb);
 
   if (itr == end() || tb->is_busy())
     throw internal_error(
@@ -350,7 +350,7 @@ TrackerList::receive_failed(Tracker* tb, const std::string& msg) {
 
 void
 TrackerList::receive_scrape_success(Tracker* tb) {
-  iterator itr = find(tb);
+  auto itr = find(tb);
 
   if (itr == end() || tb->is_busy())
     throw internal_error("TrackerList::receive_success(...) called but the "
@@ -368,7 +368,7 @@ TrackerList::receive_scrape_success(Tracker* tb) {
 
 void
 TrackerList::receive_scrape_failed(Tracker* tb, const std::string& msg) {
-  iterator itr = find(tb);
+  auto itr = find(tb);
 
   if (itr == end() || tb->is_busy())
     throw internal_error(

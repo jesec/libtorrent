@@ -110,7 +110,7 @@ TEST_F(test_signal_bitfield, test_multiple) {
 
 TEST_F(test_signal_bitfield, test_threaded) {
   std::atomic<uint32_t> marked_bitfield = 0;
-  test_thread*          thread          = new test_thread;
+  auto                  thread          = new test_thread;
   // thread->set_test_flag(test_thread::test_flag_long_timeout);
 
   for (unsigned int i = 0; i < torrent::signal_bitfield::max_size; i++)

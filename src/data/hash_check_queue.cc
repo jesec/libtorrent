@@ -46,8 +46,8 @@ bool
 HashCheckQueue::remove(HashChunk* hash_chunk) {
   std::lock_guard lk(m_lock);
 
-  bool     result;
-  iterator itr = std::find(begin(), end(), hash_chunk);
+  bool result;
+  auto itr = std::find(begin(), end(), hash_chunk);
 
   if (itr != end()) {
     base_type::erase(itr);

@@ -54,7 +54,7 @@ get_priority_ipv4(const in_addr& addr) {
 //  5. Everything else (link-local, ULA, etc.)
 int
 get_priority_ipv6(const in6_addr& addr) {
-  const uint32_t* addr32 = reinterpret_cast<const uint32_t*>(addr.s6_addr);
+  auto addr32 = reinterpret_cast<const uint32_t*>(addr.s6_addr);
   if (addr32[0] == htonl(0) && addr32[1] == htonl(0) && addr32[2] == htonl(0) &&
       addr32[3] == htonl(0)) {
     return 4;
@@ -159,7 +159,7 @@ get_local_address(sa_family_t family, utils::socket_address* address) {
       return false;
     }
 
-    for (const nlmsghdr* nlmsg = (const nlmsghdr*)buf;
+    for (const auto* nlmsg = (const nlmsghdr*)buf;
          NLMSG_OK(nlmsg, (unsigned int)ret);
          nlmsg = NLMSG_NEXT(nlmsg, ret)) {
       if (nlmsg->nlmsg_seq != seq_no)
@@ -175,7 +175,7 @@ get_local_address(sa_family_t family, utils::socket_address* address) {
       if (nlmsg->nlmsg_type != RTM_NEWADDR)
         continue;
 
-      const ifaddrmsg* ifa = (const ifaddrmsg*)NLMSG_DATA(nlmsg);
+      const auto* ifa = (const ifaddrmsg*)NLMSG_DATA(nlmsg);
 
       if (ifa->ifa_family != family)
         continue;
