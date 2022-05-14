@@ -80,6 +80,11 @@ random_uniform_uint32(uint32_t min, uint32_t max) {
   return random_uniform_template(min, max, mt32);
 }
 
+inline uint64_t
+random_uniform_uint64(uint64_t min, uint64_t max) {
+  return random_uniform_template(min, max, mt64);
+}
+
 } // namespace torrent
 
 #endif

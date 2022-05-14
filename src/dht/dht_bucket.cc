@@ -111,8 +111,47 @@ DhtBucket::get_mid_point(HashString* middle) const {
 void
 DhtBucket::get_random_id(HashString* rand_id) const {
   // Generate a random ID between m_begin and m_end.
-  for (unsigned int i = 0; i < (*rand_id).size(); i++)
-    (*rand_id)[i] = random_uniform_char(m_begin[i], m_end[i]);
+  uint64_t begin64 = 0;
+  uint64_t end64   = 0;
+
+  // 0-7
+  std::memcpy(&begin64, m_begin.data(), 8);
+  std::memcpy(&end64, m_end.data(), 8);
+
+  if (begin64 == end64) {
+    std::memcpy(rand_id->data(), &begin64, 8);
+  } else {
+    auto n = random_uniform_uint64(begin64 + 1, end64 - 1);
+    std::memcpy(rand_id->data(), &n, 8);
+    return;
+  }
+
+  // 8-15
+  std::memcpy(&begin64, m_begin.data() + 8, 8);
+  std::memcpy(&end64, m_end.data() + 8, 8);
+
+  if (begin64 == end64) {
+    std::memcpy(rand_id->data() + 8, &begin64, 8);
+  } else {
+    auto n = random_uniform_uint64(begin64 + 1, end64 - 1);
+    std::memcpy(rand_id->data() + 8, &n, 8);
+    return;
+  }
+
+  uint32_t begin32 = 0;
+  uint32_t end32   = 0;
+
+  // 16-19
+  std::memcpy(&begin32, m_begin.data() + 16, 4);
+  std::memcpy(&end32, m_end.data() + 16, 4);
+
+  if (begin32 == end32) {
+    throw internal_error("DhtBucket::get_random_id can't generate.");
+  } else {
+    auto n = random_uniform_uint32(begin32 + 1, end32 - 1);
+    std::memcpy(rand_id->data() + 16, &n, 4);
+    return;
+  }
 
 #ifdef LT_USE_EXTRA_DEBUG
   if (!is_in_range(*rand_id))
