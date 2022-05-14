@@ -125,10 +125,6 @@ public:
     return m_slot_free_diskspace;
   }
 
-  using chunk_address_result = std::pair<iterator, Chunk::iterator>;
-
-  chunk_address_result find_address(void* ptr);
-
 private:
   inline bool is_queued(ChunkListNode* node);
 

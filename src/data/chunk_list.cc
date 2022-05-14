@@ -458,24 +458,4 @@ ChunkList::partition_optimize(Queue::iterator first,
   return first;
 }
 
-ChunkList::chunk_address_result
-ChunkList::find_address(void* ptr) {
-  iterator first = begin();
-  iterator last  = end();
-
-  for (; first != last; first++) {
-    if (!first->is_valid())
-      continue;
-
-    Chunk::iterator partition = first->chunk()->find_address(ptr);
-
-    if (partition != first->chunk()->end())
-      return chunk_address_result(first, partition);
-
-    first++;
-  }
-
-  return chunk_address_result(end(), Chunk::iterator());
-}
-
 } // namespace torrent
