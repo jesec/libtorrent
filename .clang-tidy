@@ -1,2 +1,2 @@
-Checks: '-*,bugprone-*,cert-*,clang-analyzer-*,concurrency-*,modernize-*,performance-*,-modernize-use-trailing-return-type'
+Checks: '-*,bugprone-*,cert-*,clang-analyzer-*,concurrency-*,modernize-*,performance-*,-modernize-use-trailing-return-type,-modernize-use-nodiscard,-modernize-avoid-c-arrays'
 FormatStyle: 'file'
