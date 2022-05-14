@@ -252,7 +252,7 @@ DhtServer::cancel_announce(DownloadInfo* info, const TrackerDht* tracker) {
       if ((info == nullptr || announce->target() == info->hash()) &&
           (tracker == nullptr || announce->tracker() == tracker)) {
         drop_packet(itr->second->packet());
-        delete itr->second;
+        delete_transaction(itr->second);
         m_transactions.erase(itr++);
         continue;
       }
@@ -412,7 +412,7 @@ DhtServer::process_response(const HashString&            id,
 
   } catch (std::exception& e) {
     drop_packet(itr->second->packet());
-    delete itr->second;
+    delete_transaction(itr->second);
     m_transactions.erase(itr);
 
     m_errorsCaught++;
@@ -420,7 +420,7 @@ DhtServer::process_response(const HashString&            id,
   }
 
   drop_packet(itr->second->packet());
-  delete itr->second;
+  delete_transaction(itr->second);
   m_transactions.erase(itr);
 }
 
@@ -443,7 +443,7 @@ DhtServer::process_error(const utils::socket_address* sa,
   // pretend the query never happened.
 
   drop_packet(itr->second->packet());
-  delete itr->second;
+  delete_transaction(itr->second);
   m_transactions.erase(itr);
 }
 
@@ -663,6 +663,7 @@ DhtServer::add_transaction(DhtTransaction* transaction, int priority) {
 
     // Give up after trying all possible IDs. This should never happen.
     if (id == rnd) {
+      operator delete(transaction);
       return -1;
     }
 
@@ -680,6 +681,24 @@ DhtServer::add_transaction(DhtTransaction* transaction, int priority) {
   start_write();
 
   return id;
+}
+
+void
+DhtServer::delete_transaction(DhtTransaction* transaction) {
+  switch (transaction->type()) {
+    case DhtTransaction::DHT_PING:
+      delete transaction->as_ping();
+      return;
+    case DhtTransaction::DHT_FIND_NODE:
+      delete transaction->as_find_node();
+      return;
+    case DhtTransaction::DHT_GET_PEERS:
+      delete transaction->as_get_peers();
+      return;
+    case DhtTransaction::DHT_ANNOUNCE_PEER:
+      delete transaction->as_announce_peer();
+      return;
+  }
 }
 
 // Transaction received no reply and timed out. Mark node as bad and remove
@@ -710,7 +729,7 @@ DhtServer::failed_transaction(transaction_itr itr, bool quick) {
     } catch (std::exception& e) {
       if (!quick) {
         drop_packet(transaction->packet());
-        delete itr->second;
+        delete_transaction(itr->second);
         m_transactions.erase(itr);
       }
 
@@ -724,7 +743,7 @@ DhtServer::failed_transaction(transaction_itr itr, bool quick) {
 
   } else {
     drop_packet(transaction->packet());
-    delete itr->second;
+    delete_transaction(itr->second);
     m_transactions.erase(itr++);
     return itr;
   }
@@ -732,9 +751,9 @@ DhtServer::failed_transaction(transaction_itr itr, bool quick) {
 
 void
 DhtServer::clear_transactions() {
-  for (auto& m_transaction : m_transactions) {
-    drop_packet(m_transaction.second->packet());
-    delete m_transaction.second;
+  for (const auto& [id, transaction] : m_transactions) {
+    drop_packet(transaction->packet());
+    delete_transaction(transaction);
   }
 
   m_transactions.clear();

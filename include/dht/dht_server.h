@@ -176,7 +176,8 @@ private:
                                      const utils::socket_address* sa,
                                      DhtMessage&                  reply);
 
-  int add_transaction(DhtTransaction* t, int priority);
+  int  add_transaction(DhtTransaction* t, int priority);
+  void delete_transaction(DhtTransaction* transaction);
 
   // This returns the iterator after the given one or end()
   transaction_itr failed_transaction(transaction_itr itr, bool quick);
