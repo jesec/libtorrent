@@ -10,8 +10,8 @@
 
 namespace torrent {
 
-DhtSearch::DhtSearch(const HashString& target, const DhtBucket& contacts)
-  : base_type(get_dht_compare_closer(target))
+DhtSearch::DhtSearch(const HashString* target, const DhtBucket& contacts)
+  : base_type(get_dht_compare_closer(*target))
   , m_next(end())
   , m_target(target) {
 
@@ -32,14 +32,17 @@ DhtSearch::~DhtSearch() {
     return;
   }
 
-  for (accessor itr = begin(); itr != end(); ++itr)
+  for (accessor itr = begin(); itr != end(); ++itr) {
     delete itr.node();
+  }
+
+  delete m_target;
 }
 
 bool
 DhtSearch::add_contact(const HashString& id, const utils::socket_address* sa) {
   auto n     = new DhtNode(HashString(id.data()), sa);
-  bool added = insert(std::make_pair(n, this)).second;
+  bool added = emplace(n, this).second;
 
   if (!added)
     delete n;

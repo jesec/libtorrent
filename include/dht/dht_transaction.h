@@ -65,7 +65,7 @@ public:
   // Number of closest nodes we actually announce to.
   static constexpr unsigned int max_announce = 3;
 
-  DhtSearch(const HashString& target, const DhtBucket& contacts);
+  DhtSearch(const HashString* target, const DhtBucket& contacts);
   virtual ~DhtSearch();
 
   // Wrapper for iterators, allowing more convenient access to the key
@@ -113,10 +113,10 @@ public:
   }
 
   const HashString& target() const {
-    return m_target;
+    return *m_target;
   }
   raw_string target_raw_string() const {
-    return raw_string(m_target.data(), HashString::size_data);
+    return raw_string(m_target->data(), HashString::size_data);
   }
 
   virtual bool is_announce() const {
@@ -153,7 +153,7 @@ private:
 
   bool node_uncontacted(const DhtNode* node) const;
 
-  HashString m_target;
+  const HashString* m_target;
 };
 
 class DhtAnnounce : public DhtSearch {
@@ -161,7 +161,7 @@ public:
   DhtAnnounce(const HashString& infoHash,
               TrackerDht*       tracker,
               const DhtBucket&  contacts)
-    : DhtSearch(infoHash, contacts)
+    : DhtSearch(new HashString(infoHash), contacts)
     , m_tracker(tracker) {}
   ~DhtAnnounce() override;
 
