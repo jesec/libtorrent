@@ -2,7 +2,10 @@
 #define LIBTORRENT_TEST_HELPERS_MOCK_COMPARE_H
 
 #include <algorithm>
+#include <map>
 #include <type_traits>
+
+#include <gtest/gtest.h>
 
 #include "torrent/event.h"
 #include "torrent/net/socket_address.h"

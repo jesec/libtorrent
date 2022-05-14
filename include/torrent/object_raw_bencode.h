@@ -8,6 +8,7 @@
 #include <cstring>
 #include <string>
 #include <torrent/common.h>
+#include <torrent/exceptions.h>
 
 namespace torrent {
 

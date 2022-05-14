@@ -7,6 +7,7 @@
 #include "handshake_encryption.h"
 #include "net/protocol_buffer.h"
 #include "net/socket_stream.h"
+#include "net/throttle_list.h"
 #include "torrent/bitfield.h"
 #include "torrent/peer/peer_info.h"
 #include "torrent/utils/priority_queue_default.h"

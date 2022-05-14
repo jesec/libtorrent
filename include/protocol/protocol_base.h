@@ -5,6 +5,8 @@
 #define LIBTORRENT_NET_PROTOCOL_BASE_H
 
 #include "net/protocol_buffer.h"
+#include "net/throttle_list.h"
+#include "torrent/data/piece.h"
 #include "torrent/utils/timer.h"
 
 namespace torrent {
