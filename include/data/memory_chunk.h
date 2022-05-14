@@ -50,6 +50,7 @@ public:
 
   // Doesn't allow ptr == NULL, use the default ctor instead.
   MemoryChunk(char* ptr, char* begin, char* end, int prot, int flags);
+  MemoryChunk(const MemoryChunk&) = default;
 
   bool is_valid() const {
     return m_ptr;

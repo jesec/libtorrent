@@ -56,6 +56,7 @@ public:
   static constexpr size_t metadata_piece_size  = 1 << metadata_piece_shift;
 
   ProtocolExtension();
+  ProtocolExtension(const ProtocolExtension&) = default;
   ~ProtocolExtension() {
     delete[] m_read;
   }
