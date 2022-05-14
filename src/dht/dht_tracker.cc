@@ -60,7 +60,8 @@ DhtTracker::get_peers(unsigned int maxPeers) {
     last = first + maxPeers;
   }
 
-  return raw_list(first->bencode(), last->bencode() - first->bencode());
+  return raw_list(first->bencode(),
+                  distance(first, last) * sizeof(BencodeAddress));
 }
 
 // Remove old announces.
