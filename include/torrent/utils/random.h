@@ -24,16 +24,12 @@ static thread_local std::random_device rd;
 static thread_local std::mt19937       mt32(rd());
 static thread_local std::mt19937_64    mt64(rd());
 
-static thread_local auto dist_char   = uniform_dist<char>();
-static thread_local auto dist_int32  = uniform_dist<int32_t>();
-static thread_local auto dist_int64  = uniform_dist<int64_t>();
-static thread_local auto dist_uint8  = uniform_dist<uint8_t>();
+static thread_local auto dist_int32 = uniform_dist<int32_t>();
+static thread_local auto dist_int64 = uniform_dist<int64_t>();
+static thread_local auto dist_uint8 =
+  std::uniform_int_distribution<uint16_t>(std::numeric_limits<uint8_t>::min(),
+                                          std::numeric_limits<uint8_t>::max());
 static thread_local auto dist_uint32 = uniform_dist<uint32_t>();
-
-inline char
-random_char() {
-  return dist_char(mt32);
-}
 
 inline int32_t
 random_int32() {
@@ -56,8 +52,17 @@ random_uint32() {
 }
 
 inline char
+random_char() {
+  return (char)random_uint8();
+}
+
+inline char
 random_uniform_char(char min, char max) {
-  return random_uniform_template(min, max, mt32);
+  if (std::numeric_limits<char>::is_signed) {
+    return (char)random_uniform_template<int16_t>(min, max, mt32);
+  } else {
+    return (char)random_uniform_template<uint16_t>(min, max, mt32);
+  }
 }
 
 inline size_t
