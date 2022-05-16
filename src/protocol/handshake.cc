@@ -1094,10 +1094,20 @@ Handshake::prepare_key_plus_pad() {
   m_encryption.key()->store_pub_key(m_writeBuffer.end(), 96);
   m_writeBuffer.move_end(96);
 
-  auto  length = random_uniform_uint32(0, enc_pad_size - 1);
-  char* pad    = static_cast<char*>(malloc(length * sizeof(char)));
+  auto length = random_uniform_uint32(0, enc_pad_size - 1);
+  auto pad    = static_cast<char*>(malloc(length * sizeof(char)));
 
-  std::generate_n(pad, length, &random_char);
+  uint32_t cur = 0;
+  while (cur < length) {
+    auto remaining  = length - cur;
+    auto chunk_size = remaining > 8 ? 8 : remaining;
+
+    auto rand_int64 = random_int64();
+    std::memcpy(pad + cur, &rand_int64, chunk_size);
+
+    cur += chunk_size;
+  }
+
   m_writeBuffer.write_len(pad, length);
 
   free(pad);
