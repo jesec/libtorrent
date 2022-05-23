@@ -119,10 +119,10 @@ private:
   using contact_t = std::pair<std::string, int>;
 
   // Number of nodes we need to consider the bootstrap process complete.
-  static constexpr unsigned int num_bootstrap_complete = 32;
+  static constexpr unsigned int num_bootstrap_complete = 256;
 
   // Maximum number of potential contacts to keep until bootstrap complete.
-  static constexpr unsigned int num_bootstrap_contacts = 64;
+  static constexpr unsigned int num_bootstrap_contacts = 1024;
 
   using DhtBucketList = std::map<const HashString, DhtBucket*>;
 
