@@ -110,6 +110,12 @@ private:
   static constexpr int dht_error_protocol   = 203;
   static constexpr int dht_error_bad_method = 204;
 
+  // number of concurrent transactions
+  static constexpr int num_max_transactions = 100;
+  static_assert(num_max_transactions < (std::numeric_limits<char>::max() -
+                                        std::numeric_limits<char>::min()),
+                "Transaction ID length is 1");
+
   struct compact_node_info {
     char                 _id[20];
     SocketAddressCompact _addr;
@@ -126,8 +132,9 @@ private:
   using node_info_list = std::list<compact_node_info>;
 
   // Pending transactions.
-  using transaction_map = std::map<DhtTransaction::key_type, DhtTransaction*>;
-  using transaction_itr = transaction_map::iterator;
+  using transaction_queue = std::deque<std::pair<DhtTransaction*, int>>;
+  using transaction_map   = std::map<DhtTransaction::key_type, DhtTransaction*>;
+  using transaction_itr   = transaction_map::iterator;
 
   // DHT transaction names for given transaction type.
   static const char* queries[];
@@ -176,7 +183,9 @@ private:
                                      const utils::socket_address* sa,
                                      DhtMessage&                  reply);
 
-  int  add_transaction(DhtTransaction* t, int priority);
+  void add_transaction(DhtTransaction* t, int priority);
+  void dequeue_transaction();
+  void queue_transaction(DhtTransaction* t, int priority, bool front = false);
   void delete_transaction(DhtTransaction* transaction);
 
   // This returns the iterator after the given one or end()
@@ -187,10 +196,11 @@ private:
   bool process_queue(packet_queue& queue, uint32_t* quota);
   void receive_timeout();
 
-  DhtRouter*      m_router;
-  packet_queue    m_highQueue;
-  packet_queue    m_lowQueue;
-  transaction_map m_transactions;
+  DhtRouter*        m_router;
+  packet_queue      m_highQueue;
+  packet_queue      m_lowQueue;
+  transaction_map   m_transactions;
+  transaction_queue m_transactionQueue;
 
   utils::priority_item m_taskTimeout;
 

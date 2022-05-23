@@ -28,6 +28,8 @@ public:
   bool is_busy() const override;
   bool is_usable() const override;
 
+  bool is_complete() const;
+
   void send_state(int state) override;
   void close() override;
   void disown() override;

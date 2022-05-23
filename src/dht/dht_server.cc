@@ -205,7 +205,7 @@ DhtServer::ping(const HashString& id, const utils::socket_address* sa) {
   // No point pinging a node that we're already contacting otherwise.
   auto itr = m_transactions.lower_bound(DhtTransaction::key(sa, 0));
   if (itr == m_transactions.end() || !DhtTransaction::key_match(itr->first, sa))
-    add_transaction(new DhtTransactionPing(id, sa), packet_prio_low);
+    queue_transaction(new DhtTransactionPing(id, sa), packet_prio_low);
 }
 
 // Contact nodes in given bucket and ask for their nodes closest to target.
@@ -215,7 +215,7 @@ DhtServer::find_node(const DhtBucket& contacts, const HashString& target) {
 
   DhtSearch::const_accessor n;
   while ((n = search->get_contact()) != search->end())
-    add_transaction(new DhtTransactionFindNode(n), packet_prio_low);
+    queue_transaction(new DhtTransactionFindNode(n), packet_prio_low);
 
   // This shouldn't happen, it means we had no contactable nodes at all.
   if (!search->start())
@@ -226,11 +226,14 @@ void
 DhtServer::announce(const DhtBucket&  contacts,
                     const HashString& infoHash,
                     TrackerDht*       tracker) {
-  auto announce = new DhtAnnounce(infoHash, tracker, contacts);
+  auto announce    = new DhtAnnounce(infoHash, tracker, contacts);
+  auto is_complete = tracker->is_complete();
 
   DhtSearch::const_accessor n;
-  while ((n = announce->get_contact()) != announce->end())
-    add_transaction(new DhtTransactionFindNode(n), packet_prio_high);
+  while ((n = announce->get_contact()) != announce->end()) {
+    queue_transaction(
+      new DhtTransactionFindNode(n), packet_prio_high, is_complete);
+  }
 
   // This can only happen if all nodes we know are bad.
   if (!announce->start())
@@ -241,9 +244,7 @@ DhtServer::announce(const DhtBucket&  contacts,
 
 void
 DhtServer::cancel_announce(DownloadInfo* info, const TrackerDht* tracker) {
-  auto itr = m_transactions.begin();
-
-  while (itr != m_transactions.end()) {
+  for (auto itr = m_transactions.begin(); itr != m_transactions.end();) {
     if (itr->second->is_search() &&
         itr->second->as_search()->search()->is_announce()) {
       auto announce =
@@ -253,13 +254,33 @@ DhtServer::cancel_announce(DownloadInfo* info, const TrackerDht* tracker) {
           (tracker == nullptr || announce->tracker() == tracker)) {
         drop_packet(itr->second->packet());
         delete_transaction(itr->second);
-        m_transactions.erase(itr++);
+        itr = m_transactions.erase(itr);
         continue;
       }
     }
 
     ++itr;
   }
+
+  for (auto itr = m_transactionQueue.begin();
+       itr != m_transactionQueue.end();) {
+    if (itr->first->is_search() &&
+        itr->first->as_search()->search()->is_announce()) {
+      auto announce =
+        static_cast<DhtAnnounce*>(itr->first->as_search()->search());
+
+      if ((info == nullptr || announce->target() == info->hash()) &&
+          (tracker == nullptr || announce->tracker() == tracker)) {
+        delete_transaction(itr->first);
+        itr = m_transactionQueue.erase(itr);
+        continue;
+      }
+    }
+
+    ++itr;
+  }
+
+  dequeue_transaction();
 }
 
 void
@@ -484,7 +505,7 @@ DhtServer::parse_get_peers_reply(DhtTransactionGetPeers* transaction,
     announce->receive_peers(response[key_r_values].as_raw_list());
 
   if (response[key_r_token].is_raw_string())
-    add_transaction(
+    queue_transaction(
       new DhtTransactionAnnouncePeer(transaction->id(),
                                      transaction->address(),
                                      announce->target(),
@@ -503,7 +524,7 @@ DhtServer::find_node_next(DhtTransactionSearch* transaction) {
   DhtSearch::const_accessor node;
   while ((node = transaction->search()->get_contact()) !=
          transaction->search()->end())
-    add_transaction(new DhtTransactionFindNode(node), priority);
+    queue_transaction(new DhtTransactionFindNode(node), priority);
 
   if (!transaction->search()->is_announce())
     return;
@@ -513,7 +534,7 @@ DhtServer::find_node_next(DhtTransactionSearch* transaction) {
     // We have found the 8 closest nodes to the info hash. Retrieve peers
     // from them and announce to them.
     for (node = announce->start_announce(); node != announce->end(); ++node)
-      add_transaction(new DhtTransactionGetPeers(node), packet_prio_high);
+      queue_transaction(new DhtTransactionGetPeers(node), packet_prio_high);
   }
 
   announce->update_status();
@@ -639,7 +660,7 @@ DhtServer::create_error(const DhtMessage&            req,
   add_packet(new DhtTransactionPacket(sa, error), packet_prio_reply);
 }
 
-int
+void
 DhtServer::add_transaction(DhtTransaction* transaction, int priority) {
   // Try random transaction ID. This is to make it less likely that we reuse
   // a transaction ID from an earlier transaction which timed out and we forgot
@@ -663,8 +684,7 @@ DhtServer::add_transaction(DhtTransaction* transaction, int priority) {
 
     // Give up after trying all possible IDs. This should never happen.
     if (id == rnd) {
-      operator delete(transaction);
-      return -1;
+      return;
     }
 
     // Transaction ID wrapped around, reset iterator.
@@ -673,6 +693,7 @@ DhtServer::add_transaction(DhtTransaction* transaction, int priority) {
   }
 
   // We know where to insert it, so pass that as hint.
+  transaction->initialize_timeout();
   insertItr = m_transactions.insert(
     insertItr, std::make_pair(transaction->key(id), transaction));
 
@@ -680,7 +701,40 @@ DhtServer::add_transaction(DhtTransaction* transaction, int priority) {
 
   start_write();
 
-  return id;
+  return;
+}
+
+void
+DhtServer::dequeue_transaction() {
+  if (m_transactions.size() >= num_max_transactions) {
+    return;
+  }
+
+  while (m_transactions.size() < num_max_transactions &&
+         !m_transactionQueue.empty()) {
+    auto& [transaction, priority] = m_transactionQueue.front();
+    add_transaction(transaction, priority);
+    m_transactionQueue.pop_front();
+  }
+}
+
+void
+DhtServer::queue_transaction(DhtTransaction* transaction,
+                             int             priority,
+                             bool            front) {
+  dequeue_transaction();
+
+  if (m_transactions.size() < num_max_transactions) {
+    add_transaction(transaction, priority);
+    return;
+  }
+
+  if (front) {
+    m_transactionQueue.emplace_front(transaction, priority);
+    return;
+  }
+
+  m_transactionQueue.emplace_back(transaction, priority);
 }
 
 void
@@ -757,6 +811,12 @@ DhtServer::clear_transactions() {
   }
 
   m_transactions.clear();
+
+  for (const auto& [transaction, priority] : m_transactionQueue) {
+    delete_transaction(transaction);
+  }
+
+  m_transactionQueue.clear();
 }
 
 void
@@ -886,6 +946,7 @@ DhtServer::event_read() {
   m_downloadThrottle->node_used_unthrottled(total);
   m_downloadNode.rate()->insert(total);
 
+  dequeue_transaction();
   start_write();
 }
 
@@ -1012,6 +1073,7 @@ DhtServer::receive_timeout() {
     }
   }
 
+  dequeue_transaction();
   start_write();
 }
 

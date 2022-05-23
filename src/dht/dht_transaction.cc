@@ -249,8 +249,8 @@ DhtTransaction::DhtTransaction(int                          quick_timeout,
   : m_id(id)
   , m_hasQuickTimeout(quick_timeout > 0)
   , m_sa(*sa)
-  , m_timeout(cachedTime.seconds() + timeout)
-  , m_quickTimeout(cachedTime.seconds() + quick_timeout)
+  , m_timeout(timeout)
+  , m_quickTimeout(quick_timeout)
   , m_packet(nullptr) {}
 
 DhtTransaction::~DhtTransaction() {

@@ -43,6 +43,12 @@ TrackerDht::is_busy() const {
 }
 
 bool
+TrackerDht::is_complete() const {
+  return !m_parent->info()->is_meta_download() &&
+         m_parent->info()->slot_left()() == 0;
+}
+
+bool
 TrackerDht::is_usable() const {
   return is_enabled() && manager->dht_manager()->is_active();
 }

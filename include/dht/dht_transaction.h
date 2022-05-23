@@ -356,6 +356,11 @@ public:
     return m_hasQuickTimeout;
   }
 
+  void initialize_timeout() {
+    m_timeout += cachedTime.seconds();
+    m_quickTimeout += cachedTime.seconds();
+  }
+
   DhtTransactionPacket* packet() {
     return m_packet;
   }
