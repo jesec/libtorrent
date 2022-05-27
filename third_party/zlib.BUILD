@@ -1,4 +1,4 @@
-load("@rules_foreign_cc//tools/build_defs:cmake.bzl", "cmake_external")
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 filegroup(
     name = "all",
@@ -7,7 +7,7 @@ filegroup(
     ]),
 )
 
-cmake_external(
+cmake(
     name = "zlib",
     cache_entries = {
         "BUILD_SHARED_LIBS": "off",
@@ -16,6 +16,6 @@ cmake_external(
         "ZLIB_ENABLE_TESTS": "off",
     },
     lib_source = "//:all",
-    static_libraries = ["libz.a"],
+    out_static_libs = ["libz.a"],
     visibility = ["//visibility:public"],
 )
