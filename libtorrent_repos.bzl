@@ -7,9 +7,9 @@ def libtorrent_repos():
     maybe(
         http_archive,
         name = "boringssl",
-        sha256 = "e1244899f918bc2bcec9786e6e1d177762dd7d365d91480b901190a137ddac9c",
-        strip_prefix = "boringssl-90b4312e825491f059f976ce3152edbe278eaec4",
-        urls = ["https://github.com/google/boringssl/archive/90b4312e825491f059f976ce3152edbe278eaec4.zip"],
+        sha256 = "efeba07af99d2fc1908d54f6caad1bfec95fa3e235e145233d3e6bdb79379c51",
+        strip_prefix = "boringssl-8f90ba425bdcd6a90b88baabfe58b1997f1893f3",
+        urls = ["https://github.com/google/boringssl/archive/8f90ba425bdcd6a90b88baabfe58b1997f1893f3.zip"],
     )
 
     maybe(
