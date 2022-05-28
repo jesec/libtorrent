@@ -6,6 +6,7 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "data/chunk_list.h"
 #include "globals.h"
@@ -17,10 +18,10 @@ namespace torrent {
 
 ChunkManager::ChunkManager() {
 
-  // 1/5 of the available memory should be enough for the client. If
-  // the client really requires alot more memory it should call this
+  // 2/5 of the available memory should be enough for the client. If
+  // the client really requires a lot more memory it should call this
   // itself.
-  m_maxMemoryUsage = (estimate_max_memory_usage() * 4) / 5;
+  m_maxMemoryUsage = (estimate_max_memory_usage() * 2) / 5;
 }
 
 ChunkManager::~ChunkManager() {
@@ -55,16 +56,39 @@ ChunkManager::sync_queue_size() const {
 
 uint64_t
 ChunkManager::estimate_max_memory_usage() {
+  uint64_t result = 0;
+
+  auto rv = sysconf(_SC_PAGESIZE);
+  if (rv > 0) {
+    result = rv;
+
+    rv = sysconf(_SC_PHYS_PAGES);
+    if (rv > 0) {
+      result *= rv;
+    } else {
+      result = 0;
+    }
+  }
+
   rlimit rlp;
 
 #ifdef RLIMIT_AS
-  if (getrlimit(RLIMIT_AS, &rlp) == 0 && rlp.rlim_cur != RLIM_INFINITY)
-#else
-  if (getrlimit(RLIMIT_DATA, &rlp) == 0 && rlp.rlim_cur != RLIM_INFINITY)
+  if (getrlimit(RLIMIT_AS, &rlp) == 0 && rlp.rlim_cur != RLIM_INFINITY) {
+    result = std::min(result, (uint64_t)rlp.rlim_cur);
+  }
 #endif
-    return rlp.rlim_cur;
 
-  return (uint64_t)LT_DEFAULT_ADDRESS_SPACE_SIZE << 20;
+#ifdef RLIMIT_DATA
+  if (getrlimit(RLIMIT_DATA, &rlp) == 0 && rlp.rlim_cur != RLIM_INFINITY) {
+    result = std::min(result, (uint64_t)rlp.rlim_cur);
+  }
+#endif
+
+  if (result == 0) {
+    result = (uint64_t)LT_DEFAULT_ADDRESS_SPACE_SIZE << 20;
+  }
+
+  return result;
 }
 
 uint64_t

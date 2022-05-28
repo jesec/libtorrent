@@ -6,8 +6,10 @@
 #ifndef LIBTORRENT_CHUNK_MANAGER_H
 #define LIBTORRENT_CHUNK_MANAGER_H
 
-#include <torrent/common.h>
 #include <vector>
+
+#include <torrent/common.h>
+#include <torrent/exceptions.h>
 
 namespace torrent {
 
@@ -48,10 +50,14 @@ public:
     return m_maxMemoryUsage;
   }
   void set_max_memory_usage(uint64_t bytes) {
+    if (bytes > estimate_max_memory_usage()) {
+      throw input_error("Max memory usage is larger than RAM available.");
+    }
+
     m_maxMemoryUsage = bytes;
   }
 
-  // Estimate the max memory usage possible, capped at 1GB.
+  // Estimate the max memory usage possible.
   static uint64_t estimate_max_memory_usage();
 
   uint64_t safe_free_diskspace() const;
