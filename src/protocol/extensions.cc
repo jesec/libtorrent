@@ -171,29 +171,35 @@ ProtocolExtension::generate_ut_pex_message(const PEXList& added,
   int removed_len = removed.size() * 6;
 
   // Manually create bencoded map { "added" => added, "dropped" => dropped }
-  char* buffer = new char[32 + added_len + removed_len];
-  char* end    = buffer;
+  auto  buffer_size = 32 + added_len + removed_len;
+  char* buffer      = new char[buffer_size];
 
-  end += sprintf(end, "d5:added%d:", added_len);
+  auto count = 0;
+
+  count +=
+    snprintf(buffer + count, buffer_size - count, "d5:added%d:", added_len);
   if (added_len > 0) {
     assert(added.begin()->c_str() != nullptr);
-    std::memcpy(end, added.begin()->c_str(), added_len);
+    std::memcpy(buffer + count, added.begin()->c_str(), added_len);
   }
-  end += added_len;
+  count += added_len;
 
-  end += sprintf(end, "7:dropped%d:", removed_len);
+  count +=
+    snprintf(buffer + count, buffer_size - count, "7:dropped%d:", removed_len);
   if (removed_len > 0) {
     assert(removed.begin()->c_str() != nullptr);
-    std::memcpy(end, removed.begin()->c_str(), removed_len);
+    std::memcpy(buffer + count, removed.begin()->c_str(), removed_len);
   }
-  end += removed_len;
+  count += removed_len;
 
-  *end++ = 'e';
-  if (end - buffer > 32 + added_len + removed_len)
+  *(buffer + count) = 'e';
+  count += 1;
+
+  if (buffer_size - count < 0)
     throw internal_error(
       "ProtocolExtension::ut_pex_message wrote beyond buffer.");
 
-  return DataBuffer(buffer, end);
+  return DataBuffer(buffer, buffer + count);
 }
 
 void

@@ -10,7 +10,7 @@ std::string
 int_to_string(int v) {
   char buf[20];
 
-  std::sprintf(buf, "%i", v);
+  std::snprintf(buf, sizeof(buf), "%i", v);
 
   return buf;
 }
