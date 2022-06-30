@@ -136,7 +136,10 @@ TEST_F(test_log, test_children) {
 TEST_F(test_log, test_file_output) {
   std::string filename = "test_log.XXXXXX";
 
-  mktemp(&*filename.begin());
+  auto tmp_fd = -1;
+  if ((tmp_fd = mkstemp(&*filename.begin())) < 0) {
+    ASSERT_TRUE(false);
+  }
 
   torrent::log_open_file_output("test_file", filename.c_str());
   torrent::log_add_group_output(GROUP_PARENT_1, "test_file");
@@ -153,12 +156,17 @@ TEST_F(test_log, test_file_output) {
   temp_file.getline(buffer, 256);
 
   ASSERT_NE(std::string(buffer).find("test_file"), std::string::npos) << buffer;
+
+  close(tmp_fd);
 }
 
 TEST_F(test_log, test_file_output_append) {
   std::string filename = "test_log.XXXXXX";
 
-  mktemp(&*filename.begin());
+  auto tmp_fd = -1;
+  if ((tmp_fd = mkstemp(&*filename.begin())) < 0) {
+    ASSERT_TRUE(false);
+  }
 
   torrent::log_open_file_output("test_file", filename.c_str(), false);
   torrent::log_add_group_output(GROUP_PARENT_1, "test_file");
@@ -189,4 +197,6 @@ TEST_F(test_log, test_file_output_append) {
     << buffer_line1;
   ASSERT_NE(std::string(buffer_line2).find("test_line_2"), std::string::npos)
     << buffer_line2;
+
+  close(tmp_fd);
 }
