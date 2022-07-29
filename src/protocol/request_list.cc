@@ -370,8 +370,7 @@ RequestList::transfer_dissimilar() {
   m_transfer = dummy;
 }
 
-struct equals_reservee
-  : public std::binary_function<BlockTransfer*, uint32_t, bool> {
+struct equals_reservee {
   bool operator()(BlockTransfer* r, uint32_t index) const {
     return r->is_valid() && index == r->index();
   }

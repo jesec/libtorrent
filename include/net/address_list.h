@@ -26,7 +26,7 @@ public:
 private:
   static utils::socket_address parse_address(const Object& b);
 
-  struct add_address : public std::unary_function<utils::socket_address, void> {
+  struct add_address {
     add_address(AddressList* l)
       : m_list(l) {}
 
