@@ -14,6 +14,15 @@ def libtorrent_repos():
 
     maybe(
         http_archive,
+        name = "libuv",
+        build_file = "@libtorrent//:third_party/libuv.BUILD",
+        sha256 = "5ca4e9091f3231d8ad8801862dc4e851c23af89c69141d27723157776f7291e7",
+        strip_prefix = "libuv-02a9e1be252b623ee032a3137c0b0c94afbe6809",
+        urls = ["https://github.com/libuv/libuv/archive/02a9e1be252b623ee032a3137c0b0c94afbe6809.tar.gz"],
+    )
+
+    maybe(
+        http_archive,
         name = "zlib",
         build_file = "@libtorrent//:third_party/zlib.BUILD",
         sha256 = "8258b75a72303b661a238047cb348203d88d9dddf85d480ed885f375916fcab6",

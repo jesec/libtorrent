@@ -22,14 +22,7 @@ public:
   static PollKQueue* create(int maxOpenSockets);
   ~PollKQueue() override;
 
-  int          poll(int msec);
-  unsigned int perform();
-
   unsigned int do_poll(int64_t timeout_usec, int flags = 0) override;
-
-  int file_descriptor() {
-    return m_fd;
-  }
 
   uint32_t open_max() const override;
 
@@ -57,6 +50,13 @@ public:
   void remove_error(torrent::Event* event) override;
 
 private:
+  int          poll(int msec);
+  unsigned int perform();
+
+  int file_descriptor() {
+    return m_fd;
+  }
+
   PollKQueue(int fd, int maxEvents, int maxOpenSockets) LIBTORRENT_NO_EXPORT;
 
   inline uint32_t event_mask(Event* e) LIBTORRENT_NO_EXPORT;

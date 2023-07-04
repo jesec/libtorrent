@@ -80,6 +80,7 @@ cc_library(
     deps = [
         "//:buildinfo",
         "@boringssl//:crypto",
+        "@libuv",
         "@zlib",
     ],
 )

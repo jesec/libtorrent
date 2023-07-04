@@ -23,10 +23,6 @@ public:
 
   uint32_t open_max() const override;
 
-  // Returns the largest fd marked.
-  unsigned int fdset(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet);
-  unsigned int perform(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet);
-
   unsigned int do_poll(int64_t timeout_usec, int flags = 0) override;
 
   void open(Event* event) override;
@@ -47,6 +43,10 @@ public:
   void remove_error(Event* event) override;
 
 private:
+  // Returns the largest fd marked.
+  unsigned int fdset(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet);
+  unsigned int perform(fd_set* readSet, fd_set* writeSet, fd_set* exceptSet);
+
   PollSelect()                  = default;
   PollSelect(const PollSelect&) = delete;
   void operator=(const PollSelect&) = delete;
