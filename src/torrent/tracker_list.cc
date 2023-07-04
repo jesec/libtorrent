@@ -46,8 +46,7 @@ TrackerList::has_active_not_scrape_in_group(uint32_t group) const {
 }
 
 // Need a custom predicate because the is_usable function is virtual.
-struct tracker_usable_t
-  : public std::unary_function<TrackerList::value_type, bool> {
+struct tracker_usable_t {
   bool operator()(const TrackerList::value_type& value) const {
     return value->is_usable();
   }

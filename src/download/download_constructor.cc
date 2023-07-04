@@ -32,9 +32,7 @@ struct download_constructor_is_multi_path {
   }
 };
 
-struct download_constructor_encoding_match
-  : public std::binary_function<const Path&, const char*, bool> {
-
+struct download_constructor_encoding_match {
   bool operator()(const Path& p, const char* enc) {
     return strcasecmp(p.encoding().c_str(), enc) == 0;
   }
