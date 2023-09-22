@@ -51,7 +51,7 @@ TrackerHttp::TrackerHttp(TrackerList* parent, const std::string& url, int flags)
 
   m_get->signal_done().push_back([this]() { receive_done(); });
   m_get->signal_failed().push_back(
-    [this](const std::string& s) { receive_failed(s); });
+    [this](const std::string& s) { m_normal_interval = 0; m_min_interval = 0; receive_failed(s); });
 
   // Haven't considered if this needs any stronger error detection,
   // can dropping the '?' be used for malicious purposes?
@@ -291,12 +291,15 @@ TrackerHttp::receive_done() {
   if (!b.is_map())
     return receive_failed("Root not a bencoded map");
 
-  if (b.has_key("failure reason"))
+  if (b.has_key("failure reason")) {
+    if (m_latest_event != EVENT_SCRAPE)
+      process_failure(b);
     return receive_failed("Failure reason \"" +
                           (b.get_key("failure reason").is_string()
                              ? b.get_key_string("failure reason")
                              : std::string("failure reason not a string")) +
                           "\"");
+  }
 
   if (m_latest_event == EVENT_SCRAPE)
     process_scrape(b);
@@ -321,7 +324,7 @@ TrackerHttp::receive_failed(const std::string& msg) {
 }
 
 void
-TrackerHttp::process_success(const Object& object) {
+TrackerHttp::process_failure(const Object& object) {
   if (object.has_key_value("interval"))
     set_normal_interval(object.get_key_value("interval"));
 
@@ -341,7 +344,34 @@ TrackerHttp::process_success(const Object& object) {
   if (object.has_key_value("downloaded"))
     m_scrape_downloaded =
       std::max<int64_t>(object.get_key_value("downloaded"), 0);
+}
 
+void
+TrackerHttp::process_success(const Object& object) {
+  if (object.has_key_value("interval"))
+    set_normal_interval(object.get_key_value("interval"));
+  else
+    set_normal_interval(default_normal_interval);
+
+  if (object.has_key_value("min interval"))
+    set_min_interval(object.get_key_value("min interval"));
+  else
+    set_normal_interval(default_min_interval);
+
+  if (object.has_key_string("tracker id"))
+    m_tracker_id = object.get_key_string("tracker id");
+
+  if (object.has_key_value("complete") && object.has_key_value("incomplete")) {
+    m_scrape_complete = std::max<int64_t>(object.get_key_value("complete"), 0);
+    m_scrape_incomplete =
+      std::max<int64_t>(object.get_key_value("incomplete"), 0);
+    m_scrape_time_last = cachedTime.seconds();
+  }
+
+  if (object.has_key_value("downloaded"))
+    m_scrape_downloaded =
+      std::max<int64_t>(object.get_key_value("downloaded"), 0);
+  
   AddressList l;
 
   if (!object.has_key("peers") && !object.has_key("peers6"))

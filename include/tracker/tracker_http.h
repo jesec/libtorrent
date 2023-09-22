@@ -35,6 +35,7 @@ private:
   void receive_done();
   void receive_failed(const std::string& msg);
 
+  void process_failure(const Object& object);
   void process_success(const Object& object);
   void process_scrape(const Object& object);
 

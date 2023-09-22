@@ -18,8 +18,8 @@ Tracker::Tracker(TrackerList* parent, std::string url, int flags)
   , m_url(std::move(url))
   ,
 
-  m_normal_interval(1800)
-  , m_min_interval(600)
+  m_normal_interval(0)
+  , m_min_interval(0)
   ,
 
   m_latest_event(EVENT_NONE)
@@ -75,7 +75,7 @@ Tracker::success_time_next() const {
   if (m_success_counter == 0)
     return 0;
 
-  return m_success_time_last + m_normal_interval;
+  return m_success_time_last + std::max(m_normal_interval, (uint32_t)default_min_interval);
 }
 
 uint32_t
@@ -83,8 +83,10 @@ Tracker::failed_time_next() const {
   if (m_failed_counter == 0)
     return 0;
 
-  return m_failed_time_last +
-         (5 << std::min(m_failed_counter - 1, (uint32_t)6));
+  if (m_min_interval > min_min_interval)
+    return m_failed_time_last + m_min_interval;
+
+  return m_failed_time_last + std::min(5 << std::min(m_failed_counter - 1, (uint32_t)6), min_min_interval-1);
 }
 
 std::string

@@ -21,7 +21,7 @@ public:
 TEST_F(tracker_timeout_test, test_set_timeout) {
   TrackerTest tracker(nullptr, "");
 
-  ASSERT_EQ(tracker.normal_interval(), 1800);
+  ASSERT_EQ(tracker.normal_interval(), 0);
 
   tracker.set_new_normal_interval(100);
   ASSERT_EQ(tracker.normal_interval(), 600);
@@ -122,9 +122,9 @@ TEST_F(tracker_timeout_test, test_timeout_requesting) {
   tracker.set_failed(2, torrent::cachedTime.seconds());
   ASSERT_EQ(torrent::tracker_next_timeout(&tracker, flags), 10);
   tracker.set_failed(6 + 1, torrent::cachedTime.seconds());
-  ASSERT_EQ(torrent::tracker_next_timeout(&tracker, flags), 320);
+  ASSERT_EQ(torrent::tracker_next_timeout(&tracker, flags), 299);
   tracker.set_failed(7 + 1, torrent::cachedTime.seconds());
-  ASSERT_EQ(torrent::tracker_next_timeout(&tracker, flags), 320);
+  ASSERT_EQ(torrent::tracker_next_timeout(&tracker, flags), 299);
 
   // std::cout << "timeout:" << torrent::tracker_next_timeout(&tracker, flags)
   // << std::endl;
