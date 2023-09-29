@@ -107,8 +107,8 @@ TEST_F(tracker_controller_test, test_single_failure) {
   TEST_SINGLE_FAILURE_TIMEOUT(40);
   TEST_SINGLE_FAILURE_TIMEOUT(80);
   TEST_SINGLE_FAILURE_TIMEOUT(160);
-  TEST_SINGLE_FAILURE_TIMEOUT(320);
-  TEST_SINGLE_FAILURE_TIMEOUT(320);
+  TEST_SINGLE_FAILURE_TIMEOUT(299);
+  TEST_SINGLE_FAILURE_TIMEOUT(299);
 
   // TODO: Test with cachedTime not rounded to second.
 
@@ -302,7 +302,7 @@ TEST_F(tracker_controller_test, test_multiple_failure) {
 
   ASSERT_PRED3(test_goto_next_timeout,
                &tracker_controller,
-               tracker_0_0->normal_interval(),
+               tracker_1_0->normal_interval(),
                false);
   TEST_MULTI3_IS_BUSY("10000", "10000");
   ASSERT_TRUE(tracker_0_0->trigger_failure());

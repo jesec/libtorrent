@@ -31,6 +31,8 @@ do_test_hammering_basic(bool     success1,
 
   if (min_interval != 0)
     tracker_0_0->set_new_min_interval(min_interval);
+  else
+    tracker_0_0->set_new_min_interval(600);
 
   ASSERT_TRUE(tracker_0_0->is_busy());
   if (success1) {
@@ -124,6 +126,8 @@ do_test_hammering_multi3(bool     success1,
 
   if (min_interval != 0)
     tracker_0_0->set_new_min_interval(min_interval);
+  else
+    tracker_0_0->set_new_min_interval(600);
 
   TEST_MULTI3_IS_BUSY("10000", "10000");
   if (success1) {

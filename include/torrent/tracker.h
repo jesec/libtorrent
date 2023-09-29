@@ -36,6 +36,14 @@ public:
   static constexpr int max_flag_size   = 0x10;
   static constexpr int mask_base_flags = 0x10 - 1;
 
+  static constexpr int min_min_interval = 300;
+  static constexpr int default_min_interval = 600;
+  static constexpr int max_min_interval = 4 * 3600;
+
+  static constexpr int min_normal_interval = 600;
+  static constexpr int default_normal_interval = 1800;
+  static constexpr int max_normal_interval = 8 * 3600;
+
   virtual ~Tracker() = default;
 
   int flags() const {
@@ -175,10 +183,10 @@ protected:
   }
 
   void set_normal_interval(int v) {
-    m_normal_interval = std::min(std::max(600, v), 8 * 3600);
+    m_normal_interval = std::min(std::max(min_normal_interval, v), max_normal_interval);
   }
   void set_min_interval(int v) {
-    m_min_interval = std::min(std::max(300, v), 4 * 3600);
+    m_min_interval = std::min(std::max(min_min_interval, v), max_min_interval);
   }
 
   int m_flags;

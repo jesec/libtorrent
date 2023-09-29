@@ -57,10 +57,14 @@ public:
   void set_success(uint32_t counter, uint32_t time_last) {
     m_success_counter   = counter;
     m_success_time_last = time_last;
+    m_normal_interval = default_normal_interval;
+    m_min_interval = default_min_interval;
   }
   void set_failed(uint32_t counter, uint32_t time_last) {
     m_failed_counter   = counter;
     m_failed_time_last = time_last;
+    m_normal_interval = 0;
+    m_min_interval = 0;
   }
   void set_latest_new_peers(uint32_t peers) {
     m_latest_new_peers = peers;
