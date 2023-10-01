@@ -77,7 +77,7 @@ enum instrumentation_enum {
   INSTRUMENTATION_MAX_SIZE
 };
 
-extern std::atomic<std::array<int64_t, INSTRUMENTATION_MAX_SIZE>>
+extern std::array<std::atomic_int64_t, INSTRUMENTATION_MAX_SIZE>
   instrumentation_values lt_cacheline_aligned;
 
 void
