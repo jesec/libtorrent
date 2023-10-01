@@ -6,12 +6,17 @@
 namespace torrent {
 
 #ifdef LT_INSTRUMENTATION
-std::atomic<std::array<int64_t, INSTRUMENTATION_MAX_SIZE>>
+std::array<std::atomic_int64_t, INSTRUMENTATION_MAX_SIZE>
   instrumentation_values lt_cacheline_aligned;
 
 inline int64_t
 instrumentation_fetch_and_clear(instrumentation_enum type) {
   return instrumentation_values[type] &= int64_t();
+}
+
+inline int64_t
+instrumentation_fetch(instrumentation_enum type) {
+  return instrumentation_values[type];
 }
 
 void
@@ -21,11 +26,11 @@ instrumentation_tick() {
   lt_log_print(
     LOG_INSTRUMENTATION_MEMORY,
     "%" PRIi64 " %" PRIi64 " %" PRIi64 " %" PRIi64 " %" PRIi64,
-    instrumentation_values[INSTRUMENTATION_MEMORY_CHUNK_USAGE],
-    instrumentation_values[INSTRUMENTATION_MEMORY_CHUNK_COUNT],
-    instrumentation_values[INSTRUMENTATION_MEMORY_HASHING_CHUNK_USAGE],
-    instrumentation_values[INSTRUMENTATION_MEMORY_HASHING_CHUNK_COUNT],
-    instrumentation_values[INSTRUMENTATION_MEMORY_BITFIELDS]);
+    instrumentation_fetch(INSTRUMENTATION_MEMORY_CHUNK_USAGE),
+    instrumentation_fetch(INSTRUMENTATION_MEMORY_CHUNK_COUNT),
+    instrumentation_fetch(INSTRUMENTATION_MEMORY_HASHING_CHUNK_USAGE),
+    instrumentation_fetch(INSTRUMENTATION_MEMORY_HASHING_CHUNK_COUNT),
+    instrumentation_fetch(INSTRUMENTATION_MEMORY_BITFIELDS));
 
   lt_log_print(
     LOG_INSTRUMENTATION_MINCORE,
@@ -88,7 +93,7 @@ instrumentation_tick() {
       INSTRUMENTATION_TRANSFER_REQUESTS_QUEUED_MOVED),
     instrumentation_fetch_and_clear(
       INSTRUMENTATION_TRANSFER_REQUESTS_QUEUED_REMOVED),
-    instrumentation_values[INSTRUMENTATION_TRANSFER_REQUESTS_QUEUED_TOTAL],
+    instrumentation_fetch(INSTRUMENTATION_TRANSFER_REQUESTS_QUEUED_TOTAL),
 
     instrumentation_fetch_and_clear(
       INSTRUMENTATION_TRANSFER_REQUESTS_UNORDERED_ADDED),
@@ -96,7 +101,7 @@ instrumentation_tick() {
       INSTRUMENTATION_TRANSFER_REQUESTS_UNORDERED_MOVED),
     instrumentation_fetch_and_clear(
       INSTRUMENTATION_TRANSFER_REQUESTS_UNORDERED_REMOVED),
-    instrumentation_values[INSTRUMENTATION_TRANSFER_REQUESTS_UNORDERED_TOTAL],
+    instrumentation_fetch(INSTRUMENTATION_TRANSFER_REQUESTS_UNORDERED_TOTAL),
 
     instrumentation_fetch_and_clear(
       INSTRUMENTATION_TRANSFER_REQUESTS_STALLED_ADDED),
@@ -104,7 +109,7 @@ instrumentation_tick() {
       INSTRUMENTATION_TRANSFER_REQUESTS_STALLED_MOVED),
     instrumentation_fetch_and_clear(
       INSTRUMENTATION_TRANSFER_REQUESTS_STALLED_REMOVED),
-    instrumentation_values[INSTRUMENTATION_TRANSFER_REQUESTS_STALLED_TOTAL],
+    instrumentation_fetch(INSTRUMENTATION_TRANSFER_REQUESTS_STALLED_TOTAL),
 
     instrumentation_fetch_and_clear(
       INSTRUMENTATION_TRANSFER_REQUESTS_CHOKED_ADDED),
@@ -112,9 +117,9 @@ instrumentation_tick() {
       INSTRUMENTATION_TRANSFER_REQUESTS_CHOKED_MOVED),
     instrumentation_fetch_and_clear(
       INSTRUMENTATION_TRANSFER_REQUESTS_CHOKED_REMOVED),
-    instrumentation_values[INSTRUMENTATION_TRANSFER_REQUESTS_CHOKED_TOTAL],
+    instrumentation_fetch(INSTRUMENTATION_TRANSFER_REQUESTS_CHOKED_TOTAL),
 
-    instrumentation_values[INSTRUMENTATION_TRANSFER_PEER_INFO_UNACCOUNTED]);
+    instrumentation_fetch(INSTRUMENTATION_TRANSFER_PEER_INFO_UNACCOUNTED));
 }
 
 void
