@@ -11,7 +11,8 @@ namespace utils {
 
 class error_number {
 public:
-  error_number() = default;
+  error_number()
+    : m_errno(static_cast<std::errc>(0)) {}
   error_number(std::errc e)
     : m_errno(e) {}
 
